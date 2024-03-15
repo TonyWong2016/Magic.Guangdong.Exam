@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "layui@2.8.11",
+      "destination": "wwwroot/lib/layui/"
+    }
+  ]
+}
