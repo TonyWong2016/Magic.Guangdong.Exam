@@ -6,53 +6,48 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
-using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class ValidateExpression {
 
-        public long Id { get; set; } = YitIdHelper.NextId();
+		[JsonProperty, Column(IsPrimary = true)]
+		public long Id { get; set; }
 
-        [JsonProperty]
-        public int IsDeleted { get; set; } = 0;
+		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		public string ColumnId { get; set; } = "0";
 
-        /// <summary>
-        /// 1-可用
-        /// </summary>
-        [JsonProperty]
-        public int Status { get; set; } = 1;
+		[JsonProperty, Column(InsertValueSql = "getdate()")]
+		public DateTime CreatedAt { get; set; }
 
-        [JsonProperty]
-        public Guid PaperId { get; set; }
+		[JsonProperty, Column(DbType = "varchar(50)")]
+		public string CreatedBy { get; set; } = "";
 
-        [JsonProperty]
-        public Guid ExamId { get; set; }
+		[JsonProperty]
+		public Guid? ExamId { get; set; }
 
-        [JsonProperty, Column(DbType = "varchar(MAX)")]
-        public string Expression { get; set; }
+		[JsonProperty, Column(DbType = "varchar(MAX)")]
+		public string Expression { get; set; }
 
+		[JsonProperty]
+		public int IsDeleted { get; set; } = 0;
 
-        [JsonProperty, Column(InsertValueSql = "getdate()")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+		[JsonProperty]
+		public Guid? PaperId { get; set; }
 
-        [JsonProperty, Column(DbType = "varchar(50)")]
-        public string CreatedBy { get; set; }
+		[JsonProperty, Column(DbType = "varchar(2000)")]
+		public string Remark { get; set; } = "无";
 
-        [JsonProperty, Column(DbType = "varchar(50)")]
-        public string ColumnId { get; set; }
+		[JsonProperty]
+		public int Status { get; set; } = 1;
 
-        [JsonProperty, Column(DbType = "varchar(2000)")]
-        public string Remark { get; set; }
+		[JsonProperty, Column(InsertValueSql = "getdate()")]
+		public DateTime UpdatedAt { get; set; }
 
-        [JsonProperty, Column(InsertValueSql = "getdate()")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+		[JsonProperty, Column(DbType = "varchar(50)")]
+		public string UpdatedBy { get; set; } = "";
 
-        [JsonProperty, Column(DbType = "varchar(50)")]
-        public string UpdatedBy { get; set; }
-
-    }
+	}
 
 }

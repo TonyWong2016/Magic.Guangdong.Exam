@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 
 namespace Magic.Guangdong.Exam.Extensions
 {
@@ -28,23 +29,12 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseResponseCompression();
             app.UseDefaultFiles();
             app.UseResponseCaching();
-            
+            app.MapRazorPages();
+            app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
             // app.UseWebSockets();
-            app.UseEndpoints(endpoints =>
-            {
-                //注意顺序，以此增加
-                //1
-                endpoints.MapControllerRoute(
-                   name: "defaultWithArea",
-                   pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-                //2
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                //3
-                // endpoints.MapHub<Common.MyHub>("/MyHub").RequireCors(t => t.WithOrigins(new string[] { "null" }).SetIsOriginAllowed(t => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials());
 
-            });
             return app;
         }
     }

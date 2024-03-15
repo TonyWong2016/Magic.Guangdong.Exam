@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class UserAnswerRecordView {

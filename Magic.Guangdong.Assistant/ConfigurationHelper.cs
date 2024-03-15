@@ -9,30 +9,16 @@ namespace Magic.Guangdong.Assistant
 {
     public class ConfigurationHelper
     {
-        private static IConfiguration _configuration;
+        // 使用依赖注入容器中的配置服务
+        public static IConfiguration _configuration { get; set; }
 
-#pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
-        static ConfigurationHelper()
-#pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
+        // 在应用启动时（如Startup.cs的ConfigureServices方法）注入配置
+        public static void Initialize(IConfiguration configuration)
         {
-            //在当前目录或者根目录中寻找appsettings.json文件
-            //var fileName = "appsettings.json";
-            ////var evname = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            //var directory = AppContext.BaseDirectory;
-            //directory = directory.Replace("\\", "/");
-
-            //var filePath = $"{directory}/{fileName}";
-            //if (!File.Exists(filePath))
-            //{
-            //    var length = directory.IndexOf("/bin");
-            //    filePath = $"{directory.Substring(0, length)}/{fileName}";
-            //}
-
-            //var builder = ConfigurationBinder..
-            //    .AddJsonFile(filePath, false, true);
-
-            //_configuration = builder.Build();
+            _configuration = configuration;
         }
+
+
 
         public static string GetSectionValue(string key)
         {

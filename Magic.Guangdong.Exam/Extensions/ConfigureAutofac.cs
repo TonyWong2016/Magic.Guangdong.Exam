@@ -27,15 +27,15 @@ namespace Magic.Guangdong.Exam.Extensions
             #endregion
 
             #region 在控制器中使用属性依赖注入，其中注入属性必须标注为public
-            var manager = new ApplicationPartManager();
-            manager.ApplicationParts.Add(new AssemblyPart(Assembly.Load("Magic.Guangdong.Exam")));
-            manager.FeatureProviders.Add(new ControllerFeatureProvider());
-            var feature = new ControllerFeature();
-            manager.PopulateFeature(feature);
-            builder.RegisterTypes(feature.Controllers.Select(ti => ti.AsType()).ToArray()).PropertiesAutowired();
+            //var manager = new ApplicationPartManager();
+            //manager.ApplicationParts.Add(new AssemblyPart(Assembly.Load("Magic.Guangdong.Exam")));
+            //manager.FeatureProviders.Add(new ControllerFeatureProvider());
+            //var feature = new ControllerFeature();
+            //manager.PopulateFeature(feature);
+            //builder.RegisterTypes(feature.Controllers.Select(ti => ti.AsType()).ToArray()).PropertiesAutowired();
 
             //var controllersTypesInAssembly = typeof(Program).Assembly.GetExportedTypes().Where(type => typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(type)).ToArray();
-            // builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
+            //builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
             #endregion
         }
     }

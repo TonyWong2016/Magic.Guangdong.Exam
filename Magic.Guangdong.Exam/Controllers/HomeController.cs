@@ -1,12 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Magic.Guangdong.Exam.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
         public IActionResult Index()
         {
-            return Content("123");
+            return View();
         }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        
     }
 }

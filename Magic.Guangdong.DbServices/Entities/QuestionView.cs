@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class QuestionView {
@@ -41,7 +40,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public int IsOpen { get; set; }
 
 		[JsonProperty]
-		public int Objective { get; set; }
+		public int? Objective { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(150)")]
 		public string Remark { get; set; }
@@ -50,7 +49,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double Score { get; set; }
 
 		[JsonProperty]
-		public int SingleAnswer { get; set; }
+		public int? SingleAnswer { get; set; }
 
 		[JsonProperty]
 		public Guid SubjectId { get; set; }

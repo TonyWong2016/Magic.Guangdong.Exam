@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 using Yitter.IdGenerator;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Magic.Guangdong.Exam.Extensions
 {
@@ -15,11 +16,13 @@ namespace Magic.Guangdong.Exam.Extensions
         private static IConfiguration _configuration;
         public static WebApplicationBuilder SetupServices(this WebApplicationBuilder builder)
         {
+            _configuration = builder.Configuration;
+            ConfigurationHelper.Initialize(_configuration);
             Logger.InitLog();
             builder.Services.ConfigureMvc();
             builder.Services.ConfigureOrm(_configuration);
             builder.Services.ConfigureRedis(_configuration);
-            builder.Services.ConfigurePolicy();
+            builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigurePlug(_configuration);
            
             return builder;
@@ -33,16 +36,17 @@ namespace Magic.Guangdong.Exam.Extensions
         private static void ConfigureMvc(this IServiceCollection services)
         {
             #region mvc,过滤器，拦截器配置
-            services.AddControllersWithViews();
+            //services.AddControllersWithViews();
 
             services.AddMvc(option =>
             {
-                option.Filters.Add(typeof(AuthorizeFilter));
-                //option.Filters.Add(typeof(PermissionActionFilter));
+                option.Filters.Add(typeof(Filters.AuthorizeFilter));
+                ////option.Filters.Add(typeof(PermissionActionFilter));
                 option.Filters.Add(typeof(GlobalExceptionFilter));
                 option.Filters.Add(typeof(GlobalActionFilter));
 
-            }).AddJsonOptions(option => {
+            }).AddJsonOptions(option =>
+            {
                 option.JsonSerializerOptions.Converters.Add(new DatetimeJsonConverter());
             });
             services.AddRazorPages().AddRazorRuntimeCompilation();
@@ -67,13 +71,13 @@ namespace Magic.Guangdong.Exam.Extensions
         private static void ConfigureOrm(this IServiceCollection services,IConfiguration configuration)
         {
             #region orm框架
-            IFreeSql fsql = new FreeSqlBuilder()
-            .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("CysccSystemConnString"))
-            //.UseAutoSyncStructure(true) //自动同步实体结构到数据库，FreeSql不会扫描程序集，只有CRUD时才会生成表。
-            //.UseMonitorCommand(cmd => Console.Write(cmd.CommandText))
-            .Build(); //请务必定义成 Singleton 单例模式
+            //IFreeSql fsql = new FreeSqlBuilder()
+            //.UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+            ////.UseAutoSyncStructure(true) //自动同步实体结构到数据库，FreeSql不会扫描程序集，只有CRUD时才会生成表。
+            ////.UseMonitorCommand(cmd => Console.Write(cmd.CommandText))
+            //.Build(); //请务必定义成 Singleton 单例模式
 
-            services.AddSingleton<IFreeSql>(fsql);
+            //services.AddSingleton<IFreeSql>(fsql);
 
             ib.Register("db_exam", () => new FreeSqlBuilder().UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString")).Build());
 
@@ -131,7 +135,7 @@ namespace Magic.Guangdong.Exam.Extensions
         /// 配置登录策略，跨域等
         /// </summary>
         /// <param name="services"></param>
-        private static void ConfigurePolicy(this IServiceCollection services)
+        private static void ConfigurePolicy(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -153,7 +157,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 //登录用户使用
                 options.AddPolicy("any", builder =>
                 {
-                    builder.WithOrigins(ConfigurationHelper.GetSectionValue("corsHosts").Split(","))
+                    builder.WithOrigins(configuration.GetSection("corsHosts").Value.Split(","))
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();

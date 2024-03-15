@@ -78,9 +78,9 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string TypeName { get; set; }
 
-        public int IsObjective { get; set; }
+        public int? IsObjective { get; set; }
 
-        public int SingleAnswer { get; set; }
+        public int? SingleAnswer { get; set; }
 
         public double ItemScore { get; set; }
 
@@ -111,7 +111,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string DescriptionTxt { get; set; }
 
-        public int OrderIndex { get; set; }
+        public int? OrderIndex { get; set; }
     }
 
     /// <summary>

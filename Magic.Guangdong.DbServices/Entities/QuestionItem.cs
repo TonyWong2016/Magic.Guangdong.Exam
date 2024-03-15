@@ -6,21 +6,19 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
-using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class QuestionItem {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public long Id { get; set; } = YitIdHelper.NextId();
+		public long Id { get; set; }
 
-        /// <summary>
-        /// 分析
-        /// </summary>
-        [JsonProperty, Column(DbType = "varchar(500)")]
+		/// <summary>
+		/// 分析
+		/// </summary>
+		[JsonProperty, Column(DbType = "varchar(500)")]
 		public string Analysis { get; set; } = "";
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
@@ -60,7 +58,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 顺序
 		/// </summary>
 		[JsonProperty]
-		public int OrderIndex { get; set; } = 0;
+		public int? OrderIndex { get; set; } = 0;
 
 		[JsonProperty]
 		public long QuestionId { get; set; } = 0;

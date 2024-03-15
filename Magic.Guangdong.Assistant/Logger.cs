@@ -1,10 +1,6 @@
-﻿using CSRedis;
-using Serilog;
+﻿using Serilog;
 using Serilog.Filters;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using Serilog.Events;
 
 namespace Magic.Guangdong.Assistant
 {
@@ -29,13 +25,20 @@ namespace Magic.Guangdong.Assistant
             string LogFilePath(string FileName) => $@"{AppContext.BaseDirectory}ALL_Logs\{FileName}\log.log";
             string SerilogOutputTemplate = "{NewLine}Date：{Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}LogLevel：{Level}{NewLine}Message：{Message}{NewLine}{Exception}" + new string('-', 100);
             Log.Logger = new LoggerConfiguration()
-                        .Enrich.FromLogContext()
-                        .MinimumLevel.Debug() // 所有Sink的最小记录级别
+#if DEBUG
+            .MinimumLevel.Debug()
+#else
+            .MinimumLevel.Information()
+#endif
+                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                         .Enrich.FromLogContext()
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log1Name)).WriteTo.Async(a => a.File(LogFilePath(log1Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log2Name)).WriteTo.Async(a => a.File(LogFilePath(log2Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log3Name)).WriteTo.Async(a => a.File(LogFilePath(log3Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log4Name)).WriteTo.Async(a => a.File(LogFilePath(log4Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log5Name)).WriteTo.Async(a => a.File(LogFilePath(log5Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
+                        //.WriteTo.Async(a => a.Console())
                         .CreateLogger();
         }
 
@@ -65,6 +68,7 @@ namespace Magic.Guangdong.Assistant
                 //输入其他的话，还是存放到第一个文件夹
                 Log.Information($"{{position}}:{msg}", log1Name);
             }
+            Console.WriteLine(msg);
             //Task.Run(() => writeLogToRedis(msg, "info"));
         }
         /// <summary>
@@ -73,7 +77,8 @@ namespace Magic.Guangdong.Assistant
         /// <param name="msg"></param>
         public static void Debug(string msg)
         {
-            Log.Debug($"{{position}}:{msg}", log4Name);            
+            Log.Debug($"{{position}}:{msg}", log4Name);
+            Console.WriteLine(msg);
             //Task.Run(() => writeLogToRedis(msg, "debug"));
         }
         /// <summary>
@@ -91,6 +96,7 @@ namespace Magic.Guangdong.Assistant
         public static void Warning(string msg)
         {
             Log.Warning($"{{position}}:{msg}", log5Name);
+            Console.WriteLine(msg);
             //Task.Run(() => writeLogToRedis(msg, "warning"));
         }
         /// <summary>
@@ -100,12 +106,14 @@ namespace Magic.Guangdong.Assistant
         public static void Error(Exception ex)
         {
             Log.Error(ex, "{position}:" + ex.Message, log3Name);
+            Console.WriteLine(ex.Message);
             //Task.Run(() => writeLogToRedis(ex.Message, "error"));
         }
 
         public static void Error(string msg)
         {
             Log.Error("{position}:" + msg, log3Name);
+            Console.WriteLine(msg);
             //Task.Run(() => writeLogToRedis(msg, "error"));
         }
 
@@ -118,6 +126,7 @@ namespace Magic.Guangdong.Assistant
         public static async Task writeLogToRedis(string msg, string logLevel,string system="spaceOA")
         {
             string ret = $"{system} {logLevel} {msg}";
+            Console.WriteLine(msg);
             await RedisHelper.LPushAsync(ConfigurationHelper.GetSectionValue("redislogkey"), ret);
         }
     }

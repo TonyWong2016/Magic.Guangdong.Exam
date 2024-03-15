@@ -6,16 +6,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
-using MassTransit;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class QuestionType {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public Guid Id { get; set; } = NewId.NextGuid();
+		public Guid Id { get; set; } = Guid.NewGuid();
 
 		[JsonProperty, Column(DbType = "varchar(100)")]
 		public string Caption { get; set; }
