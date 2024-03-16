@@ -39,7 +39,7 @@ namespace Magic.Guangdong.Exam.Filters
                 Logger.Info(actionLog);
                 return;
             }
-            if (descriptor.MethodInfo.CustomAttributes.Count(u => u.AttributeType.Name == "Doorman") == 1 && (bool)(descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name == "Doorman").FirstOrDefault().ConstructorArguments.First().Value))
+            if (descriptor.MethodInfo.CustomAttributes.Count(u => u.AttributeType.Name == "RouteMark") == 1 && (bool)(descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name == "RouteMark").FirstOrDefault().ConstructorArguments.First().Value))
             {
                 string requestMethod = context.HttpContext.Request.Method.ToLower();
                 int userId = Convert.ToInt32(context.HttpContext.User.Claims.First().Value);

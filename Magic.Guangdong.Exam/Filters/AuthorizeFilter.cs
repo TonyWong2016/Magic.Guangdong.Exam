@@ -32,11 +32,11 @@ namespace Magic.Guangdong.Exam.Filters
                     //item.Content = "您无权访问当前地址或执行该操作，可能是登录超时造成的，请尝试重新登陆";
                     //item.StatusCode = 200;                    
                     //context.Result = item;
-                    if (controller != "face" && controller != "trtc")
-                    {
-                        var item2 = new RedirectToActionResult("Login", "Admin", new { msg = "timeout" });
-                        context.Result = item2;
-                    }
+                    //if (controller != "face" && controller != "trtc")
+                    //{
+                    //    var item2 = new RedirectToActionResult("Login", "Admin", new { msg = "timeout" });
+                    //    context.Result = item2;
+                    //}
 
                 }
                 else

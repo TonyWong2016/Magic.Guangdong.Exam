@@ -1,5 +1,7 @@
 using Autofac;
 using Magic.Guangdong.Exam.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 
 
@@ -12,5 +14,5 @@ ContainerBuilder containerBuilder = new ContainerBuilder();
 //}
 containerBuilder.RegisterModule<ConfigureAutofac>();
 var app = builder.Build().SetupMiddlewares();
-
 app.Run();
+

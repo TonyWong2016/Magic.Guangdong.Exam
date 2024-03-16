@@ -31,8 +31,15 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseResponseCaching();
             app.MapRazorPages();
             app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+               name: "area",
+               pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+            );
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}"
+             );
+
+            
             // app.UseWebSockets();
 
             return app;

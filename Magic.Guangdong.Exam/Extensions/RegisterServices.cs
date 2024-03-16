@@ -24,7 +24,7 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigurePlug(_configuration);
-           
+           // builder.Services.BuildServiceProvider();
             return builder;
         }
 
