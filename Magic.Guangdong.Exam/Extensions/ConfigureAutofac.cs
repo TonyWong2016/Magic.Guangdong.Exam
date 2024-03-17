@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -21,8 +22,10 @@ namespace Magic.Guangdong.Exam.Extensions
             #endregion
 
             #region 注册模型类
-            var assemblySystemModels = Assembly.Load("Magic.Guangdong.DbServices");
-            builder.RegisterAssemblyTypes(assemblySystemModels).Where(u => u.Name.EndsWith("Respo") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base")).AsImplementedInterfaces();
+            var assemblyDbServices = Assembly.Load("Magic.Guangdong.DbServices");
+            builder.RegisterAssemblyTypes(assemblyDbServices)
+                .Where(u => u.Name.EndsWith("Respo") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
+                .AsImplementedInterfaces();
 
             #endregion
 
@@ -37,6 +40,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //var controllersTypesInAssembly = typeof(Program).Assembly.GetExportedTypes().Where(type => typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(type)).ToArray();
             //builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
             #endregion
+
         }
     }
 }

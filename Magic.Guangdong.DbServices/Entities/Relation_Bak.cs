@@ -10,7 +10,7 @@ using FreeSql.DataAnnotations;
 namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class Relation_Bak {
+	internal partial class Relation_Bak {
 
 		[JsonProperty]
 		public DateTime CreatedAt { get; set; }

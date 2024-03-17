@@ -1,4 +1,5 @@
-﻿using FreeSql.DatabaseModel;using System;
+﻿using FreeSql.DatabaseModel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Entities {
 
@@ -13,7 +15,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 	public partial class QuestionTag {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public long Id { get; set; }
+		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }

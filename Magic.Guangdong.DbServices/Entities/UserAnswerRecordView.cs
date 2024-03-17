@@ -1,15 +1,10 @@
-﻿using FreeSql.DatabaseModel;using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using FreeSql.DataAnnotations;
 using Newtonsoft.Json;
-using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities {
+namespace Magic.Guangdong.DbServices.Entities
+{
 
-	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
+    [JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class UserAnswerRecordView {
 
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]

@@ -1,4 +1,5 @@
-﻿using FreeSql.DatabaseModel;using System;
+﻿using FreeSql.DatabaseModel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
+using MassTransit;
 
 namespace Magic.Guangdong.DbServices.Entities {
 
@@ -13,7 +15,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 	public partial class QuestionType {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public Guid Id { get; set; } = NewId.NextGuid();
 
 		[JsonProperty, Column(DbType = "varchar(100)")]
 		public string Caption { get; set; }

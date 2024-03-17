@@ -22,4 +22,9 @@
     <ProjectReference Include="..\Magic.Guangdong.DbServices\Magic.Guangdong.DbServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\System\Views\" />
+    <Folder Include="Areas\System\Models\" />
+  </ItemGroup>
+
 </Project>
