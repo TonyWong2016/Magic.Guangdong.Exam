@@ -23,8 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\System\Views\" />
     <Folder Include="Areas\System\Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\web\base.js" />
   </ItemGroup>
 
 </Project>

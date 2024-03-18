@@ -29,5 +29,10 @@ namespace Magic.Guangdong.Assistant
         {
             return _configuration.GetSection(key).GetChildren().Select(u => u.Value).ToArray();
         }
+
+        public static IConfigurationSection[] GetSections(string key)
+        {
+            return _configuration.GetSection(key).GetChildren().ToArray();
+        }
     }
 }

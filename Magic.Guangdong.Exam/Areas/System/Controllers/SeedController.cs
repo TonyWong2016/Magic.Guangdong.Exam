@@ -22,13 +22,13 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return View();
         }
 
-        public async Task<IActionResult> InitMenuData()
+        public async Task<IActionResult> InitTopMenuData()
         {
-            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0))
+            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId==0))
             {
                 return Json(_resp.success("success", "无需插入"));
             }
-            var list = new List<DbServices.Entities.Menu>() {
+            var topMenu = new List<DbServices.Entities.Menu>() {
                 new DbServices.Entities.Menu()
                 {
                     Name="考试管理",
@@ -75,7 +75,40 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                     Description ="系统管理有关操作"
                 },
             };
-            await _menuRepo.addItemsBulkAsync(list);
+            await _menuRepo.addItemsBulkAsync(topMenu);
+            return Json(_resp.success("success", "种子数据插入完成"));
+        }
+
+        public async Task<IActionResult> InitSubMenuData()
+        {
+            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId!=0))
+            {
+                return Json(_resp.success("success", "无需插入"));
+            }
+            var tops = await _menuRepo.getListAsync(u => u.ParentId == 0);
+            var subMenus = new List<DbServices.Entities.Menu>();
+           
+            foreach (var item in tops)
+            {
+                int cnt = 0;
+                while (cnt <3)
+                {
+                    string name = $"{item.Name}-子菜单{cnt + 1}";
+                    subMenus.Add(new DbServices.Entities.Menu()
+                    {
+                        Name = name,
+                        Router = "",
+                        ParentId = item.Id,
+                        Depth = item.Depth + 1,
+                        IsLeef = 0,
+                        Description = $"{name}有关操作"
+                    });
+                    cnt++;
+                }
+                
+            }
+            
+            await _menuRepo.addItemsBulkAsync(subMenus);
             return Json(_resp.success("success", "种子数据插入完成"));
         }
     }

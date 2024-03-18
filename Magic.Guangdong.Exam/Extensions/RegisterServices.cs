@@ -1,13 +1,10 @@
-﻿using Autofac;
+﻿using FreeSql;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Exam.Filters;
-using FreeSql;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 using Yitter.IdGenerator;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Magic.Guangdong.Exam.Extensions
 {
@@ -25,7 +22,7 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigurePlug(_configuration);
             // builder.Services.BuildServiceProvider();
-
+            
             return builder;
         }
 
@@ -206,6 +203,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 x.FailedRetryCount = 5;
 
             });
+
         }
 
         

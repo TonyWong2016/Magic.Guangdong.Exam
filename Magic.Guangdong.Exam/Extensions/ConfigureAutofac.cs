@@ -40,7 +40,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //var controllersTypesInAssembly = typeof(Program).Assembly.GetExportedTypes().Where(type => typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(type)).ToArray();
             //builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
             #endregion
-
+            
         }
     }
 }

@@ -5,6 +5,11 @@
     {
       "library": "layui@2.8.11",
       "destination": "wwwroot/lib/layui/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "axios@1.6.8",
+      "destination": "wwwroot/lib/axios/"
     }
   ]
 }
