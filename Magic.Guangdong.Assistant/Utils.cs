@@ -103,6 +103,10 @@ namespace Magic.Guangdong.Assistant
             {
                 allNumWord = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
             }
+            else if (type == 3)
+            {
+                allNumWord = "0123456789abcdefghijklmnopqrstuvwxyz";
+            }
             var result = new StringBuilder();
             for (int i = 0; i < length; i++)
             {

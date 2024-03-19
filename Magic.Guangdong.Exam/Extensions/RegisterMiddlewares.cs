@@ -17,7 +17,7 @@ namespace Magic.Guangdong.Exam.Extensions
             }
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseSession();
+            //app.UseSession();
             //大多数中间件都是在UseRouting之后引用，注意顺序
 
             app.UseAuthentication();

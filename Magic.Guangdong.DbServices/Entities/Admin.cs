@@ -1,4 +1,5 @@
 ﻿using FreeSql.DataAnnotations;
+using FreeSql.Internal;
 using MassTransit;
 using Newtonsoft.Json;
 
@@ -11,7 +12,16 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(IsPrimary = true)]
 		public Guid Id { get; set; } = NewId.NextGuid();
 
-		[JsonProperty, Column(InsertValueSql = "getdate()")]
+		[JsonProperty]
+		public string Password { get; set; }
+
+		[JsonProperty]
+		public string KeySecret { get; set; } = Assistant.Utils.GenerateRandomCodePro(32, 3);
+
+        [JsonProperty]
+        public string KeyId { get; set; } = Assistant.Utils.GenerateRandomCodePro(32, 3);
+
+        [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(150)", IsNullable = false)]

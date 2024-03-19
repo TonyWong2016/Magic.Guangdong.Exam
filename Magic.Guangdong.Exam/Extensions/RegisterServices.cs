@@ -135,14 +135,15 @@ namespace Magic.Guangdong.Exam.Extensions
         /// <param name="services"></param>
         private static void ConfigurePolicy(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-                {
-                    options.LoginPath = "/admin/login";
-                    options.Cookie.HttpOnly = true;
-                    options.ExpireTimeSpan = TimeSpan.FromHours(2);
-                })
-                ;
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            //    {
+            //        options.LoginPath = "/system/admin/login";
+            //        options.Cookie.HttpOnly = true;
+            //        options.Cookie.SameSite = SameSiteMode.Lax;
+            //        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+            //    })
+            //    ;
 
             services.AddCors(options =>
             {
@@ -162,18 +163,19 @@ namespace Magic.Guangdong.Exam.Extensions
                 });
             });
 
-            services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromHours(2);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-            });
-            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "DataProtection"));
-            //这里以后要增加日志拦截器和权限拦截器
-            services.AddAntiforgery(options =>
-            {
-                options.HeaderName = "X-CSRF-TOKEN";
-            });
+            //services.AddSession(options =>
+            //{
+            //    options.IdleTimeout = TimeSpan.FromHours(2);
+            //    options.Cookie.HttpOnly = true;
+            //    options.Cookie.IsEssential = true;
+            //});
+            //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "DataProtection"));
+            
+            ////这里以后要增加日志拦截器和权限拦截器
+            //services.AddAntiforgery(options =>
+            //{
+            //    options.HeaderName = "X-CSRF-TOKEN";
+            //});
         }
 
         private static void ConfigurePlug(this IServiceCollection services, IConfiguration configuration)

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="image/x-icon" rel="shortcut icon" href="/images/guangdong_logo-32.ico" />
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
-    <script src="~/lib/jquery/dist/jquery.min.js" ></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
     </script>
@@ -17,7 +17,7 @@
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header layui-bg-blue">
             <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
-                考试系统
+                广东教协
             </div>
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
@@ -25,8 +25,8 @@
                 <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                     <i class="layui-icon layui-icon-spread-left"></i>
                 </li>
-                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">nav 1</a></li>
-                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">nav 2</a></li>
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中',{icon:0})">使用说明</a></li>
+                @* <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">nav 2</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;">nav 3</a></li>
                 <li class="layui-nav-item">
                     <a href="javascript:;">nav groups</a>
@@ -35,7 +35,7 @@
                         <dd><a href="javascript:;">menu 22</a></dd>
                         <dd><a href="javascript:;">menu 33</a></dd>
                     </dl>
-                </li>
+                </li> *@
             </ul>
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
@@ -58,41 +58,7 @@
         </div>
         <div class="layui-side layui-bg-blue">
             <div class="layui-side-scroll">
-                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-                @* <ul class="layui-nav layui-nav-tree layui-bg-blue" lay-filter="test">
-                    <li class="layui-nav-item layui-nav-itemed">
-                        <a class="" href="javascript:;">menu group 1</a>
-                        <dl class="layui-nav-child">
-                            <dd><a href="javascript:;">menu 1</a></dd>
-                            <dd><a href="javascript:;">menu 2</a></dd>
-                            <dd><a href="javascript:;">menu 3</a></dd>
-                            <dd><a href="javascript:;">the links</a></dd>
-                        </dl>
-                    </li>
-                    <li class="layui-nav-item">
-                        <a href="javascript:;">menu group 2</a>
-                        <dl class="layui-nav-child">
-                            <dd><a href="javascript:;">list 1</a></dd>
-                            <dd><a href="javascript:;">list 2</a></dd>
-                            <dd><a href="javascript:;">list 3</a></dd>
-                           
-                            <dl class="layui-nav-item">
-                                <a class="" href="javascript:;">menu group 3</a>
-                                <dl class="layui-nav-child">
-                                    <dd><a href="javascript:;">menu 1</a></dd>
-                                    <dd><a href="javascript:;">menu 2</a></dd>
-                                    <dd><a href="javascript:;">menu 3</a></dd>
-                                    <dd><a href="javascript:;">the links</a></dd>
-                                </dl>
-                            </dl>
-                        </dl>
-                    </li>
-                    <li class="layui-nav-item"><a href="javascript:;">click menu item</a></li>
-                    <li class="layui-nav-item"><a href="javascript:;">the links</a></li>
-                </ul> *@
-
                 <ul class="layui-nav layui-nav-tree layui-bg-blue" lay-filter="sideNav" id="sideNav">
-
                 </ul>
             </div>
         </div>
@@ -107,7 +73,7 @@
         </div>
     </div>
 
-   
+
     @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
     @* <script src="~/js/site.js" asp-append-version="true"></script> *@
     <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
@@ -115,7 +81,7 @@
     <script src="~/web/base.js"></script>
     <script src="~/web/requestapi.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
-    
+
 
     <script type="text/html" id="navTopSideMenuTpl">
         {{# layui.each(d,function(index,item){ }}
@@ -140,29 +106,35 @@
         var element = layui.element;
         element.render('nav', 'sideNav');
         async function fetchTopMenus() {
-           try {
-               const result = await request('GET', '/system/menu/getmenus', {menuId:0});
+            try {
+                const result = await request('GET', '/system/menu/getmenus', { menuId: 0 });
                 //console.log(result)
-               renderTpl('navTopSideMenuTpl', 'sideNav', result.data, false)
-                   .then(async () => {
-                        await fetchSubMenus(JSON.stringify(result.data[0]))
-                   })
-               
-           } catch (error) {
-               console.error('Error fetching data:', error);
-           }
+                renderTpl('navTopSideMenuTpl', 'sideNav', result.data, false)
+                    .then((ret) => {
+                        if (ret) {
+                            setTimeout(() => {
+                                fetchSubMenus(JSON.stringify(result.data[0]));
+                            }, 100)
+                        }
+                        else
+                            layer.msg("菜单加载失败", { icon: 2 });
+                    })
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         }
 
-        async function fetchSubMenus(itemStr){
+        async function fetchSubMenus(itemStr) {
             let item = JSON.parse(itemStr)
             if (navs.length > 0 && navs.filter(u => u.menuId == item.id).length == 1 || item.sLeef == 1) {
                 return;
             }
-            
+
             try {
                 navs.push({ menuId: item.id.toString(), status: true });
                 const result = await request('GET', '/system/menu/getmenus', { menuId: item.id });
-                //console.log(result)
+
                 renderTpl('navSideChildMenuTpl', item.id + '_subSideNav_' + item.depth, result.data, false);
                 element.render('nav', 'sideNav');
             } catch (error) {
@@ -170,18 +142,7 @@
             }
         }
 
-
-
-                executeFunctions([fetchTopMenus])
-            .then(results => {
-                results.forEach(res => {
-                    if (res.status === 'success') {
-                        console.log('Success:', res.data);
-                    } else {
-                        console.error('Error:', res.error);
-                    }
-                });
-            });
+        fetchTopMenus();
     </script>
 </body>
 </html>

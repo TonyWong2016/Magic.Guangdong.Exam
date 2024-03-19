@@ -22,6 +22,10 @@ namespace Magic.Guangdong.DbServices.Dto.Menus
 
         public string Router { get; set; }
 
+        public Guid CreatorId { get; set; }
+
+        public int Status { get; set; }
+
         public int IsLeef { get; set; }
     }
 }

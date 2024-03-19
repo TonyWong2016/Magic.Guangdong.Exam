@@ -9,15 +9,15 @@ namespace Magic.Guangdong.Exam.Extensions
 {
     public class RouteMark : Attribute
     {
-        public string Permission { get; set; }
-        public string Module { get; set; }
+        public string Permission { get; set; } = "any";
+        public string Module { get; set; } = "";
 
         public RouteMark()
         {
 
         }
 
-        public RouteMark(string permission, string module)
+        public RouteMark(string module, string permission)
         {
             Permission = permission;
             Module = module;

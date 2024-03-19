@@ -31,7 +31,7 @@ namespace Magic.Guangdong.Exam.Controllers
         public IActionResult GetMarkedRoutes()
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var types = assembly.GetTypes().Where(u => u.Namespace == "Magic.Guangdong.Exam.Controllers" && u.Name.EndsWith("Controller"));
+            var types = assembly.GetTypes().Where(u=>u.Namespace!=null).Where(u => u.Namespace.StartsWith("Magic.Guangdong.Exam.") && u.Name.EndsWith("Controller"));
             foreach (var type in types)
             {
                 foreach (var methodInfo in type.GetMethods())
@@ -42,11 +42,12 @@ namespace Magic.Guangdong.Exam.Controllers
                         {
                             Console.WriteLine(type.Name);
                             Console.WriteLine(methodInfo.Name);
+                            Console.WriteLine(routeMark.Module);
                         }
                     }
                 }
             }
-            return View();
+            return Content("123");
         }
         
     }

@@ -3,9 +3,12 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto.Menus;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Mapster;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
@@ -37,6 +40,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <returns></returns>
         [HttpGet]
         [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "menuId" } )]
+        [RouteMark("获取菜单")]
         public async Task<IActionResult> GetMenus(long? menuId)
         {
             //var list = await _menuRepo.getListAsync(u => u.IsDeleted == 0);
@@ -47,5 +51,36 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             }
             return Json(_resp.success((await _menuRepo.getListAsync(u => u.ParentId == (long)menuId)).Adapt<List<MenuDto>>()));
         }
+
+        [RouteMark("创建菜单")]
+        public IActionResult Create()
+        {
+            ViewData["title"] = "创建栏目";
+            return View();
+        }
+
+        [ResponseCache(Duration = 600)]
+        public IActionResult GetMarkedRoutes()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes().Where(u => u.Namespace != null).Where(u => u.Namespace.StartsWith("Magic.Guangdong.Exam.") && u.Name.EndsWith("Controller"));
+            foreach (var type in types)
+            {
+                foreach (var methodInfo in type.GetMethods())
+                {
+                    foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
+                    {
+                        if (attribute is RouteMark routeMark)
+                        {
+                            Console.WriteLine(type.Name);
+                            Console.WriteLine(methodInfo.Name);
+                            Console.WriteLine(routeMark.Module);
+                        }
+                    }
+                }
+            }
+            return Content("123");
+        }
+
     }
 }

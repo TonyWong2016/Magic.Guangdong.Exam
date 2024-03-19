@@ -1,6 +1,11 @@
-﻿using Magic.Guangdong.Assistant.IService;
+﻿using FreeSql.Internal;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
@@ -8,12 +13,22 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
     public class SeedController : Controller
     {
         private IMenuRepo _menuRepo;
+        private IAdminRepo _adminrepo;
+        private IAdminRoleRepo _adminRoleRepo;
+        private IPermissionRepo _permissionRepo;
+        private IRoleRepo _roleRepo;
+        private IRolePermissionRepo _rolePermissionRepo;
         private IResponseHelper _resp;
-        public SeedController(IResponseHelper responseHelper, IMenuRepo menuRepo)
+        public SeedController(IResponseHelper responseHelper, IMenuRepo menuRepo, IAdminRepo adminRepo, IAdminRoleRepo adminRoleRepo, IPermissionRepo permissionRepo,IRolePermissionRepo rolePermissionRepo,IRoleRepo roleRepo)
         {
             // _menuRepo = menuRepo;
             _resp = responseHelper;
             _menuRepo = menuRepo;
+            _adminrepo = adminRepo;
+            _permissionRepo = permissionRepo;
+            _roleRepo = roleRepo;
+            _adminRoleRepo = adminRoleRepo;
+            _rolePermissionRepo = rolePermissionRepo;
         }
         public IActionResult Index()
         {
@@ -22,6 +37,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 初始化顶级菜单
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> InitTopMenuData()
         {
             if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId==0))
@@ -79,6 +98,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success("success", "种子数据插入完成"));
         }
 
+        /// <summary>
+        /// 初始化二级菜单
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> InitSubMenuData()
         {
             if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId!=0))
@@ -111,5 +134,58 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             await _menuRepo.addItemsBulkAsync(subMenus);
             return Json(_resp.success("success", "种子数据插入完成"));
         }
+
+        /// <summary>
+        /// 初始化管理员
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> InitAdminData()
+        {
+            if(await _adminrepo.getAnyAsync(u=>u.IsDeleted==0))
+            {
+                return Json(_resp.success("success", "无需插入"));
+            }
+            long roleId = 0;
+            var topRole = await _roleRepo.getOneAsync(u => u.Type == 1);
+
+            if (topRole == null)
+            {
+                roleId = YitIdHelper.NextId();
+                await _roleRepo.addItemAsync(new DbServices.Entities.Role()
+                {
+                    Id = roleId,
+                    Name = "系统管理角色",
+                    Description = "初始化管理角色，系统顶级权限",
+                    Type = 1
+                });
+            }
+            else
+                roleId = topRole.Id;
+            Guid adminId = NewId.NextGuid();
+            string keySecret = Assistant.Utils.GenerateRandomCodePro(16);
+            string keyId = Assistant.Utils.GenerateRandomCodePro(16);
+            string password = Security.Encrypt("123456", Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
+            await _adminrepo.addItemAsync(new DbServices.Entities.Admin()
+            {
+                Id = adminId,
+                Name = "sa",
+                Email = "wtlemon@126.com",
+                Mobile = "18888888888",
+                Description = "系统管理员",
+                KeyId = keyId,
+                KeySecret = keySecret,
+                Password = password,
+            });
+            await _adminRoleRepo.addItemAsync(new DbServices.Entities.AdminRole()
+            {
+                AdminId = adminId,
+                RoleId = roleId,
+            });
+
+            return Json(_resp.success("success", "种子数据插入完成"));
+
+        }
+
+        
     }
 }

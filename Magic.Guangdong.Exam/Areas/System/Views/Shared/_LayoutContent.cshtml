@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>广东教育协会考试管理系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="image/x-icon" rel="shortcut icon" href="/images/guangdong_logo-32.ico" />
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
+    <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
+    <script src="~/web/base.js"></script>
+    <script src="~/web/requestapi.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    
+    <script>
+        let requestToken = $('@Html.AntiForgeryToken()').val();
+    </script>
+</head>
+<body>
+    <div class="layui-layout layui-layout-admin">
+        
+        <div class="layui-body">
+            <div style="padding:15px">
+                <span style="margin-bottom:10px" class="layui-breadcrumb" lay-filter="breadcrumb" id="breadcrumb"></span>
+                <hr />
+                <!-- 内容主体区域 -->
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        setBreadCrumb()
+    </script>
+</body>
+</html>

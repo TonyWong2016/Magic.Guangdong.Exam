@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.Menu
+
+<div class="layui-card layui-panel">
+    <div class="layui-card-header" style="color:#16baaa;font-size:large">
+        @ViewData["title"]
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 标题</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Name" placeholder="请输入菜单标题" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" asp-for="Description" placeholder="请简要描述栏目功能"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 父级菜单</label>
+                <div class="layui-input-block">
+                    <div id="menuView">
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item childtype">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-filter="Status" id="Status" name="Status" lay-text="可用|禁用" lay-skin="switch">
+                    <blockquote class="layui-elem-quote" style="margin-top:10px">禁用状态的菜单是不可见的</blockquote>
+                </div>
+            </div>
+
+            <div class="layui-form-item childtype">
+                <label class="layui-form-label">叶子节点</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-filter="IsLeaf" id="IsLeef" name="IsLeef" lay-text="是|否" lay-skin="switch">
+                    <blockquote class="layui-elem-quote" style="margin-top:10px">叶子节点才可以绑定路由访问路径</blockquote>
+                </div>
+            </div>
+            
+            <div id="divProp" class="leafAttrs">
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script src="~/plugins/xm-select.js"></script>
+
+<script >
+    let depth = 0;
+    let menus;
+    axios.get('/system/menu/getmenus')
+        .then(data => {
+            let json = data.data;
+            //console.log(json);
+            let menuArr = listToTree(json.data);
+            menus = xmSelect.render({
+                el: "#menuView",
+                filterable: true,
+                direction: 'down',
+                prop: {
+                    name: 'name',
+                    value: 'id'
+                }, 
+                radio: true,
+                clickClose: true,
+                toolbar: {
+                    show: false,
+                },
+                tree: {
+                    show: true,
+                    showFolderIcon: true,
+                    strict: false,
+                }, 
+                data: menuArr,
+                on: function (data) {
+                    console.log(data);
+                    
+                    if (data.isAdd) {
+                        depth = data.arr[0].depth;
+                    }
+
+                }
+            })
+        });
+
+    axios.get('/home/GetMarkedRoutes')
+</script>

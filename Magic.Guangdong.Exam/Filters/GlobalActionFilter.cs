@@ -39,10 +39,12 @@ namespace Magic.Guangdong.Exam.Filters
                 Logger.Info(actionLog);
                 return;
             }
-            if (descriptor.MethodInfo.CustomAttributes.Count(u => u.AttributeType.Name == "RouteMark") == 1 && (bool)(descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name == "RouteMark").FirstOrDefault().ConstructorArguments.First().Value))
+            //if (descriptor.MethodInfo.CustomAttributes.Count(u => u.AttributeType.Name == "RouteMark") == 1 && (bool)(descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name == "RouteMark").FirstOrDefault().ConstructorArguments.First().Value))
+            if (descriptor.MethodInfo.CustomAttributes.Any(u => u.AttributeType.Name == "RouteMark"))
             {
                 string requestMethod = context.HttpContext.Request.Method.ToLower();
-                int userId = Convert.ToInt32(context.HttpContext.User.Claims.First().Value);
+                //int userId = Convert.ToInt32(context.HttpContext.User.Claims.First().Value);
+                string userId = "admin";
                 actionLog = $"用户【{userId}】，于{DateTime.Now} 开始调用 【{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
                 //注意在授权的时候，要把关键的数据库写操作的方法设定成“post”,"put"等类型，不要设定成“get”！！
                 if (!mayI(controller, action, userId, requestMethod))
@@ -171,7 +173,7 @@ namespace Magic.Guangdong.Exam.Filters
         /// <param name="userId"></param>
         /// <param name="requestMethod"></param>
         /// <returns></returns>
-        public bool mayI(string controller, string action, int userId, string requestMethod)
+        public bool mayI(string controller, string action, string userId, string requestMethod)
         {
            //根据路径检查是否具备访问权限
             return true;
