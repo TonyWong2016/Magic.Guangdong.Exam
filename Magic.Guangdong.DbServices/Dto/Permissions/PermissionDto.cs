@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Dto.Permissions
 {
     public class PermissionDto
     {
-        public long Id { get; set; }
+        public long Id { get; set; } = YitIdHelper.NextId();
         public string Controller { get; set; }
 
         public string Action { get; set; }

@@ -97,3 +97,31 @@ function listToTree(items) {
 
     return roots;
 }
+
+function objectToFormData(obj, form, namespace) {
+    const fd = form || new FormData();
+    const formKey = namespace ? `${namespace}[${encodeURIComponent(String(obj))}]` : encodeURIComponent(String(obj));
+
+    for (const property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            const value = obj[property];
+            const key = namespace ? `${formKey}[${encodeURIComponent(property)}]` : encodeURIComponent(property);
+
+            if (value instanceof File) {
+                fd.append(key, value);
+            } else if (value instanceof Blob) {
+                fd.append(key, value, value.name);
+            } else if (Array.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    objectToFormData(value[i], fd, `${key}[${i}]`);
+                }
+            } else if (value && typeof value === 'object' && !(value instanceof Date)) {
+                objectToFormData(value, fd, key);
+            } else {
+                fd.append(key, String(value));
+            }
+        }
+    }
+
+    return fd;
+}

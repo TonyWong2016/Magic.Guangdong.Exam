@@ -22,6 +22,8 @@ namespace Magic.Guangdong.Assistant.IService
 
         dynamic success(dynamic data, string msg = "success");
 
+        dynamic error(string msg,dynamic? data=null);
+
         dynamic ok(dynamic data, string msg = "success");
     }
 }

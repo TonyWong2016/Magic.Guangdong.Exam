@@ -89,7 +89,14 @@ namespace Magic.Guangdong.Assistant
         {
             _message = msg;
             _data = data;
-            return new { code = 1, msg = _message, data = _data };
+            return new { code = 0, msg = _message, data = _data };
+        }
+
+        public dynamic error(string msg, dynamic? data)
+        {
+            _message = msg;
+            _data = data;
+            return new { code = -1, msg = _message, data = _data };
         }
 
         public dynamic ok(dynamic data, string msg = "success")

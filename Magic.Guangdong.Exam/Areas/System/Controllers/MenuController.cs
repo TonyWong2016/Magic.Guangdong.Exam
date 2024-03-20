@@ -21,7 +21,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         //[Route("/Menu/")]
         private IResponseHelper _resp;
         private IMenuRepo _menuRepo;
-        private IPermissionRepo _permissionRepo;
+       
 
         /// <summary>
         /// 栏目菜单相关
@@ -29,17 +29,15 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <param name="responseHelper"></param>
         /// <param name="menuRepo"></param>
         /// <param name="permissionRepo"></param>
-        public MenuController(IResponseHelper responseHelper, IMenuRepo menuRepo, IPermissionRepo permissionRepo)
+        public MenuController(IResponseHelper responseHelper, IMenuRepo menuRepo)
         {
             _menuRepo = menuRepo;
             _resp = responseHelper;
-            _permissionRepo = permissionRepo;
         }
 
         public IActionResult Index()
         {
-
-            return Content("123");
+            return View();
         }
 
         /// <summary>
@@ -58,6 +56,18 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success((await _menuRepo.getListAsync(u => u.ParentId == (long)menuId)).Adapt<List<MenuDto>>()));
         }
 
+        [HttpGet]
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "menuId","pageIndex","pageSize","rd" })]
+        public IActionResult GetMenuPages(long? menuId,int pageIndex=1,int pageSize=10)
+        {
+            long total = 0;
+            if (menuId == null)
+            {
+                return Json(_resp.success(_menuRepo.getList(u => u.IsDeleted == 0,pageSize,pageIndex,out total).Adapt<List<MenuDto>>()));
+            }
+            return Json(_resp.success( _menuRepo.getList(u => u.ParentId == (long)menuId, pageSize, pageIndex, out total).Adapt<List<MenuDto>>()));
+        }
+
         [RouteMark("创建栏目")]
         public IActionResult Create()
         {
@@ -65,21 +75,26 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 创建栏目。
+        /// </summary>
+        /// <param name="menuDto"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(MenuDto menu)
+        public async Task<IActionResult> Create(MenuDto menuDto)
         {
-            return null;
+            var menu = menuDto.Adapt<Menu>();
+            //先临时指定一个
+            menu.CreatorId = Guid.Parse("49D90000-4C24-00FF-D9D4-08DC47CA938C");
+            if(await _menuRepo.getAnyAsync(u=>u.Name==menu.Name && u.IsDeleted==0))
+            {
+                return Json(_resp.error("栏目名称已存在"));
+            }
+            return Json(_resp.success(await _menuRepo.addItemAsync(menu)));
         }
 
-        [ResponseCache(Duration = 600, VaryByQueryKeys = new string[] { "rd" })]
-        public async Task<IActionResult> GetPermissions()
-        {
-            return Json(_resp.success(
-                (await _permissionRepo
-                .getListAsync(u => u.IsDeleted == 0))
-                .Adapt<List<PermissionDto>>()));
-        }
+        
 
 
     }

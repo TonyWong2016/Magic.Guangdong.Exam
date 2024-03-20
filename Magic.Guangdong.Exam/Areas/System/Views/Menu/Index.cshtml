@@ -1,0 +1,74 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+                <label class="layui-form-label">功能分组</label>
+                <div class="layui-input-inline" style="width:25%">
+                    <select id="menuTypeView" lay-verify="" lay-search lay-filter="menuType">
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width:15%">
+                    <a href="javascript:;" class="layui-btn" onclick="addMenu()">添加新栏目</a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <blockquote class="layui-elem-quote">注意：添加、编辑功能菜单路径时，要注意查看功能描述</blockquote>
+            </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+
+    </div>
+    
+</div>
+
+<script id="menuTypeTpl" type="text/html">
+    <option value="0">请选择(可删除当前内容并输入关键字检索)</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.id }}">{{ item.name }}</option>
+    {{# }) }}
+</script>
+
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+
+    function getMenuTable() {
+        let menuId = 0;
+        if ($("#menuTypeView").val())
+            menuId = $("#menuTypeView").val();
+        var params = {
+            url: '/system/menu/GetMenuPages',
+            elem: '#table',
+            where: { 'menuId': menuId, 'rd': 1 },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: "#indexTpl", width: 100 },
+                { field: 'functionID', title: '功能id', width: 80 }
+                , { field: 'functionCaption', title: '功能名称(可快速编辑)', width: 200, edit: "text" }
+                , { field: 'functionDescribe', title: '描述', width: 200 }
+                , { field: 'typeCaption', title: '类型', width: 200 }
+                , { field: 'limit', title: '是否受限', width: 100 }
+                , { field: 'linkTo', title: '功能文件(可快速编辑)', edit: "text" }
+                , { field: 'linkID', title: '关联id', hide: true }
+                , { title: '操作', templet: '#operationTpl', width: 220 }
+            ],
+            height: 630
+        }
+        getTable(params);
+
+        table.on('edit(table)', function (obj) { //注：edit是固定事件名，test是table原始Url器的属性 lay-filter="对应的值"
+            $.post("@Url.Action("updateFunctionLinkOrCaption")", { '__RequestVerificationToken': token, 'functionID': obj.data.functionID, 'linkTo': obj.data.linkTo, 'caption': obj.data.functionCaption }, function (json) {
+                console.log(json);
+                if (json.data && json.data == 1) {
+                    refreshRd();
+                    layer.msg('操作成功', { icon: 1 });
+                }
+            })
+        });
+    }
+</script>

@@ -46,7 +46,9 @@ namespace Magic.Guangdong.DbServices.Entities
 
         [JsonProperty]
         public string Area { get; set; }
-		
+
+        [JsonProperty]
+        public int Status { get; set; } = 0;
     }
 
 }

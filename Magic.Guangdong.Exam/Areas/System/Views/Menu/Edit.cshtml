@@ -60,7 +60,7 @@
             <div class="layui-form-item">
                 <div class="layui-input-block">
                     <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
-                    <button type="reset" id="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
                 </div>
             </div>
             <input type="hidden" asp-for="IsLeef" value="0"/>
@@ -124,14 +124,8 @@
         let formData = objectToFormData(field);
         try {
             const result = await request('POST', '/system/menu/Create', formData, { 'Content-Type': 'multipart/form-data' });
-            //console.log(result);
-            if(result.code==0){
-                layer.msg("操作成功", { icon: 1 }, function () {
-                    $("#reset").click();
-                });
-                return false;
-            }
-            layer.msg(result.msg, { icon: 2 });
+            console.log(result);
+            return false;
         } catch (error) {
             //console.error('Error sending form data:', error);
             layer.msg("操作失败，请稍后重试", { icon: 2 });
@@ -162,7 +156,7 @@
             routers.setValue([])
             return;
         }
-        axios.get('/system/Permission/GetPermissions', {
+        axios.get('/system/menu/GetPermissions', {
             params: {
                 rd: 0
             }
