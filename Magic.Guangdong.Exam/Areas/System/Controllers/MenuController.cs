@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto.Menus;
+using Magic.Guangdong.DbServices.Dto.Permissions;
+using Magic.Guangdong.DbServices.Dto.Routers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
@@ -13,18 +15,25 @@ using System.Reflection;
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
     [Area("System")]
-    
+
     public class MenuController : Controller
     {
         //[Route("/Menu/")]
         private IResponseHelper _resp;
         private IMenuRepo _menuRepo;
+        private IPermissionRepo _permissionRepo;
 
-
-        public MenuController(IResponseHelper responseHelper,IMenuRepo menuRepo)
+        /// <summary>
+        /// 栏目菜单相关
+        /// </summary>
+        /// <param name="responseHelper"></param>
+        /// <param name="menuRepo"></param>
+        /// <param name="permissionRepo"></param>
+        public MenuController(IResponseHelper responseHelper, IMenuRepo menuRepo, IPermissionRepo permissionRepo)
         {
             _menuRepo = menuRepo;
             _resp = responseHelper;
+            _permissionRepo = permissionRepo;
         }
 
         public IActionResult Index()
@@ -39,12 +48,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <param name="menuId"></param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "menuId" } )]
-        [RouteMark("获取菜单")]
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "menuId" })]
         public async Task<IActionResult> GetMenus(long? menuId)
         {
-            //var list = await _menuRepo.getListAsync(u => u.IsDeleted == 0);
-            //var ret = list.Adapt<List<MenuDto>>();
             if (menuId == null)
             {
                 return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted == 0)).Adapt<List<MenuDto>>()));
@@ -52,35 +58,29 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success((await _menuRepo.getListAsync(u => u.ParentId == (long)menuId)).Adapt<List<MenuDto>>()));
         }
 
-        [RouteMark("创建菜单")]
+        [RouteMark("创建栏目")]
         public IActionResult Create()
         {
             ViewData["title"] = "创建栏目";
             return View();
         }
 
-        [ResponseCache(Duration = 600)]
-        public IActionResult GetMarkedRoutes()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(MenuDto menu)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var types = assembly.GetTypes().Where(u => u.Namespace != null).Where(u => u.Namespace.StartsWith("Magic.Guangdong.Exam.") && u.Name.EndsWith("Controller"));
-            foreach (var type in types)
-            {
-                foreach (var methodInfo in type.GetMethods())
-                {
-                    foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
-                    {
-                        if (attribute is RouteMark routeMark)
-                        {
-                            Console.WriteLine(type.Name);
-                            Console.WriteLine(methodInfo.Name);
-                            Console.WriteLine(routeMark.Module);
-                        }
-                    }
-                }
-            }
-            return Content("123");
+            return null;
         }
+
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new string[] { "rd" })]
+        public async Task<IActionResult> GetPermissions()
+        {
+            return Json(_resp.success(
+                (await _permissionRepo
+                .getListAsync(u => u.IsDeleted == 0))
+                .Adapt<List<PermissionDto>>()));
+        }
+
 
     }
 }

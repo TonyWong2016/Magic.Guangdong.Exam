@@ -13,6 +13,7 @@
     <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
     <script src="~/web/base.js"></script>
     <script src="~/web/requestapi.js"></script>
+    <script src="~/web/layextend.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
     
     <script>
@@ -35,7 +36,10 @@
     
 
     <script>
-        setBreadCrumb()
+        setBreadCrumb();
+        AutoCheckRequired();
+
+        
     </script>
 </body>
 </html>

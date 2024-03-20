@@ -59,41 +59,6 @@ function executeFunctions(funcs) {
 }
 
 
-function renderTpl(tplid, viewid, checkbarParams, append) {
-    return new Promise((resolve, reject) => {
-        if (tplid && viewid) {
-            var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
-            layui.use('laytpl', function () {
-                var laytpl = layui.laytpl;
-                laytpl(tpl).render(checkbarParams, function (html) {
-                    if (append)
-                        view.innerHTML += html;
-                    else
-                        view.innerHTML = html;
-                })
-            });
-            resolve(true);
-        }
-        reject(false);
-    })
-    
-}
-
-function renderTplByClass(tplid, viewclass, index, checkbarParams, append) {
-    if (tplid && viewclass) {
-        var tpl = document.getElementById(tplid).innerHTML, view = document.getElementsByClassName(viewclass)[index];
-        layui.use('laytpl', function () {
-            var laytpl = layui.laytpl;
-            laytpl(tpl).render(checkbarParams, function (html) {
-                if (append)
-                    view.innerHTML += html;
-                else
-                    view.innerHTML = html;
-            })
-        });
-    }
-}
-
 
 // 定义一个函数帮助我们找到对象并删除
 function removeObjectFromArray(array, key, value) {
@@ -105,16 +70,6 @@ function removeObjectFromArray(array, key, value) {
     }
 }
 
-function setBreadCrumb() {
-    let breadArr = JSON.parse(localStorage.getItem('breadcrumb'));
-    var breadCrumb = document.getElementById('breadcrumb');
-    breadCrumb.innerHTML = '';
-    breadArr.forEach(function (item) {
-        breadCrumb.innerHTML += '<a href="javascript">' + item.name + '</a>';
-    })
-    let element = layui.element;
-    element.render('breadcrumb', 'breadcrumb');
-}
 
 function listToTree(items) {
     // 创建一个临时映射表，以加快查找速度

@@ -1,21 +1,20 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-@model Magic.Guangdong.DbServices.Entities.Menu
+@model Magic.Guangdong.DbServices.Dto.Menus.MenuDto
 
 <div class="layui-card layui-panel">
     <div class="layui-card-header" style="color:#16baaa;font-size:large">
         @ViewData["title"]
     </div>
     <div class="layui-card-body">
-        <form class="layui-form" action="">
+        <form class="layui-form main-form" action="" lay-filter="menu-form">
             <div class="layui-form-item">
                 <label class="layui-form-label"><span class="layui-badge-dot"></span> 标题</label>
                 <div class="layui-input-block">
                     <input class="layui-input" asp-for="Name" placeholder="请输入菜单标题" />
                 </div>
             </div>
-
             <div class="layui-form-item">
                 <label class="layui-form-label">描述</label>
                 <div class="layui-input-block">
@@ -34,7 +33,7 @@
             <div class="layui-form-item childtype">
                 <label class="layui-form-label">状态</label>
                 <div class="layui-input-block">
-                    <input type="checkbox" lay-filter="Status" id="Status" name="Status" lay-text="可用|禁用" lay-skin="switch">
+                    <input type="checkbox" lay-filter="_status" id="_status" lay-text="可用|禁用" lay-skin="switch">
                     <blockquote class="layui-elem-quote" style="margin-top:10px">禁用状态的菜单是不可见的</blockquote>
                 </div>
             </div>
@@ -42,29 +41,49 @@
             <div class="layui-form-item childtype">
                 <label class="layui-form-label">叶子节点</label>
                 <div class="layui-input-block">
-                    <input type="checkbox" lay-filter="IsLeaf" id="IsLeef" name="IsLeef" lay-text="是|否" lay-skin="switch">
+                    <input type="checkbox" lay-filter="_isLeef" id="_isLeef" lay-text="是|否" lay-skin="switch">
                     <blockquote class="layui-elem-quote" style="margin-top:10px">叶子节点才可以绑定路由访问路径</blockquote>
                 </div>
             </div>
-            
-            <div id="divProp" class="leafAttrs">
 
+            <div id="divProp" class="leafAttrs" style="display:none">
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span class="layui-badge-purple"></span> 路由地址</label>
+                    <div class="layui-input-block">
+                        <div id="routerView">
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" class="layui-btn" lay-submit lay-filter="form-submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="IsLeef" value="0"/>
+            <input type="hidden" asp-for="Status" value="0"/>
+            <input type="hidden" asp-for="ParentId" value="0"/>
+            <input type="hidden" asp-for="Depth" value="0"/>
+            <input type="hidden" asp-for="PermissionId" value="0"/>
+            <input type="hidden" asp-for="Router" value="-"/>
         </form>
     </div>
 </div>
 
 <script src="~/plugins/xm-select.js"></script>
 
-<script >
-    let depth = 0;
+<script>
+
     let menus;
+    let routers;
+    let form = layui.form;
+    let formParams = {};
     axios.get('/system/menu/getmenus')
-        .then(data => {
-            let json = data.data;
-            //console.log(json);
-            let menuArr = listToTree(json.data);
+        .then(json => {
+            let menuArr = listToTree(json.data.data);
             menus = xmSelect.render({
                 el: "#menuView",
                 filterable: true,
@@ -72,7 +91,7 @@
                 prop: {
                     name: 'name',
                     value: 'id'
-                }, 
+                },
                 radio: true,
                 clickClose: true,
                 toolbar: {
@@ -82,18 +101,91 @@
                     show: true,
                     showFolderIcon: true,
                     strict: false,
-                }, 
+                },
                 data: menuArr,
                 on: function (data) {
-                    console.log(data);
-                    
+                    // console.log(data);
+                    form.val('menu-form', { "ParentId": 0 });
                     if (data.isAdd) {
-                        depth = data.arr[0].depth;
+                        form.val('menu-form', { "ParentId": data.arr[0].id, "Depth": data.arr[0].depth + 1 });
                     }
-
                 }
             })
         });
 
-    axios.get('/home/GetMarkedRoutes')
+
+    form.on('submit(form-submit)', function (data) {
+        var field = data.field;
+        delete field.select;
+        console.log(field)
+        return false;
+    })
+
+    form.on('switch(_isLeef)', function (data) {
+        form.val('menu-form', { "IsLeef": 0 });
+        $(".leafAttrs").hide();
+        if (data.elem.checked) {
+            form.val('menu-form', { "IsLeef": 1 });
+            renderPermission();
+        }
+    });
+
+    form.on('switch(_status)', function (data) {
+        form.val('menu-form', { "Status": 0 });
+        $(".leafAttrs").hide();
+        if (data.elem.checked) {
+            form.val('menu-form', { "Status": 1 });
+        }
+    });
+
+    function renderPermission() {
+        if (routers && routers.getValue().length > 0) {
+            $(".leafAttrs").show();
+            routers.setValue([])
+            return;
+        }
+        axios.get('/system/menu/GetPermissions', {
+            params: {
+                rd: 0
+            }
+        })
+            .then(json => {
+                console.log(json.data)
+                routers = xmSelect.render({
+                    el: "#routerView",
+                    filterable: true,
+                    radio: true,
+                    clickClose: true,
+                    tips: '如果没有合适的地址，请联系开发同学添加',
+                    direction: 'down',
+                    prop: {
+                        name: 'description',
+                        value: 'id'
+                    },
+                    data: json.data.data,
+                    on: function (router) {
+                        console.log(router);
+                        
+                        let _router = "-";
+                        form.val('menu-form', { "PermissionId": 0, "Router": _router });
+                        if (router.isAdd) {      
+                            let match = router.arr[0].description.match(/（([^）]+)/);
+                            if (match) {
+                                _router = match[1];
+                            }
+                            form.val('menu-form',
+                                {
+                                    "PermissionId": router.arr[0].id,
+                                    "Router": _router
+                                });
+
+                        }
+                    }
+                })
+            }).then(ret => {
+                $(".leafAttrs").show();
+            })
+    }
+
+
 </script>

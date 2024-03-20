@@ -1,9 +1,13 @@
 ﻿using FreeSql.Internal;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dto.Routers;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Text;
 using Yitter.IdGenerator;
 
@@ -186,6 +190,58 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
-        
+        /// <summary>
+        /// 自动填充权限数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> InitPermissionData()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes().Where(u => u.Namespace != null).Where(u => u.Namespace.StartsWith("Magic.Guangdong.Exam.") && u.Name.EndsWith("Controller"));
+
+            List<Permission> permissions = new List<Permission>();
+            foreach (var type in types)
+            {
+                string area = "";
+                if (type.CustomAttributes.Where(u => u.AttributeType.Name.Contains("Area")).Any())
+                {
+                    area = type.CustomAttributes.Where(u => u.AttributeType.Name.Contains("Area")).First().ConstructorArguments[0].Value.ToString();
+                }
+
+                foreach (var methodInfo in type.GetMethods())
+                {
+                    foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
+                    {
+                        if (attribute is RouteMark routeMark)
+                        {
+                            if(await _permissionRepo.getAnyAsync(u=>u.Name==routeMark.Module && u.Area==area && u.Controller==type.Name && u.Action == methodInfo.Name))
+                            {
+                                continue;
+                            }
+                            string router = $"/{area}/{type.Name}/{methodInfo.Name}";
+                            if (string.IsNullOrEmpty(area))
+                                router = router.Substring(1);
+                            permissions.Add(new Permission()
+                            {
+                                Id=YitIdHelper.NextId(),
+                                Name = routeMark.Module,
+                                Controller = type.Name,
+                                Action = methodInfo.Name,
+                                Area = area,
+                                Description = $"{routeMark.Module}（{router}）"
+                            });
+                        }
+                    }
+                }
+
+            }
+            if (permissions.Any())
+            {
+                await _permissionRepo.addItemsBulkAsync(permissions);
+            }
+            return Json(_resp.success(new { items = permissions, total = permissions.Count() }));
+
+        }
+
     }
 }

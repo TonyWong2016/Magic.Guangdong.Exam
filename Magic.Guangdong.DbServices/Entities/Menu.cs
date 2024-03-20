@@ -19,7 +19,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public int Depth { get; set; } = 0;
 
 		[JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
-		public string Description { get; set; }
+		public string? Description { get; set; }
 
 		[JsonProperty]
         public Guid CreatorId { get; set; }

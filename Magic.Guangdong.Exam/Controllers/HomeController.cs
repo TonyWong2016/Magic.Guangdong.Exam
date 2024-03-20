@@ -14,13 +14,13 @@ namespace Magic.Guangdong.Exam.Controllers
         {
             _logger = logger;
         }
-
+        [RouteMark("测试1")]
         public IActionResult Index()
         {           
             return View();
         }
 
-        [RouteMark("测试1")]
+        [RouteMark("测试2")]
         public IActionResult Privacy()
         {
             return View();
