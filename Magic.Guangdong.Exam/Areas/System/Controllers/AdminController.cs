@@ -54,7 +54,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 u.IsDeleted == 0);
 
             string password = Security.Decrypt(admin.Password, Encoding.UTF8.GetBytes(admin.KeyId), Encoding.UTF8.GetBytes(admin.KeySecret));
-            if (Security.GenerateMD5Hash(password + captchaCode) != hashpwd)
+            if (Security.GenerateMD5Hash(password + captchaTsp) != hashpwd)
             {
                 //这里实际是密码错误，但返回的信息要模糊一下，提防坏人！
                 return Json(_resp.error("用户名或密码错误"));
