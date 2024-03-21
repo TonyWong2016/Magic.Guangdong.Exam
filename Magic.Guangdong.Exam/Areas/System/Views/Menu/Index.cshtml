@@ -5,7 +5,7 @@
     <div style="padding:15px">
         <form class="layui-form">
             <div class="layui-form-item ">
-                <label class="layui-form-label">功能分组</label>
+                <label class="layui-form-label">栏目分组</label>
                 <div class="layui-input-inline" style="width:25%">
                     <select id="menuTypeView" lay-verify="" lay-search lay-filter="menuType">
                     </select>
@@ -31,38 +31,67 @@
     {{# }) }}
 </script>
 
+
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==1){ }}
+    <span style="color:#1E9FFF">正常</span>
+    {{# } else { }}
+    <span style="color:#FF5722">禁用</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/menu/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/menu/remove',removeId:{{d.id }},refresh:true })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
 <script>
     let table = layui.table;
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
+    getMenuTable();
 
-    function getMenuTable() {
-        let menuId = 0;
-        if ($("#menuTypeView").val())
-            menuId = $("#menuTypeView").val();
+    axios.get('/system/menu/getmenus', {
+        params: {
+            parentId: 0
+        }
+    }).then(result => {
+        renderTpl('menuTypeTpl', 'menuTypeView', result.data.data, false).then(()=>{
+            
+            renderLayuiFormElem({ elemType:'select'})
+        })
+       
+    })
+
+    form.on('select(menuType)', (data) => {
+        console.log($('#menuTypeView').val())
+        getMenuTable()
+    })
+    
+    function getMenuTable() {      
         var params = {
             url: '/system/menu/GetMenuPages',
             elem: '#table',
-            where: { 'menuId': menuId, 'rd': 1 },
+            where: makeWhereJson(),
             size: 'lg',
             page: true,
             cols: [ //表头
-                //{ title: '序号', templet: "#indexTpl", width: 100 },
-                { field: 'functionID', title: '功能id', width: 80 }
-                , { field: 'functionCaption', title: '功能名称(可快速编辑)', width: 200, edit: "text" }
-                , { field: 'functionDescribe', title: '描述', width: 200 }
-                , { field: 'typeCaption', title: '类型', width: 200 }
-                , { field: 'limit', title: '是否受限', width: 100 }
-                , { field: 'linkTo', title: '功能文件(可快速编辑)', edit: "text" }
-                , { field: 'linkID', title: '关联id', hide: true }
+                //{ title: '序号', templet: '#indexTpl', width: 100 },
+                { field: 'id', title: '功能id' }
+                , { field: 'name', title: '功能名称(可快速编辑)', edit: 'text' }
+                , { field: 'description', title: '描述' }
+                , { field: 'depth', title: '栏目层级' }
+                , { templet: '#statusTpl', title: '状态' }
+                , { field: 'router', title: '路由地址'}
+                , { field: 'parentId', hide: true }
+                , { field: 'permissionId', hide: true }
                 , { title: '操作', templet: '#operationTpl', width: 220 }
             ],
             height: 630
         }
         getTable(params);
 
-        table.on('edit(table)', function (obj) { //注：edit是固定事件名，test是table原始Url器的属性 lay-filter="对应的值"
-            $.post("@Url.Action("updateFunctionLinkOrCaption")", { '__RequestVerificationToken': token, 'functionID': obj.data.functionID, 'linkTo': obj.data.linkTo, 'caption': obj.data.functionCaption }, function (json) {
+        table.on('edit(table)', function (obj) { //注：edit是固定事件名，test是table原始Url器的属性 lay-filter='对应的值'
+            $.post('@Url.Action("updateMenu")', { '__RequestVerificationToken': token, 'functionID': obj.data.functionID, 'linkTo': obj.data.linkTo, 'caption': obj.data.functionCaption }, function (json) {
                 console.log(json);
                 if (json.data && json.data == 1) {
                     refreshRd();
@@ -71,4 +100,34 @@
             })
         });
     }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }, {
+                'Field': 'Depth',
+                'Operator': 'GreaterThan',
+                'Value': 0
+            }]
+        };
+        if ($('#menuTypeView').val() && $('#menuTypeView').val()!='0') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'parentId',
+                    'Operator': 'Equal',
+                    'Value': $('#menuTypeView').val()
+                }]
+            });
+        }
+
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'rd': randomInt };
+    }
+
+    
 </script>

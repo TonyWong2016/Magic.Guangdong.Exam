@@ -25,6 +25,7 @@ layui.use(['element', 'layer', 'util'], function () {
     });
 });
 
+
 function executeFunctions(funcs) {
     const results = [];
 
@@ -125,3 +126,4 @@ function objectToFormData(obj, form, namespace) {
 
     return fd;
 }
+

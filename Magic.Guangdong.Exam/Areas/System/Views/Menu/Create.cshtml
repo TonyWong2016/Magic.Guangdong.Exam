@@ -87,7 +87,7 @@
         .then(json => {
             let menuArr = listToTree(json.data.data);
             menus = xmSelect.render({
-                el: "#menuView",
+                el: '#menuView',
                 filterable: true,
                 direction: 'down',
                 prop: {
@@ -107,9 +107,9 @@
                 data: menuArr,
                 on: function (data) {
                     // console.log(data);
-                    form.val('menu-form', { "ParentId": 0 });
+                    form.val('menu-form', { 'ParentId': 0 });
                     if (data.isAdd) {
-                        form.val('menu-form', { "ParentId": data.arr[0].id, "Depth": data.arr[0].depth + 1 });
+                        form.val('menu-form', { 'ParentId': data.arr[0].id, 'Depth': data.arr[0].depth + 1 });
                     }
                 }
             })
@@ -126,39 +126,39 @@
             const result = await request('POST', '/system/menu/Create', formData, { 'Content-Type': 'multipart/form-data' });
             //console.log(result);
             if(result.code==0){
-                layer.msg("操作成功", { icon: 1 }, function () {
-                    $("#reset").click();
+                layer.msg('操作成功', { icon: 1 }, function () {
+                    $('#reset').click();
                 });
                 return false;
             }
             layer.msg(result.msg, { icon: 2 });
         } catch (error) {
             //console.error('Error sending form data:', error);
-            layer.msg("操作失败，请稍后重试", { icon: 2 });
+            layer.msg('操作失败，请稍后重试', { icon: 2 });
         }
         return false;
     })
 
     form.on('switch(_isLeef)', function (data) {
-        form.val('menu-form', { "IsLeef": 0 });
-        $(".leafAttrs").hide();
+        form.val('menu-form', { 'IsLeef': 0 });
+        $('.leafAttrs').hide();
         if (data.elem.checked) {
-            form.val('menu-form', { "IsLeef": 1 });
+            form.val('menu-form', { 'IsLeef': 1 });
             renderPermission();
         }
     });
 
     form.on('switch(_status)', function (data) {
-        form.val('menu-form', { "Status": 0 });
-        $(".leafAttrs").hide();
+        form.val('menu-form', { 'Status': 0 });
+        $('.leafAttrs').hide();
         if (data.elem.checked) {
-            form.val('menu-form', { "Status": 1 });
+            form.val('menu-form', { 'Status': 1 });
         }
     });
 
     function renderPermission() {
         if (routers && routers.getValue().length > 0) {
-            $(".leafAttrs").show();
+            $('.leafAttrs').show();
             routers.setValue([])
             return;
         }
@@ -170,7 +170,7 @@
             .then(json => {
                 console.log(json.data)
                 routers = xmSelect.render({
-                    el: "#routerView",
+                    el: '#routerView',
                     filterable: true,
                     radio: true,
                     clickClose: true,
@@ -184,8 +184,8 @@
                     on: function (router) {
                         console.log(router);
                         
-                        let _router = "-";
-                        form.val('menu-form', { "PermissionId": 0, "Router": _router });
+                        let _router = '-';
+                        form.val('menu-form', { 'PermissionId': 0, 'Router': _router });
                         if (router.isAdd) {      
                             let match = router.arr[0].description.match(/（([^）]+)/);
                             if (match) {
@@ -193,15 +193,15 @@
                             }
                             form.val('menu-form',
                                 {
-                                    "PermissionId": router.arr[0].id,
-                                    "Router": _router
+                                    'PermissionId': router.arr[0].id,
+                                    'Router': _router
                                 });
 
                         }
                     }
                 })
             }).then(ret => {
-                $(".leafAttrs").show();
+                $('.leafAttrs').show();
             })
     }
 

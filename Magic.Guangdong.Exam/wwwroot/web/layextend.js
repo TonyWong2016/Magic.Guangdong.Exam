@@ -1,4 +1,6 @@
-﻿//自动创建面包屑
+﻿let randomInt = Math.floor(Math.random() * 1000);
+
+//自动创建面包屑(临时)
 function setBreadCrumb() {
     let breadArr = JSON.parse(localStorage.getItem('breadcrumb'));
     var breadCrumb = document.getElementById('breadcrumb');
@@ -49,6 +51,23 @@ function renderTpl(tplid, viewid, checkbarParams, append) {
 
 }
 
+function renderTplNow(tplid, viewid, checkbarParams, append) {
+    if (tplid && viewid) {
+        var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
+        layui.use('laytpl', function () {
+            var laytpl = layui.laytpl;
+            laytpl(tpl).render(checkbarParams, function (html) {
+                if (append)
+                    view.innerHTML += html;
+                else
+                    view.innerHTML = html;
+            })
+        });
+    }
+}
+
+
+
 function renderTplByClass(tplid, viewclass, index, checkbarParams, append) {
     if (tplid && viewclass) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementsByClassName(viewclass)[index];
@@ -62,6 +81,49 @@ function renderTplByClass(tplid, viewclass, index, checkbarParams, append) {
             })
         });
     }
+}
+
+
+function renderLayuiFormElem(params) {
+    let form = layui.form;
+    if (!params.time)
+        params.time = 500;
+    setTimeout(() => {
+        if (params.elemType && params.elemFilter)
+            form.render(params.elemType, params.elemFilter);
+        else if (params.elemType && !params.elemFilter)
+            form.render(params.elemType);
+        else if (!params.elemType && params.elemFilter)
+            form.render(null, params.elemFilter);
+        else
+            form.render();
+    }, params.time)
+
+}
+
+function successMsg(msg, callback = '') {
+    if (typeof (callback) == 'function') {
+        layer.msg(msg, { icon: 1 }, () => {
+            callback();
+        });
+    } else
+        layer.msg(msg, { icon: 1 });
+}
+function errorMsg(msg, callback = '') {
+    if (typeof (callback) == 'function') {
+        layer.msg(msg, { icon: 2 }, () => {
+            callback();
+        });
+    } else
+        layer.msg(msg, { icon: 2 });
+}
+function warnMsg(msg, callback = '') {
+    if (typeof (callback) == 'function') {
+        layer.msg(msg, { icon: 1 }, () => {
+            callback();
+        });
+    } else
+        layer.msg(msg, { icon: 1 });
 }
 
 //弹出层-初级封装
@@ -85,7 +147,7 @@ function openDiv(obj, cancleCallback = '') {
             area: area,
             content: url,
             cancel: function (index) {
-                
+
                 if (typeof (cancleCallback) == 'function') {
                     cancleCallback();
                 }
@@ -110,6 +172,41 @@ function openDiv(obj, cancleCallback = '') {
     }
 }
 
+function removeItem(obj) {
+    if (!obj.msg)
+        obj.msg = "确定要删除当前项目吗？";
+    if (obj.router && obj.removeId) {
+        layer.confirm(obj.msg, { icon: 0 }, async function () {
+            let formData = new FormData();
+            formData.append('id', obj.removeId);
+            formData.append('__RequestVerificationToken', requestToken);
+            try {
+                const result = await request('POST', obj.router, formData, { 'Content-Type': 'multipart/form-data' });
+                if (result.code == 0) {
+                    successMsg('操作成功', () => {
+                        if (obj.callback && typeof (obj.callback) == 'function')
+                            obj.callback();
+                        else
+                            console.log('success');
+                        if (obj.refresh) {
+                            location.reload();
+                        }
+                    })
+                }
+
+            } catch (error) {
+                errorMsg('操作失败' + error);
+            }
+
+        }, function () {
+            if (obj.cancel && typeof (obj.cancel) == 'function') {
+                obj.cancel();
+
+            } else
+                layer.closeAll();
+        })
+    }
+}
 
 //渲染table
 function getTable(params, callBack = '') {
@@ -139,7 +236,7 @@ function getTable(params, callBack = '') {
             , where: params.where
             , parseData: function (res) { //res 即为原始返回的数据
                 //console.log(res)
-                if (res.code == 1) {
+                if (res.code == 0) {
                     if (params.save && params.local_name) {
                         if (params.local)
                             localStorage.setItem(params.local_name, JSON.stringify(res.data));
@@ -154,7 +251,7 @@ function getTable(params, callBack = '') {
                         "other": res.data.other
                     }
                 }
-                else if (res.code == 0) {
+                else if (res.code != 0) {
                     if (params.nomsg) {
                         return;
                     } else {
@@ -169,7 +266,7 @@ function getTable(params, callBack = '') {
                 , limitName: 'pagesize' //每页数据量的参数名，默认：limit
             }
             , response: {
-                statusCode: 1 //规定成功的状态码，默认：0 
+                statusCode: 0 //规定成功的状态码，默认：0 
             }
             , cols: [params.cols]
             , done: function (res, curr, count) {
@@ -178,10 +275,12 @@ function getTable(params, callBack = '') {
 
                     layer.msg("暂无数据...", { icon: 0 });
                 }
-
-                for (var i = 0; i < count; i++) {
-                    chargeTpl(params.tpl, params.view, i + 1, false);
+                if (params.tpl) {
+                    for (var i = 0; i < count; i++) {
+                        renderTpl(params.tpl, params.view, i + 1, false);
+                    }
                 }
+
 
                 //答题：选题的时候显示总分数
                 if (params.elemId) {
@@ -191,8 +290,7 @@ function getTable(params, callBack = '') {
                     //console.log(res);
                     sessionStorage.setItem(params.specialStorage, JSON.stringify(res.data));
                 }
-                //console.log("ressg:" + res.msg);
-                //console.log("curr:" + curr);
+
                 if (typeof (callBack) == 'function') {
                     callBack(res);
                 }

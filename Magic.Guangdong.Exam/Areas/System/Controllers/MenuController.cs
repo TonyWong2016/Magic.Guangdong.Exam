@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Dto.Menus;
 using Magic.Guangdong.DbServices.Dto.Permissions;
 using Magic.Guangdong.DbServices.Dto.Routers;
@@ -10,6 +11,7 @@ using Mapster;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
@@ -46,26 +48,23 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <param name="menuId"></param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "menuId" })]
-        public async Task<IActionResult> GetMenus(long? menuId)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "parentId" })]
+        public async Task<IActionResult> GetMenus(long? parentId)
         {
-            if (menuId == null)
+            if (parentId == null)
             {
-                return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted == 0)).Adapt<List<MenuDto>>()));
+                return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted == 0 && u.Status == 1)).Adapt<List<MenuDto>>()));
             }
-            return Json(_resp.success((await _menuRepo.getListAsync(u => u.ParentId == (long)menuId)).Adapt<List<MenuDto>>()));
+            return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted==0 && u.Status==1 && u.ParentId == (long)parentId)).Adapt<List<MenuDto>>()));
         }
 
         [HttpGet]
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "menuId","pageIndex","pageSize","rd" })]
-        public IActionResult GetMenuPages(long? menuId,int pageIndex=1,int pageSize=10)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "pageindex", "pagesize", "rd" })]
+        public IActionResult GetMenuPages(PageDto dto)
         {
             long total = 0;
-            if (menuId == null)
-            {
-                return Json(_resp.success(_menuRepo.getList(u => u.IsDeleted == 0,pageSize,pageIndex,out total).Adapt<List<MenuDto>>()));
-            }
-            return Json(_resp.success( _menuRepo.getList(u => u.ParentId == (long)menuId, pageSize, pageIndex, out total).Adapt<List<MenuDto>>()));
+
+            return Json(_resp.success(new { items = _menuRepo.getList(dto, out total).Adapt<List<MenuDto>>(), total }));
         }
 
         [RouteMark("创建栏目")]
@@ -82,6 +81,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[RouteMark("创建栏目")]
         public async Task<IActionResult> Create(MenuDto menuDto)
         {
             var menu = menuDto.Adapt<Menu>();
@@ -94,8 +94,55 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success(await _menuRepo.addItemAsync(menu)));
         }
 
-        
+        /// <summary>
+        /// 编辑栏目
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [RouteMark("编辑栏目")]
+        public async Task<IActionResult> Edit(long id)
+        {
+            ViewData["title"] = "编辑栏目";
+            if (await _menuRepo.getAnyAsync(u => u.Id == id))
+            {
+                return View((await _menuRepo.getOneAsync(u => u.Id == id)).Adapt<MenuDto>());
+            }
+            return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
 
+        /// <summary>
+        /// 编辑栏目
+        /// </summary>
+        /// <param name="menuDto"></param>
+        /// <returns></returns>
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(MenuDto menuDto)
+        {
+            if(await _menuRepo
+                .getAnyAsync(u=>u.Name==menuDto.Name && u.IsDeleted==0 && u.Id!=menuDto.Id)
+                )
+            {
+                return Json(_resp.error("栏目名称已存在"));
+            }
+            var menu = menuDto.Adapt<Menu>();
+            menu.UpdatedAt = DateTime.Now;
+
+            return Json(_resp.success(await _menuRepo.updateItemAsync(menu)));
+        }
+
+        /// <summary>
+        /// 移除栏目（软删除）
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(long id)
+        {
+            var item = await _menuRepo.getOneAsync(u => u.Id == id);
+            item.UpdatedAt=DateTime.Now;
+            item.IsDeleted = 1;
+            return Json(_resp.success(await _menuRepo.updateItemAsync(item)));
+        }
 
     }
 }

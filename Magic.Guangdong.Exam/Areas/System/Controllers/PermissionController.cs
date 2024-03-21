@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
+    [Area("System")]
     public class PermissionController : Controller
     {
         private IPermissionRepo _permissionRepo;

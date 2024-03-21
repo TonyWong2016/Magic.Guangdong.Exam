@@ -24,7 +24,7 @@ namespace Magic.Guangdong.Exam.Extensions
             #region 注册模型类
             var assemblyDbServices = Assembly.Load("Magic.Guangdong.DbServices");
             builder.RegisterAssemblyTypes(assemblyDbServices)
-                .Where(u => u.Name.EndsWith("Respo") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
+                .Where(u => u.Name.EndsWith("Repository") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
                 .AsImplementedInterfaces();
 
             #endregion

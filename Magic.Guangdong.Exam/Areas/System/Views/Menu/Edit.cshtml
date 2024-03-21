@@ -60,16 +60,16 @@
             <div class="layui-form-item">
                 <div class="layui-input-block">
                     <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
-                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <a class="layui-btn layui-btn-primary" href="index">返回</a>
                 </div>
             </div>
-            <input type="hidden" asp-for="IsLeef" value="0"/>
-            <input type="hidden" asp-for="Status" value="0"/>
-            <input type="hidden" asp-for="ParentId" value="0"/>
-            <input type="hidden" asp-for="Depth" value="0"/>
-            <input type="hidden" asp-for="PermissionId" value="0"/>
-            <input type="hidden" asp-for="Router" value="-"/>
-            <input type="hidden" asp-for="Id" value="@Yitter.IdGenerator.YitIdHelper.NextId()"/>
+            <input type="hidden" asp-for="IsLeef" />
+            <input type="hidden" asp-for="Status"/>
+            <input type="hidden" asp-for="ParentId"/>
+            <input type="hidden" asp-for="Depth"/>
+            <input type="hidden" asp-for="PermissionId"/>
+            <input type="hidden" asp-for="Router"/>
+            <input type="hidden" asp-for="Id"/>
             @Html.AntiForgeryToken()
         </form>
     </div>
@@ -86,10 +86,14 @@
     axios.get('/system/menu/getmenus')
         .then(json => {
             let menuArr = listToTree(json.data.data);
+            
             menus = xmSelect.render({
-                el: "#menuView",
+                el: '#menuView',
                 filterable: true,
                 direction: 'down',
+                theme: {
+                    color: '#16baaa',
+                },
                 prop: {
                     name: 'name',
                     value: 'id'
@@ -106,15 +110,27 @@
                 },
                 data: menuArr,
                 on: function (data) {
-                    // console.log(data);
-                    form.val('menu-form', { "ParentId": 0 });
+                     console.log(data);
+                    form.val('menu-form', { 'ParentId': 0 });
                     if (data.isAdd) {
-                        form.val('menu-form', { "ParentId": data.arr[0].id, "Depth": data.arr[0].depth + 1 });
+                        form.val('menu-form', { 'ParentId': data.arr[0].id, 'Depth': data.arr[0].depth + 1 });
+                    } else{
+                        form.val('menu-form', { 'ParentId': 0, 'Depth': 0 });
+                    }
+                    if (data.change[0].id == $('#Id').val()) {
+                        menus.warning();
+                        layer.msg('不可以将父级菜单设置为自己', { icon: 0 }, function () {
+                            menus.warning();
+                            menus.setValue([]);
+                        });
                     }
                 }
             })
+        }).then(() => {
+            initEditData();
         });
 
+    
 
     form.on('submit(form-submit)', async function (data) {
         var field = data.field;
@@ -123,40 +139,72 @@
        
         let formData = objectToFormData(field);
         try {
-            const result = await request('POST', '/system/menu/Create', formData, { 'Content-Type': 'multipart/form-data' });
-            console.log(result);
+            const result = await request('POST', '/system/menu/Edit', formData, { 'Content-Type': 'multipart/form-data' });
+            if (result.code == 0) {
+                successMsg('保存成功');
+            }
             return false;
         } catch (error) {
             //console.error('Error sending form data:', error);
-            layer.msg("操作失败，请稍后重试", { icon: 2 });
+            errorMsg('操作失败，请稍后重试');
         }
         return false;
     })
 
     form.on('switch(_isLeef)', function (data) {
-        form.val('menu-form', { "IsLeef": 0 });
-        $(".leafAttrs").hide();
+        form.val('menu-form', { 'IsLeef': 0 });
+        $('.leafAttrs').hide();
         if (data.elem.checked) {
-            form.val('menu-form', { "IsLeef": 1 });
+            form.val('menu-form', { 'IsLeef': 1 });
             renderPermission();
+        }else{
         }
     });
 
     form.on('switch(_status)', function (data) {
-        form.val('menu-form', { "Status": 0 });
-        $(".leafAttrs").hide();
+        form.val('menu-form', { 'Status': 0 });
+        $('.leafAttrs').hide();
         if (data.elem.checked) {
-            form.val('menu-form', { "Status": 1 });
+            form.val('menu-form', { 'Status': 1 });
         }
     });
+    
+    function initEditData(){
+        if ($('#IsLeef').val() == '1') {
+            $('#_isLeef').attr('checked', 'checked')
+            renderPermission().then(() => {
+                routers.setValue([$("#PermissionId").val()])
+            })
+        } else {
+            form.val('menu-form',
+                {
+                    'PermissionId': 0,
+                    'Router': '-'
+                }
+            );
+        }
+        if ($('#Status').val() == '1') {
+            $('#_status').attr('checked', 'checked')
+            
+        }
+        if (!$('#Router').val()) {
+            $('#Router').val('-')
+        }
+        if ($('#ParentId').val()) {
+            menus.setValue([$('#ParentId').val()])
+            menus.update()
+        }
+        renderLayuiFormElem('checkbox');
+
+    }
 
     function renderPermission() {
         if (routers && routers.getValue().length > 0) {
-            $(".leafAttrs").show();
+            $('.leafAttrs').show();
             routers.setValue([])
             return;
         }
-        axios.get('/system/menu/GetPermissions', {
+        return  axios.get('/system/Permission/GetPermissions', {
             params: {
                 rd: 0
             }
@@ -164,12 +212,15 @@
             .then(json => {
                 console.log(json.data)
                 routers = xmSelect.render({
-                    el: "#routerView",
+                    el: '#routerView',
                     filterable: true,
                     radio: true,
                     clickClose: true,
                     tips: '如果没有合适的地址，请联系开发同学添加',
                     direction: 'down',
+                    theme: {
+                        color: '#16baaa',
+                    },
                     prop: {
                         name: 'description',
                         value: 'id'
@@ -178,24 +229,32 @@
                     on: function (router) {
                         console.log(router);
                         
-                        let _router = "-";
-                        form.val('menu-form', { "PermissionId": 0, "Router": _router });
-                        if (router.isAdd) {      
+                        let _router = '-';
+                        form.val('menu-form', { 'PermissionId': 0, 'Router': _router });
+                        if (router.isAdd) {
                             let match = router.arr[0].description.match(/（([^）]+)/);
                             if (match) {
                                 _router = match[1];
                             }
                             form.val('menu-form',
                                 {
-                                    "PermissionId": router.arr[0].id,
-                                    "Router": _router
+                                    'PermissionId': router.arr[0].id,
+                                    'Router': _router
                                 });
 
+                        }
+                        else {
+                            form.val('menu-form',
+                                {
+                                    'PermissionId': 0,
+                                    'Router': '-'
+                                }
+                            );
                         }
                     }
                 })
             }).then(ret => {
-                $(".leafAttrs").show();
+                $('.leafAttrs').show();
             })
     }
 

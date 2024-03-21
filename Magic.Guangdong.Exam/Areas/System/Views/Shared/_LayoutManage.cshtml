@@ -112,7 +112,7 @@
         
         async function fetchTopMenus() {
             try {
-                const result = await request('GET', '/system/menu/getmenus', { menuId: 0 });
+                const result = await request('GET', '/system/menu/getmenus', { parentId: 0 });
                 //console.log(result)
                 renderTpl('navTopSideMenuTpl', 'sideNav', result.data, false)
                     .then((ret) => {
@@ -158,7 +158,7 @@
 
             try {
                 navs.push({ menuId: item.id.toString(), status: true });
-                const result = await request('GET', '/system/menu/getmenus', { menuId: item.id });
+                const result = await request('GET', '/system/menu/getmenus', { parentId: item.id });
 
                 renderTpl('navSideChildMenuTpl', item.id + '_subSideNav_' + item.depth, result.data, false);
                 element.render('nav', 'sideNav');
