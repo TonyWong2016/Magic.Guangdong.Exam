@@ -6,21 +6,30 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Magic.Guangdong.Assistant.IService;
 
 namespace Magic.Guangdong.Assistant
 {
-    internal class JwtService
+    internal class JwtService:IJwtService
     {
-        public string Make(string apikey = "space_api")
+        //const string apikey = "space_api";
+        const string apiKey = "GD.exam";
+        const string signKey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
+        public string Make(string userName,string role,bool remember)
         {
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, apikey));
-            claims.Add(new Claim(ClaimTypes.Name, apikey));
-            claims.Add(new Claim(ClaimTypes.Role, "User"));
-            claims.Add(new Claim("Sender", "Tony"));
-            DateTime expires = DateTime.Now.AddDays(1);
-            string signkey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
-            byte[] secBytes = Encoding.UTF8.GetBytes(signkey);
+            DateTime expires = DateTime.Now.AddHours(3);//3小时有效
+            if (remember)
+                expires = expires.AddDays(3);//3天有效
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, apiKey),
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Role, role),
+                //new Claim("ExpiredTime", expires.ToString("yyyy/MM/dd HH:mm:ss"))
+            };
+            //string signkey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
+            byte[] secBytes = Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey));
             var secKey = new SymmetricSecurityKey(secBytes);
             var credentials = new SigningCredentials(secKey, SecurityAlgorithms.HmacSha256);
             var tokenDescriptor = new JwtSecurityToken(claims: claims, expires: expires, signingCredentials: credentials);
@@ -28,17 +37,18 @@ namespace Magic.Guangdong.Assistant
             return jwt;
         }
 
-        public bool Validate(string jwt)
+        public AccountClaim? Validate(string jwt)
         {
             if (string.IsNullOrWhiteSpace(jwt))
             {
-                return false;
+                return null;
             }
-            string secKey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
+            AccountClaim accountClaim = new AccountClaim();
+            //string secKey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
             JwtSecurityTokenHandler tokenHandler = new();
 
             TokenValidationParameters validationParameters = new TokenValidationParameters();
-            var secrityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secKey));
+            var secrityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey)));
             validationParameters.IssuerSigningKey = secrityKey;
             validationParameters.ValidateIssuer = false;
             validationParameters.ValidateAudience = false;
@@ -48,13 +58,28 @@ namespace Magic.Guangdong.Assistant
                 foreach (var claim in principal.Claims)
                 {
                     Console.WriteLine($"{claim.Type}={claim.Value}");
+                    if (claim.Type.EndsWith("name"))
+                    {
+                        accountClaim.Name = claim.Value;
+                        continue;
+                    }
+                    if(claim.Type.EndsWith("role"))
+                    {
+                        accountClaim.Role = claim.Value;
+                        continue ;
+                    }
+                    if (claim.Type == "exp")
+                    {
+                        accountClaim.exp = Convert.ToInt64(claim.Value);
+                        continue;
+                    }
                 }
-                return true;
+                return accountClaim;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return null;
             }
         }
 
@@ -66,6 +91,8 @@ namespace Magic.Guangdong.Assistant
             string payload = JwtDecode(segments[1]);
             return head + "--" + payload;
         }
+
+        
 
         string JwtDecode(string s)
         {
@@ -83,5 +110,13 @@ namespace Magic.Guangdong.Assistant
             var bytes = Convert.FromBase64String(s);
             return Encoding.UTF8.GetString(bytes);
         }
+    }
+
+    public class AccountClaim
+    {
+        public string? Name { get; set; }
+
+        public string? Role { get; set; }
+        public long exp { get; set; }
     }
 }

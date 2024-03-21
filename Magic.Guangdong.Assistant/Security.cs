@@ -114,5 +114,47 @@ namespace Magic.Guangdong.Assistant
             }
         }
         #endregion
+
+        /// <summary>
+        /// MD5函数
+        /// </summary>
+        /// <param name="str">原始字符串</param>
+        /// <returns>MD5结果</returns>
+        public static string GenerateMD5Hash(string input)
+        {
+            // 创建一个MD5哈希实例
+            using (var md5 = MD5.Create())
+            {
+                // 将输入转换为字节数组
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+                // 计算哈希
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // 将哈希字节数组转换为十六进制字符串形式
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        public static string GetMD5HashFromStream(Stream file)
+        {
+            try
+            {
+                MD5 md5 = MD5.Create();
+                byte[] retVal = md5.ComputeHash(file);
+                file.Close();
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < retVal.Length; i++)
+                {
+                    sb.Append(retVal[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("GetMD5HashFromStream() fail, error:" + ex.Message);
+            }
+        }
     }
 }

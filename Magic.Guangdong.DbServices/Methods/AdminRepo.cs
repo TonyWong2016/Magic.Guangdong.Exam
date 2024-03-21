@@ -17,5 +17,7 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
+
+         
     }
 }

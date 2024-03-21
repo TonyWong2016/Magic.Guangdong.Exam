@@ -10,6 +10,14 @@
       "provider": "cdnjs",
       "library": "axios@1.6.8",
       "destination": "wwwroot/lib/axios/"
+    },
+    {
+      "library": "crypto-js@4.2.0",
+      "destination": "wwwroot/plugins/crypto-js/"
+    },
+    {
+      "library": "js-md5@0.8.3",
+      "destination": "wwwroot/plugins/js-md5/"
     }
   ]
 }
