@@ -47,6 +47,30 @@ namespace Magic.Guangdong.Assistant
 
         }
 
+
+        public static async Task<bool> SendVerificationCodeEmailAsync(string subject, string content, string toAddress,string toName, TextFormat textFormat = TextFormat.Html)
+        {
+            IConfigurationSection[] emailCfgs = ConfigurationHelper.GetSections("emailPool");
+            int rand = new Random().Next(0, emailCfgs.Length - 1);
+            IConfigurationSection emailCfg = emailCfgs[rand];
+            _tconfig = new EmailConfig()
+            {
+                Server = emailCfg.GetSection("Server").Value,
+                Email = emailCfg.GetSection("Email").Value,
+                Auth = emailCfg.GetSection("Auth").Value,
+                Port = Convert.ToInt32(emailCfg.GetSection("port").Value)
+            };
+            if (string.IsNullOrEmpty(UserName))
+                //UserName = UserAddress;
+                UserName = _tconfig.Email;
+            if (string.IsNullOrEmpty(toName))
+                toName = toAddress;
+            
+            //await SendEMailAsync(subject, content, new MailboxAddress[] { new MailboxAddress(UserName, UserAddress) }, toAddress, textFormat, attachments, dispose).ConfigureAwait(false);
+            return await SendEMailAsync(subject, content, [new MailboxAddress(UserName, _tconfig.Email)], [new MailboxAddress(toName, toAddress)], textFormat, null, true).ConfigureAwait(false);
+
+        }
+
         /// <summary>
         /// 给开发人员发送系统异常邮件
         /// </summary>
@@ -123,7 +147,7 @@ namespace Magic.Guangdong.Assistant
         /// <param name="attachments">附件</param>
         /// <param name="dispose">是否自动释放附件所用Stream</param>
         /// <returns></returns>
-        public static async Task<bool> SendEMailAsync(string subject, string content, IEnumerable<MailboxAddress> fromAddress, IEnumerable<MailboxAddress> toAddress, TextFormat textFormat = TextFormat.Html, IEnumerable<AttachmentInfo> attachments = null, bool dispose = true)
+        public static async Task<bool> SendEMailAsync(string subject, string content, IEnumerable<MailboxAddress> fromAddress, IEnumerable<MailboxAddress> toAddress, TextFormat textFormat = TextFormat.Html, IEnumerable<AttachmentInfo>? attachments = null, bool dispose = true)
         {
             try
             {
@@ -135,6 +159,7 @@ namespace Magic.Guangdong.Assistant
                 message.Priority = MessagePriority.Urgent;
                 message.Body = new BodyBuilder
                 {
+                    
                     HtmlBody = content
                 }.ToMessageBody();
                 //var body = new TextPart(textFormat)

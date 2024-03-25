@@ -4,6 +4,7 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto.Admin;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -18,7 +19,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         private readonly IJwtService _jwtService;
         private readonly IAdminRoleRepo _adminRoleRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        public AdminController(IResponseHelper responseHelper,IAdminRepo adminRepo,IJwtService jwtService,IAdminRoleRepo adminRoleRepo,IRedisCachingProvider redisCachingProvider) 
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public AdminController(IResponseHelper responseHelper,IAdminRepo adminRepo,IJwtService jwtService,IAdminRoleRepo adminRoleRepo,IRedisCachingProvider redisCachingProvider, IWebHostEnvironment webHostEnvironment) 
         {
 
             _resp = responseHelper;
@@ -26,6 +28,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             _jwtService = jwtService;
             _adminRoleRepo = adminRoleRepo;
             _redisCachingProvider = redisCachingProvider;
+            _webHostEnvironment = webHostEnvironment;
         }
         [AllowAnonymous]
         public async Task<IActionResult> Login()
@@ -96,23 +99,39 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         [AllowAnonymous]
         public IActionResult Logout()
-        {
-            Response.Cookies.Delete("examToken");
-            Response.Cookies.Delete("userId");
+        {            
+            //这里要加入token作废机制，定期自动删除
+
+            //Response.Cookies.Delete("examToken");
+            //Response.Cookies.Delete("userId");
+
             return Redirect("/system/admin/login?msg=logout");
         }
 
         [AllowAnonymous]
+        [RouteMark("注册管理员")]
         public IActionResult Register()
         {
             return View();
         }
 
         [AllowAnonymous]
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost,ValidateAntiForgeryToken]        
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-
+            string VerificationCode="";
+            if (await _redisCachingProvider.KeyExistsAsync(dto.Email))
+            {
+                VerificationCode = await _redisCachingProvider.StringGetAsync(dto.Email);
+            }
+            else if(await _redisCachingProvider.KeyExistsAsync(dto.Mobile))
+            {
+                VerificationCode = await _redisCachingProvider.StringGetAsync(dto.Mobile);
+            }
+            if (VerificationCode != dto.VerificationCode)
+            {
+                return Json(_resp.error("验证码错误"));
+            }
             string keySecret = Utils.GenerateRandomCodePro(16);
             string keyId = Utils.GenerateRandomCodePro(16);
             string password = Security.Encrypt(dto.Password, Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
@@ -123,6 +142,29 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             admin.Password = password;
             admin.KeyId = keyId;
             admin.KeySecret = keySecret;
+
+            return Json(_resp.success(await _adminRepo.addItemAsync(admin), "注册成功"));
+        }
+        [AllowAnonymous]
+        public  async Task<IActionResult> GenerateCode(string to,string username,int length=4)
+        {
+            string code = Utils.GenerateRandomCode(length);
+            //15+1分钟有效（冗余1分钟）
+            await _redisCachingProvider.StringSetAsync(to, code, DateTime.Now.AddMinutes(16) - DateTime.Now);
+            
+            if (to.Contains("@"))
+            {
+                string htmlContent;
+                string templateFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "web", "emailcode.html");
+                using (StreamReader reader = new StreamReader(templateFilePath))
+                {
+                    htmlContent = reader.ReadToEnd().Replace("**content**", code);
+                    
+                }
+                await EmailKitHelper.SendVerificationCodeEmailAsync("欢迎注册", htmlContent, to, username);
+            }
+
+            return Json(_resp.success("发送成功"));
         }
     }
 

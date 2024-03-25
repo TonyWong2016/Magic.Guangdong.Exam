@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Exam\Controllers\" />
+    <Folder Include="Areas\Exam\Models\" />
+    <Folder Include="Areas\Exam\Views\" />
     <Folder Include="Areas\System\Models\" />
   </ItemGroup>
 

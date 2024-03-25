@@ -54,9 +54,9 @@
                         </div>
                     </div>
                     <div class="layui-col-xs5">
-                        <div style="margin-left: 10px;">
+                        <div style="margin-left: 2px;">
                             @* <img src="https://www.oschina.net/action/user/captcha" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();"> *@
-                            <canvas id="captchaCanvas" width="160" height="50"></canvas>
+                            <canvas id="captchaCanvas" width="150" height="50"></canvas>
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
             <div class="layui-form-item">
                 <a class="layui-btn layui-btn-fluid" lay-submit lay-filter="exam-login">登录</a>
             </div>
-            <div class="layui-form-item exam-login-other">
+            @* <div class="layui-form-item exam-login-other">
                 <label>社交账号登录</label>
                 <span style="padding: 0 21px 0 6px;">
                     <a href="javascript:;"><i class="layui-icon layui-icon-login-qq" style="color: #3492ed;"></i></a>
@@ -76,7 +76,7 @@
                     <a href="javascript:;"><i class="layui-icon layui-icon-login-weibo" style="color: #cf1900;"></i></a>
                 </span>
                 或 <a href="#reg">注册帐号</a>
-            </div>
+            </div> *@
         </div>
         @Html.AntiForgeryToken()
     </form>
@@ -93,6 +93,8 @@
         if (pageLoadMsg == 'invalidtoken') {
             errorMsg('身份凭证异常，请尝试重新登录');
         } else if (pageLoadMsg == 'logout') {
+            deleteCookie('username');
+            deleteCookie('examToken');
             warnMsg('已成功退出当前账号');
         }
         removeQueryParamFromCurrentUrl('msg');
@@ -173,7 +175,7 @@
             charsToDraw.forEach((char, index) => {
 
                 const x = (index + 1) * (width / (charsToDraw.length + 1));
-                const y = height / 2;
+                const y = height / 2.2;
                 const angle = Math.random() * Math.PI / 4 - Math.PI / 8;
                 ctx.save();
                 ctx.translate(x, y);

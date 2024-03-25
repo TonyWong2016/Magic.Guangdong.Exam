@@ -11,7 +11,7 @@
                     </select>
                 </div>
                 <div class="layui-input-inline" style="width:15%">
-                    <a href="javascript:;" class="layui-btn" onclick="addMenu()">添加新栏目</a>
+                    <a href="create" class="layui-btn">添加新栏目</a>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -77,7 +77,7 @@
             cols: [ //表头
                 //{ title: '序号', templet: '#indexTpl', width: 100 },
                 { field: 'id', title: '功能id' }
-                , { field: 'name', title: '功能名称(可快速编辑)', edit: 'text' }
+                , { field: 'name', title: '功能名称' }
                 , { field: 'description', title: '描述' }
                 , { field: 'depth', title: '栏目层级' }
                 , { templet: '#statusTpl', title: '状态' }
@@ -90,15 +90,6 @@
         }
         getTable(params);
 
-        table.on('edit(table)', function (obj) { //注：edit是固定事件名，test是table原始Url器的属性 lay-filter='对应的值'
-            $.post('@Url.Action("updateMenu")', { '__RequestVerificationToken': token, 'functionID': obj.data.functionID, 'linkTo': obj.data.linkTo, 'caption': obj.data.functionCaption }, function (json) {
-                console.log(json);
-                if (json.data && json.data == 1) {
-                    refreshRd();
-                    layer.msg('操作成功', { icon: 1 });
-                }
-            })
-        });
     }
 
     function makeWhereJson() {

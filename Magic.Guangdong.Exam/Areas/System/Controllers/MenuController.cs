@@ -36,7 +36,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             _menuRepo = menuRepo;
             _resp = responseHelper;
         }
-
+        [RouteMark("栏目管理")]
         public IActionResult Index()
         {
             return View();
