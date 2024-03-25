@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -8,46 +9,89 @@ namespace Magic.Guangdong.Exam.Filters
     /// </summary>
     public class AuthorizeFilter : IAuthorizationFilter
     {
+
         /// <summary>
         /// 请求验证，当前验证部分不要抛出异常，ExceptionFilter不会处理
         /// </summary>
         /// <param name="context"></param>
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
-            //这里可以做复杂的权限控制操作
-            //if (context.HttpContext.User.Identity.Name != "1") //简单的做一个示范
-            //{            　　　　　　　　
-            //    //未通过验证则跳转到无权限提示页 
-            //    RedirectToActionResult content = new RedirectToActionResult("NoAuth", "Exception", null);            　　　　　　　　//    context.Result = content;            　　　　　　　　//
-
+            string area = "";
+            string controller = "";
+            string action = "";
             if (context.RouteData.Values.ContainsKey("area"))
+                area = context.RouteData.Values["area"].ToString().ToLower();
+            if (context.RouteData.Values.ContainsKey("controller"))
+                controller = context.RouteData.Values["controller"].ToString().ToLower();
+
+            if (context.RouteData.Values.ContainsKey("action"))
+                action = context.RouteData.Values["action"].ToString().ToLower();
+            if (string.IsNullOrEmpty(area))
             {
-                string area = context.RouteData.Values["area"].ToString();
-                string controller = context.RouteData.Values["controller"].ToString().ToLower();
-                string action = context.RouteData.Values["action"].ToString().ToLower();
-                var cookies = context.HttpContext.Request.Cookies;
-                if (!cookies.Any(u => u.Key == "adminid") && action.ToLower() != "login")
-                {
-                    //var item = new ContentResult();
-                    //item.Content = "您无权访问当前地址或执行该操作，可能是登录超时造成的，请尝试重新登陆";
-                    //item.StatusCode = 200;                    
-                    //context.Result = item;
-                    //if (controller != "face" && controller != "trtc")
-                    //{
-                    //    var item2 = new RedirectToActionResult("Login", "Admin", new { msg = "timeout" });
-                    //    context.Result = item2;
-                    //}
+                controller = Convert.ToString(context.RouteData.Values["controller"]).ToLower();
+                action = Convert.ToString(context.RouteData.Values["action"]).ToLower();
+            }
+            var descriptor = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
 
+            if (descriptor != null && descriptor.MethodInfo.CustomAttributes.Where(c => c.AttributeType.Name == "AllowAnonymousAttribute").Any())
+            {
+                Assistant.Logger.Debug("访问公开接口");
+                return;
+            }
+            string requestMethod = context.HttpContext.Request.Method;
+            if (requestMethod != "GET")
+            {
+                var headers = context.HttpContext.Request.Headers;
+                if (!headers.Where(h => h.Key == "Authorization").Any())
+                {
+                    Assistant.Logger.Error("缺少token");
+                    var item = new JsonResult(new { code = 401, msg = "缺少token" });
+                    item.StatusCode = 401;
+                    context.Result = item;
+                    return;
                 }
-                else
+                string Authorization = Assistant.Utils.FromBase64Str(headers.Where(h => h.Key == "Authorization").FirstOrDefault().Value);
+                if (!Authorization.StartsWith("GD.exam|"))
                 {
-                    string adminid = cookies["adminId"];
-                    if (controller == "admin" && action == "scan")
-                    {
+                    Assistant.Logger.Error("token错误");
+                    var item = new JsonResult(new { code = 401, msg = "token错误" });
+                    item.StatusCode = 401;
+                    context.Result = item;
+                    return;
+                }
 
-                    }
+                string[] parts = Authorization.Split('|');
+                long exp = Convert.ToInt64(parts[1]);
+                if (exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
+                {
+                    Assistant.Logger.Error("token过期");
+                    var item = new JsonResult(new { code = 401, msg = "token过期" });
+                    item.StatusCode = 401;
+                    context.Result = item;
+                    return;
                 }
             }
+
+            var cookies = context.HttpContext.Request.Cookies;
+            if (!(cookies.Where(u => u.Key == "username").Any() && cookies.Where(u => u.Key == "examToken").Any()))
+            {
+                var item = new RedirectResult("/system/admin/login?msg=invalidtoken");
+                context.Result = item;
+                Assistant.Logger.Error("没登录！走你~");
+                return;
+            }
+            var examToken = cookies.Where(u => u.Key == "examToken").FirstOrDefault().Value;
+            if (!await Assistant.JwtService.ValidateFilter(examToken))
+            {
+                var item = new RedirectResult("/system/admin/login?msg=invalidtoken");
+                context.Result = item;
+                Assistant.Logger.Error("token错辣！走你~");
+                return;
+            }
+
+            //string header = context.HttpContext.Request.Headers["Authorization"];
+            Assistant.Logger.Info("area:" + area + " controller:" + controller + " action:" + action);
+
         }
     }
 }

@@ -1,5 +1,9 @@
 ﻿let randomInt = Math.floor(Math.random() * 1000);
 
+function refreshRandomInt() {
+    randomInt = Math.floor(Math.random() * 1000);
+}
+
 //自动创建面包屑(临时)
 function setBreadCrumb() {
     let breadArr = JSON.parse(localStorage.getItem('breadcrumb'));
@@ -119,11 +123,11 @@ function errorMsg(msg, callback = '') {
 }
 function warnMsg(msg, callback = '') {
     if (typeof (callback) == 'function') {
-        layer.msg(msg, { icon: 1 }, () => {
+        layer.msg(msg, { icon: 0 }, () => {
             callback();
         });
     } else
-        layer.msg(msg, { icon: 1 });
+        layer.msg(msg, { icon: 0 });
 }
 
 //弹出层-初级封装

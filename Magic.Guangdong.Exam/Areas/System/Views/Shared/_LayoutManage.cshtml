@@ -51,9 +51,9 @@
                         tester
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">Your Profile</a></dd>
-                        <dd><a href="javascript:;">Settings</a></dd>
-                        <dd><a href="javascript:;">Sign out</a></dd>
+                        <dd><a href="javascript:;">个人中心</a></dd>
+                        @* <dd><a href="javascript:;">设置</a></dd> *@
+                        <dd><a href="javascript:;" onclick="LogoutAccount()">退出账号</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
@@ -168,6 +168,12 @@
         }
 
         fetchTopMenus();
+
+        function LogoutAccount(){
+            layer.confirm('确定要推出当前账号吗', { icon: 0 }, function () {
+                location.href = '/system/admin/login?msg=logout';
+            })
+        }
     </script>
 </body>
 </html>

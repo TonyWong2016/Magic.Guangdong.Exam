@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.Exam.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text;
@@ -49,6 +50,11 @@ namespace Magic.Guangdong.Exam.Controllers
             }
             return Content("123");
         }
-        
+
+        [AllowAnonymous]
+        public IActionResult AdminLogin(string msg)
+        {
+            return Redirect("/system/admin/login?msg="+msg);
+        }
     }
 }

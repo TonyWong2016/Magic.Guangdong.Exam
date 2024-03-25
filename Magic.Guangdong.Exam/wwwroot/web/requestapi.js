@@ -12,7 +12,8 @@ var axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(function (config) {
     var token = localStorage.getItem('accessToken'); // 假设从localStorage获取token
     if (token) {
-        config.headers.Authorization = 'Bearer ' + token;
+        //config.headers.Authorization = 'Bearer ' + token;
+        config.headers.Authorization = token;
     }
     return config;
 }, function (error) {

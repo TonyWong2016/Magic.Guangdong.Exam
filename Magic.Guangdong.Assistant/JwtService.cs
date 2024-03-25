@@ -10,7 +10,7 @@ using Magic.Guangdong.Assistant.IService;
 
 namespace Magic.Guangdong.Assistant
 {
-    internal class JwtService:IJwtService
+    public class JwtService:IJwtService
     {
         //const string apikey = "space_api";
         const string apiKey = "GD.exam";
@@ -34,6 +34,7 @@ namespace Magic.Guangdong.Assistant
             var credentials = new SigningCredentials(secKey, SecurityAlgorithms.HmacSha256);
             var tokenDescriptor = new JwtSecurityToken(claims: claims, expires: expires, signingCredentials: credentials);
             string jwt = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+            //RedisHelper.SetAsync("adminToken_" + userName, jwt, expires - DateTime.Now);
             return jwt;
         }
 
@@ -83,6 +84,30 @@ namespace Magic.Guangdong.Assistant
             }
         }
 
+        public static async Task<bool> ValidateFilter(string jwt)
+        {
+            if (string.IsNullOrWhiteSpace(jwt))
+            {
+                return false;
+            }
+            JwtSecurityTokenHandler tokenHandler = new();
+
+            TokenValidationParameters validationParameters = new TokenValidationParameters();
+            var secrityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey)));
+            validationParameters.IssuerSigningKey = secrityKey;
+            validationParameters.ValidateIssuer = false;
+            validationParameters.ValidateAudience = false;
+            try
+            {
+                var principal = await tokenHandler.ValidateTokenAsync(jwt, validationParameters);
+                return principal.IsValid;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
 
         public string Parse(string jwt)
         {

@@ -68,7 +68,9 @@ namespace Magic.Guangdong.Assistant
                 //输入其他的话，还是存放到第一个文件夹
                 Log.Information($"{{position}}:{msg}", log1Name);
             }
-            Console.WriteLine(msg);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Info:{msg}....{DateTime.Now}");
+            Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "info"));
         }
         /// <summary>
@@ -78,7 +80,10 @@ namespace Magic.Guangdong.Assistant
         public static void Debug(string msg)
         {
             Log.Debug($"{{position}}:{msg}", log4Name);
-            Console.WriteLine(msg);
+          
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Debug:{msg}....{DateTime.Now}");
+            Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "debug"));
         }
         /// <summary>
@@ -96,7 +101,9 @@ namespace Magic.Guangdong.Assistant
         public static void Warning(string msg)
         {
             Log.Warning($"{{position}}:{msg}", log5Name);
-            Console.WriteLine(msg);
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"Warning:{msg}....{DateTime.Now}");
+            Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "warning"));
         }
         /// <summary>
@@ -106,14 +113,18 @@ namespace Magic.Guangdong.Assistant
         public static void Error(Exception ex)
         {
             Log.Error(ex, "{position}:" + ex.Message, log3Name);
-            Console.WriteLine(ex.Message);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error:{ex.Message}....{DateTime.Now}");
+            Console.ResetColor();
             //Task.Run(() => writeLogToRedis(ex.Message, "error"));
         }
 
         public static void Error(string msg)
         {
             Log.Error("{position}:" + msg, log3Name);
-            Console.WriteLine(msg);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error:{msg}....{DateTime.Now}");
+            Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "error"));
         }
 
@@ -126,7 +137,10 @@ namespace Magic.Guangdong.Assistant
         public static async Task writeLogToRedis(string msg, string logLevel,string system="spaceOA")
         {
             string ret = $"{system} {logLevel} {msg}";
-            Console.WriteLine(msg);
+            //Console.WriteLine(msg);
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"log:{msg}....{DateTime.Now}");
+            Console.ResetColor();
             await RedisHelper.LPushAsync(ConfigurationHelper.GetSectionValue("redislogkey"), ret);
         }
     }

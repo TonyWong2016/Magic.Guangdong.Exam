@@ -70,6 +70,18 @@ function removeObjectFromArray(array, key, value) {
         }
     }
 }
+//生成指定长度的随机字符
+function generateRandomString(length) {
+    let possibleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+
+    for (let i = 0; i < length; i++) {
+        let randomIndex = Math.floor(Math.random() * possibleChars.length);
+        randomString += possibleChars.charAt(randomIndex);
+    }
+
+    return randomString;
+}
 
 
 function listToTree(items) {
@@ -127,3 +139,115 @@ function objectToFormData(obj, form, namespace) {
     return fd;
 }
 
+function parseJwtPayload(jwt) {
+    let base64Url = jwt.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function setLoginInfo(jwt) {
+    let base64Url = jwt.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let item = JSON.parse(window.atob(base64));
+    let username = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    localStorage.setItem('username', username);
+    localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
+    let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
+    setCookie('username', username, expDays)
+    setCookie('examToken', jwt, expDays);
+
+}
+
+
+// 函数：设置（写入）cookie，支持SameSite属性
+function setCookie(name, value, daysToExpire, sameSite = 'Lax') {
+    // HTTP-only标志必须在服务器端设置，这里仅做提示
+    //console.warn('请注意：HTTP-only标志应由服务器端设置，客户端无法直接设置。');
+
+    let cookieText = `${name}=${encodeURIComponent(value)};`;
+
+    // 有效期
+    if (daysToExpire) {
+        const date = new Date();
+        date.setTime(date.getTime() + (daysToExpire * 24 * 60 * 60 * 1000));
+        cookieText += `Expires=${date.toUTCString()};`;
+    }
+
+    // SameSite属性
+    cookieText += `SameSite=${sameSite.toLowerCase()};`;
+
+    // 路径
+    cookieText += 'Path=/;';
+
+    // 将最终的cookie文本设置到document.cookie
+    document.cookie = cookieText;
+}
+
+// 函数：读取cookie
+function getCookie(name) {
+    const nameEQ = `${name}=`;
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.startsWith(nameEQ)) {
+            return decodeURIComponent(cookie.substring(nameEQ.length));
+        }
+    }
+    return null;
+}
+
+// 函数：删除cookie，考虑到SameSite属性
+function deleteCookie(name) {
+    setCookie(name, '', -1, 'Lax'); // 设置有效期为过去，同时设置SameSite属性
+}
+
+function getUrlQueryParams(parameterName = null,url = window.location.href) {
+    const queryStart = url.indexOf('?') + 1;
+    const queryEnd = url.indexOf('#') > 0 ? url.indexOf('#') : url.length;
+
+    const rawQuery = url.slice(queryStart, queryEnd);
+    const queryParams = {};
+
+    if (rawQuery.length > 0) {
+        rawQuery.split('&').forEach(param => {
+            const [key, value] = param.split('=');
+            queryParams[decodeURIComponent(key)] = decodeURIComponent(value);
+        });
+    }
+
+    // 如果指定了参数名称，直接返回该参数的值
+    if (parameterName !== null) {
+        return queryParams[decodeURIComponent(parameterName)] || null;
+    }
+
+    return queryParams;
+}
+
+function removeQueryParamFromCurrentUrl(paramName) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+
+    // 移除指定的参数
+    params.delete(paramName);
+
+    // 更新URL的search部分
+    url.search = params.toString();
+
+    // 生成新的URL字符串（不能直接修改window.location.href，需要用history.replaceState）
+    const newUrl = url.toString();
+
+    // 使用History API替换当前URL（无页面跳转）
+    history.replaceState({}, '', newUrl);
+}
+
+function calculateTimestampDifferenceInSeconds(timestamp1, timestamp2) {
+    // 先确定哪个时间戳更早，以便始终得到正数结果
+    const earlierTimestamp = Math.min(timestamp1, timestamp2);
+    const laterTimestamp = Math.max(timestamp1, timestamp2);
+
+    // 相差秒数就是后面的时间戳减去前面的时间戳
+    const differenceInSeconds = laterTimestamp - earlierTimestamp;
+
+    return differenceInSeconds;
+}
