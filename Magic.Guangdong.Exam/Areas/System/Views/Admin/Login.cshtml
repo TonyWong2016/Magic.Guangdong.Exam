@@ -93,9 +93,13 @@
         if (pageLoadMsg == 'invalidtoken') {
             errorMsg('身份凭证异常，请尝试重新登录');
         } else if (pageLoadMsg == 'logout') {
-            deleteCookie('username');
+            deleteCookie('userId');
             deleteCookie('examToken');
             warnMsg('已成功退出当前账号');
+        } else if (pageLoadMsg) {
+            deleteCookie('userId');
+            deleteCookie('examToken');
+            //errorMsg('请先登录');
         }
         removeQueryParamFromCurrentUrl('msg');
         // 随机生成两个单个数字

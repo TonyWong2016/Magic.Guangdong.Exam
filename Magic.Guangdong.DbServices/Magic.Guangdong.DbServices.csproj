@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Magic.Guangdong.Assistant\Magic.Guangdong.Assistant.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dto\Exam\" />
+  </ItemGroup>
+
 </Project>

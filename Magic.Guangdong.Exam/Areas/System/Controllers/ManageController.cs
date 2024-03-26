@@ -7,6 +7,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
     [Area("System")]
     public class ManageController : Controller
     {
+        
         public ManageController() { }
 
         [RouteMark("管理界面")]

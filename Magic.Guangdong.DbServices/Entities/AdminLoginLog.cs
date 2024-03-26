@@ -21,16 +21,19 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public Guid AdminId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime CreatedAt { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-		[JsonProperty]
-		public DateTime LoginTime { get; set; }
+        [JsonProperty]
+		public DateTime LoginTime { get; set; } = DateTime.Now;
 
-		[JsonProperty, Column(DbType = "varchar(20)", IsNullable = false)]
+        [JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string TokenVersion { get; set; } = Assistant.Utils.GenerateRandomCodePro(8);
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime UpdatedAt { get; set; }
+		public DateTime UpdatedAt { get; set; }=DateTime.Now;
+
+		[JsonProperty]
+		public string TokenHash { get; set; }
 
 	}
 

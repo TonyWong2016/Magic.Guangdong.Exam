@@ -8,6 +8,7 @@ namespace Magic.Guangdong.DbServices.Dto.Admin
 {
     public class RegisterDto
     {
+        public string NickName { get; set; }
         public string? Name { get; set; }
 
         public string Email { get; set; } = "";

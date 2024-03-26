@@ -149,12 +149,12 @@ function setLoginInfo(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     let item = JSON.parse(window.atob(base64));
-    let username = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    let userId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
     let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-    localStorage.setItem('username', username);
+    localStorage.setItem('userId', userId);
     localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
     let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
-    setCookie('username', username, expDays)
+    setCookie('userId', userId, expDays)
     setCookie('examToken', jwt, expDays);
 
 }

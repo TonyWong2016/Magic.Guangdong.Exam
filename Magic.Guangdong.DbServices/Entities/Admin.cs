@@ -42,6 +42,14 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public int IsDeleted { get; set; } = 0;
 
+		[JsonProperty, Column(DbType = "varchar(100)")]
+		public string? NickName { get; set; } = "";
+
+		[JsonProperty]
+		public string Version { get; set; }
+
+        [JsonProperty]
+        public int Status { get; set; } = 0;
     }
 
 }

@@ -15,7 +15,7 @@ namespace Magic.Guangdong.Assistant
         //const string apikey = "space_api";
         const string apiKey = "GD.exam";
         const string signKey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
-        public string Make(string userName,string role,bool remember)
+        public string Make(string userId,string userName,bool remember)
         {
             DateTime expires = DateTime.Now.AddHours(3);//3小时有效
             if (remember)
@@ -24,11 +24,29 @@ namespace Magic.Guangdong.Assistant
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, apiKey),
+                new Claim(ClaimTypes.Sid, userId),
                 new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.Role, role),
+                //new Claim(ClaimTypes.Version,Utils.DateTimeToTimeStamp(expires).ToString())
                 //new Claim("ExpiredTime", expires.ToString("yyyy/MM/dd HH:mm:ss"))
             };
             //string signkey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
+            byte[] secBytes = Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey));
+            var secKey = new SymmetricSecurityKey(secBytes);
+            var credentials = new SigningCredentials(secKey, SecurityAlgorithms.HmacSha256);
+            var tokenDescriptor = new JwtSecurityToken(claims: claims, expires: expires, signingCredentials: credentials);
+            string jwt = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+            //RedisHelper.SetAsync("adminToken_" + userName, jwt, expires - DateTime.Now);
+            return jwt;
+        }
+
+        public string Make(string userId, string userName, DateTime expires)
+        {
+            var claims = new List<Claim>
+            {
+                 new Claim(ClaimTypes.NameIdentifier, apiKey),
+                new Claim(ClaimTypes.Sid, userId),
+                new Claim(ClaimTypes.Name, userName),
+            };
             byte[] secBytes = Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey));
             var secKey = new SymmetricSecurityKey(secBytes);
             var credentials = new SigningCredentials(secKey, SecurityAlgorithms.HmacSha256);
@@ -64,9 +82,9 @@ namespace Magic.Guangdong.Assistant
                         accountClaim.Name = claim.Value;
                         continue;
                     }
-                    if(claim.Type.EndsWith("role"))
+                    if(claim.Type.EndsWith("sid"))
                     {
-                        accountClaim.Role = claim.Value;
+                        accountClaim.Sid = claim.Value;
                         continue ;
                     }
                     if (claim.Type == "exp")
@@ -109,6 +127,53 @@ namespace Magic.Guangdong.Assistant
             }
         }
 
+
+        public static AccountClaim? ValidateJwt(string jwt)
+        {
+            if (string.IsNullOrWhiteSpace(jwt))
+            {
+                return null;
+            }
+            AccountClaim accountClaim = new AccountClaim();
+            //string secKey = "cqmyg1sdssjtwmydtsgxqzygwcs!@#6";
+            JwtSecurityTokenHandler tokenHandler = new();
+
+            TokenValidationParameters validationParameters = new TokenValidationParameters();
+            var secrityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Security.GenerateMD5Hash(signKey)));
+            validationParameters.IssuerSigningKey = secrityKey;
+            validationParameters.ValidateIssuer = false;
+            validationParameters.ValidateAudience = false;
+            try
+            {
+                ClaimsPrincipal principal = tokenHandler.ValidateToken(jwt, validationParameters, out SecurityToken secToken);
+                foreach (var claim in principal.Claims)
+                {
+                    Console.WriteLine($"{claim.Type}={claim.Value}");
+                    if (claim.Type.EndsWith("name"))
+                    {
+                        accountClaim.Name = claim.Value;
+                        continue;
+                    }
+                    if (claim.Type.EndsWith("sid"))
+                    {
+                        accountClaim.Sid = claim.Value;
+                        continue;
+                    }
+                    if (claim.Type == "exp")
+                    {
+                        accountClaim.exp = Convert.ToInt64(claim.Value);
+                        continue;
+                    }
+                }
+                return accountClaim;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
         public string Parse(string jwt)
         {
             string[] segments = jwt.Split(',');
@@ -141,7 +206,7 @@ namespace Magic.Guangdong.Assistant
     {
         public string? Name { get; set; }
 
-        public string? Role { get; set; }
+        public string? Sid { get; set; }
         public long exp { get; set; }
     }
 }

@@ -26,12 +26,25 @@ namespace Magic.Guangdong.Exam.Filters
         /// <param name="context"></param>
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            if (context.RouteData == null ||
+                context.RouteData.Values == null ||
+                !context.RouteData.Values.Where(u => u.Key == "controller").Any() ||
+                !context.RouteData.Values.Where(u => u.Key == "action").Any()
+                )
+            {
+                context.Result = new JsonResult(new { code = -1, msg = "请求地址错误" });
+                return;
+            }
             string controller = Convert.ToString(context.RouteData.Values["controller"]).ToLower();
             string action = Convert.ToString(context.RouteData.Values["action"]).ToLower();
             //执行方法前先执行这
             var actionLog = $"{DateTime.Now} 开始调用 【{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
 
             var descriptor = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
+            if (descriptor == null)
+            {
+                return;
+            }
             //标记为无需验证的操作直接跳过
             if (descriptor.MethodInfo.CustomAttributes.Any(u => u.AttributeType.Name == "AllowAnonymousAttribute"))
             {
@@ -39,31 +52,12 @@ namespace Magic.Guangdong.Exam.Filters
                 Logger.Info(actionLog);
                 return;
             }
-            //if (descriptor.MethodInfo.CustomAttributes.Count(u => u.AttributeType.Name == "RouteMark") == 1 && (bool)(descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name == "RouteMark").FirstOrDefault().ConstructorArguments.First().Value))
             if (descriptor.MethodInfo.CustomAttributes.Any(u => u.AttributeType.Name == "RouteMark"))
             {
                 string requestMethod = context.HttpContext.Request.Method.ToLower();
-                //int userId = Convert.ToInt32(context.HttpContext.User.Claims.First().Value);
                 string userId = "admin";
                 actionLog = $"用户【{userId}】，于{DateTime.Now} 开始调用 【{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
-                //注意在授权的时候，要把关键的数据库写操作的方法设定成“post”,"put"等类型，不要设定成“get”！！
-                if (!mayI(controller, action, userId, requestMethod))
-                {
-                    Logger.Info($"用户【{userId}】无权访问该地址【{controller}/{action}】");
-
-                    if (requestMethod == "get")
-                    {
-                        var item = new ContentResult();
-                        item.Content = "您无权访问当前地址或执行该操作";
-                        item.StatusCode = 200;
-                        context.Result = item;
-                    }
-                    else
-                    {
-                        var item2 = new JsonResult(new { code = -1, msg = "操作权限不足" });
-                        context.Result = item2;
-                    }
-                }
+                
                 Logger.Warning(actionLog);
             }
             else
@@ -165,18 +159,7 @@ namespace Magic.Guangdong.Exam.Filters
                 Logger.Verbose(msg);
             }
         }
-        /// <summary>
-        /// 执行权限判定
-        /// </summary>
-        /// <param name="controller"></param>
-        /// <param name="action"></param>
-        /// <param name="userId"></param>
-        /// <param name="requestMethod"></param>
-        /// <returns></returns>
-        public bool mayI(string controller, string action, string userId, string requestMethod)
-        {
-           //根据路径检查是否具备访问权限
-            return true;
-        }
+        
+
     }
 }
