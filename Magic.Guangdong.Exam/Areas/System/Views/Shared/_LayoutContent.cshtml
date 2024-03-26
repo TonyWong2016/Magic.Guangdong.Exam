@@ -14,8 +14,7 @@
     <script src="~/web/base.js"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-    
+    @await RenderSectionAsync("Scripts", required: false)    
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
     </script>
@@ -30,12 +29,11 @@
         </div>
     </div>
 
-    
-
     <script>
-        //setBreadCrumb();
-        AutoCheckRequired();
-
+        layer.closeAll('loading');
+        setBreadCrumb();
+        autoCheckFormRequired();
+        autoCheckLoginStatus();
         
     </script>
 </body>

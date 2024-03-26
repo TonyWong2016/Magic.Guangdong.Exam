@@ -91,6 +91,7 @@
     </script>
 
     <script>
+        autoCheckLoginStatus();
         var breadcrumbArr = [];
         var navs = [];
         var element = layui.element;
@@ -126,21 +127,22 @@
                 item = itemStr
             } else 
                 item = JSON.parse(itemStr)
-            // if (breadcrumbArr.filter(u => u.name == item.name & u.depth==item.depth).length == 0) {
-            //     removeObjectFromArray(breadcrumbArr, 'depth', item.depth);
-            //     item.depth == 0 ? breadcrumbArr =[]:"";
+            if (breadcrumbArr.filter(u => u.name == item.name & u.depth==item.depth).length == 0) {
+                removeObjectFromArray(breadcrumbArr, 'depth', item.depth);
+                item.depth == 0 ? breadcrumbArr =[]:"";
                     
-            //     breadcrumbArr.push({ depth: item.depth, name: item.name });
-            // }
+                breadcrumbArr.push({ depth: item.depth, name: item.name });
+            }
 
-            // if (breadcrumbArr.filter(u => u.depth == item.depth).length == 0)
-            //     breadcrumbArr.push({ depth: item.depth, name: item.name });
+            if (breadcrumbArr.filter(u => u.depth == item.depth).length == 0)
+                breadcrumbArr.push({ depth: item.depth, name: item.name });
             
 
-            // localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a,b)=>a.depth-b.depth)))
+            localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a,b)=>a.depth-b.depth)))
             
             if (item.isLeef == 1 && item.router!=='') {
                 
+                $('#main-container').attr('src', item.router.replace('Controller',''));
             }
             
             if (navs.length > 0 && navs.filter(u => u.menuId == item.id).length == 1 || item.sLeef == 1) {

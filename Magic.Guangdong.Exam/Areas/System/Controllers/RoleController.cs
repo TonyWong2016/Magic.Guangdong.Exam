@@ -6,10 +6,10 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using static FreeSql.Internal.GlobalFilter;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
+    [Area("system")]
     public class RoleController : Controller
     {
         public readonly IResponseHelper _resp;
@@ -22,6 +22,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             _roleRepo = roleRepo;
             _rolePermissionRepo = rolePermissionRepo;
         }
+
+        [RouteMark("角色管理")]
         public IActionResult Index()
         {
             return View();
@@ -29,13 +31,15 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         [RouteMark("获取角色列表")]
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "pageindex", "pagesize", "rd" })]
-        public IActionResult GetList(PageDto dto)
+        public IActionResult GetRoleList(PageDto dto)
         {
             long total = 0;
             return Json(_resp.success(
                  new { items = _roleRepo.getList(dto, out total), total }
                 ));
         }
+
+        
 
         [RouteMark("创建角色")]
         public IActionResult Create()

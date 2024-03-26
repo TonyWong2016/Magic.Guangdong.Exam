@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dto.Role.RoleDto
+<div class="layui-card layui-panel">
+    <div class="layui-card-header" style="color:#16baaa;font-size:large">
+        创建角色
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form main-form" lay-filter="role-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 标题</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Name" placeholder="请输入角色名称" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" asp-for="Description" placeholder="请简要描述角色的管理定位，职能等"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色类型</label>
+                <div class="layui-input-block">
+                    <select asp-for="Type" lay-verify="" lay-search lay-filter="Type">
+                        <option value="1">超级</option>
+                        <option value="2">普通</option>
+                        <option value="3">其他</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-purple"></span>角色权限</label>
+                <div class="layui-input-block">
+                    <div id="permissionView">
+                    </div>
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
+                    @* <button type="reset" id="reset" class="layui-btn layui-btn-primary">重置</button> *@
+                    <a href="index" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+<script src="~/plugins/xm-select.js"></script>
+<script>
+    let form = layui.form;
+    let formParams = {};
+    let permissions;
+
+    axios.get('/system/Permission/GetPermissions', {
+        params: {
+            rd: 0
+        }
+    }).then(json => {
+        permissions = xmSelect.render({
+            el: '#permissionView',
+            filterable: true,      
+            paging: true,
+            pageSize: 10,
+            pageEmptyShow: false,
+            tips: '如果没有合适的地址，请联系开发同学添加',
+            direction: 'down',
+            prop: {
+                name: 'description',
+                value: 'id'
+            },
+            autoRow: true,
+            data: json.data.data,
+            // on: function (data) {
+
+            // }
+        })
+    })
+
+    form.on('submit(form-submit)', async function (data) {
+        var field = data.field;
+        delete field.select;
+        field.PermissionIdsStr = permissions.getValue('valueStr');
+        if (permissions.getValue('valueStr').length == 0) {
+            layer.alert('未勾选任何权限的角色可能无法正常使用系统，请创建完成后为其赋予相应的管理权限', {icon:4});
+        }
+        console.log(field)
+        //return;
+        let formData = objectToFormData(field);
+        //formData.append('PermissionIds', permissions.getValue('value'))
+        try {
+            const result = await request('POST', '/system/role/Create', formData, { 'Content-Type': 'multipart/form-data' });
+            //console.log(result);
+            if (result.code == 0) {
+                layer.msg('操作成功', { icon: 1 }, function () {
+                    window.location.href = 'index';
+                });
+                return false;
+            }
+            layer.msg(result.msg, { icon: 2 });
+        } catch (error) {
+            //console.error('Error sending form data:', error);
+            layer.msg('操作失败，请稍后重试', { icon: 2 });
+        }
+        return false;
+    })
+</script>

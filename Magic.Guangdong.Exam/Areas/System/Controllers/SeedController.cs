@@ -225,7 +225,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                             {
                                 Id=YitIdHelper.NextId(),
                                 Name = routeMark.Module,
-                                Controller = type.Name,
+                                Controller = type.Name.Replace("Controller", ""),
                                 Action = methodInfo.Name,
                                 Area = area,
                                 Description = $"{routeMark.Module}（{router}）"

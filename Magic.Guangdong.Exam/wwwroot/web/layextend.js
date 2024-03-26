@@ -10,14 +10,14 @@ function setBreadCrumb() {
     var breadCrumb = document.getElementById('breadcrumb');
     breadCrumb.innerHTML = '';
     breadArr.forEach(function (item) {
-        breadCrumb.innerHTML += '<a href="javascript">' + item.name + '</a>';
+        breadCrumb.innerHTML += '<a href="javascript:;">' + item.name + '</a>';
     })
     let element = layui.element;
     element.render('breadcrumb', 'breadcrumb');
 }
 
 //自动给main-form类名的form表单添加lay-verify属性，以便验证
-function AutoCheckRequired() {
+function autoCheckFormRequired() {
     var formsWithClass = document.querySelectorAll('form.main-form');
 
     formsWithClass.forEach(function (form) {

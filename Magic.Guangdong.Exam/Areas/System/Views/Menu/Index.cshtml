@@ -21,7 +21,7 @@
         <table id="table" class="layui-table" lay-filter="table"></table>
 
     </div>
-    
+
 </div>
 
 <script id="menuTypeTpl" type="text/html">
@@ -34,7 +34,7 @@
 
 <script type="text/html" id="statusTpl">
     {{# if(d.status==1){ }}
-    <span style="color:#1E9FFF">正常</span>
+    <span style="color:#1e9fff">正常</span>
     {{# } else { }}
     <span style="color:#FF5722">禁用</span>
     {{#} }}
@@ -42,12 +42,16 @@
 
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/menu/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/menu/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getMenuTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    {{# if(d.depth>0){ }}
+        <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/menu/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getMenuTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    {{# } else { }}
+        <a class="layui-btn layui-btn-disabled " href="javascript:;" onclick="errorMsg('顶级菜单不可删除，如不再需要该栏目，可进入编辑页面，禁用该栏目')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    {{# } }}
 </script>
 <script>
     let table = layui.table;
     let form = layui.form;
-    let token = $('@Html.AntiForgeryToken()').val();
+
     getMenuTable();
 
     axios.get('/system/menu/getmenus', {
@@ -55,19 +59,17 @@
             parentId: 0
         }
     }).then(result => {
-        renderTpl('menuTypeTpl', 'menuTypeView', result.data.data, false).then(()=>{
-            
-            renderLayuiFormElem({ elemType:'select'})
+        renderTpl('menuTypeTpl', 'menuTypeView', result.data.data, false).then(() => {
+            renderLayuiFormElem({ elemType: 'select' })
         })
-       
     })
 
     form.on('select(menuType)', (data) => {
         console.log($('#menuTypeView').val())
         getMenuTable()
     })
-    
-    function getMenuTable() {      
+
+    function getMenuTable() {
         var params = {
             url: '/system/menu/GetMenuPages',
             elem: '#table',
@@ -81,7 +83,7 @@
                 , { field: 'description', title: '描述' }
                 , { field: 'depth', title: '栏目层级' }
                 , { templet: '#statusTpl', title: '状态' }
-                , { field: 'router', title: '路由地址'}
+                , { field: 'router', title: '路由地址' }
                 , { field: 'parentId', hide: true }
                 , { field: 'permissionId', hide: true }
                 , { title: '操作', templet: '#operationTpl', width: 220 }
@@ -102,10 +104,10 @@
             }, {
                 'Field': 'Depth',
                 'Operator': 'GreaterThan',
-                'Value': 0
+                'Value': -1
             }]
         };
-        if ($('#menuTypeView').val() && $('#menuTypeView').val()!='0') {
+        if ($('#menuTypeView').val() && $('#menuTypeView').val() != '0') {
             whereJsonStr.Filters.push({
                 'Logic': 'And',
                 'Filters': [{
@@ -117,8 +119,8 @@
         }
 
 
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'rd': randomInt };
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr),'orderby':'depth', 'rd': randomInt };
     }
 
-    
+
 </script>

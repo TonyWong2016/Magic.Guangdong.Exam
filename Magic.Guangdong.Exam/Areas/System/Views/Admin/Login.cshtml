@@ -93,12 +93,9 @@
         if (pageLoadMsg == 'invalidtoken') {
             errorMsg('身份凭证异常，请尝试重新登录');
         } else if (pageLoadMsg == 'logout') {
-            deleteCookie('userId');
-            deleteCookie('examToken');
+            clearLoginInfo();
             warnMsg('已成功退出当前账号');
-        } else if (pageLoadMsg) {
-            deleteCookie('userId');
-            deleteCookie('examToken');
+        } else if (pageLoadMsg) {           
             //errorMsg('请先登录');
         }
         removeQueryParamFromCurrentUrl('msg');
@@ -116,6 +113,7 @@
                 console.log(JSON.stringify(field))
                 if (parseInt(field.captcha) != captchaRet) {
                     layer.alert('验证码错误', { icon: 2 })
+                    generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
                     return;
                 }
                 field.captchaTsp = `${field.captcha}${Math.round(new Date() / 1000)}`
@@ -135,8 +133,6 @@
                 }
                 generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split("")); // 生成验证码图片
 
-                // 此处可执行 Ajax 等操作
-                // …
                 return false; // 阻止默认 form 跳转
             });
         });
@@ -224,9 +220,7 @@
             }
         }
 
-        // 使用方法
-        const captchaCode = generateSimpleMathCaptcha(); // 获取随机字符
-        const captchaImage = generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split("")); // 生成验证码图片
+        generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
     </script>
 
 </body>

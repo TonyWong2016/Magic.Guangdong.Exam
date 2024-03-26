@@ -128,7 +128,7 @@
             //console.log(result);
             if(result.code==0){
                 layer.msg('操作成功', { icon: 1 }, function () {
-                    $('#reset').click();
+                    window.location.href = 'index';
                 });
                 return false;
             }

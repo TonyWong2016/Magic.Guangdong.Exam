@@ -156,9 +156,70 @@ function setLoginInfo(jwt) {
     let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
     setCookie('userId', userId, expDays)
     setCookie('examToken', jwt, expDays);
-
 }
 
+
+
+function clearLoginInfo() {
+    deleteCookie('userId');
+    deleteCookie('examToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('accessToken');
+    window.location.href = "/home/index";
+}
+
+function watchInput(inputId, callback, debounce =1500) {
+    var inputElement = document.getElementById(inputId);
+    let flag = true;
+    if (!inputElement) {
+        console.error('无法找到id为' + inputId + '的元素');
+        return;
+    }
+
+    // 使用防抖(debounce)技术处理连续输入的情况，避免过于频繁的回调调用
+    var debounceTimeout;
+
+    function handleInputChange() {
+        flag = false;
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(function () {
+            let value = inputElement.value.replace(/^\s+|\s+$/g, "");
+            callback(value);
+            flag = true;  
+        }, debounce); 
+        
+    }
+
+    // 监听input事件（实时输入变化）和change事件（输入框失去焦点）
+    inputElement.addEventListener('input', handleInputChange);
+    inputElement.addEventListener('change', handleInputChange);
+    // 当文本框失去焦点时，清除定时器以防止后续触发回调
+    inputElement.addEventListener('blur', function () {
+        if (!flag)
+            callback(inputElement.value.replace(/^\s+|\s+$/g, ""));
+        clearTimeout(debounceTimeout);
+       
+    });
+}
+
+function autoSearch(elemId, callback) {
+    let last;
+    //搜索关键字
+    $("#" + elemId).on('input propertychange', function (event) {
+        last = event.timeStamp;
+        //利用event的timeStamp来标记时间，这样每次事件都会修改last的值，注意last必需为全局变量
+        setTimeout(function () {    //设时延迟x秒执行
+            if (last - event.timeStamp == 0)//如果时间差为0（也就是你停止输入x秒之内都没有其它的keyup事件发生）则做你想要做的事
+            {
+                if (typeof (callback) == 'function') {
+                    let value = $("#" + elemId).val().replace(/^\s+|\s+$/g, "");
+                    callback(value);
+                        
+                }
+            }
+        }, 1500);
+    });
+}
 
 // 函数：设置（写入）cookie，支持SameSite属性
 function setCookie(name, value, daysToExpire, sameSite = 'Lax') {
@@ -201,6 +262,40 @@ function getCookie(name) {
 function deleteCookie(name) {
     setCookie(name, '', -1, 'Lax'); // 设置有效期为过去，同时设置SameSite属性
 }
+
+function autoCheckLoginStatus() {
+    if (isCookieExpired('userId')) {
+        clearLoginInfo();
+    }
+}
+
+function isCookieExpired(name) {
+    // 获取指定名称的cookie值
+    var cookie = document.cookie.split(';').find(function (cookie) {
+        return cookie.trim().startsWith(name + '=');
+    });
+
+    if (!cookie) {
+        // 如果找不到该cookie，则默认认为已过期
+        return true;
+    }
+
+    // 分离cookie名称和值
+    cookie = cookie.split('=');
+    // 获取cookie的过期时间（如果有）
+    var expires = cookie[1].match(/expires=([^;]+)/);
+
+    if (!expires || !expires[1]) {
+        // 如果没有expires属性，则默认认为未过期
+        return false;
+    }
+
+    // 解析expires属性的UTC日期字符串为Date对象
+    var expirationDate = new Date(expires[1]);
+    // 检查当前时间是否晚于cookie的过期时间
+    return expirationDate <= new Date();
+}
+
 
 function getUrlQueryParams(parameterName = null,url = window.location.href) {
     const queryStart = url.indexOf('?') + 1;

@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dto.Role;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.Extensions.DependencyModel.Resolution;
+using NPOI.POIFS.Dev;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +85,6 @@ namespace Magic.Guangdong.DbServices.Methods
                     role.Type = (int)dto.Type;
                     //上层要判断roleName是否重复
                     await roleRepo.UpdateAsync(role);
-
 
                     var rolePermissionRepo = fsql.Get(conn_str).GetRepository<RolePermission>();
                     if (dto.PermissionIds != null && dto.PermissionIds.Any())
@@ -172,5 +172,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
             }
         }
+
+        
     }
 }

@@ -1,0 +1,114 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+                <label class="layui-form-label">角色类别</label>
+                <div class="layui-input-inline">
+                    <select id="roleTypeView" lay-verify="" lay-search lay-filter="roleType">
+                        <option value="0">全部</option>
+                        <option value="1">超级</option>
+                        <option value="2">普通</option>
+                        <option value="3">其他</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" id="name" name="name" lay-filter="name" placeholder="角色名称" />
+                </div>
+                <div class="layui-input-inline" style="width:15%">
+                    <a href="create" class="layui-btn">添加新角色</a>
+                </div>
+            </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+
+    </div>
+
+</div>
+
+<script type="text/html" id="typeTpl">
+     {{# if(d.type==1){ }}
+    <span style="color:#a233c6">超级</span>
+    {{# } else if(d.type==2) { }}
+    <span style="color:#1e9fff">普通</span>
+    {{# } else { }}
+    <span style="color:#FF5722">其他</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/menu/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/role/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getRoleTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+
+</script>
+
+<script>
+    let table = layui.table;
+    let form = layui.form;
+
+    autoSearch('name', function (value) {
+        getRoleTable()
+    })
+
+    form.on('select(roleType)', (data) => {
+        getRoleTable()
+    })
+
+
+    getRoleTable()
+    function getRoleTable(){
+        var params = {
+            url: '/system/role/GetRoleList',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: '#indexTpl', width: 100 },
+                { field: 'id', title: '角色id' }
+                , { field: 'name', title: '角色名称' }
+                , { field: 'description', title: '描述' }
+                , { templet: '#typeTpl', title: '状态' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl', width: 220 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($('#roleTypeView').val() && $('#roleTypeView').val() != '0') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'type',
+                    'Operator': 'Equal',
+                    'Value': $('#roleTypeView').val()
+                }]
+            });
+        }
+        if ($("#name").val()) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'name',
+                    'Operator': 'Contains',
+                    'Value': $('#name').val()
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>
