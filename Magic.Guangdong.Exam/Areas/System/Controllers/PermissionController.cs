@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto.Permissions;
+using Magic.Guangdong.DbServices.Dtos.Permissions;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;

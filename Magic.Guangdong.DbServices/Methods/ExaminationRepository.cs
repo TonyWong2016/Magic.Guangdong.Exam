@@ -26,6 +26,7 @@ namespace Magic.Guangdong.DbServices.Methods
         }
         public async Task<bool> getAnyAsync(Expression<Func<T, bool>> predicate)
         {
+
             return await fsql.Get(conn_str).Select<T>().AnyAsync(predicate);
         }
         /// <summary>

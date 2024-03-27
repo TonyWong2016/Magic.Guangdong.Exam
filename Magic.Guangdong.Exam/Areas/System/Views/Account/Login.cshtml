@@ -95,9 +95,16 @@
         } else if (pageLoadMsg == 'logout') {
             clearLoginInfo();
             warnMsg('已成功退出当前账号');
-        } else if (pageLoadMsg) {           
-            //errorMsg('请先登录');
+        } else if (parent.location && parent.location.pathname != '/system/account/login') {
+            errorMsg('登录超时', () => {
+                parent.location.href = '/system/account/login';
+            })
+            //保险多增加一个计时~
+            setTimeout(()=>{
+                parent.location.href = '/system/account/login';
+            },5000)
         }
+        
         removeQueryParamFromCurrentUrl('msg');
         // 随机生成两个单个数字
         let num1 = Math.floor(Math.random() * 100) + 1; // 1到10之间的整数
@@ -122,7 +129,7 @@
                 delete field.password;
                 delete field.captcha;
 
-                let result = await request('POST', '/system/admin/login', data.field, { 'Content-Type': 'multipart/form-data' });
+                let result = await request('POST', '/system/account/login', data.field, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {
                     successMsg('登录成功');
                     setLoginInfo(result.data.access_token);

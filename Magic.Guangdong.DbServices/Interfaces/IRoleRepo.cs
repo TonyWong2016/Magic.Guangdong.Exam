@@ -1,4 +1,4 @@
-﻿using Magic.Guangdong.DbServices.Dto.Role;
+﻿using Magic.Guangdong.DbServices.Dtos.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,5 +11,9 @@ namespace Magic.Guangdong.DbServices.Interfaces
     public interface IRoleRepo:IExaminationRepository<Role>
     {
         Task<bool> CreateRole(RoleDto dto);
+
+        Task<bool> UpdateRole(RoleDto dto);
+
+        Task<bool> RemoveRole(long roleId);
     }
 }

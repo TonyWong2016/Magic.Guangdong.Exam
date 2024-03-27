@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto.Role;
+using Magic.Guangdong.DbServices.Dtos.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.Extensions.DependencyModel.Resolution;
@@ -71,6 +71,11 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
+        /// <summary>
+        /// 更新角色，确保调用之前进行了排重操作
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateRole(RoleDto dto)
         {
             using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
@@ -133,7 +138,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
-        public async Task<bool> DeleteRole(long roleId)
+        public async Task<bool> RemoveRole(long roleId)
         {
             using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {

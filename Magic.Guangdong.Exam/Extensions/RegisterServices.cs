@@ -75,8 +75,29 @@ namespace Magic.Guangdong.Exam.Extensions
             //.Build(); //请务必定义成 Singleton 单例模式
 
             //services.AddSingleton<IFreeSql>(fsql);
-
-            ib.Register("db_exam", () => new FreeSqlBuilder().UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString")).Build());
+            if (configuration.GetSection("env").Value == "dev")
+            {
+                ib.Register("db_exam", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+                    .UseMonitorCommand(cmd =>
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"Sql：{cmd.CommandText}");
+                            Console.ResetColor();
+                        })//监听SQL语句
+                    .Build()
+                );
+            }
+            else
+            {
+                ib.Register("db_exam", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+                    .Build()
+                );
+            }
+            
 
             services.AddSingleton(ib);
             #endregion
@@ -137,7 +158,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             //    {
-            //        options.LoginPath = "/system/admin/login";
+            //        options.LoginPath = "/system/account/login";
             //        options.Cookie.HttpOnly = true;
             //        options.Cookie.SameSite = SameSiteMode.Lax;
             //        options.ExpireTimeSpan = TimeSpan.FromHours(2);

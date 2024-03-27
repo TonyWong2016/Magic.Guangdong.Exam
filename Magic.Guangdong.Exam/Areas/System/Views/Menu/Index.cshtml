@@ -11,7 +11,7 @@
                     </select>
                 </div>
                 <div class="layui-input-inline" style="width:15%">
-                    <a href="create" class="layui-btn">添加新栏目</a>
+                    <a href="@Url.Action("Create")" class="layui-btn">添加新栏目</a>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -68,7 +68,7 @@
         console.log($('#menuTypeView').val())
         getMenuTable()
     })
-
+    let menuArr = [];
     function getMenuTable() {
         var params = {
             url: '/system/menu/GetMenuPages',
@@ -78,7 +78,7 @@
             page: true,
             cols: [ //表头
                 //{ title: '序号', templet: '#indexTpl', width: 100 },
-                { field: 'id', title: '功能id' }
+                { field: 'id', title: '功能id',type:'checkbox' }
                 , { field: 'name', title: '功能名称' }
                 , { field: 'description', title: '描述' }
                 , { field: 'depth', title: '栏目层级' }
@@ -86,12 +86,31 @@
                 , { field: 'router', title: '路由地址' }
                 , { field: 'parentId', hide: true }
                 , { field: 'permissionId', hide: true }
-                , { title: '操作', templet: '#operationTpl', width: 220 }
+                , { title: '操作', templet: '#operationTpl', width: 260 }
             ],
             height: 630
         }
         getTable(params);
 
+        table.on('checkbox(table)',function(obj){     
+            if (obj.type == 'all' && !obj.checked) {
+                menuArr = [];
+            }else if (obj.type == 'all' && obj.checked) {
+               // console.log(table.getData('table'))
+                menuArr = table.getData('table');
+            } else if (obj.type == 'one' && !obj.checked) {
+                //console.log(obj.data.id);
+                let indexToRemove = menuArr.findIndex(item => item.id == obj.data.id);
+                if (indexToRemove !== -1)
+                    menuArr.splice(indexToRemove, 1);
+            } else {
+                menuArr.push(obj.data);
+            }
+            console.log(menuArr.map(u=>u.id))
+           //todo..        
+            //增加批量删除功能
+        })
+        
     }
 
     function makeWhereJson() {

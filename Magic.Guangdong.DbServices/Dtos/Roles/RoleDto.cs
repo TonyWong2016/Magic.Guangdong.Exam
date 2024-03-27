@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Dto.Role
+namespace Magic.Guangdong.DbServices.Dtos.Roles
 {
     public class RoleDto
     {

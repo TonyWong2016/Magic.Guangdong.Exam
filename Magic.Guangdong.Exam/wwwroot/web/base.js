@@ -165,6 +165,10 @@ function clearLoginInfo() {
     deleteCookie('examToken');
     localStorage.removeItem('userId');
     localStorage.removeItem('accessToken');
+    
+    if (parent.location) {
+        parent.location.href = "/home/index"
+    }
     window.location.href = "/home/index";
 }
 
@@ -264,7 +268,7 @@ function deleteCookie(name) {
 }
 
 function autoCheckLoginStatus() {
-    if (isCookieExpired('userId')) {
+    if (isCookieExpired('userId') || !getCookie('userId')) {
         clearLoginInfo();
     }
 }

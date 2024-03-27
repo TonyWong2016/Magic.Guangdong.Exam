@@ -54,7 +54,7 @@ namespace Magic.Guangdong.Exam.Controllers
         [AllowAnonymous]
         public IActionResult AdminLogin(string msg)
         {
-            return Redirect("/system/admin/login?msg="+msg);
+            return Redirect("/system/account/login?msg="+msg);
         }
     }
 }

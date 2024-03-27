@@ -1,12 +1,13 @@
 ﻿using FreeSql.Internal;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto.Routers;
+using Magic.Guangdong.DbServices.Dtos.Routers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System.Reflection;
 using System.Text;
 using Yitter.IdGenerator;
@@ -210,25 +211,41 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
                 foreach (var methodInfo in type.GetMethods())
                 {
+                    string method = "get";
+                    if (methodInfo.CustomAttributes.Where(u => u.AttributeType.Name.StartsWith("Http")).Any())
+                    {
+                        method = methodInfo.CustomAttributes
+                            .Where(u => u.AttributeType.Name.StartsWith("Http"))
+                            .First()
+                            .AttributeType
+                            .Name.Replace("Http","").Replace("Attribute", "").ToLower();
+                    }
                     foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
                     {
+                        
                         if (attribute is RouteMark routeMark)
                         {
-                            if(await _permissionRepo.getAnyAsync(u=>u.Name==routeMark.Module && u.Area==area && u.Controller==type.Name && u.Action == methodInfo.Name))
+                            if(await _permissionRepo.getAnyAsync(u=>u.Name==routeMark.Module.ToLower() && 
+                            u.Area==area.ToLower() && 
+                            u.Controller==type.Name.Replace("Controller", "").ToLower() &&
+                            u.Action == methodInfo.Name.ToLower() && 
+                            u.Method == method))
                             {
                                 continue;
                             }
-                            string router = $"/{area}/{type.Name}/{methodInfo.Name}";
+                            
+                            string router = $"/{area}/{type.Name.Replace("Controller", "").ToLower()}/{methodInfo.Name}";
                             if (string.IsNullOrEmpty(area))
                                 router = router.Substring(1);
                             permissions.Add(new Permission()
                             {
                                 Id=YitIdHelper.NextId(),
                                 Name = routeMark.Module,
-                                Controller = type.Name.Replace("Controller", ""),
-                                Action = methodInfo.Name,
-                                Area = area,
-                                Description = $"{routeMark.Module}（{router}）"
+                                Controller = type.Name.Replace("Controller", "").ToLower(),
+                                Action = methodInfo.Name.ToLower(),
+                                Area = area.ToLower(),
+                                Description = $"{routeMark.Module}（{router}）",
+                                Method = method,
                             });
                         }
                     }

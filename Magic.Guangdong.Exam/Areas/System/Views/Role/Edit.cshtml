@@ -46,6 +46,7 @@
                     <a href="index" class="layui-btn layui-btn-primary">返回</a>
                 </div>
             </div>
+            <input type="hidden" asp-for="Id" />
             @Html.AntiForgeryToken()
         </form>
     </div>
@@ -54,6 +55,7 @@
 <script>
     let form = layui.form;
     let formParams = {};
+    let roleId = $('#Id').val();
     let permissions;
 
     axios.get('/system/Permission/GetPermissions', {
@@ -70,7 +72,7 @@
             theme: {
                 color: '#16baaa',
             },
-            tips: '如果没有合适的地址，请联系开发同学添加',
+            tips: '如果没有合适的权限，请联系开发同学添加',
             direction: 'down',
             prop: {
                 name: 'description',
@@ -78,8 +80,9 @@
             },
             autoRow: true,
             data: json.data.data,
-
         })
+    }).then(() => {
+        getExistPermissions();
     })
 
     form.on('submit(form-submit)', async function (data) {
@@ -89,10 +92,13 @@
         if (permissions.getValue('valueStr').length == 0) {
             layer.alert('未勾选任何权限的角色可能无法正常使用系统，请创建完成后为其赋予相应的管理权限', {icon:4});
         }
-        //console.log(field)
+        console.log(field)
+        //return;
         let formData = objectToFormData(field);
+        //formData.append('PermissionIds', permissions.getValue('value'))
         try {
-            const result = await request('POST', '/system/role/Create', formData, { 'Content-Type': 'multipart/form-data' });
+            const result = await request('POST', '/system/role/Edit', formData, { 'Content-Type': 'multipart/form-data' });
+            //console.log(result);
             if (result.code == 0) {
                 layer.msg('操作成功', { icon: 1 }, function () {
                     window.location.href = 'index';
@@ -101,8 +107,21 @@
             }
             layer.msg(result.msg, { icon: 2 });
         } catch (error) {
+            //console.error('Error sending form data:', error);
             layer.msg('操作失败，请稍后重试', { icon: 2 });
         }
         return false;
     })
+
+    function getExistPermissions() {
+        axios.get('@Url.Action("GetRolePermissions")', {
+            params: {
+                roleId:roleId,
+                rd: randomInt
+            }
+        }).then(json=>{
+            console.log(json.data);
+            permissions.setValue(json.data.data)
+        })
+    }
 </script>

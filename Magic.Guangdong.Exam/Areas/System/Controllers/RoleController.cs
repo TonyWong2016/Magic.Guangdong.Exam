@@ -1,6 +1,6 @@
 ﻿using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto;
-using Magic.Guangdong.DbServices.Dto.Role;
+using Magic.Guangdong.DbServices.Dtos.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
@@ -30,7 +30,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         }
 
         [RouteMark("获取角色列表")]
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "pageindex", "pagesize", "rd" })]
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "pageindex", "pagesize","orderby", "isAsc", "rd" })]
         public IActionResult GetRoleList(PageDto dto)
         {
             long total = 0;
@@ -39,7 +39,22 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 ));
         }
 
-        
+        /// <summary>
+        /// 获取角色
+        /// </summary>
+        /// <returns></returns>
+        [ResponseCache(Duration =100,VaryByQueryKeys = new string[] { "rd" })]
+        public async Task<IActionResult> GetRoleDrops()
+        {
+            var roles = await _roleRepo.getListAsync(u => u.IsDeleted == 0);
+            return Json(_resp.success(
+               roles.Select(u => new
+               {
+                   value = u.Id,
+                   name = u.Name
+               })
+           ));
+        }
 
         [RouteMark("创建角色")]
         public IActionResult Create()
@@ -65,22 +80,46 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         }
 
         [RouteMark("编辑角色")]
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit(long id)
         {
-            return View();
+            if (await _roleRepo.getAnyAsync(u => u.Id == id))
+            {
+                var role = await _roleRepo.getOneAsync(u => u.Id == id);
+                return View(role.Adapt<RoleDto>());
+            }
+            return Json(_resp.error("角色不存在"));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "roleId","rd" })]
+        public async Task<IActionResult> GetRolePermissions(long roleId)
+        {
+            return Json(_resp.success((
+                await _rolePermissionRepo
+                .getListAsync(u => u.RoleId == roleId && u.IsDeleted == 0))
+                .Select(u => u.PremissionId))
+                );
         }
 
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(RoleDto dto)
         {
-            if(await _roleRepo.getAnyAsync(u=>u.Name==dto.Name && u.Id != dto.Id))
+            if (await _roleRepo.getAnyAsync(u => u.Name == dto.Name && u.Id != dto.Id))
             {
                 return Json(_resp.error("角色已存在，请更换角色名称"));
             }
             
             return Json(_resp.success(
-                await _roleRepo.updateItemAsync(dto.Adapt<Role>())
+                await _roleRepo.UpdateRole(dto)
                 ));
         }
+
+        [RouteMark("删除角色")]
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(long id)
+        {
+           return Json(_resp.success(await _roleRepo.RemoveRole(id)));
+        }
+
+
     }
 }

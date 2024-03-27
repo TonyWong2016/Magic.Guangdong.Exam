@@ -18,7 +18,7 @@ namespace Magic.Guangdong.DbServices.Entities
         public long Id { get; set; } = YitIdHelper.NextId();
 
         [JsonProperty, Column(InsertValueSql = "getdate()")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [JsonProperty]
         public Guid AdminId { get; set; }
@@ -27,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Entities
         public long RoleId { get; set; }
 
         [JsonProperty, Column(InsertValueSql = "getdate()")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }= DateTime.Now;
 
         [JsonProperty]
         public int IsDeleted { get; set; } = 0;

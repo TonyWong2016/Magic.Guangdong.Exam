@@ -104,7 +104,7 @@ namespace Magic.Guangdong.Exam.Filters
             var cookies = context.HttpContext.Request.Cookies;
             if (!cookies.Where(u => u.Key == "userId").Any() || !cookies.Where(u => u.Key == "examToken").Any())
             {
-                var item = new RedirectResult("/system/admin/login?msg=notauth");
+                var item = new RedirectResult("/system/account/login?msg=notauth");
                 context.Result = item;
                 Assistant.Logger.Error("没登录！走你~");
                 return false;
@@ -116,7 +116,7 @@ namespace Magic.Guangdong.Exam.Filters
             var examToken = cookies.Where(u => u.Key == "examToken").FirstOrDefault().Value;
             //if (!await Assistant.JwtService.ValidateFilter(examToken))
             //{
-            //    var item = new RedirectResult("/system/admin/login?msg=invalidtoken");
+            //    var item = new RedirectResult("/system/account/login?msg=invalidtoken");
             //    context.Result = item;
             //    Assistant.Logger.Error("token错辣！走你~");
             //    return false;
@@ -124,14 +124,14 @@ namespace Magic.Guangdong.Exam.Filters
             var claim = Assistant.JwtService.ValidateJwt(examToken);
             if (claim == null)
             {
-                var item = new RedirectResult("/system/admin/login?msg=invalidtoken");
+                var item = new RedirectResult("/system/account/login?msg=invalidtoken");
                 context.Result = item;
                 Assistant.Logger.Error("token错辣！走你~");
                 return false;
             }
             if (claim.Sid != cookies.Where(u => u.Key == "userId").First().Value || claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
             {
-                var item = new RedirectResult("/system/admin/login?msg=invalidtoken");
+                var item = new RedirectResult("/system/account/login?msg=invalidtoken");
                 context.Result = item;
                 Assistant.Logger.Error("token错辣或者超时辣！走你~");
                 return false;

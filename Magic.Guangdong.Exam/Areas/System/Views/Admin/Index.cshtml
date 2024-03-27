@@ -1,0 +1,171 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+                <label class="layui-form-label">账户状态</label>
+                <div class="layui-input-inline">
+                    <select id="statusView" lay-verify="" lay-search lay-filter="status">
+                        <option value="-1">全部</option>
+                        <option value="0">正常</option>
+                        <option value="1">禁用</option>
+                    </select>
+                </div>
+                @* <label class="layui-form-label">角色</label> *@
+                <div class="layui-input-inline" style="width:20%">
+                    <div id="roleView">
+                    </div>
+                </div>
+                <div class="layui-input-inline" style="width:25%">
+                    <input class="layui-input" type="text" id="keyword" name="keyword" lay-filter="keyword" placeholder="关键字（邮箱，电话，用户名，昵称其中之一）" />
+                </div>
+                <div class="layui-input-inline" style="width:15%">
+                    <a href="@Url.Action("Create")" class="layui-btn">添加新用户</a>
+                </div>
+            </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+
+    </div>
+
+</div>
+
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span style="color:#1e9fff">正常</span>
+    {{# } else { }}
+    <span style="color:#FF5722">禁用</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="rolesTpl">
+     {{# layui.each(d.adminRoles,function(index,item){}}
+        <span class="layui-badge layui-bg-purple">{{item.roleName}}</span>
+     {{# }) }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/admin/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/admin/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getRoleTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+
+</script>
+
+<script src="~/plugins/xm-select.js"></script>
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    let roles
+    axios.get('/system/role/GetRoleDrops', {
+        params: {
+            rd: 0
+        }
+    }).then(json => {
+        roles = xmSelect.render({
+            el: '#roleView',
+            filterable: true,
+            paging: true,
+            tips:'请选择归属角色',
+            pageSize: 10,
+            pageEmptyShow: false,
+            theme: {
+                color: '#16baaa',
+            },
+            direction: 'down',
+            autoRow: true,
+            data: json.data.data,
+        })
+    })
+
+    autoSearch('keyword', function (value) {
+        getAdminTable()
+    })
+
+    getAdminTable()
+    function getAdminTable(){
+        var params = {
+            url: '/system/admin/GetAdminList',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: '#indexTpl', width: 100 },
+                { field: 'id', title: '用户id', type: 'checkbox' }
+                , { field: 'name', title: '用户名称' }
+                , { field: 'email', title: '邮箱' }
+                , { field: 'mobile', title: '电话' }
+                , { field: 'description', title: '描述' }
+                , { templet: '#statusTpl', title: '账户状态' }
+                , { templet: '#rolesTpl', title: '账户角色' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl', width: 260 }
+            ],
+            height: 630
+        }
+        getTable(params);
+
+        table.on('checkbox(table)', function (obj) {
+            if (obj.type == 'all' && !obj.checked) {
+                roleArr = [];
+            } else if (obj.type == 'all' && obj.checked) {
+                roleArr = table.getData('table');
+            } else if (obj.type == 'one' && !obj.checked) {
+                let indexToRemove = roleArr.findIndex(item => item.id == obj.data.id);
+                if (indexToRemove !== -1)
+                    roleArr.splice(indexToRemove, 1);
+            } else {
+                roleArr.push(obj.data);
+            }
+            console.log(roleArr.map(u => u.id))
+            //todo..
+            //增加批量编辑（启用禁用）功能
+        })
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($('#statusView').val() && $('#statusView').val() != '-1') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'status',
+                    'Operator': 'Equal',
+                    'Value': $('#statusView').val()
+                }]
+            });
+        }
+        if ($("#keyword").val()) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'name',
+                    'Operator': 'Contains',
+                    'Value': $('#keyword').val()
+                }, {
+                    'Field': 'nickname',
+                    'Operator': 'Contains',
+                    'Value': $('#keyword').val()
+                }, {
+                    'Field': 'email',
+                    'Operator': 'Equal',//这两个就别模糊了
+                    'Value': $('#keyword').val()
+                }, {
+                    'Field': 'mobile',
+                    'Operator': 'Equal',//这两个就别模糊了
+                    'Value': $('#keyword').val()
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt,'roleIds':[123] };
+    }
+</script>

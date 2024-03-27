@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Dto.Permissions
+namespace Magic.Guangdong.DbServices.Dtos.Permissions
 {
     public class PermissionDto
     {

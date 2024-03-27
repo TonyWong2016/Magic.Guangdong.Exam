@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-@model Magic.Guangdong.DbServices.Dto.Menus.MenuDto
+@model Magic.Guangdong.DbServices.Dtos.Menus.MenuDto
 
 <div class="layui-card layui-panel">
     <div class="layui-card-header" style="color:#16baaa;font-size:large">
@@ -70,6 +70,7 @@
             <input type="hidden" asp-for="Depth" value="0"/>
             <input type="hidden" asp-for="PermissionId" value="0"/>
             <input type="hidden" asp-for="Router" value="-"/>
+            <input type="hidden" asp-for="CreatorId" />
             <input type="hidden" asp-for="Id" value="@Yitter.IdGenerator.YitIdHelper.NextId()"/>
             @Html.AntiForgeryToken()
         </form>
@@ -79,7 +80,7 @@
 <script src="~/plugins/xm-select.js"></script>
 
 <script>
-
+    $('#CreatorId').val(atob(getCookie('userId')));
     let menus;
     let routers;
     let form = layui.form;
@@ -94,6 +95,9 @@
                 prop: {
                     name: 'name',
                     value: 'id'
+                },
+                theme: {
+                    color: '#16baaa',
                 },
                 radio: true,
                 clickClose: true,
@@ -112,6 +116,13 @@
                     if (data.isAdd) {
                         form.val('menu-form', { 'ParentId': data.arr[0].id, 'Depth': data.arr[0].depth + 1 });
                     }
+                    if (data.change[0].isLeef == 1) {
+                        menus.warning();
+                        warnMsg('当前节点已经是叶子节点，不可以在添加子节点', () => {
+                            menus.warning();
+                            menus.setValue([]);
+                        });
+                    }
                 }
             })
         });
@@ -127,7 +138,9 @@
             const result = await request('POST', '/system/menu/Create', formData, { 'Content-Type': 'multipart/form-data' });
             //console.log(result);
             if(result.code==0){
-                layer.msg('操作成功', { icon: 1 }, function () {
+                successMsg('保存成功', () => {
+                    refreshRandomInt(); 
+                    parent.location.reload();
                     window.location.href = 'index';
                 });
                 return false;
@@ -175,6 +188,9 @@
                     filterable: true,
                     radio: true,
                     clickClose: true,
+                    theme: {
+                        color: '#16baaa',
+                    },
                     tips: '如果没有合适的地址，请联系开发同学添加',
                     direction: 'down',
                     prop: {

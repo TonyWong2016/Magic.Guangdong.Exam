@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-@model Magic.Guangdong.DbServices.Dto.Menus.MenuDto
+@model Magic.Guangdong.DbServices.Dtos.Menus.MenuDto
 
 <div class="layui-card layui-panel">
     <div class="layui-card-header" style="color:#16baaa;font-size:large">
@@ -69,6 +69,7 @@
             <input type="hidden" asp-for="Depth"/>
             <input type="hidden" asp-for="PermissionId"/>
             <input type="hidden" asp-for="Router"/>
+            <input type="hidden" asp-for="CreatorId"/>
             <input type="hidden" asp-for="Id"/>
             @Html.AntiForgeryToken()
         </form>
@@ -78,7 +79,7 @@
 <script src="~/plugins/xm-select.js"></script>
 
 <script>
-
+    $('#CreatorId').val(atob(getCookie('userId')));
     let menus;
     let routers;
     let form = layui.form;
@@ -124,6 +125,13 @@
                             menus.setValue([]);
                         });
                     }
+                    if (data.change[0].isLeef == 1) {
+                        menus.warning();
+                        warnMsg('当前节点已经是叶子节点，不可以在添加子节点', () => {
+                            menus.warning();
+                            menus.setValue([]);
+                        });
+                    }
                 }
             })
         }).then(() => {
@@ -141,7 +149,11 @@
         try {
             const result = await request('POST', '/system/menu/Edit', formData, { 'Content-Type': 'multipart/form-data' });
             if (result.code == 0) {
-                successMsg('保存成功');
+                successMsg('保存成功', () => {
+                    refreshRandomInt();
+                    parent.location.reload();
+                });
+               
             }
             return false;
         } catch (error) {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto.Menus
+namespace Magic.Guangdong.DbServices.Dtos.Menus
 {
     public class MenuDto
     {
@@ -25,10 +25,12 @@ namespace Magic.Guangdong.DbServices.Dto.Menus
 
         public string Router { get; set; }
 
-        public Guid CreatorId { get; set; }
+        public Guid CreatorId { get; set; } = Guid.Empty;
 
         public int Status { get; set; }
 
         public int IsLeef { get; set; }
+
+        //public Guid CreatorId { get; set; } = Guid.Empty;
     }
 }

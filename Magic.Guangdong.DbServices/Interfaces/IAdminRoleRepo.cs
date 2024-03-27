@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface IAdminRoleRepo : IExaminationRepository<AdminRole>
     {
+        Task<bool> Grant(Guid adminId, long[] roleIds);
     }
 }

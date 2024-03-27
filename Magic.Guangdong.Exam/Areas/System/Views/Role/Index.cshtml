@@ -18,7 +18,7 @@
                     <input class="layui-input" type="text" id="name" name="name" lay-filter="name" placeholder="角色名称" />
                 </div>
                 <div class="layui-input-inline" style="width:15%">
-                    <a href="create" class="layui-btn">添加新角色</a>
+                    <a href="@Url.Action("Create")" class="layui-btn">添加新角色</a>
                 </div>
             </div>
         </form>
@@ -39,7 +39,7 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/menu/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/role/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/role/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getRoleTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 
 </script>
@@ -56,7 +56,7 @@
         getRoleTable()
     })
 
-
+    let roleArr = [];
     getRoleTable()
     function getRoleTable(){
         var params = {
@@ -67,16 +67,33 @@
             page: true,
             cols: [ //表头
                 //{ title: '序号', templet: '#indexTpl', width: 100 },
-                { field: 'id', title: '角色id' }
+                { field: 'id', title: '角色id',type:'checkbox' }
                 , { field: 'name', title: '角色名称' }
                 , { field: 'description', title: '描述' }
                 , { templet: '#typeTpl', title: '状态' }
                 , { field: 'createdAt', title: '创建时间' }
-                , { title: '操作', templet: '#operationTpl', width: 220 }
+                , { title: '操作', templet: '#operationTpl', width: 260 }
             ],
             height: 630
         }
         getTable(params);
+
+        table.on('checkbox(table)', function (obj) {
+            if (obj.type == 'all' && !obj.checked) {
+                roleArr = [];
+            } else if (obj.type == 'all' && obj.checked) {
+                roleArr = table.getData('table');
+            } else if (obj.type == 'one' && !obj.checked) {
+                let indexToRemove = roleArr.findIndex(item => item.id == obj.data.id);
+                if (indexToRemove !== -1)
+                    roleArr.splice(indexToRemove, 1);
+            } else {
+                roleArr.push(obj.data);
+            }
+            console.log(roleArr.map(u => u.id))
+            //todo..
+            //增加批量编辑（启用禁用）功能
+        })
     }
 
     function makeWhereJson() {
