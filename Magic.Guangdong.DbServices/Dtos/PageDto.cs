@@ -19,4 +19,9 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string orderby { get; set; } = "id";
     }
+
+    public class  AdminListPageDto : PageDto
+    {
+        public long[] roleIds { get; set; }
+    }
 }

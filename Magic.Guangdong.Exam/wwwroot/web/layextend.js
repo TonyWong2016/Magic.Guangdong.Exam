@@ -26,11 +26,19 @@ function autoCheckFormRequired() {
             // 判断元素是否有name属性
             if (element.hasAttribute('name') &&
                 element.hasAttribute('data-val-required') &&
-                element.getAttribute('data-val-required').includes('is required') &&
-                !element.hasAttribute('lay-verify')
+                element.getAttribute('data-val-required').includes('is required') 
             ) {
-                element.setAttribute('lay-verify', 'required');
+                if (!element.hasAttribute('lay-verify')) {
+                    element.setAttribute('lay-verify', 'required');
+                }
+                else {
+                    let _attr = element.getAttribute('lay-verify')
+                    _attr += "|required";
+                    element.setAttribute('lay-verify', _attr);
+                }
+                
             }
+            
         });
     });
 }

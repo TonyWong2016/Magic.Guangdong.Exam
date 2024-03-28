@@ -1,0 +1,170 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Admins.AdminDto
+<div class="layui-card layui-panel">
+    <div class="layui-card-header" style="color:#16baaa;font-size:large">
+        创建用户
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form main-form" lay-filter="admin-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 用户名</label>
+                <div class="layui-input-inline layui-input-wrap" style="width:20%">
+                    <input class="layui-input" asp-for="Name" placeholder="请输入用户名称" lay-affix="clear" autocomplete="off" />
+                </div>
+                <div class="layui-form-mid layui-text-em">用户名输入后不可修改</div>
+            </div> 
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 昵称</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="NickName" placeholder="请输入用户昵称" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 邮箱</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Email" lay-verify="email" placeholder="请输入用户邮箱" lay-affix="clear" autocomplete="off" />
+                </div>
+                
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 电话</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Mobile" lay-verify="phone" placeholder="请输入用户电话" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 密码</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Password" type="password" lay-verify="pass" placeholder="请输入用户密码（8位以上，且至少要包含大、小写，字母，数字，特殊符号中的2种元素）" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot layui-bg-orange"></span> 确认密码</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="password" id="confirmPwd" placeholder="再次输入密码" lay-affix="clear" autocomplete="off"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot layui-bg-orange"></span> 状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" asp-for="Status" value="0" title="正常" checked>
+                    <input type="radio" asp-for="Status" value="1" title="禁用">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-purple"></span>角色</label>
+                <div class="layui-input-block">
+                    <div id="roleView">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
+                    <a href="index" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+            @Html.AntiForgeryToken()
+           @*  <div class="layui-form-item">
+                <label class="layui-form-label">告知用户</label>
+                <div class="layui-input-inline" style="width:20%">
+                    <select id="noticeUser" lay-filter="noticeUser">
+                        <option value="no">不告知</option>
+                        <option value="email">邮件告知</option>
+                        <option value="mobile" disabled>短信告知（暂不支持）</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-text-em">可将新创建的用户账号以邮件或者短信的形式发送给用户</div>
+            </div> *@
+        </form>
+    </div>
+</div>
+<script src="~/plugins/xm-select.js"></script>
+
+<script>
+    let roles;
+    let roleIds = [];
+    let form = layui.form;
+    axios.get('/system/role/GetRoleDrops', {
+        params: {
+            rd: 0
+        }
+    }).then(json => {
+        roles = xmSelect.render({
+            el: '#roleView',
+            filterable: true,
+            paging: true,
+            tips: '请选择归属角色',
+            pageSize: 10,
+            pageEmptyShow: false,
+            theme: {
+                color: '#16baaa',
+            },
+            direction: 'down',
+            autoRow: true,
+            data: json.data.data,
+            on: function (data) {
+                console.log(data)
+                if (data.arr.length == 0) {
+                    roles.warning();
+                    warnMsg('未授予任何角色的管理员可能无法正常管理系统', () => {
+                        roles.warning();
+                    });
+                }
+            }
+        })
+    });
+
+    form.verify({
+        pass: function (value, elem) {
+            if (!checkStringVariety(value) || value.length<8) {
+                return '用户密码必须是8位以上，且至少要包含大、小写，字母，数字，特殊符号中的2种元素）'
+            }
+        }
+    })
+
+    form.on('submit(form-submit)', async function (data) {
+        var field = data.field;
+        delete field.select;
+        if (field.Password != $("#confirmPwd").val()) {
+            errorMsg('两次密码不一致');
+            return false;
+        }
+        if (roles.getValue('value').length == 0) {
+            roles.warning();
+            warnMsg('未授予任何角色的管理员可能无法正常管理系统', () => {
+                roles.warning();
+            });
+            roles.warning();
+            return false;
+        }
+        
+       
+        console.log(field)
+
+        let formData = objectToFormData(field);
+        roleIds = roles.getValue('value');
+        roleIds.forEach((value, index) => {
+            formData.append('RoleIds[]', value); // 注意这里的'RoleIds[]'
+        })
+        try {
+            const result = await request('POST', '/system/admin/Create', formData, { 'Content-Type': 'multipart/form-data' });
+            if (result.code == 0) {
+                layer.msg('操作成功', { icon: 1 }, function () {
+                    window.location.href = 'index';
+                });
+                return false;
+            }
+            layer.msg(result.msg, { icon: 2 });
+        } catch (error) {
+            layer.msg('操作失败，请稍后重试', { icon: 2 });
+        }
+        return false;
+    })
+
+    
+</script>

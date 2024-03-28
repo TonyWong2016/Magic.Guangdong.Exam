@@ -11,6 +11,10 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface IAdminRepo : IExaminationRepository<Admin>
     {
-        List<AdminListDto> GetAdminList(PageDto dto, long[] roleIds, out long total);
+        List<AdminListDto> GetAdminList(AdminListPageDto dto, out long total);
+
+        Task<bool> CreateAdmin(AdminDto dto);
+
+        Task<bool> UpdateAdmin(AdminDto dto);
     }
 }

@@ -35,5 +35,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Admins
         /// 所有角色的组合，拼接起来
         /// </summary>
         public string RoleName { get; set; }
+
+        public int RoleType { get; set; }
     }
 }

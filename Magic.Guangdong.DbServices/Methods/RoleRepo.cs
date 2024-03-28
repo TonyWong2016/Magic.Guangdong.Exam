@@ -102,13 +102,15 @@ namespace Magic.Guangdong.DbServices.Methods
                         var needDeletePermissionIds = originPermissions.Select(u => u.PremissionId).Except(dto.PermissionIds);
                         if (needDeletePermissionIds.Any())
                         {
+                            List<RolePermission> delRps = new List<RolePermission>();
                             foreach (var needDeletePermissionId in needDeletePermissionIds)
                             {
                                 var delRp = originPermissions.Where(u => u.PremissionId == needDeletePermissionId && u.RoleId == dto.Id && u.IsDeleted == 0).First();
                                 delRp.IsDeleted = 1;
                                 delRp.UpdatedAt = DateTime.Now;
-                                await rolePermissionRepo.UpdateAsync(delRp);
+                                delRps.Add(delRp);
                             }
+                            await rolePermissionRepo.UpdateAsync(delRps);
                         }
 
 
@@ -116,14 +118,16 @@ namespace Magic.Guangdong.DbServices.Methods
                         var notExistPermissionIds = dto.PermissionIds.Except(originPermissions.Select(u => u.PremissionId));
                         if (notExistPermissionIds.Any())
                         {
+                            List <RolePermission> addRps = new List<RolePermission>();
                             foreach (var notExistPermissionId in notExistPermissionIds)
                             {
-                                await rolePermissionRepo.InsertAsync(new RolePermission()
+                                addRps.Add(new RolePermission()
                                 {
                                     RoleId = dto.Id,
                                     PremissionId = notExistPermissionId
                                 });
                             }
+                            await rolePermissionRepo.InsertAsync(addRps);
                         }
                     }
                     uow.Commit();

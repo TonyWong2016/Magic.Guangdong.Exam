@@ -50,6 +50,9 @@ namespace Magic.Guangdong.DbServices.Entities
 
         [JsonProperty]
         public int Status { get; set; } = 0;
+
+		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		public string AccountAvailable { get; set; } = "username";
     }
 
 }

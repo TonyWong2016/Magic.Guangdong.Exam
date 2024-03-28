@@ -57,12 +57,13 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
 
         [RouteMark("获取管理员账号列表")]
+        [HttpPost]
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "pageindex", "pagesize", "orderby", "isAsc", "rd" })]
-        public IActionResult GetAdminList(PageDto dto, long[] roleIds=null)
+        public IActionResult GetAdminList(AdminListPageDto dto)
         {
             long total;
             return Json(_resp.success(
-                new { items = _adminRepo.GetAdminList(dto,roleIds, out total), total }
+                new { items = _adminRepo.GetAdminList(dto,  out total), total }
                 ));
         }
 
@@ -77,64 +78,38 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [HttpPost,ValidateAntiForgeryToken]        
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminDto dto)
         {
-            if (await _adminRepo.getAnyAsync(u => u.Name == dto.Name || u.Email == dto.Email || u.Mobile == dto.Mobile))
-            {
-                return Json(_resp.error("该用户名/邮箱/手机号已存在"));
-            }
-            string keySecret = Utils.GenerateRandomCodePro(16);
-            string keyId = Utils.GenerateRandomCodePro(16);
-            string password = Security.Encrypt(dto.Password, Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
-            
-            //admin=dto.Adapt<Admin>();
-            var admin = new Admin();
-            admin.Id = dto.Id;
-            admin.Name = string.IsNullOrEmpty(dto.Name) ? Utils.GenerateRandomCodePro(6) : dto.Name;
-            admin.Email = dto.Email;
-            admin.Mobile = dto.Mobile;
-            admin.Password = password;
-            admin.KeyId = keyId;
-            admin.Description = dto.Description;
-            admin.KeySecret = keySecret;
-            admin.NickName = dto.NickName;
-            return Json(_resp.success(await _adminRepo.addItemAsync(admin), "添加成功"));
+            if (await _adminRepo.CreateAdmin(dto))
+                return Json(_resp.success(true, "添加成功"));
+            return Json(_resp.error("添加失败"));
         }
 
+        [RouteMark("修改用户信息")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var admin = await _adminRepo.getOneAsync(u => u.Id == id);
             admin.Password = "";//密码默认不返回
-            return View(admin.Adapt<AdminDto>());
+            var ars = await _adminRoleRepo.getListAsync(u=>u.AdminId==id);
+            var ret = admin.Adapt<AdminDto>();
+            ret.RoleIds = ars.Select(u => u.RoleId).ToArray();
+            return View(ret);
         }
+
 
         /// <summary>
         /// 修改管理员信息
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminDto dto)
         {
-            var admin = await _adminRepo.getOneAsync(u => u.Id == dto.Id);
-            if (dto.Name != admin.Name)
-            {
-                //实际不会进入到这里，因为页面不会放开该字段的修改，加上只是避免一些极端情况。
-                return Json(_resp.error("用户名创建后不可以修改"));
-            }
-            //name作为固定值，创建后就不可以修改了！
-            //admin.Name = dto.Name;
-            admin.Email = dto.Email;    
-            admin.Mobile = dto.Mobile;
-            if (!string.IsNullOrWhiteSpace(dto.Password))
-            {
-                admin.Password= Security.Encrypt(dto.Password, Encoding.UTF8.GetBytes(admin.KeyId), Encoding.UTF8.GetBytes(admin.KeySecret));
-            }
-            admin.Status = dto.Status;
-            admin.Description= dto.Description;
-            admin.UpdatedAt = DateTime.Now;
-            admin.NickName = dto.NickName;
-            return Json(_resp.success(await _adminRepo.updateItemAsync(admin), "修改成功"));
+            if (await _adminRepo.UpdateAdmin(dto))
+                return Json(_resp.success(true, "修改成功"));
+            return Json(_resp.error("修改失败"));
+
         }
 
         /// <summary>
@@ -142,9 +117,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// </summary>
         /// <param name="adminId"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Remove(Guid adminId)
+        public async Task<IActionResult> Remove(Guid id)
         {
-            var admin = await _adminRepo.getOneAsync(u => u.Id == adminId);
+            var admin = await _adminRepo.getOneAsync(u => u.Id == id);
             admin.IsDeleted = 1;
             admin.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _adminRepo.updateItemAsync(admin), "删除成功"));

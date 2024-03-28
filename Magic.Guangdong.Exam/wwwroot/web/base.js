@@ -138,7 +138,33 @@ function objectToFormData(obj, form, namespace) {
 
     return fd;
 }
+function objectToFormData2(obj, form, namespace) {
+    var form = form || new FormData();
+    var formKey;
 
+    for (var property in obj) {
+        if (obj.hasOwnProperty(property)) {
+
+            if (Array.isArray(obj[property])) {
+                // 处理数组属性
+                for (var i = 0; i < obj[property].length; i++) {
+                    formKey = namespace ? namespace + '[' + property + '][]' : property + '[]';
+                    objectToFormData({ [property]: obj[property][i] }, form, formKey);
+                }
+            } else if (typeof obj[property] === 'object' && obj[property] !== null && !(obj[property] instanceof File)) {
+                // 非数组且为嵌套对象的情况
+                formKey = namespace ? namespace + '[' + property + ']' : property;
+                objectToFormData(obj[property], form, formKey);
+            } else {
+                // 基本类型值或File对象
+                formKey = namespace ? namespace + '[' + property + ']' : property;
+                form.append(formKey, obj[property]);
+            }
+        }
+    }
+
+    return form;
+}
 function parseJwtPayload(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -349,4 +375,20 @@ function calculateTimestampDifferenceInSeconds(timestamp1, timestamp2) {
     const differenceInSeconds = laterTimestamp - earlierTimestamp;
 
     return differenceInSeconds;
+}
+
+//判定某个字符是否包含cnt种以上的字符
+function checkStringVariety(str, cnt = 2) {
+    const hasLowerCase = /[a-z]/.test(str);
+    const hasUpperCase = /[A-Z]/.test(str);
+    const hasNumbers = /\d/.test(str);
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(str); // 这里列举了一些特殊字符，你可以根据需求扩展
+
+    let count = 0;
+    count += hasLowerCase ? 1 : 0;
+    count += hasUpperCase ? 1 : 0;
+    count += hasNumbers ? 1 : 0;
+    count += hasSpecialChars ? 1 : 0;
+
+    return count >= 2;
 }

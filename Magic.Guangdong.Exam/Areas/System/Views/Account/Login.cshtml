@@ -106,9 +106,7 @@
         }
         
         removeQueryParamFromCurrentUrl('msg');
-        // 随机生成两个单个数字
-        let num1 = Math.floor(Math.random() * 100) + 1; // 1到10之间的整数
-        let num2 = Math.floor(Math.random() * 100);
+       
         let captchaRet = 0;
         layui.use(function () {
             var form = layui.form;
@@ -197,6 +195,9 @@
 
         //生成随机加减法
         function generateSimpleMathCaptcha() {
+            // 随机生成两个单个数字
+            let num1 = Math.floor(Math.random() * 100) + 1; // 1到10之间的整数
+            let num2 = Math.floor(Math.random() * 100);
             // 定义运算符集合与权重
             const operators = ['加', '减'];
             const operatorWeights = [0.5, 0.5]; // 加法和减法概率相同

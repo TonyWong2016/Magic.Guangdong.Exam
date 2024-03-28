@@ -42,13 +42,18 @@
 
 <script type="text/html" id="rolesTpl">
      {{# layui.each(d.adminRoles,function(index,item){}}
-        <span class="layui-badge layui-bg-purple">{{item.roleName}}</span>
+        {{# if(item.roleType==1){ }}
+            <span class="layui-badge layui-bg-purple">{{item.roleName}}</span>
+        {{# } else { }}
+            <span class="layui-badge layui-bg-blue">{{item.roleName}}</span>
+
+        {{#} }}
      {{# }) }}
 </script>
 
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/admin/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/admin/remove',removeId:{{d.id }},refresh:false,callback:()=>{refreshRandomInt();getRoleTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/admin/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getAdminTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 
 </script>
 
@@ -56,7 +61,16 @@
 <script>
     let table = layui.table;
     let form = layui.form;
-    let roles
+    let roles;
+    let roleIds = [];
+
+    
+
+    form.on('select(status)', (data) => {
+        console.log($('#statusView').val())
+        getAdminTable()
+    })
+
     axios.get('/system/role/GetRoleDrops', {
         params: {
             rd: 0
@@ -75,19 +89,34 @@
             direction: 'down',
             autoRow: true,
             data: json.data.data,
+            on: function (data) {
+                console.log(data)
+                if (data.isAdd) {
+                    roleIds.push(data.change[0].value)
+                } else {
+                    let indexToRemove = roleIds.findIndex(item => item == data.change[0].value);
+                    if (indexToRemove !== -1)
+                        roleIds.splice(indexToRemove, 1);
+                }
+                getAdminTable()
+            }
         })
+    }).then(() => {
+        getAdminTable()
     })
 
     autoSearch('keyword', function (value) {
         getAdminTable()
     })
 
-    getAdminTable()
+   
     function getAdminTable(){
         var params = {
             url: '/system/admin/GetAdminList',
             elem: '#table',
             where: makeWhereJson(),
+            method:'post',
+            headers: { Authorization :localStorage.getItem('accessToken') },
             size: 'lg',
             page: true,
             cols: [ //表头
@@ -143,29 +172,31 @@
                 }]
             });
         }
+       
         if ($("#keyword").val()) {
+            let keyword = $("#keyword").val().trim();
             whereJsonStr.Filters.push({
                 'Logic': 'Or',
                 'Filters': [{
                     'Field': 'name',
                     'Operator': 'Contains',
-                    'Value': $('#keyword').val()
+                    'Value': keyword
                 }, {
                     'Field': 'nickname',
                     'Operator': 'Contains',
-                    'Value': $('#keyword').val()
+                    'Value': keyword
                 }, {
                     'Field': 'email',
                     'Operator': 'Equal',//这两个就别模糊了
-                    'Value': $('#keyword').val()
+                    'Value': keyword
                 }, {
                     'Field': 'mobile',
                     'Operator': 'Equal',//这两个就别模糊了
-                    'Value': $('#keyword').val()
+                    'Value': keyword
                 }]
             });
         }
 
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt,'roleIds':[123] };
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt, 'roleIds': roleIds };
     }
 </script>

@@ -130,6 +130,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Redirect("/system/account/login?msg=logout");
         }
 
+
         [AllowAnonymous]
         [RouteMark("注册管理员")]
         public IActionResult Register()
@@ -138,7 +139,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         }
 
         /// <summary>
-        /// 注册
+        /// 注册(自主注册不可以授权，需要管理员后台授权)
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
