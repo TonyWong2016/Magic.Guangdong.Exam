@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Exam\Models\" />
-    <Folder Include="Areas\Exam\Views\" />
+    <Folder Include="Areas\Exam\Views\Examination\" />
     <Folder Include="Areas\System\Models\" />
   </ItemGroup>
 

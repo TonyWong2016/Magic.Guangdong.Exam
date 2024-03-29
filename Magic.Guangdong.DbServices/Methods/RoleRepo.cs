@@ -2,13 +2,6 @@
 using Magic.Guangdong.DbServices.Dtos.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
-using Microsoft.Extensions.DependencyModel.Resolution;
-using NPOI.POIFS.Dev;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Methods

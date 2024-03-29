@@ -1,0 +1,458 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item">
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-row">
+                <fieldset class="layui-elem-field">
+                    <legend>设定考试条件</legend>
+
+                    <div class="layui-field-box">
+                        <div class="layui-row">
+                            <div class="layui-input-inline" style="width:22%;display:inline">
+                                <select id="sessionIdView" lay-filter="sessionId">
+                                </select>
+                            </div>
+
+                            <div class="layui-input-inline" style="width:22%">
+                                <div id="areas">
+                                </div>
+                            </div>
+
+
+                            <div class="layui-input-inline" style="width:22%">
+                                <div id="teams">
+                                </div>
+                            </div>
+                            <div class="layui-input-inline" style="width:22%">
+                                <select id="checkStatus" lay-filter="checkStatus">
+                                    <option value="0">请选择审核状态</option>
+                                    <optgroup label="决赛阶段">
+                                        <option value="1">审核通过</option>
+                                        <option value="2">审核不通过</option>
+                                        <option value="3">待审核（推荐总决赛）</option>
+                                    </optgroup>
+                                    <optgroup label="选拔赛阶段">
+                                        <option value="4">审查通过</option>
+                                        <option value="5">审查不通过</option>
+                                        <option value="6">待审查</option>
+                                        <option value="7">未提交</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <a href="javascript:;" class="layui-btn" id="btnSave">确定</a>
+
+                        </div>
+
+                        <div class="layui-row" style="margin-top:20px;display:none">
+                            <div class="layui-input-inline" style="width:22%;">
+                                <select id="selectEvents" lay-filter="eventId">
+                                    <option value="0">请选择赛项</option>
+                                </select>
+                            </div>
+
+                            <div class="layui-input-inline" style="width:22%;">
+                                <input class="layui-input" placeholder="关键字(赛队编号/标题/授权码)" id="keyword" />
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="layui-row">
+                <fieldset class="layui-elem-field">
+                    <legend>条件预览(实时)</legend>
+                    <div class="layui-field-box">
+                        <table id="table" class="layui-table" lay-filter="table"></table>
+                        <textarea class="layui-textarea" id="expressionStr" readonly></textarea>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/html" id="CheckStatusTpl">
+    {{# if(d.nationCheck==1){}}
+    <span style="color:#5FB878">审核通过</span>
+    {{# } else if(d.nationCheck==2){}}
+    <span style="color:#e53935">审核不通过</span>
+    {{# } else if(d.isRecommended==1 && d.provinceCheck==1){}}
+    <span style="color:#00acc1">待审核(推荐总决赛)</span>
+    {{# } else if(d.provinceCheck==1){}}
+    <span style="color:#1E9FFF">待审核(审查已通过)</span>
+    {{# } else if(d.provinceCheck==2){}}
+    <span style="color:#e53935">审查不通过</span>
+    {{# } else if(d.provinceCheck==4){}}
+    <span style="color:#f4511e">退回修改</span>
+    {{# } else if(d.personalCheck==1){}}
+    <span style="color:#FFB800">待审查</span>
+    {{# } else { }}
+    <span style="color:#393D49">项目未提交</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="serialTpl">
+    {{# if(d.serialStatus==1){ }}
+    <b style="color:#009688" onclick="TT.info('该申报码【{{ d.serial }}】有效')">{{ d.serial }}</b>
+    {{# }  else { }}
+    <b style="color:#e54d42" onclick="TT.warning('申报码【{{ d.serial }}】无效')">{{ d.serial }}</b>
+    {{# } }}
+</script>
+
+<script type="text/html" id="selectTpl">
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="titleTpl">
+    {{# if(d.projectTitle) { }}
+        {{d.projectTitle}}
+    {{# } else { }}
+        {{ d.projectWorkCaption }}
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-normal"  target="_blank" href="/matchcheck/detail/{{ d.applyID }}?columnId={{columnId}}&levelType={{ d.levelType }}&checkPage=1">查看详情</a>
+</script>
+<script src="~/plugins/xm-select.js"></script>
+<script>
+    let form = layui.form;
+    let table = layui.table;
+    let checkStatus = 0;//审核状态
+    let rd = 0;
+    let objAreas;
+    let objTeams;
+    let areaValues = [];
+    let teamValues=[];
+    let initStr = localStorage.getItem("initStr");
+    
+    if (initStr) {
+        let parts = JSON.parse(initStr);
+        let persionalCheck = parts.Filters.filter(u => u.Field == 'PersonalCheck').length > 0 ? parts.Filters.filter(u => u.Field == 'PersonalCheck')[0].Value:0;
+        //注意，provinceCheck有默认值，这里要选数组里的第二个进行判定
+        let provinceCheck = parts.Filters.filter(u => u.Field == 'ProvinceCheck').length > 1 ? parts.Filters.filter(u => u.Field == 'ProvinceCheck')[1].Value : 0;
+        let nationCheck = parts.Filters.filter(u => u.Field == 'NationCheck').length > 0 ? parts.Filters.filter(u => u.Field == 'NationCheck')[0].Value : 0;
+        let isRecommended = parts.Filters.filter(u => u.Field == 'IsRecommended').length > 0 ? parts.Filters.filter(u => u.Field == 'IsRecommended')[0].Value : 0;
+
+        //注意，这里顺序不要调整，一定要按顺序判定下去，不要加else
+        if(persionalCheck==0)
+            checkStatus=7;//未提交
+        if (persionalCheck == 1 && provinceCheck==3)
+            checkStatus = 6;//已提交，待审查
+        if (persionalCheck == 1 && provinceCheck == 2)
+            checkStatus = 5;//已提交，审查不通过
+        if (persionalCheck == 1 && provinceCheck == 1)
+            checkStatus = 4;//已提交，审查通过
+        //if (provinceCheck == 1 && nationCheck == 3)
+        if (provinceCheck == 1 && isRecommended == 1)
+            checkStatus = 3;//审查通过,推荐决赛，待审核
+        if (provinceCheck == 1 && nationCheck == 2)
+            checkStatus = 2;//审核不通过
+        if (provinceCheck == 1 && nationCheck == 1)
+            checkStatus = 1;//审核通过
+        jValSet("checkStatus", checkStatus);
+
+        let orFilters = parts.Filters.filter(u=>u.Logic=='Or');
+        orFilters.forEach(v => {
+            v.Filters.filter(u => u.Field == 'AreaId').forEach(v => {
+                areaValues.push(v.Value)
+            })
+            v.Filters.filter(u => u.Field == 'TeamIDApply').forEach(v => {
+                teamValues.push(v.Value)
+            })
+        })
+    }
+
+    let token = $('@Html.AntiForgeryToken()').val();//token，防csrf
+    GetSessionList(function () {
+        getApplyStatusList(rd);
+        getAreas();
+        getTeams();
+    }, 99);
+
+    function getAreas() {
+        objAreas = {
+            "url": "/matchai/getAreas"
+            , "param": { "sessionId": sessionId }
+            , "elem": "areas"
+            , "tips": "请选择赛区"
+            , "prop": { name: "text", value: "value" }
+            , "initValue": areaValues
+            , "tool": false
+            , "autoRow": true
+            , "result": ""
+            , "func": function (data) {
+                layer.load()
+                setTimeout(v=>{
+                    getApplyStatusList();
+                    layer.closeAll("loading")
+                },300)
+                console.log(data);
+            }
+        }
+        makeXmSelect(objAreas);
+    }
+
+    function getTeams(){
+        objTeams = {
+            "url": "/matchai/getAllTeamGroups"
+            , "param": { }
+            , "elem": "teams"
+            , "tips": "请选择组别"
+            , "prop": { name: "text", value: "value" }
+            , "initValue": teamValues
+            , "tool": false
+            , "autoRow" :true
+            , "result": ""
+            , "func": function (data) {
+                //teamValues = objTeams.result.getValue('value');
+                console.log(data);
+                layer.load()
+                setTimeout(v => {
+                    getApplyStatusList();
+                    layer.closeAll("loading")
+                }, 300)
+            }
+        }
+        makeXmSelect(objTeams);
+    }
+
+    form.on("select(sessionId)", function (data) {
+        sessionId = data.value;
+        InitSearchNation();
+        getApplyStatusList(rd)
+    });
+
+    form.on("select(checkStatus)", function (data) {
+        checkStatus = data.value;
+        getApplyStatusList(rd)
+    })
+
+    $("#btnSave").click(v => {
+        localStorage.setItem("expressionStr", jVal("expressionStr"));
+        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+        parent.layer.close(index); //再执行关闭
+    })
+
+    function initExpression() {
+        let ret = localStorage.getItem("initStr");
+        let parts = JSON.parse(ret);
+        let filters = parts.Filters;
+        if (filters.filter(u => u.Field == 'SessionID').length > 0) {
+            jValSet("sessionIdView", filters.filter(u => u.Field == 'SessionID')[0].Value)
+        }
+
+        if (filters.filter(u => u.Field == 'AreaId').length > 0) {
+            jValSet("selectAreas", filters.filter(u => u.Field == 'AreaId')[0].Value)
+        }
+
+
+        if (filters.filter(u => u.Field == 'TeamIDApply').length > 0) {
+            //jValSet("TeamIDApply", filters.filter(u => u.Field == 'TeamIDApply')[0].Value)
+        }
+
+        if (filters.filter(u => u.Field == 'ProgramTypeID').length > 0) {
+            jValSet("sessionIdView", filters.filter(u => u.Field == 'SessionID')[0].Value)
+        }
+        form.render("select")
+        localStorage.removeItem("initStr")
+    }
+
+
+
+    function makeApplyExpression() {
+
+        let whereJsonStr = {
+            "Logic": "And",
+            "Filters": [{
+                "Field": "ProvinceCheck",
+                "Operator": "GreaterThanOrEqual",
+                "Value": 0
+            }, {
+                "Field": "SessionID",
+                "Operator": "Equal",
+                "Value": sessionId
+            }]
+        }
+        if (checkStatus > 0 && checkStatus < 3) {
+            whereJsonStr.Filters.push({
+                "Field": "NationCheck",
+                "Operator": "Equal",
+                "Value": checkStatus
+            });
+            whereJsonStr.Filters.push({
+                "Field": "ProvinceCheck",
+                "Operator": "Equal",
+                "Value": 1
+            });
+            whereJsonStr.Filters.push({
+                "Field": "PersonalCheck",
+                "Operator": "Equal",
+                "Value": 1
+            });
+        }
+        if (checkStatus == 3) {
+            whereJsonStr.Filters.push({
+                "Field": "NationCheck",
+                "Operator": "Equal",
+                "Value": checkStatus
+            });
+            whereJsonStr.Filters.push({
+                "Field": "ProvinceCheck",
+                "Operator": "Equal",
+                "Value": 1
+            });
+            whereJsonStr.Filters.push({
+                "Field": "IsRecommended",
+                "Operator": "Equal",
+                "Value": 1
+            });
+        }
+        if (checkStatus > 3 && checkStatus < 7) {
+            whereJsonStr.Filters.push({
+                "Field": "ProvinceCheck",
+                "Operator": "Equal",
+                "Value": checkStatus - 3
+            });
+
+            whereJsonStr.Filters.push({
+                "Field": "PersonalCheck",
+                "Operator": "Equal",
+                "Value": 1
+            });
+        }
+        if (checkStatus == 7) {
+            whereJsonStr.Filters.push({
+                "Field": "PersonalCheck",
+                "Operator": "NotEqual",
+                "Value": 1
+            });
+        }
+        if (checkStatus == 8) {
+            whereJsonStr.Filters.push({
+                "Field": "PersonalCheck",
+                "Operator": "NotEqual",
+                "Value": 1
+            });
+            whereJsonStr.Filters.push({
+                "Field": "ProvinceCheck",
+                "Operator": "Equal",
+                "Value": 4
+            });
+        }
+
+        if(objAreas){
+            areaValues = objAreas.result.getValue('value');
+        }
+        if (areaValues && areaValues.length > 0) {
+            let areaFilters = [];
+            areaValues.forEach(v => {
+                areaFilters.push({
+                    "Field": "AreaId",
+                    "Operator": "Equal",
+                    "Value": v
+                })
+            })
+            whereJsonStr.Filters.push({
+                "Logic": "Or",
+                "Filters": areaFilters
+            });
+        }
+
+        if (objTeams) {
+            teamValues = objTeams.result.getValue('value');
+        }
+        if (teamValues && teamValues.length > 0) {
+            let teamFilters = [];
+            teamValues.forEach(v => {
+                teamFilters.push({
+                    "Field": "TeamIDApply",
+                    "Operator": "Equal",
+                    "Value": v
+                })
+            })
+            whereJsonStr.Filters.push({
+                "Logic": "Or",
+                "Filters": teamFilters
+            });
+        }
+
+        if (eventId > 0) {
+            whereJsonStr.Filters.push({
+                "Field": "ProgramTypeID",
+                "Operator": "Equal",
+                "Value": eventId
+            });
+        }
+        if (topicId > 0) {
+            whereJsonStr.Filters.push({
+                "Field": "ProjectSortID",
+                "Operator": "Equal",
+                "Value": topicId
+            });
+        }
+
+        if (jVal("keyword")) {
+            whereJsonStr.Filters.push({
+                "Logic": "Or",
+                "Filters": [{
+                    "Field": "projectNo",
+                    "Operator": "Contains",
+                    "Value": jVal("keyword")
+                },
+                {
+                    "Field": "projectTitle",
+                    "Operator": "Contains",
+                    "Value": jVal("keyword")
+                },
+                {
+                    "Field": "Serial",
+                    "Operator": "Contains",
+                    "Value": jVal("keyword")
+                }]
+            });
+        }
+        jValSet("expressionStr", JSON.stringify(whereJsonStr))
+        return JSON.stringify(whereJsonStr);
+    }
+
+    //获取名额分配列表
+    function getApplyStatusList(rd) {
+        var params = {
+            url: '/matchai/getApplyStatusList',
+            elem: '#table',
+            where: { 'whereJsonStr': makeApplyExpression(), 'rd': rd, 'adminId': getCookie('userid') },
+            //where: { 'whereJsonStr': whereJsonStr, 'rd': rd, 'adminId': getCookie('userid') },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: "#indexTpl", width: '4%' }
+                , { field: 'applyID', hide: true }
+                , { field: 'levelType', hide: true }
+                , { field: 'provinceCheck', hide: true }
+                , { field: 'nationCheck', hide: true }
+                , { field: 'projectNo', title: '赛队编号', width: '10%' }
+                , { title: '赛队/作品名称', templet: '#titleTpl', width: '12%' }
+                , { field: 'programTypeCaption', title: '赛项', width: '10%' }
+                , { field: 'teamCaption', title: '组别', width: '12%' }
+                //, { field: 'provinceShortName', title: '地区', width: '6%' }
+                , { field: 'areaName', title: '赛区', width: '6%' }
+                , { field: 'applyUserName', title: '申报人', width: '7%' }
+                , { title: '状态', templet: '#CheckStatusTpl', width: '10%' } //这里的toolbar值是模板元素的选择器
+                , { field: 'score', title: '赛项成绩', width: '7%' }
+                , { title: '申报码', templet: '#serialTpl', width: '12%' }
+
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+        }
+        getTable(params);
+    }
+</script>

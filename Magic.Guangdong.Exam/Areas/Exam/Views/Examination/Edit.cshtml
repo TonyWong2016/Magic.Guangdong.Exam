@@ -1,0 +1,212 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.Examination
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <input type="hidden" asp-for="Id" />
+        <div class="layui-form-item">
+            <label class="layui-form-label">考试标题</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Title" placeholder="请创建考试标题，如xx年度xx活动第x次在线考试" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">考试详情</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" asp-for="Description" placeholder="考试详情" lay-verify="required" required ></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">关联活动</label>
+            <div class="layui-input-block">
+               @* <select asp-for="AssociationId" lay-filter="AssociationId" lay-verify="required" required>
+                </select>*@
+                <div id="AssociationIdSelect">
+                </div>
+            </div>
+            <input type="hidden" asp-for="AssociationId" />
+            <input type="hidden" asp-for="AssociationTitle" />
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">基础分数</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="BaseScore" placeholder="请创建考试总分数，后续创建的试卷总分均基于此分数" lay-verify="required|number" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">考试期限</label>
+            <div class="layui-input-block">
+                <input id="ExamDuration" class="layui-input" placeholder="请选择允许考试的起止日期"  autocomplete="off" lay-verify="required" required />
+            </div>
+            <input type="hidden" asp-for="StartTime" />
+            <input type="hidden" asp-for="EndTime" />
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">考试时长</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="BaseDuration" placeholder="开始答题后的考试时间，单位分钟" lay-verify="required|number" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">考试类型</label>
+            <div class="layui-input-block">
+                <select asp-for="ExamType">
+                    <option value=0 selected>考试</option>
+                    <option value=1>练习</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <select asp-for="Status">
+                    <option value=1>开启</option>
+                    <option value=2>关闭</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">严格交卷</label>
+            <div class="layui-input-block">
+                <select asp-for="IsStrict">
+                    <option value=0 selected>否</option>
+                    <option value=1>是</option>
+                </select>
+            </div>
+            <br />
+
+            <blockquote class="layui-input-block layui-elem-quote">
+                用来标识考试的严格程度，当前该字段可用来标识超时后是否给超时未交卷的用户成绩。以后还可以标识是否检查作弊等（作弊检查功能尚未开发）
+                <br />是-超时后不会自动交卷，即判定0分
+                <br />否-超时后也会给予相应的成绩
+            </blockquote>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">答题条件（双击）</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" readonly ondblclick="setValidate()" placeholder="双击设定允许参与本场考试的答题条件，会关联申报信息" asp-for="@Model.ExtraInfo"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">聚合码</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="GroupCode" placeholder="聚合码相同的考试，可通过扫描同一个二维码进入" />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="OrderIndex" placeholder="请输入排序数字" type="number" />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Remark" placeholder="备注"  />
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-left:110px">
+            <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+            <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+
+<script src="~/plugins/tinymce/tinymce.min.js"></script>
+<script src="~/plugins/mytinymce.js"></script>
+<script src="~/plugins/xm-select.js"></script>
+
+<script >
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();    
+    let laydate = layui.laydate;
+    let base_ajax_url = "";
+    
+    InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+  
+    
+    let objType = {
+        "url": "/matchsession/GetMatchSessionMini"
+        , "param": { "columnId": columnId }
+        , "elem": "AssociationIdSelect"
+        , "radio": true
+        , "tips": "请选择活动"
+        , "prop": { name: "text", value: "value" }
+        , "initValue": ["@Model.AssociationId"]
+        , "tool": false
+        , "result": ""
+        , "func": function (data) {
+            console.log(data);
+            jValSet("AssociationTitle",data.arr[0].text);
+            jValSet("AssociationId", data.arr[0].value);
+        }
+    }
+    makeXmSelect(objType);
+    form.render("select");
+    laydate.render({
+        elem: '#ExamDuration' //指定元素
+        , type: 'datetime'
+        , range: true
+        , format: 'yyyy/MM/dd HH:mm:ss'
+        , value: jVal("StartTime").replace('-', '/').replace('-', '/') + " - " + jVal("EndTime").replace('-', '/').replace('-', '/')
+        , done: function (value, date, endDate) {
+            let parts = value.split(" - ");
+            jValSet("StartTime", parts[0]);
+            jValSet("EndTime", parts[1]);
+        }
+    });
+
+    form.on("submit(save)", function (data) {       
+        $.post("@Url.Action("Edit")", data.field, function (json) {
+            if (json.code == 1) {
+                TT.info("保存成功");
+                return;
+            }
+            TT.error("操作失败：" + json.msg);
+        })
+    })
+
+    $("#btnBack").attr("href", `index?columnId=${getQueryString("columnId")}`)
+
+    function setValidate() {
+        localStorage.setItem("initStr", jVal("ExtraInfo"));
+        layer.open({
+            type: 2,
+            content: "@Url.Action("SetValidate")?columnId=" + columnId,
+            shade: [0.3, '#393D49'],
+            area: ['100%', '100%'],
+            closeBtn: 0,//不显示答题按钮，必须通过点击子页面内按钮关闭
+            title: "设定答题条件",
+            maxmin: true,
+            zIndex: layer.zIndex,
+            success: function (layero) {
+                
+                //弹出后回调
+                layer.setTop(layero);
+            },
+            end: function () {
+                //关闭弹窗，重新加载列表
+                //getTable(params);
+                jValSet("ExtraInfo", localStorage.getItem("expressionStr"))
+            }
+        })
+    }
+
+</script>

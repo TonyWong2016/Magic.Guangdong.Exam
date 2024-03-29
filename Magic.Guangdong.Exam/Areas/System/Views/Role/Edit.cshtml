@@ -105,6 +105,10 @@
                 });
                 return false;
             }
+            if (result.code == 401) {
+                location.href = '/error?msg=' + result.msg;
+            } else
+                errorMsg(result.msg);
             layer.msg(result.msg, { icon: 2 });
         } catch (error) {
             //console.error('Error sending form data:', error);

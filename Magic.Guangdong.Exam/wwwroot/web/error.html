@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公共错误页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 3rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        
+        h1 {
+            color: #343a40;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="error-container">
+        <h1 id="error-title">错误信息</h1>
+        <p id="error-description">请检查您的访问权限或重新登录。</p>
+        <!-- 根据实际错误类型动态替换这里的文案 -->
+        <!-- 使用JavaScript或者服务器端语言动态设置错误标题与描述 -->
+    </div>
+
+    <!-- 示例JavaScript代码，实际使用时可以依据后端返回的错误码动态更改错误信息 -->
+    <script>
+        function setErrorInfo(errorType) {
+            switch (errorType) {
+                case 'unauthorized':
+                    document.getElementById('error-title').innerText = '未授权';
+                    document.getElementById('error-description').innerText = '很抱歉，您没有足够的权限访问此页面，请联系管理员获取授权。';
+                    break;
+                case 'session_expired':
+                    document.getElementById('error-title').innerText = '登录已过期';
+                    document.getElementById('error-description').innerText = '您的登录已过期，请重新登录以继续操作。';
+                    break;
+                default:
+                    document.getElementById('error-title').innerText = '未知错误';
+                    document.getElementById('error-description').innerText = '发生了一个意外错误，请稍后再试或联系技术支持。';
+            }
+        }
+
+        // 假设从URL参数中获取错误类型并设置错误信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorType = urlParams.get('error');
+        if (errorType) {
+            setErrorInfo(errorType);
+        }
+    </script>
+
+</body>
+</html>

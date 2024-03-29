@@ -84,6 +84,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 u.IsDeleted == 0);
 
             string password = Security.Decrypt(admin.Password, Encoding.UTF8.GetBytes(admin.KeyId), Encoding.UTF8.GetBytes(admin.KeySecret));
+            string tt = Security.GenerateMD5Hash(password + captchaTsp);
+            Console.WriteLine(tt);
             if (Security.GenerateMD5Hash(password + captchaTsp) != hashpwd)
             {
                 //这里实际是密码错误，但返回的信息要模糊一下，提防坏人！
@@ -95,9 +97,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             }
             //var adminRole = await _adminRoleRepo.getOneAsync(u => u.AdminId == admin.Id);
             DateTime expires = remember == 1 ? DateTime.Now.AddDays(3) : DateTime.Now.AddHours(3);
+            await CacheMyPermission(new AfterLoginDto() { adminId = admin.Id, exp = expires });
             string jwt = _jwtService.Make(Utils.ToBase64Str(admin.Id.ToString()), admin.Name, expires);
             await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitLoginLog", $"{admin.Id}|{jwt}|{Utils.DateTimeToTimeStamp(expires)}");
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "CacheMyPermission", new AfterLoginDto() { adminId = admin.Id, exp = expires });
+            //await _capPublisher.PublishAsync(CapConsts.PREFIX + "CacheMyPermission", new AfterLoginDto() { adminId = admin.Id, exp = expires });
 
             return Json(_resp.success(
                 new
@@ -116,8 +119,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             await _adminLoginLogRepo.InsertLoginLog(Guid.Parse(parts[0]), parts[1], parts[2]);
         }
 
-        [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "CacheMyPermission")]
+        //[NonAction]
+        //[CapSubscribe(CapConsts.PREFIX + "CacheMyPermission")]
         public async Task CacheMyPermission(AfterLoginDto dto)
         {
             await _redisCachingProvider.KeyDelAsync("GD.Exam.Permissions_" + dto.adminId.ToString());

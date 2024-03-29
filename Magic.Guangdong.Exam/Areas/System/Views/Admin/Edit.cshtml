@@ -159,7 +159,11 @@
                 });
                 return false;
             }
-            layer.msg(result.msg, { icon: 2 });
+            //console.log(result.code)
+            if (result.code == 401) {
+                location.href = '/error?msg=' + result.msg;
+            } else
+                errorMsg(result.msg);
         } catch (error) {
             layer.msg('操作失败，请稍后重试', { icon: 2 });
         }
@@ -172,6 +176,13 @@
                 errorMsg('密码不能为空');
                 return elem.focus();                    
             }
+            
+          
+            if (!checkStringVariety(value) || value.length < 8) {
+                errorMsg('用户密码必须是8位以上，且至少要包含大、小写，字母，数字，特殊符号中的2种元素）')
+                return;
+            }
+
             layer.close(index);
             layer.prompt({ title: '请再次输入', formType: 1 }, async function (value2, index2, elem2) {
                 if (value != value2) {
@@ -181,7 +192,8 @@
                     });    
                     return;
                 }
-                let jsonData = { adminId: atob(getCookie('userId')), newPwd: value, __RequestVerificationToken: requestToken };
+                
+                let jsonData = { adminId: $("#Id").val(), newPwd: value, __RequestVerificationToken: requestToken };
                 let formData = objectToFormData(jsonData);
                 let ret = await request('POST', '/system/admin/ResetPassword', formData, { 'Content-Type': 'multipart/form-data' });
                 if(ret.code==0){

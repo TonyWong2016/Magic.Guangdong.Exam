@@ -90,7 +90,8 @@ namespace Magic.Guangdong.Exam.Filters
             string permissionCheckResult = await PermissionCheck(adminId.ToString(), router);
             if (permissionCheckResult != "success")
             {
-                var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
+                //var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
+                var item = new RedirectResult("/error?msg="+ permissionCheckResult);
                 context.Result = item;
                 Assistant.Logger.Error("权限异常");
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
@@ -120,8 +121,9 @@ namespace Magic.Guangdong.Exam.Filters
             if (!headers.Where(h => h.Key == "Authorization").Any())
             {
                 Assistant.Logger.Error("缺少token");
-                var item = new JsonResult(new { code = 401, msg = "缺少token" });
-                item.StatusCode = 401;
+                var item = new JsonResult(new { code = 401, msg = "令牌丢失，请尝试重新登录" });
+                //item.StatusCode = 401;
+                //var item = new RedirectResult("/error?msg=登录异常");
                 context.Result = item;
                 return false;
             }
@@ -129,8 +131,10 @@ namespace Magic.Guangdong.Exam.Filters
             if (!Authorization.StartsWith("GD.exam|"))
             {
                 Assistant.Logger.Error("token错误");
-                var item = new JsonResult(new { code = 401, msg = "token错误" });
-                item.StatusCode = 401;
+                //var item = new JsonResult(new { code = 401, msg = "token错误" });
+                //item.StatusCode = 401;
+                var item = new RedirectResult("/error?msg=登录异常");
+       
                 context.Result = item;
                 return false;
             }
@@ -140,8 +144,9 @@ namespace Magic.Guangdong.Exam.Filters
             if (exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
             {
                 Assistant.Logger.Error("token过期");
-                var item = new JsonResult(new { code = 401, msg = "token过期" });
-                item.StatusCode = 401;
+                //var item = new JsonResult(new { code = 401, msg = "token过期" });
+                //item.StatusCode = 401;
+                var item = new RedirectResult("/error?msg=登录超时");
                 context.Result = item;
                 return false;
             }
