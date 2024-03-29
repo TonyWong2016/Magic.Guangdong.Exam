@@ -43,4 +43,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Admins
             }
         }
     }
+
+    public class AfterLoginDto
+    {
+        public Guid adminId { get; set; }
+
+        public DateTime exp { get; set; }
+    }
 }

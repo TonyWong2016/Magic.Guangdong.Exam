@@ -42,7 +42,7 @@
                     <input class="layui-input" id="Password" value="**********" type="password" lay-verify="pass" placeholder="请输入用户密码（8位以上，且至少要包含大、小写，字母，数字，特殊符号中的2种元素）" lay-affix="clear" autocomplete="off" disabled/>
                 </div>
                 <div class="layui-input-inline">
-                    <a class="layui-btn layui-btn-normal">修改密码</a>
+                    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="ResetPwd()">重置密码</a>
                 </div>
             </div>
             
@@ -166,5 +166,33 @@
         return false;
     })
 
-    
+     function ResetPwd() {
+        layer.prompt({ title: '输入新密码', formType: 1 }, function (value, index, elem) {
+            if (value === '') {
+                errorMsg('密码不能为空');
+                return elem.focus();                    
+            }
+            layer.close(index);
+            layer.prompt({ title: '请再次输入', formType: 1 }, async function (value2, index2, elem2) {
+                if (value != value2) {
+                    errorMsg('两次输入的密码不一致', () => {
+                        layer.closeAll();
+                        
+                    });    
+                    return;
+                }
+                let jsonData = { adminId: atob(getCookie('userId')), newPwd: value, __RequestVerificationToken: requestToken };
+                let formData = objectToFormData(jsonData);
+                let ret = await request('POST', '/system/admin/ResetPassword', formData, { 'Content-Type': 'multipart/form-data' });
+                if(ret.code==0){
+                    successMsg(ret.msg, () => {
+                        layer.closeAll();
+                    });
+                    
+                    return;
+                }
+                errorMsg(ret.msg);
+            })
+        })
+    }
 </script>

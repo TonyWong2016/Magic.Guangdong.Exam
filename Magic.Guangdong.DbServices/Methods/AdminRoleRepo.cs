@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.DbServices.Dtos.AdminRoles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using System;
@@ -101,5 +102,26 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
             }
         }
+
+        public async Task<List<AdminPermissionDto>> GetMyPermission(Guid adminId)
+        {
+            return await fsql.Get(conn_str).Select<AdminRole, RolePermission, Permission>()
+                .LeftJoin((a, b, c) => a.RoleId == b.RoleId)
+                .LeftJoin((a, b, c) => b.PremissionId == c.Id)
+                .Where((a, b, c) => a.AdminId == adminId)
+                .ToListAsync((a, b, c) => new AdminPermissionDto()
+                {
+                    RoleId = a.RoleId,
+                    AdminId = adminId,
+                    PermissionId = b.PremissionId,
+                    area = c.Area,
+                    controller = c.Controller,
+                    action = c.Action,
+                    dataFilterJson = c.DataFilterJson,
+                });
+                
+        }
     }
+
+
 }

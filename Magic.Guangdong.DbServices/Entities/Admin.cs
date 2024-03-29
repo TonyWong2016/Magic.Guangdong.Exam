@@ -16,10 +16,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		public string Password { get; set; }
 
 		[JsonProperty]
-		public string KeySecret { get; set; } = Assistant.Utils.GenerateRandomCodePro(32, 3);
+		public string KeySecret { get; set; } = Assistant.Utils.GenerateRandomCodePro(16, 3);
 
         [JsonProperty]
-        public string KeyId { get; set; } = Assistant.Utils.GenerateRandomCodePro(32, 3);
+        public string KeyId { get; set; } = Assistant.Utils.GenerateRandomCodePro(16, 3);
 
         [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }

@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.DbServices.Entities;
+﻿using Magic.Guangdong.DbServices.Dtos.AdminRoles;
+using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
     public interface IAdminRoleRepo : IExaminationRepository<AdminRole>
     {
         Task<bool> Grant(Guid adminId, long[] roleIds);
+
+        Task<List<AdminPermissionDto>> GetMyPermission(Guid adminId);
     }
 }

@@ -59,6 +59,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     .Page(dto.pageindex, dto.pagesize)
                     .ToList();
             }
+
             var adminIds = admins.Select(u => u.Id);
             var roles = fsql.Get(conn_str).Select<Role, AdminRole>()
                 .LeftJoin((a, b) => a.Id == b.RoleId)
@@ -83,11 +84,11 @@ namespace Magic.Guangdong.DbServices.Methods
                     item.adminRoles = roles.Where(u => u.AdminId == item.Id).ToList();
                 
             }
+            if(dto.roleIds != null && dto.roleIds.Length > 0)
+                return list.Where(u=> u.adminRoles!=null && u.adminRoles.Any()).ToList();
             return list;
-            //return list.Where(u=>u.adminRoles.Any()).ToList();
-
         }
-    
+
         /// <summary>
         /// 后台创建管理员
         /// </summary>
@@ -95,13 +96,13 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<bool> CreateAdmin(AdminDto dto)
         {
-            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {
                 try
                 {
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
-                    if(await adminRepo
-                        .Where(u=> u.Name == dto.Name ||
+                    if (await adminRepo
+                        .Where(u => u.Name == dto.Name ||
                         u.Email == dto.Email ||
                         u.Mobile == dto.Mobile).AnyAsync())
                     {
@@ -112,9 +113,9 @@ namespace Magic.Guangdong.DbServices.Methods
                     string password = Security.Encrypt(dto.Password, Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
                     Guid adminId = NewId.NextGuid();
                     var admin = dto.Adapt<Admin>();
-                    admin.Id= adminId;
+                    admin.Id = adminId;
                     admin.Password = password;
-                    admin.KeyId= keyId;
+                    admin.KeyId = keyId;
                     admin.KeySecret = keySecret;
                     admin.Version = Utils.GetTimeStampUint(DateTime.Now).ToString();
                     await adminRepo.InsertAsync(admin);
@@ -133,13 +134,13 @@ namespace Magic.Guangdong.DbServices.Methods
                     //    AccountAvailable = dto.AccountAvailable,
                     //});
 
-                    if(dto.RoleIds.Any())
+                    if (dto.RoleIds.Any())
                     {
                         var adminRoleRepo = fsql.Get(conn_str).GetRepository<AdminRole>();
                         List<AdminRole> adminRoles = new List<AdminRole>();
-                        foreach(var roleId in dto.RoleIds)
+                        foreach (var roleId in dto.RoleIds)
                         {
-                            adminRoles.Add(new AdminRole { RoleId = roleId,AdminId = adminId });
+                            adminRoles.Add(new AdminRole { RoleId = roleId, AdminId = adminId });
                         }
                         await adminRoleRepo.InsertAsync(adminRoles);
                     }
@@ -162,12 +163,10 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
-                    if (!await adminRepo.Where(u => u.Id == dto.Id && u.IsDeleted==0).AnyAsync())
+                    if (!await adminRepo.Where(u => u.Id == dto.Id && u.IsDeleted == 0).AnyAsync())
                         return false;
                     var admin = await adminRepo.Where(u => u.Id == dto.Id).FirstAsync();
-                    string originPassword = admin.Password;
-                    admin = dto.Adapt<Admin>();
-                    admin.Password = originPassword;
+
                     if (!string.IsNullOrWhiteSpace(dto.Password))
                     {
                         string keySecret = admin.KeySecret;
@@ -175,7 +174,12 @@ namespace Magic.Guangdong.DbServices.Methods
                         string password = Security.Encrypt(dto.Password, Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
                         admin.Password = password;
                     }
-
+                    admin.Name = dto.Name;
+                    admin.Email = dto.Email;
+                    admin.Mobile = dto.Mobile;
+                    admin.NickName = dto.NickName;
+                    admin.Status = dto.Status;
+                    admin.Description = dto.Description;
                     admin.UpdatedAt = DateTime.Now;
                     admin.Version = Utils.GetTimeStampUint(DateTime.Now).ToString();
                     await adminRepo.UpdateAsync(admin);

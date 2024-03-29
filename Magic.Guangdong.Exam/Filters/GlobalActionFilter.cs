@@ -2,6 +2,12 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Magic.Guangdong.DbServices.Interfaces;
+using DotNetCore.CAP;
+using Magic.Guangdong.Assistant.Contracts;
+using Magic.Guangdong.DbServices.Entities;
+using Azure.Core;
+using System;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -10,6 +16,11 @@ namespace Magic.Guangdong.Exam.Filters
     /// </summary>
     public class GlobalActionFilter : IActionFilter
     {
+        private readonly ICapPublisher _capPublisher;
+        public GlobalActionFilter(ICapPublisher capPublisher)
+        {
+            _capPublisher = capPublisher;
+        }
         /// <summary>
         /// 动作执行后
         /// </summary>
@@ -24,8 +35,9 @@ namespace Magic.Guangdong.Exam.Filters
         /// 动作执行时
         /// </summary>
         /// <param name="context"></param>
-        public void OnActionExecuting(ActionExecutingContext context)
+        public async void OnActionExecuting(ActionExecutingContext context)
         {
+            Console.WriteLine("start:"+DateTime.Now.ToString());
             if (context.RouteData == null ||
                 context.RouteData.Values == null ||
                 !context.RouteData.Values.Where(u => u.Key == "controller").Any() ||
@@ -35,11 +47,22 @@ namespace Magic.Guangdong.Exam.Filters
                 context.Result = new JsonResult(new { code = -1, msg = "请求地址错误" });
                 return;
             }
+            string userId = Guid.Empty.ToString();
+            string requestMethod = context.HttpContext.Request.Method.ToLower();
+            if (context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any())
+            {
+                userId = Utils.FromBase64Str(context.HttpContext.Request.Cookies["userId"]);
+
+            }
+            
+            string area = "";
             string controller = Convert.ToString(context.RouteData.Values["controller"]).ToLower();
             string action = Convert.ToString(context.RouteData.Values["action"]).ToLower();
+            if (context.RouteData.Values.ContainsKey("area"))
+                area = context.RouteData.Values["area"].ToString().ToLower();
             //执行方法前先执行这
-            var actionLog = $"{DateTime.Now} 开始调用 【{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
-
+            var actionLog = $"{DateTime.Now} 开始调用 【{area}/{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
+            
             var descriptor = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
             if (descriptor == null)
             {
@@ -54,15 +77,32 @@ namespace Magic.Guangdong.Exam.Filters
             }
             if (descriptor.MethodInfo.CustomAttributes.Any(u => u.AttributeType.Name == "RouteMark"))
             {
-                string requestMethod = context.HttpContext.Request.Method.ToLower();
-                string userId = "admin";
-                actionLog = $"用户【{userId}】，于{DateTime.Now} 开始调用 【{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
-                
+                actionLog = $"用户【{userId}】，于{DateTime.Now} 开始调用 【{area}/{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
+
                 Logger.Warning(actionLog);
             }
             else
                 Logger.Info(actionLog);
+
+            var routeMarks = descriptor.MethodInfo.CustomAttributes.Where(u => u.AttributeType.Name.Contains("RouteMark"));
+            string actionMark = "";
+            if (routeMarks != null && routeMarks.Any() && routeMarks.First().ConstructorArguments.Any())
+            {
+                actionMark = routeMarks.First().ConstructorArguments.First().Value.ToString();
+            }
+            if (requestMethod != "get")
+            {                
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                {
+                    AdminId = Guid.Parse(userId),
+                    Action = actionMark,
+                    Description = actionLog.Length > 700 ? actionLog.Substring(0, 700) : actionLog,
+                    Router = $"{area}/{controller}/{action}",
+                    CreatedAt = DateTime.Now
+                });
+            }
             RequestLog(context);
+            Console.WriteLine("end:" + DateTime.Now.ToString());
         }
 
         private void RequestLog(ActionExecutingContext context)
@@ -84,15 +124,20 @@ namespace Magic.Guangdong.Exam.Filters
             {
                 ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
             }
-            string user = "freeViewer";
-            if (context.HttpContext.User.Claims.Any())
+            string user = Guid.Empty.ToString();
+            //if (context.HttpContext.User.Claims.Any())
+            //{
+            //    user = context.HttpContext.User.Claims.First().Value;
+            //}
+            if(context.HttpContext.Request.Cookies.Where(u=>u.Key=="userId").Any())
             {
-                user = context.HttpContext.User.Claims.First().Value;
+                user = Utils.FromBase64Str(context.HttpContext.Request.Cookies["userId"]);
             }
             string method = context.HttpContext.Request.Method;
             string url = context.HttpContext.Request.Path.Value;
             string param = Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments);
             string remark = context.HttpContext.Request.Headers["User-Agent"];
+            
             string brower = "UnKnown";
             if (remark.Contains("FireFox"))
                 brower = "FireFox";
@@ -130,9 +175,13 @@ namespace Magic.Guangdong.Exam.Filters
                 ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
             }
             string user = "freeViewer";
-            if (context.HttpContext.User.Claims.Any())
+            //if (context.HttpContext.User.Claims.Any())
+            //{
+            //    user = context.HttpContext.User.Claims.First().Value;
+            //}
+            if (context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any())
             {
-                user = context.HttpContext.User.Claims.First().Value;
+                user = context.HttpContext.Request.Cookies["userId"];
             }
             string method = context.HttpContext.Request.Method;
             string url = context.HttpContext.Request.Path.Value;

@@ -195,6 +195,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// 自动填充权限数据
         /// </summary>
         /// <returns></returns>
+        [RouteMark("自动填充权限数据")]
         public async Task<IActionResult> InitPermissionData()
         {
             var assembly = Assembly.GetExecutingAssembly();

@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using EasyCaching.Core;
+using DotNetCore.CAP;
+using Magic.Guangdong.Assistant.Contracts;
+using Magic.Guangdong.DbServices.Entities;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -11,12 +15,12 @@ namespace Magic.Guangdong.Exam.Filters
     /// </summary>
     public class AuthorizeFilter : IAuthorizationFilter
     {
-        private readonly IAdminRoleRepo _adminRoleRepo;
-        //private readonly IKeyActionRepo _keyActionRepo;
-        public AuthorizeFilter(IAdminRoleRepo adminRoleRepo)
+        private readonly ICapPublisher _capPublisher;
+        private readonly IRedisCachingProvider _redisCachingProvider;
+        public AuthorizeFilter(ICapPublisher capPublisher, IRedisCachingProvider redisCachingProvider)
         {
-            _adminRoleRepo = adminRoleRepo;
-            //_keyActionRepo = keyActionRepo;
+            _capPublisher = capPublisher;
+            _redisCachingProvider = redisCachingProvider;
         }
         /// <summary>
         /// 请求验证，当前验证部分不要抛出异常，ExceptionFilter不会处理
@@ -47,9 +51,56 @@ namespace Magic.Guangdong.Exam.Filters
                 Assistant.Logger.Debug("访问公开接口");
                 return;
             }
+
+            
+            //cookie身份验证
             Guid adminId;
-            if(!HeaderCheck(context) || !CookieCheck(context, out adminId))
+            if (!CookieCheck(context, out adminId))
             {
+                //这里就不用记了，cookie都没了，也记录不上登录信息
+                //await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                //{
+                //    AdminId = adminId,
+                //    Action = "cookie认证失败",
+                //    Description = "cookie认证失败",
+                //    Router = $"{area}/{controller}/{action}",
+                //    CreatedAt = DateTime.Now
+                //});
+                return;
+            }
+
+            //非get请求，请求头验证
+            if (!HeaderCheck(context))
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                {
+                    AdminId = adminId,
+                    Action = "header认证失败",
+                    Description = "header认证失败",
+                    Router = $"{area}/{controller}/{action}",
+                    CreatedAt = DateTime.Now
+                });
+                return;
+            }
+
+            //用户权限验证
+            string router = $"/{area}/{controller}/{action}";
+            if(string.IsNullOrEmpty(area))
+                router = $"/{controller}/{action}";
+            string permissionCheckResult = await PermissionCheck(adminId.ToString(), router);
+            if (permissionCheckResult != "success")
+            {
+                var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
+                context.Result = item;
+                Assistant.Logger.Error("权限异常");
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                {
+                    AdminId = adminId,
+                    Action = "权限认证失败",
+                    Description = permissionCheckResult,
+                    Router = $"{area}/{controller}/{action}",
+                    CreatedAt = DateTime.Now
+                });
                 return;
             }
 
@@ -136,17 +187,33 @@ namespace Magic.Guangdong.Exam.Filters
                 Assistant.Logger.Error("token错辣或者超时辣！走你~");
                 return false;
             }
+            
             return true;
         }
 
-        private async Task<bool> PermissionCheck(string adminId)
+        private async Task<string> PermissionCheck(string adminId,string router)
         {
-            //to do..
+            //todo..
             //主要逻辑是，获取用户的所有权限，如果用户有这个权限，则通过，否则不通过
             //注意不通过时，不要直接返回登录页，要返回一个jsonresult，提示用户没有权限
             //同时，根据一定情况，如非get类请求，组成keyaction模型，插入keyaction表中
             //插入的时候发布一个消息就行，不用调用仓库立即执行
-            return true;
+
+            if (string.IsNullOrEmpty(router))
+            {
+                return "success";
+            }
+            if (!router.StartsWith("/"))
+                router = ("/" + router).ToLower();
+            string key = $"GD.Exam.Permissions_{adminId}";
+            if(!_redisCachingProvider.KeyExists(key)) 
+            {
+                return "登录异常";//
+            }
+            if (await _redisCachingProvider.HExistsAsync(key, "super") || 
+                await _redisCachingProvider.HExistsAsync(key, router))
+                return "success";
+            return "当前帐号没有执行此操作的权限";
         }
 
 

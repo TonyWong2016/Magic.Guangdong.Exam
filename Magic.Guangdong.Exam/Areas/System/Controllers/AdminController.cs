@@ -83,7 +83,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         {
             if (await _adminRepo.CreateAdmin(dto))
                 return Json(_resp.success(true, "添加成功"));
-            return Json(_resp.error("添加失败"));
+            return Json(_resp.error("添加失败，请尝试更换用户名，邮箱和电话"));
         }
 
         [RouteMark("修改用户信息")]
@@ -112,11 +112,30 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
+
+        [RouteMark("重置密码")]
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(Guid adminId,string newPwd)
+        {
+            if (string.IsNullOrWhiteSpace(newPwd))
+                newPwd = Utils.GenerateRandomCodePro(8, 2);
+            var admin = await _adminRepo.getOneAsync(u => u.Id == adminId);
+            string keyId = Utils.GenerateRandomCodePro(16);
+            string keySecret = Utils.GenerateRandomCodePro(16);
+           
+            admin.KeyId = keyId;
+            admin.KeySecret = keySecret;
+            admin.Password = Security.Encrypt(newPwd, Encoding.UTF8.GetBytes(keyId), Encoding.UTF8.GetBytes(keySecret));
+            return Json(_resp.success(await _adminRepo.updateItemAsync(admin), $"重置成功，请牢记此密码，该密码【{newPwd}】只显示这一次"));
+        }
+
         /// <summary>
         /// 移除账号
         /// </summary>
         /// <param name="adminId"></param>
         /// <returns></returns>
+        [RouteMark("删除账号")]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(Guid id)
         {
             var admin = await _adminRepo.getOneAsync(u => u.Id == id);
