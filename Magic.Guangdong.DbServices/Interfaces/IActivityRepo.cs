@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Interfaces
 {
-    internal interface IActivityRepo : IExaminationRepository<Activity>
+    public interface IActivityRepo : IExaminationRepository<Activity>
     {
     }
 }

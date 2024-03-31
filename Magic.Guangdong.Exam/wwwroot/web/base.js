@@ -392,3 +392,23 @@ function checkStringVariety(str, cnt = 2) {
 
     return count >= 2;
 }
+
+
+function jVal(id) {
+    return $("#" + id).val();
+}
+function jValSet(id, val) {
+    $("#" + id).val(val);
+}
+function jHtml(id) {
+    return $("#" + id).html();
+}
+function jText(id) {
+    return $("#" + id).text();
+}
+function jHtmlSet(id, html) {
+    $("#" + id).html(html);
+}
+function jTextSet(id, text) {
+    $("#" + id).text(text);
+}

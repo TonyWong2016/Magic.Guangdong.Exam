@@ -94,7 +94,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">答题条件（双击）</label>
             <div class="layui-input-block">
-                <textarea class="layui-textarea" readonly ondblclick="setValidate()" placeholder="双击设定允许参与本场考试的答题条件，会关联申报信息" asp-for="@Model.ExtraInfo"></textarea>
+                <textarea class="layui-textarea" readonly ondblclick="setValidate()" placeholder="双击设定允许参与本场考试的答题条件，会关联报名信息" asp-for="@Model.ExtraInfo"></textarea>
             </div>
         </div>
 
@@ -121,7 +121,7 @@
 
         <div class="layui-form-item" style="margin-left:110px">
             <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
-            <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
         </div>
         @Html.AntiForgeryToken()
     </form>
@@ -130,7 +130,7 @@
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/xm-select.js"></script>
-
+<script src="~/web/myxselect.js"></script>
 <script >
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();    
@@ -141,8 +141,8 @@
   
     
     let objType = {
-        "url": "/matchsession/GetMatchSessionMini"
-        , "param": { "columnId": columnId }
+        "url": "/exam/activity/getactivitydrops"
+        , "param": { "rd": randomInt }
         , "elem": "AssociationIdSelect"
         , "radio": true
         , "tips": "请选择活动"
@@ -152,8 +152,9 @@
         , "result": ""
         , "func": function (data) {
             console.log(data);
-            jValSet("AssociationTitle",data.arr[0].text);
-            jValSet("AssociationId", data.arr[0].value);
+            $("#AssociationTitle").val(data.arr[0].text);
+            $("#AssociationId").val(data.arr[0].value);
+            // jValSet("AssociationId", data.arr[0].value);
         }
     }
     makeXmSelect(objType);
@@ -165,27 +166,28 @@
         , format: 'yyyy/MM/dd HH:mm:ss'
         , done: function (value, date, endDate) {
             let parts = value.split(" - ");
-            jValSet("StartTime", parts[0]);
-            jValSet("EndTime", parts[1]);
+            $("#StartTime").val(parts[0]);
+            $("#EndTime").val(parts[1]);
         }
     });
 
-    form.on("submit(save)", function (data) {
-        $.post("@Url.Action("Create")", data.field, function (json) {
-            if (json.code == 1) {
-                TT.info("创建成功");
-                return;
-            }
-            TT.error("操作失败：" + json.msg);
-        })
+    form.on("submit(save)", async function (data) {
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Create")', formData, { 'Content-Type': 'multipart/form-data' });
+        if(ret.code==0){
+            successMsg('创建成功');
+            return;
+        }
+        errorMsg('创建失败')
     })
 
-    $("#btnBack").attr("href", `index?columnId=${getQueryString("columnId")}`)
 
     function setValidate(){
+        warnMsg('暂不支持')
+        return;
         layer.open({
             type:2,
-            content: "@Url.Action("SetValidate")?columnId="+columnId,
+            content: "@Url.Action("SetValidate")",
             shade: [0.3, '#393D49'],
             area: ['100%', '100%'],
             closeBtn:1,//不显示答题按钮，必须通过点击子页面内按钮关闭
@@ -199,7 +201,7 @@
             end: function () {
                 //关闭弹窗，重新加载列表
                 //getTable(params);
-                jValSet("ExtraInfo", localStorage.getItem("expressionStr"))
+                $("#ExtraInfo").val(localStorage.getItem("expressionStr"))
                 
             }
         })

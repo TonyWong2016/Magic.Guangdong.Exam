@@ -261,5 +261,28 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
+        public async Task<IActionResult> InitActivityData([FromServices]IActivityRepo activityRepo)
+        {
+            var list = new List<Activity>(){
+                new Activity()
+                {
+                    Title = "测试活动1",
+                    Description = "测试1",
+                    StartTime = DateTime.Now,
+                    EndTime = DateTime.Now.AddDays(45),
+                },
+                new Activity()
+                {
+                    Title = "测试活动2",
+                    Description = "测试2",
+                    StartTime = DateTime.Now,
+                    EndTime = DateTime.Now.AddDays(60),
+                }
+            };
+            await activityRepo.addItemsBulkAsync(list);
+            return Json(_resp.success(true));
+
+
+        }
     }
 }

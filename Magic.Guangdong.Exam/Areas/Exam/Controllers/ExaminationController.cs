@@ -5,6 +5,7 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
@@ -78,6 +79,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// 创建考试
         /// </summary>
         /// <returns></returns>
+        [RouteMark("创建考试")]
         public IActionResult Create()
         {
             return View();
@@ -103,16 +105,17 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <summary>
         /// 编辑考试
         /// </summary>
-        /// <param name="examId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Edit(Guid examId)
+        [RouteMark("编辑考试")]
+        public async Task<IActionResult> Edit(Guid id)
         {
-            if (await _examinationRepo.getAnyAsync(u => u.Id == examId))
+            if (await _examinationRepo.getAnyAsync(u => u.Id == id))
             {
-                var exam = await _examinationRepo.getOneAsync(u => u.Id == examId);
+                var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
                 return View(exam);
             }
-            return Content("考试不存在");
+            return Redirect("/error?msg=考试不存在");
         }
     }
 }

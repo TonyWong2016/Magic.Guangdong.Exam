@@ -1,4 +1,5 @@
-﻿let randomInt = Math.floor(Math.random() * 1000);
+﻿let selectRet = [];
+let randomInt = Math.floor(Math.random() * 1000);
 
 function refreshRandomInt() {
     randomInt = Math.floor(Math.random() * 1000);
@@ -115,27 +116,27 @@ function renderLayuiFormElem(params) {
 
 function successMsg(msg, callback = '') {
     if (typeof (callback) == 'function') {
-        layer.msg(msg, { icon: 1 }, () => {
+        layer.msg(msg, { icon: 1, offset: '16px' }, () => {
             callback();
         });
     } else
-        layer.msg(msg, { icon: 1 });
+        layer.msg(msg, { icon: 1, offset: '16px' });
 }
 function errorMsg(msg, callback = '') {
     if (typeof (callback) == 'function') {
-        layer.msg(msg, { icon: 2 }, () => {
+        layer.msg(msg, { icon: 2, offset: '16px' }, () => {
             callback();
         });
     } else
-        layer.msg(msg, { icon: 2 });
+        layer.msg(msg, { icon: 2, offset: '16px' });
 }
 function warnMsg(msg, callback = '') {
     if (typeof (callback) == 'function') {
-        layer.msg(msg, { icon: 0 }, () => {
+        layer.msg(msg, { icon: 0, offset: '16px' }, () => {
             callback();
         });
     } else
-        layer.msg(msg, { icon: 0 });
+        layer.msg(msg, { icon: 0, offset: '16px' });
 }
 
 //弹出层-初级封装
@@ -347,4 +348,25 @@ function getTableNoUrl(params, callBack = '') {
             }
         });
     });
+}
+
+function getSelectItems(url, params, tpl, view, isAppend = true, parentfilter = "") {
+    return axios.get(url, {
+        params: params
+    })
+        .then(function (data) {
+            var json = data.data;
+            if (document.getElementById(view)) {
+                renderTpl(tpl, view, json.data, isAppend).then(() => {
+                    setTimeout(() => {
+                        if (parentfilter)
+                            form.render('select', parentfilter);
+                        else
+                            form.render('select');
+                    },300)                    
+                });
+            }
+           
+            selectRet = json.data;
+        })
 }

@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = "~/Views/Shared/_LayoutContent.cshtml";
+    Layout = "../Shared/_LayoutContent.cshtml";
 }
 @model Magic.Guangdong.DbServices.Entities.Examination
 
@@ -123,7 +123,7 @@
 
         <div class="layui-form-item" style="margin-left:110px">
             <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
-            <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
         </div>
         @Html.AntiForgeryToken()
     </form>
@@ -132,6 +132,7 @@
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js"></script>
 
 <script >
     let form = layui.form;
@@ -143,8 +144,8 @@
   
     
     let objType = {
-        "url": "/matchsession/GetMatchSessionMini"
-        , "param": { "columnId": columnId }
+        "url": "/exam/activity/getactivitydrops"
+        , "param": {  }
         , "elem": "AssociationIdSelect"
         , "radio": true
         , "tips": "请选择活动"
@@ -183,7 +184,6 @@
         })
     })
 
-    $("#btnBack").attr("href", `index?columnId=${getQueryString("columnId")}`)
 
     function setValidate() {
         localStorage.setItem("initStr", jVal("ExtraInfo"));

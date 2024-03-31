@@ -28,7 +28,12 @@
             @RenderBody()
         </div>
     </div>
-
+    <script type="text/html" id="selectTpl">
+        <option value="0">请选择</option>
+        {{# layui.each(d,function(index,item){}}
+        <option value="{{ item.value }}">{{item.text}}</option>
+        {{# }) }}
+    </script>
     <script>
         layer.closeAll('loading');
         setBreadCrumb();

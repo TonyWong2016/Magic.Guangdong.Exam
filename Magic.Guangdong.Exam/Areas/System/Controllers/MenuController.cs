@@ -107,7 +107,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             {
                 return View((await _menuRepo.getOneAsync(u => u.Id == id)).Adapt<MenuDto>());
             }
-            return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return Redirect("/error?msg=栏目不存在");
         }
 
         /// <summary>
