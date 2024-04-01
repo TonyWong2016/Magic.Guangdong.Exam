@@ -1,185 +1,185 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-<div class="layui-row" style="padding:15px">
-    <form class="layui-form" lay-filter="formFilter">
+<div class='layui-row' style='padding:15px'>
+    <form class='layui-form' lay-filter='formFilter'>
 
-        <div class="layui-input-inline" style="width:360px">
-            <select id="AssociationId" lay-filter="AssociationId">
-                <option value="0">请选择关联活动</option>
+        <div class='layui-input-inline' style='width:360px'>
+            <select id='AssociationId' lay-filter='AssociationId'>
+                <option value='0'>请选择关联活动</option>
             </select>
         </div>
 
-        <div class="layui-input-inline" style="width:300px">
-            <input class="layui-input" id="keyword" placeholder="输入关键字(标题，聚合码)检索" />
+        <div class='layui-input-inline' style='width:300px'>
+            <input class='layui-input' id='keyword' placeholder='输入关键字(标题，聚合码)检索' />
         </div>
 
-        <div class="layui-input-inline">
-            <select id="Status" lay-filter="status">
-                <option value="0">请选择考试状态</option>
-                <option value="1">开启</option>
-                <option value="2">关闭</option>
+        <div class='layui-input-inline'>
+            <select id='Status' lay-filter='status'>
+                <option value='0'>请选择考试状态</option>
+                <option value='1'>开启</option>
+                <option value='2'>关闭</option>
             </select>
         </div>
         
-        <div class="layui-input-inline">
-            <a href="javascript:;" class="layui-btn" id="btnAddExamination"><i class="layui-icon layui-icon-add-1"></i>新增考试</a>
+        <div class='layui-input-inline'>
+            <a href='javascript:;' class='layui-btn' id='btnAddExamination'><i class='layui-icon layui-icon-add-1'></i>新增考试</a>
         </div>
 
-        <div class="layui-input-inline">
-            <a href="javascript:;" id="btnRefreshExamCount" onclick="RefreshExamCount()" class="layui-btn layui-btn-warm">实时答题人数:@ViewBag.onlineExamer</a>
+        <div class='layui-input-inline'>
+            <a href='javascript:;' id='btnRefreshExamCount' onclick='RefreshExamCount()' class='layui-btn layui-btn-warm'>实时答题人数:@ViewBag.onlineExamer</a>
         </div>
 
-        <div class="layui-input-inline">
-            <input type="checkbox" name="allowPure" id="allowPure" lay-filter="allowPure" title="允许免登录" lay-skin="tag">
+        <div class='layui-input-inline'>
+            <input type='checkbox' name='allowPure' id='allowPure' lay-filter='allowPure' title='允许免登录' lay-skin='tag'>
         </div>
     </form>
-    <table class="layui-table" id="table" lay-filter="table"></table>
+    <table class='layui-table' id='table' lay-filter='table'></table>
 </div>
 
 
-<div class="layui-layer-notice" id="divQrcode" style="display:none;">
-    <div class="layui-row" style="margin-top:10px">
-        <div class="layui-col-md4">
-            <div class="layui-card">
-                <div class="layui-card-header" style="text-align:center">专属码</div>
-                <div class="layui-card-body">
-                    <div id="qrcode" style="margin-left:15%"></div>
+<div class='layui-layer-notice' id='divQrcode' style='display:none;'>
+    <div class='layui-row' style='margin-top:10px'>
+        <div class='layui-col-md4'>
+            <div class='layui-card'>
+                <div class='layui-card-header' style='text-align:center'>专属码</div>
+                <div class='layui-card-body'>
+                    <div id='qrcode' style='margin-left:15%'></div>
                 </div>
             </div>
         </div>
-        <div class="layui-col-md4">
-            <div class="layui-card">
-                <div class="layui-card-header" style="text-align:center">聚合码</div>
-                <div class="layui-card-body">
-                    <div id="qrcodeGroup" style="margin-left:15%"></div>
+        <div class='layui-col-md4'>
+            <div class='layui-card'>
+                <div class='layui-card-header' style='text-align:center'>聚合码</div>
+                <div class='layui-card-body'>
+                    <div id='qrcodeGroup' style='margin-left:15%'></div>
                 </div>
             </div>
         </div>
-        <div class="layui-col-md4">
-            <div class="layui-card">
-                <div class="layui-card-header" style="text-align:center">免登录聚合码</div>
-                <div class="layui-card-body">
-                    <div id="qrcodeGroupPure" style="margin-left:15%"></div>
+        <div class='layui-col-md4'>
+            <div class='layui-card'>
+                <div class='layui-card-header' style='text-align:center'>免登录聚合码</div>
+                <div class='layui-card-body'>
+                    <div id='qrcodeGroupPure' style='margin-left:15%'></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="layui-row" style="margin-top:50px">
-        <blockquote class="layui-elem-quote">
+    <div class='layui-row' style='margin-top:50px'>
+        <blockquote class='layui-elem-quote'>
             <p>注意：专属码是指用户扫码后，就已经固定好了考试信息；聚合码是指用户扫码后，需要自行选择要参加的靠考试，对应的信息验证要依赖考试本身设定的参加条件</p>
             <p>若二维码尺寸、风格等条件不合适，可复制该链接使用第三方二维码合成工具自行合成。</p>
-            <p>专属码地址：<a href="#" id="clientUrl" style="color:#00acc1" target="_blank"></a></p>
-            <p>聚合码地址：<a href="#" id="clientUrlGroup" style="color:#1e88e5" target="_blank"></a></p>
-            <p>免登录地址：<a href="#" id="clientUrlGroupPure" style="color:#fe8cd8" target="_blank"></a></p>
+            <p>专属码地址：<a href='#' id='clientUrl' style='color:#00acc1' target='_blank'></a></p>
+            <p>聚合码地址：<a href='#' id='clientUrlGroup' style='color:#1e88e5' target='_blank'></a></p>
+            <p>免登录地址：<a href='#' id='clientUrlGroupPure' style='color:#fe8cd8' target='_blank'></a></p>
 
         </blockquote>
     </div>
 
 </div>
 
-<div class="layui-layer-notice" id="divClone" style="display:none;">
-    <form class="layui-form" style="padding:15px">
-        <div class="layui-form-item">
-            <label class="layui-form-label">考试标题</label>
-            <div class="layui-input-block">
-                <input type="text" name="cloneExamName" required lay-verify="required" placeholder="请输入克隆后的考试标题，避免和原考试标题冲突" autocomplete="off" class="layui-input">
+<div class='layui-layer-notice' id='divClone' style='display:none;'>
+    <form class='layui-form' style='padding:15px'>
+        <div class='layui-form-item'>
+            <label class='layui-form-label'>考试标题</label>
+            <div class='layui-input-block'>
+                <input type='text' name='cloneExamName' required lay-verify='required' placeholder='请输入克隆后的考试标题，避免和原考试标题冲突' autocomplete='off' class='layui-input'>
             </div>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">试卷标题</label>
-            <div class="layui-input-block">
-                <input type="text" name="clonePaperTitle" required lay-verify="required" placeholder="请输入克隆后的试卷标题，避免和原试卷标题冲突" autocomplete="off" class="layui-input">
+        <div class='layui-form-item'>
+            <label class='layui-form-label'>试卷标题</label>
+            <div class='layui-input-block'>
+                <input type='text' name='clonePaperTitle' required lay-verify='required' placeholder='请输入克隆后的试卷标题，避免和原试卷标题冲突' autocomplete='off' class='layui-input'>
             </div>
         </div>
         @Html.AntiForgeryToken()
-        <div class="layui-form-item">
-            <div class="layui-input-block">
-                <a class="layui-btn" href="javascript:;" lay-submit lay-filter="clone"><i class="layui-icon layui-icon-release "></i>执行</a>
+        <div class='layui-form-item'>
+            <div class='layui-input-block'>
+                <a class='layui-btn' href='javascript:;' lay-submit lay-filter='clone'><i class='layui-icon layui-icon-release '></i>执行</a>
             </div>
         </div>
-        <blockquote class="layui-elem-quote">
+        <blockquote class='layui-elem-quote'>
             注意：
             <p>1、克隆操作，会克隆考试基本信息。</p>
             <p>
                 2、如果当前考试下已经创建了试卷，克隆操作会克隆对应的组卷规则，
-                <b style="color:red">并不会克隆出完全一致的试卷。</b>
+                <b style='color:red'>并不会克隆出完全一致的试卷。</b>
             <p>如：考试A设定的组卷规则是10个容易的单选题，每个题3分；</p>
             <p>执行克隆后会克隆相同的规则到新的考试试卷下，然后在根据规则生成新的试题，新生成的试题和原来的试题不能保证完全一致</p>
-            <p>3、正是由于克隆操作会克隆组卷规则，<b style="color:red">因此该操作并不适用所有场景。</b></p>
+            <p>3、正是由于克隆操作会克隆组卷规则，<b style='color:red'>因此该操作并不适用所有场景。</b></p>
         </blockquote>
     </form>
 
 </div>
 
-<script type="text/html" id="statusTpl">
+<script type='text/html' id='statusTpl'>
     {{# if(d.status==1){ }}
-    <span style="color:#1E9FFF">开启</span>
+    <span style='color:#1E9FFF'>开启</span>
     {{# } else { }}
-    <span style="color:gray">关闭</span>
+    <span style='color:gray'>关闭</span>
     {{#} }}
 </script>
-<script type="text/html" id="operationTpl">
-    <div class="layui-btn-group">
-        <a class="layui-btn layui-btn-sm layui-btn-primary" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-        <a class="layui-btn layui-btn-sm layui-btn-primary" href="javascript:;" onclick="cloneExam('{{d.id}}')"><i class="layui-icon layui-icon-template-1"></i>克隆</a>
+<script type='text/html' id='operationTpl'>
+    <div class='layui-btn-group'>
+        <a class='layui-btn layui-btn-sm layui-btn-primary' href='@Url.Action("Edit")?id={{d.id}}'><i class='layui-icon layui-icon-edit'></i>编辑</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary' href='javascript:;' onclick='cloneExam('{{d.id}}')'><i class='layui-icon layui-icon-template-1'></i>克隆</a>
         {{# if(d.status==1) { }}
-        <a class="layui-btn layui-btn-sm layui-btn-primary" href="@Url.Action("Index","Paper")?examId={{d.id}}&associationId={{ associationId }}"><i class="layui-icon layui-icon-template"></i>试卷详情</a>
-        <a class="layui-btn layui-btn-sm layui-btn-primary" href="javascript:;" onclick="makeQrcode('{{ associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class="layui-icon layui-icon-cellphone"></i>二维码</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷详情</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a>
         {{# } }}
-        <a class="layui-btn layui-btn-sm layui-btn-danger" href="javascript:;" onclick="RemoveItem('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        <a class='layui-btn layui-btn-sm layui-btn-danger' href='javascript:;' onclick="removeItem({router:'/exam/examination/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getExamList();} })"><i class='layui-icon layui-icon-delete'></i>删除</a>
 
     </div>
 </script>
-<script src="~/plugins/qrcodejs.js"></script>
+<script src='~/plugins/qrcodejs.js'></script>
 <script>
     let table = layui.table;
     let form = layui.form;
 
     let token = $('@Html.AntiForgeryToken()').val();
-    let whereJsonStr = ""
-    let associationId = "0";
-    let status = "0";
+    let whereJsonStr = ''
+    let associationId = '0';
+    let status = '0';
 
-    let cloneExamId = "";
+    let cloneExamId = '';
 
-    $("#btnAddExamination").attr("href", "@Url.Action("Create")");
-    $("#btnQuestion").attr("href", "@Url.Action("Index","Question")")
-    getSelectItems("/exam/activity/getactivitydrops", { rd: randomInt }, "selectTpl", "AssociationId", false)
+    $('#btnAddExamination').attr('href', '@Url.Action("Create")');
+    $('#btnQuestion').attr('href', '@Url.Action("Index", "Question")')
+    getSelectItems('/exam/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'AssociationId', false)
         .then(v => {
-            form.render('select')
             associationId = selectRet[0].value
+            form.render('select')
             getExamList();
         })
 
     form.render('checkbox');
-    let allowPure ="@ViewBag.allowPure";
-    if (allowPure == "yes") {
-        form.val("formFilter",{
-            "allowPure":true
+    let allowPure ='@ViewBag.allowPure';
+    if (allowPure == 'yes') {
+        form.val('formFilter',{
+            'allowPure':true
         })
         form.render('checkbox')
     }
 
 
 
-    form.on("select(AssociationId)", function (data) {
+    form.on('select(AssociationId)', function (data) {
         associationId = data.value;
         getExamList();
     })
 
-    form.on("select(status)", function (data) {
+    form.on('select(status)', function (data) {
         status = data.value;
         getExamList();
     })
 
-    form.on("checkbox(allowPure)",function(data){
+    form.on('checkbox(allowPure)',function(data){
         //console.log(data.elem.checked)
-        let status = "no";
+        let status = 'no';
         if(data.elem.checked)
-            status = "yes";
+            status = 'yes';
         
-        $.post("@Url.Action("SetPure")", { "status": status, "__RequestVerificationToken": token },function(json){
+        $.post('@Url.Action("SetPure")', { 'status': status, '__RequestVerificationToken': token }, function (json) {
             if(json.code==1){
                 allowPure = status;
                successMsg(json.msg);
@@ -189,47 +189,49 @@
         })
     })
 
-    form.on("submit(clone)", function (data) {
+    form.on('submit(clone)', function (data) {
         let param = data.field;
         param.examId = cloneExamId;
-        $.post("@Url.Action("CloneExam")", param, function (json) {
+        $.post('@Url.Action("CloneExam")', param, function (json) {
             if (json.code == 1) {
-               successMsg("操作成功");
+               successMsg('操作成功');
                 layer.closeAll();
                 getExamList();
                 return;
             }
-            errorMsg("操作失败");
+            errorMsg('操作失败');
         })
     })
 
-    autoSearch("keyword", function () {
+    autoSearch('keyword', function () {
         getExamList();
     })
 
     function getExamList() {
-        if (associationId == '0') {
-            errorMsg("请选择关联活动");
-            return;
-        }
+        // if (associationId == '0') {
+        //     errorMsg('请选择关联活动');
+        //     return;
+        // }
         makeWhereJson();
         let params = {
             url: '@Url.Action("GetExamList")',
             elem: '#table',
-            where: { "whereJsonStr": JSON.stringify(whereJsonStr) },
+            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
             size: 'lg',
             page: true,
             cols: [ //表头
-                { title: '序号', templet: "#indexTpl", width: "5%" }
+                { title: '序号', templet: '#indexTpl', width: '5%' }
                 , { field: 'id', title: 'id', hide: true }
-                , { field: 'title', title: '标题', width: "11%" }
-                , { field: 'associationTitle', title: '所属活动', width: "10%" }
-                , { field: 'startTime', title: '开始时间', width: "10%" }
-                , { field: 'endTime', title: '结束时间', width: "10%" }
-                , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: "7%", edit: "text" }
-                , { field: 'orderIndex', title: '<span style="color:#00acc1">排序</span>', width: "5%", edit: "text" }
-                , { field: 'baseDuration', title: '考试时长', width: "7%" }
-                , { title: '状态', templet: '#statusTpl', width: "6%" }
+                , { field: 'title', title: '标题', width: '11%' }
+                , { field: 'associationTitle', title: '所属活动', width: '10%' }
+                , { field: 'startTime', title: '开始时间', width: '10%' }
+                , { field: 'endTime', title: '结束时间', width: '10%' }
+                , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: '7%', edit: 'text' }
+                , {
+                    field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 < /span>', width: '5%', edit: 'text'
+                }
+                , { field: 'baseDuration', title: '考试时长', width: '7%' }
+                , { title: '状态', templet: '#statusTpl', width: '6%' }
                 , { title: '操作', templet: '#operationTpl' }
             ],
             height: 630,
@@ -241,59 +243,59 @@
             console.log(obj.field); //当前编辑的字段名
             console.log(obj.data); //所在行的所有相关数据
             obj.data.__RequestVerificationToken=token;
-            $.post("@Url.Action("Edit")", obj.data, function (json) {
+            $.post('@Url.Action("Edit")', obj.data, function (json) {
                 if (json.code == 1) {
-                   successMsg("保存成功");
+                   successMsg('保存成功');
                     return;
                 }
-                errorMsg("操作失败：" + json.msg);
+                errorMsg('操作失败：' + json.msg);
             })
         })
     }
 
     function makeWhereJson() {
         whereJsonStr = {
-            "Logic": "And",
-            "Filters": [{
-                "Field": "IsDeleted",
-                "Operator": "Equal",
-                "Value": 0
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
             }]
         };
-        let keyword = $("#keyword").val();
+        let keyword = $('#keyword').val();
         if (keyword) {
             whereJsonStr.Filters.push({
-                "Logic": "Or",
-                "Filters": [{
-                    "Field": "Title",
-                    "Operator": "Contains",
-                    "Value": keyword
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': keyword
                 },
                 {
-                    "Field": "GroupCode",
-                    "Operator": "Contains",
-                    "Value": keyword
+                    'Field': 'GroupCode',
+                    'Operator': 'Contains',
+                    'Value': keyword
                 }]
             });
         }
         if (associationId != '0') {
             whereJsonStr.Filters.push({
-                "Logic": "And",
-                "Filters": [{
-                    "Field": "AssociationId",
-                    "Operator": "Equal",
-                    "Value": associationId
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'AssociationId',
+                    'Operator': 'Equal',
+                    'Value': associationId
                 }]
             });
         }
 
         if (status != '0') {
             whereJsonStr.Filters.push({
-                "Logic": "And",
-                "Filters": [{
-                    "Field": "status",
-                    "Operator": "Equal",
-                    "Value": status
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'status',
+                    'Operator': 'Equal',
+                    'Value': status
                 }]
             });
         }
@@ -302,78 +304,77 @@
     }
 
     function makeQrcode(associationId, examId, title,groupCode) {
-        let clientHost = "@ViewBag.clientHost";
+        let clientHost = '@ViewBag.clientHost';
         
-        jHtmlSet("qrcode", "")
+        jHtmlSet('qrcode', '')
 
         let clientUrl = `${clientHost}?associationId=${associationId}&examId=${examId}`;
-        $("#clientUrl").attr("href", clientUrl).html(clientUrl);
-        var qrcode1 = new QRCode(document.getElementById("qrcode"), {
+        $('#clientUrl').attr('href', clientUrl).html(clientUrl);
+        var qrcode1 = new QRCode(document.getElementById('qrcode'), {
             text: clientUrl,
             width: 260,
             height: 260,
-            colorDark: "#00acc1",
-            colorLight: "#ffffff",
+            colorDark: '#00acc1',
+            colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        jHtmlSet("qrcodeGroup", "")
+        jHtmlSet('qrcodeGroup', '')
         if(groupCode=='null')
             groupCode='';
         let clientUrlGroup = `${clientHost}?associationId=${associationId}&examId=&groupCode=${groupCode}`;
-        $("#clientUrlGroup").attr("href", clientUrlGroup).html(clientUrlGroup);
-        var qrcode2 = new QRCode(document.getElementById("qrcodeGroup"), {
+        $('#clientUrlGroup').attr('href', clientUrlGroup).html(clientUrlGroup);
+        var qrcode2 = new QRCode(document.getElementById('qrcodeGroup'), {
             text: clientUrlGroup,
             width: 260,
             height: 260,
-            colorDark: "#1e88e5",
-            colorLight: "#ffffff",
+            colorDark: '#1e88e5',
+            colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        if(allowPure!="yes"){
-            $("#clientUrlGroupPure").html("未开启免登录方式");
-            $("#qrcodeGroupPure").html("未开启免登录方式");
-            openDiv(`【${title}】入口二维码`, "divQrcode", "70%", "82%", false)
+        if (allowPure != 'yes') {
+            $('#clientUrlGroupPure').html('未开启免登录方式');
+            $('#qrcodeGroupPure').html('未开启免登录方式');
+            openDiv(`【${title}】入口二维码`, 'divQrcode', '70%', '82%', false)
         } else {
-            jHtmlSet("qrcodeGroupPure", "")
-            let clientUrlGroupPure = clientUrlGroup.replace("xamination/","xaminationPure/");
-            $("#clientUrlGroupPure").attr("href", clientUrlGroupPure).html(clientUrlGroupPure);
-            var qrcode3 = new QRCode(document.getElementById("qrcodeGroupPure"), {
+            jHtmlSet('qrcodeGroupPure', '')
+            let clientUrlGroupPure = clientUrlGroup.replace('xamination/', 'xaminationPure/');
+            $('#clientUrlGroupPure').attr('href', clientUrlGroupPure).html(clientUrlGroupPure);
+            var qrcode3 = new QRCode(document.getElementById('qrcodeGroupPure'), {
                 text: clientUrlGroupPure,
                 width: 260,
                 height: 260,
-                colorDark: "#fe8cd8",
-                colorLight: "#ffffff",
+                colorDark: '#fe8cd8',
+                colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
             });
-            openDiv(`【${title}】入口二维码`, "divQrcode", "70%", "82%", false)
-
+            openDiv(`【${title}】入口二维码`, 'divQrcode', '70%', '82%', false)
         }
     }
 
     function RemoveItem(id) {
-        layer.confirm("<b style='color:red'>若当前考试已经创建试卷，则删除操作会将归属当前考试的试卷一并删除！<br />若当前考试下已经产生用户答题记录，则考试将无法删除！</b><br />为避免发生不可预知的错误，若要废弃当前考试，建议编辑考试状态为【关闭】,关闭后用户无法再抽取当前考试下的试题，已经提交的答题记录不受影响。<br />确定继续删除吗？", { icon: 0 }, function (index) {
-            $.post("@Url.Action("Delete")", { "examId": id, "__RequestVerificationToken": token }, function (json) {
+        layer.confirm('<b style="color:red">若当前考试已经创建试卷，则删除操作会将归属当前考试的试卷一并删除！<br />若当前考试下已经产生用户答题记录，则考试将无法删除！</b><br />为避免发生不可预知的错误，若要废弃当前考试，建议编辑考试状态为【关闭】,关闭后用户无法再抽取当前考试下的试题，已经提交的答题记录不受影响。<br />确定继续删除吗？', { icon: 0 }, function (index) {
+            $.post('@Url.Action("Delete")', { 'examId': id, '__RequestVerificationToken': token }, function (json) {
                 layer.close(index);
                 if (json.code == 1) {
-                   successMsg("操作成功");
+                   successMsg('操作成功');
                     getExamList();
                     return;
                 }
-                errorMsg("操作失败：" + json.msg);
+                errorMsg('操作失败：' + json.msg);
             })
         })
     }
 
     function cloneExam(id) {
         cloneExamId = id;
-        openDiv(`克隆考试`, "divClone", "70%", "60%", false)
+        openDiv(`克隆考试`, 'divClone', '70%', '60%', false)
 
     }
 
     function RefreshExamCount(){
-        axios.get("@Url.Action("RefreshExamLog")").then(v=>{
+        axios.get('@Url.Action("RefreshExamLog")').then(v => {
             //console.log(v)
             
             location.reload();

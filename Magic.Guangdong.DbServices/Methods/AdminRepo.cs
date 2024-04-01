@@ -1,8 +1,8 @@
 ﻿using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dto;
-using Magic.Guangdong.DbServices.Dtos.Admins;
-using Magic.Guangdong.DbServices.Dtos.Roles;
+using Magic.Guangdong.DbServices.Dtos.System.Roles;
+using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;

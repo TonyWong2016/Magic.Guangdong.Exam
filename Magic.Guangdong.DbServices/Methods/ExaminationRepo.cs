@@ -84,6 +84,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         await paperRepo.UpdateAsync(papers);
                     }
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    
                     await examRepo.UpdateAsync(exam);
                     uow.Commit();
                     return true;

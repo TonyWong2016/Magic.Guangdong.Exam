@@ -1,4 +1,4 @@
-﻿using Magic.Guangdong.DbServices.Dtos.Roles;
+﻿using Magic.Guangdong.DbServices.Dtos.System.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;

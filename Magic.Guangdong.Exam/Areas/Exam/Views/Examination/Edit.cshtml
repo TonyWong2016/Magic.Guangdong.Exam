@@ -6,6 +6,7 @@
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="UpdatedBy"/>
         <div class="layui-form-item">
             <label class="layui-form-label">考试标题</label>
             <div class="layui-input-block">
@@ -30,6 +31,7 @@
             </div>
             <input type="hidden" asp-for="AssociationId" />
             <input type="hidden" asp-for="AssociationTitle" />
+            
         </div>
 
         <div class="layui-form-item">
@@ -125,6 +127,7 @@
             <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
             <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
         </div>
+        <input asp-for="CreatedAt" type="hidden" />
         @Html.AntiForgeryToken()
     </form>
 </div>
@@ -139,7 +142,7 @@
     let token = $('@Html.AntiForgeryToken()').val();    
     let laydate = layui.laydate;
     let base_ajax_url = "";
-    
+    $("#UpdatedBy").val(atob(localStorage.getItem('userId')));
     InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
   
     
@@ -174,18 +177,22 @@
         }
     });
 
-    form.on("submit(save)", function (data) {       
-        $.post("@Url.Action("Edit")", data.field, function (json) {
-            if (json.code == 1) {
-                TT.info("保存成功");
-                return;
-            }
-            TT.error("操作失败：" + json.msg);
-        })
+    form.on("submit(save)", async function (data) {       
+        
+
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('保存成功');
+            return;
+        }
+        errorMsg('保存失败')
     })
 
 
     function setValidate() {
+        warnMsg('暂不支持')
+        return;
         localStorage.setItem("initStr", jVal("ExtraInfo"));
         layer.open({
             type: 2,

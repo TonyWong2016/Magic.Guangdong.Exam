@@ -1,9 +1,9 @@
 ﻿using Autofac;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dto;
-using Magic.Guangdong.DbServices.Dtos.Menus;
-using Magic.Guangdong.DbServices.Dtos.Permissions;
-using Magic.Guangdong.DbServices.Dtos.Routers;
+using Magic.Guangdong.DbServices.Dtos.System.Permissions;
+using Magic.Guangdong.DbServices.Dtos.System.Routers;
+using Magic.Guangdong.DbServices.Dtos.System.Menus;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;

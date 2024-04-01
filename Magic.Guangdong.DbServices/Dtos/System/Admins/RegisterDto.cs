@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dtos.Admins
+namespace Magic.Guangdong.DbServices.Dtos.System.Admins
 {
     public class RegisterDto
     {
@@ -19,8 +19,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Admins
 
         public string Description { get; set; } = "管理员";
 
-        public string VerificationCode {  get; set; }
+        public string VerificationCode { get; set; }
     }
 
-    
+
 }

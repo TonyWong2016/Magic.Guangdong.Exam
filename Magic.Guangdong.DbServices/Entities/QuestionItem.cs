@@ -14,7 +14,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// <summary>
 		/// 分析
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(500)")]
+		[JsonProperty, Column(DbType = "nvarchar(500)")]
 		public string Analysis { get; set; } = "";
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
@@ -26,13 +26,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string CreatedBy { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(1000)")]
+		[JsonProperty, Column(DbType = "nvarchar(1000)")]
 		public string Description { get; set; }
 
 		/// <summary>
 		/// 选项内容（description）是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(500)")]
+		[JsonProperty, Column(DbType = "nvarchar(500)")]
 		public string DescriptionText { get; set; }
 
 		/// <summary>
@@ -59,7 +59,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long QuestionId { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(150)")]
+		[JsonProperty, Column(DbType = "nvarchar(150)")]
 		public string Remark { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Dtos.Roles
+namespace Magic.Guangdong.DbServices.Dtos.System.Roles
 {
     public class RoleDto
     {
@@ -47,7 +47,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Roles
 
         public string PermissionIdsStr { get; set; } = "";
 
-        public RoleType Type { get; set; } 
+        public RoleType Type { get; set; }
     }
 
     public enum RoleType

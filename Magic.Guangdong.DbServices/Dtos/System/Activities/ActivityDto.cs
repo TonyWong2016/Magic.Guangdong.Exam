@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Dtos.Activities
+namespace Magic.Guangdong.DbServices.Dtos.System.Activities
 {
     public class ActivityDto
     {

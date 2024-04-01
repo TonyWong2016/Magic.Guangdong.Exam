@@ -1,0 +1,167 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-input-inline" style="width:360px">
+            <select id="examId" name="examId" class="layui-select" disabled></select>
+        </div>
+        <div class="layui-input-inline" style="width:300px">
+            <input class="layui-input" id="keyword" placeholder="输入关键字检索" />
+        </div>
+        <div class="layui-input-inline">
+            <a href="javascript:;" class="layui-btn" id="btnAddPaper"><i class="layui-icon layui-icon-add-1"></i>新增考卷</a>
+        </div>
+        <div class="layui-input-inline">
+            <a href="@Url.Action("Index")" class="layui-btn layui-btn-primary" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+    </form>
+    <table class="layui-table" id="table" lay-filter="table"></table>
+
+</div>
+
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==1){ }}
+    <span style="color:#1E9FFF">正常</span>
+    {{# } else { }}
+    <span style="color:#FF5722">禁用</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="resultTpl">
+    {{# if(d.openResult==1){ }}
+    <span style="color:#1E9FFF">开放</span>
+    {{# } else { }}
+    <span style="color:gray">未开放</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="typeTpl">
+    {{# if(d.paperType==0){ }}
+    机器组卷
+    {{# } else if(d.paperType==1) { }}
+    人工组卷
+    {{# } else { }}
+    自主抽题
+    {{#} }}
+</script>
+
+<script type="text/html" id="degreeTpl">
+    {{# if(d.paperDegree=="all"||(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1)){ }}
+    未限制
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1) { }}
+    容易，一般
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
+    容易，困难
+    {{# } else if(d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
+    一般，困难
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 ) { }}
+    容易
+    {{# } else if(d.paperDegree.indexOf("normal")>-1 ) { }}
+    一般
+    {{# } else if(d.paperDegree.indexOf("difficult")>-1 ) { }}
+    困难
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-normal" href="/exam/paper/preview?paperId={{d.id}}"><i class="layui-icon layui-icon-file"></i>预览试卷</a>
+    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deletePaper('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+    let whereJsonStr = ''
+    let examId=getUrlQueryParams('examId');
+
+    $('#btnAddPaper').attr('href', `/exam/paper/create?examId=${examId}`)
+    getSelectItems('/exam/Examination/GetExamMini', { 'id': getUrlQueryParams('examId'), 'type': 1 }, 'selectTpl', 'examId', false)
+        .then(v => {
+            setTimeout(()=>{
+                $("#examId").val(examId);
+                form.render('select')
+            },300)
+        })
+       
+    autoSearch('keyword', function () {
+        getPaperList();
+    })
+
+    getPaperList()
+    function getPaperList() {
+        
+        makeWhereJson();
+        let params = {
+            url: '@Url.Action("GetPaperList")',
+            elem: '#table',
+            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'title', title: '标题', width: '20%' }
+                , { field: 'score', title: '卷面分', width: '10%' }
+                , { templet: '#typeTpl', title: '组卷类型', width: '10%' }
+                , { templet: '#degreeTpl', title: '试卷难度', width: '12%' }
+                , { templet: '#resultTpl', title: '成绩查询', width: '10%' }
+                , { templet: '#statusTpl', title: '状态', width: '10%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            },{
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            }]
+        };
+        if (jVal('keyword')) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+        
+
+        return whereJsonStr;
+    }
+        
+    function deletePaper(paperId){
+        layer.confirm('若当前试卷已被考生抽取，则无法删除。确定要删除该试卷吗', { icon: 0 }, async function(index){
+            
+            let formData = new FormData();
+            formData.append('__RequestVerificationToken', requestToken);
+            formData.append('id', paperId);
+
+            var ret = await request('POST', '@Url.Action("Remove")', formData, { 'Content-Type': 'multipart/form-data' });
+            layer.close(index);
+            if (json.code == 1) {
+                successMsg('删除成功');
+
+            } else {
+                errorMsg(json.msg);
+            }
+            getPaperList();
+        })
+
+
+    }
+</script>

@@ -30,12 +30,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double BaseScore { get; set; } = 100d;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime CreatedAt { get; set; }
+		public DateTime CreatedAt { get; set; }=DateTime.Now;
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string CreatedBy { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(MAX)")]
+		[JsonProperty, Column(DbType = "nvarchar(1500)")]
 		public string Description { get; set; }
 
 		[JsonProperty]
@@ -44,7 +44,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int ExamType { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(MAX)")]
+		[JsonProperty, Column(DbType = "nvarchar(2000)")]
 		public string ExtraInfo { get; set; }
 
 		/// <summary>

@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dtos.Menus
+namespace Magic.Guangdong.DbServices.Dtos.System.Menus
 {
     public class MenuDto
     {
-        public long  Id { get; set; }
+        public long Id { get; set; }
 
         [DisplayName("菜单名称")]
         public string Name { get; set; }

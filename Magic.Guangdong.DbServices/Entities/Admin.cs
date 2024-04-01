@@ -24,7 +24,7 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(150)", IsNullable = false)]
+		[JsonProperty, Column(DbType = "nvarchar(300)", IsNullable = false)]
 		public string Description { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(150)", IsNullable = false)]
@@ -42,7 +42,7 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public int IsDeleted { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(100)")]
+		[JsonProperty, Column(DbType = "nvarchar(100)")]
 		public string? NickName { get; set; } = "";
 
 		[JsonProperty]

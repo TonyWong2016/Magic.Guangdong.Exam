@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.DbServices.Dtos.Routers
+namespace Magic.Guangdong.DbServices.Dtos.System.Routers
 {
     public class RouterDto
     {
@@ -15,7 +15,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Routers
 
         public string Area { get; set; }
 
-        public string Name { get; set; }  
+        public string Name { get; set; }
 
 
 

@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.DbServices.Dto;
-using Magic.Guangdong.DbServices.Dtos.Admins;
+using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;

@@ -3,13 +3,13 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using Magic.Guangdong.DbServices.Dtos.System.Admins;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {

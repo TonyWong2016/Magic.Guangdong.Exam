@@ -1,7 +1,7 @@
 ﻿using FreeSql.Internal;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos.Routers;
+using Magic.Guangdong.DbServices.Dtos.System.Routers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dtos.Admins
+namespace Magic.Guangdong.DbServices.Dtos.System.Admins
 {
     public class AdminListDto
     {
@@ -13,13 +13,13 @@ namespace Magic.Guangdong.DbServices.Dtos.Admins
         public string NickName { get; set; }
         public string? Name { get; set; }
 
-        public string Email { get; set; } 
+        public string Email { get; set; }
 
         public string Mobile { get; set; }
 
         public int Status { get; set; }
 
-        public string Description { get; set; } 
+        public string Description { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

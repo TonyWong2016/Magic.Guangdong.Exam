@@ -24,8 +24,9 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
             var file = blobInfo.blob();//转化为易于理解的file对象
             xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
-            //xhr.open('POST', 'http://manage.xiaoxiaotong.net/file/upload');
             xhr.open('POST', '/file/upload');
+            xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
+
             xhr.onload = function () {
                 var json;
                 if (xhr.status != 200) {
@@ -50,6 +51,7 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
             } else {
                 formData = new FormData();
                 formData.append('file', file, file.name);//此处与源文档不一样
+                formData.append('__RequestVerificationToken', requestToken);
                 xhr.send(formData);
             }
         },
@@ -70,6 +72,8 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
                 xhr = new XMLHttpRequest();
                 xhr.wUrlthCredentials = false;
                 xhr.open('POST', upurl);
+                xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
+
                 xhr.onload = function () {
                     var json;
                     if (xhr.status != 200) {
@@ -91,6 +95,7 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
                 } else {
                     formData = new FormData();
                     formData.append('file', file, file.name);
+                    formData.append('__RequestVerificationToken', requestToken)
                     xhr.send(formData);
                 }
             };
@@ -104,7 +109,6 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
 
 
 function InitTinymcePro(obj) {
-    //let file_base_url = "http://v.superzb.cn/fileattach/";
     if (!obj.base_ajax_url) {
         obj.file_base_url = window.location.protocol + "//" + window.location.host + obj.base_child;
     }
@@ -124,8 +128,10 @@ function InitTinymcePro(obj) {
             var file = blobInfo.blob();//转化为易于理解的file对象
             xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
-            //xhr.open('POST', 'http://manage.xiaoxiaotong.net/file/upload');
             xhr.open('POST', '/file/upload');
+            xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
+
+
             xhr.onload = function () {
                 var json;
                 if (xhr.status != 200) {
@@ -165,6 +171,8 @@ function InitTinymcePro(obj) {
                 xhr = new XMLHttpRequest();
                 xhr.wUrlthCredentials = false;
                 xhr.open('POST', upurl);
+                xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
+
                 xhr.onload = function () {
                     var json;
                     if (xhr.status != 200) {
@@ -188,6 +196,7 @@ function InitTinymcePro(obj) {
                 } else {
                     formData = new FormData();
                     formData.append('file', file, file.name);
+                    formData.append('__RequestVerificationToken', requestToken)
                     xhr.send(formData);
                 }
             };
@@ -215,12 +224,4 @@ function ClearTinymce(type) {
     }
     tinymce.remove('#' + type);
     
-    // Remove all editors bound to divs
-    //tinymce.remove('div');
-    // Remove all editors bound to textareas
-    //tinymce.remove('textarea');
-    // Remove all editors
-    //tinymce.remove();
-    // Remove specific instance by id
-    //tinymce.remove('#id');
 }

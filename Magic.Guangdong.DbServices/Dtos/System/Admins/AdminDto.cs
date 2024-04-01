@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dtos.Admins
+namespace Magic.Guangdong.DbServices.Dtos.System.Admins
 {
     public class AdminDto
     {
@@ -27,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Admins
 
         public long[] RoleIds
         {
-            get;set;
+            get; set;
 
         }
 

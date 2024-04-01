@@ -1,0 +1,304 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Exam.Papers.FinalPaperDto
+<div class="layui-row" style="padding:15px">
+    <a href="javascript:;" id="btnBack" class="layui-btn layui-btn-primary" style="margin-bottom:15px"><i class="layui-icon layui-icon-left"></i>返回</a>
+    
+    <fieldset class="layui-elem-field">
+        <legend>考卷信息</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" lay-filter="baseForm">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">归属考试</label>
+                        <div class="layui-input-inline" style="width:300px">
+                            <input class="layui-input" readonly asp-for="@Model.ExamTitle" style="background-color:#f6f6f6" />
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">关联活动</label>
+                        <div class="layui-input-inline" style="width:300px">
+                            <input class="layui-input" readonly asp-for="@Model.AssociationTitle" style="background-color:#f6f6f6" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">考试日期</label>
+                        <div class="layui-input-inline" style="width: 225px;">
+                            <input type="text" asp-for="@Model.StartTime" readonly style="background-color:#f6f6f6" autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid">-</div>
+                        <div class="layui-input-inline" style="width: 225px;">
+                            <input type="text" asp-for="@Model.EndTime" readonly style="background-color:#f6f6f6" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">考卷信息</label>
+                        <div class="layui-input-inline" style="width:300px">
+                            <input class="layui-input" asp-for="@Model.PaperTitle" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时长(分钟)</label>
+                        <div class="layui-input-inline" style="width:300px">
+                            <input class="layui-input"  asp-for="@Model.Duration" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">卷面总分</label>
+                        <div class="layui-input-inline" style="width:171px">
+                            <input class="layui-input" readonly asp-for="@Model.PaperScore" style="background-color:#f6f6f6" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">试卷类型</label>
+                        <div class="layui-input-inline" style="width:171px">
+                            <input class="layui-input" readonly asp-for="@Model.PaperTypeStr" style="background-color:#f6f6f6" />
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline" >
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-inline" style="width: 300px;">
+                            <select asp-for="@Model.Status">
+                                <option value=0>禁用（禁用后抽题时会避开该卷）</option>
+                                <option value=1>正常</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">成绩查询</label>
+                        <div class="layui-input-inline" style="width: 300px;">
+                            <select asp-for="@Model.OpenResult">
+                                <option value=0>不开放（不允许查看成绩）</option>
+                                <option value=1>开放（允许查看成绩）</option>
+                            </select>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field">
+        <legend>题目</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" lay-filter="mainForm">
+                @{
+                    int index = 1;
+                    foreach (var item in Model.Questions)
+                    {
+                        string title = "";
+                        if (item.Title.StartsWith("<p>"))
+                        {
+                            title = item.Title.Replace("<p>", $"<p>{index}、").Replace("</p>", "<span class=\"layui-badge\" style=\"margin-left:10px\"> " + item.ItemScore + " 分</span></p>");
+                             
+                        }
+                        else
+                        {
+                            title = index + "、" + item.Title + "<span class=\"layui-badge\" style=\"margin-left:10px\" > " + item.ItemScore + " 分</span>";
+                        }
+                        if (item.TypeName.Contains("填空"))
+                        {
+                            title += "（如果有多个空需要填写，请使用分隔符|分割不同答案）";
+                        }
+                        <div class="layui-form-item">
+                            
+                            @Html.Raw(title)
+                            @{
+                                if (item.IsObjective == 1 && item.SingleAnswer == 1)
+                                {
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
+                                            string answerCode = "";
+                                            foreach (var subItem in item.Items)
+                                            {
+                                                if (item.TypeName.Contains("判断"))
+                                                {
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code">
+                                                }
+                                                else
+                                                {
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+                                                }
+
+                                                
+                                                if (subItem.IsAnswer == 1)
+                                                {
+                                                    answerCode = subItem.Code;
+
+                                                }
+                                            }
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">
+                                                    正确答案：@answerCode
+                                                    
+                                                </p>
+
+                                                <p>题目解析：@item.AnalysisTxt</p>
+                                            </blockquote>
+                                        }
+                                    </div>
+                                }
+                                else if (item.IsObjective == 1 && item.SingleAnswer == 0)
+                                {
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
+                                            string answerCode = "";
+                                            foreach (var subItem in item.Items)
+                                            {
+                                                <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+
+                                                @if(subItem.IsAnswer==1){
+                                                    answerCode += subItem.Code + "、";
+                                                }
+                                            }
+                                            answerCode = answerCode.TrimEnd('、');
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">正确答案：@answerCode</p>
+
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
+                                            </blockquote>
+                                            <input type="hidden" name="@item.Id" id="@item.Id" value="" />
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
+                                            
+                                            string answerContent = "";
+                                            foreach (var subItem in item.Items)
+                                            {
+                                                <textarea style="margin-top:10px" class="layui-textarea" name="@item.Id" placeholder="请输入正确答案"></textarea>
+                                                @if (subItem.IsAnswer == 1)
+                                                {
+                                                    answerContent += subItem.Code + "," + subItem.DescriptionTxt;
+                                                }
+                                            }
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">正确答案：@answerContent</p>
+
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
+                                            </blockquote>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                        index++;
+
+                        //<input type="hidden" name="itemScore" value="@item.ItemScore"/>
+                    }
+                }
+                <div class="layui-form-item" style="display:block">
+                    <a href="javascript:;" lay-submit lay-filter="savePaper" class="layui-btn"><i class="layui-icon layui-icon-release"></i>提交保存</a>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </form>
+
+        </div>
+    </fieldset>
+    
+
+</div>
+
+<script>
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+    let answerArr=[];
+    
+    $("#btnBack").attr("href", `@Url.Action("Index")?examId=@Model.ExamId&columnId=${columnId}&associationId=@Model.AssociationId`)
+
+    form.render("radio");
+    form.render("checkbox");
+    form.render("select");
+
+    form.on("submit(savePaper)", function (data) {
+        console.log(data.field)
+        let orginObj = data.field;
+        let keys = Object.keys(orginObj);
+        let values = Object.values(orginObj);
+        console.log(keys);
+        console.log(values);
+        let index=0;
+        while(index<keys.length){
+            if(values[index])
+                answerArr.push({ "questionId": keys[index], "userAnswer": values[index].split("|") })
+            index++;
+        }
+        console.log(answerArr);
+        //SubmitPaperTest(answerArr)
+        SubmitPaperForCorrection(answerArr)
+    })
+
+    //form.on("radio",function(data){
+    //    $(".modify").hide();
+    //    //console.log(data.value)
+    //    let targetId = `modify_${data.elem.name}`;
+    //    $("#" + targetId).attr("data-answerId", data.value).show();
+    //    //console.log(data.elem.name)
+    //})
+
+    form.on("checkbox",function(data){
+        console.log(data)
+        let parts = data.value.split('|');
+        let obj = $("#" + parts[0]);
+        let existValue = obj.val();
+        //let multAnswer="";
+        if(data.elem.checked){
+            existValue = existValue + "|" + parts[1];
+        }
+        else{
+            existValue = existValue.replace("|" + parts[1], "").replace(parts[1] + "|", "").replace(parts[1], "")
+        }
+        if (existValue.startsWith("|"))
+            existValue = existValue.substr(1);
+        obj.val(existValue);
+    })
+    
+    function SubmitPaperForCorrection(answerArr) {
+        let dto={
+            "paperId":getQueryString("paperId"),
+            "paperTitle": jVal("PaperTitle"),
+            "paperDuration": jVal("Duration"),
+            "paperStatus": jVal("Status"),
+            "paperOpenResult": jVal("OpenResult"),
+            "adminId":adminId,
+            "answers": answerArr
+        }
+        $.post("@Url.Action("SubmitPaperForCorrection")", { "dto": dto, "__RequestVerificationToken": token }, function (json) {
+            //console.log(json)
+            if(json.code==1){
+                layer.msg("操作成功",{icon:1},function(){
+                    location.href = `@Url.Action("Index")?examId=@Model.ExamId&columnId=${columnId}&associationId=@Model.AssociationId`;
+                })
+            }
+        })
+    }
+
+    //后台测试提交试卷
+    function SubmitPaperTest(answerArr) {
+        let dto = {
+            "userId": adminId,//测试
+            "paperId": "@Model.PaperId",
+            "Answers": answerArr,
+            "idNumber": generateUUID(0)
+        }
+
+        $.post("@Url.Action("SubmitPaper")", { "dto": dto, "__RequestVerificationToken": token }, function (json) {
+            console.log(json)
+        })
+    }
+
+</script>

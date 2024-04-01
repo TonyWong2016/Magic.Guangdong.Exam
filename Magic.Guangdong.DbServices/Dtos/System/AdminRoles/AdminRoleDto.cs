@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dtos.AdminRoles
+namespace Magic.Guangdong.DbServices.Dtos.System.AdminRoles
 {
     public class AdminRoleDto
     {
@@ -25,7 +25,7 @@ namespace Magic.Guangdong.DbServices.Dtos.AdminRoles
 
         public string area { get; set; } = "";
 
-        public string controller { get; set; } = "";  
+        public string controller { get; set; } = "";
 
         public string action { get; set; } = "";
 
@@ -33,7 +33,7 @@ namespace Magic.Guangdong.DbServices.Dtos.AdminRoles
         {
             get
             {
-                if(string.IsNullOrEmpty(area))
+                if (string.IsNullOrEmpty(area))
                     return $"/{controller}/{action}";
                 return $"/{area}/{controller}/{action}";
             }

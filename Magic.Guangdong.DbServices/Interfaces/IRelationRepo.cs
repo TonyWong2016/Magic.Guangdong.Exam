@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface IRelationRepo : IExaminationRepository<Relation>
     {
+        Task<bool> AutoShardingRelation(Guid? examId);
     }
 }

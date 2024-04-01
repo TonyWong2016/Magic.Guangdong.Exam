@@ -14,13 +14,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// <summary>
 		/// 题目解析
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(MAX)")]
+		[JsonProperty, Column(DbType = "nvarchar(MAX)")]
 		public string Analysis { get; set; }
 
 		/// <summary>
 		/// 出题人
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(50)")]
+		[JsonProperty, Column(DbType = "nvarchar(50)")]
 		public string Author { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
@@ -47,7 +47,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int IsOpen { get; set; } = 1;
 
-		[JsonProperty, Column(DbType = "varchar(150)")]
+		[JsonProperty, Column(DbType = "nvarchar(150)")]
 		public string Remark { get; set; }
 
 		[JsonProperty]
@@ -56,13 +56,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public Guid SubjectId { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(MAX)")]
+		[JsonProperty, Column(DbType = "nvarchar(MAX)")]
 		public string Title { get; set; }
 
 		/// <summary>
 		/// title是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(500)")]
+		[JsonProperty, Column(DbType = "nvarchar(500)")]
 		public string TitleText { get; set; }
 
 		[JsonProperty]

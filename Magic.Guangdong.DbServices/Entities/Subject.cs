@@ -11,7 +11,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(IsPrimary = true)]
 		public Guid Id { get; set; } = NewId.NextGuid();
 
-		[JsonProperty, Column(DbType = "varchar(150)")]
+		[JsonProperty, Column(DbType = "nvarchar(150)")]
 		public string Caption { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
@@ -23,7 +23,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int? IsDeleted { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(200)")]
+		[JsonProperty, Column(DbType = "nvarchar(200)")]
 		public string Remark { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

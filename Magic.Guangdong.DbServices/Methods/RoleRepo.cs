@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dtos.Roles;
+using Magic.Guangdong.DbServices.Dtos.System.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Yitter.IdGenerator;

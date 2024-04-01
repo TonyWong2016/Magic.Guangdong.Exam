@@ -1,6 +1,6 @@
 ﻿using EasyCaching.Core;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos.Permissions;
+using Magic.Guangdong.DbServices.Dtos.System.Permissions;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Mapster;

@@ -140,49 +140,48 @@ function warnMsg(msg, callback = '') {
 }
 
 //弹出层-初级封装
-function openDiv(obj, cancleCallback = '') {
+function openDiv(title, elem, width, height, istpl = false, cancleCallback = '') {
     var area = ['800px', '500px'];
-    if (obj.width && obj.height) {
-        area = [obj.width, obj.height];
+    if (width && height) {
+        area = [width, height];
     }
-    var content = $('#' + obj.elem + '');
-    if (obj.istpl)
-        content = $('#' + obj.elem + '').html();
-
-
-    if (obj.url) {
-        layer.open({
-            type: 2,
-            title: obj.title,
-            shadeClose: true,
-            shade: false,
-            maxmin: true, //开启最大化最小化按钮
-            area: area,
-            content: url,
-            cancel: function (index) {
-
-                if (typeof (cancleCallback) == 'function') {
-                    cancleCallback();
-                }
+    var content = $('#' + elem + '');
+    if (istpl)
+        content = $('#' + elem + '').html();
+    layer.open({
+        type: 1,
+        shade: [0.7, '#393D49'],
+        title: title, //不显示标题
+        area: area, //宽高
+        anim: 2,
+        shadeClose: false, //是否开启遮罩关闭
+        content: content, //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+        cancel: function (index) {
+            $('#' + elem + '').hide();
+            if (typeof (cancleCallback) == 'function') {
+                cancleCallback();
             }
-        });
-    } else {
-        layer.open({
-            type: 1,
-            shade: [0.7, '#393D49'],
-            title: obj.title, //不显示标题
-            area: area, //宽高
-            anim: 2,
-            shadeClose: false, //是否开启遮罩关闭
-            content: content, //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
-            cancel: function (index) {
-                $('#' + obj.elem + '').hide();
-                if (typeof (cancleCallback) == 'function') {
-                    cancleCallback();
-                }
-            }
-        });
+        }
+    });
+
+}
+
+
+//弹出层-iframe
+function openIframe(title, url, width, height) {
+    var area = ['893px', '600px'];
+    if (width && height) {
+        area = [width, height];
     }
+    layer.open({
+        type: 2,
+        title: title,
+        shadeClose: true,
+        shade: false,
+        maxmin: true, //开启最大化最小化按钮
+        area: area,
+        content: url
+    });
 }
 
 function removeItem(obj) {
@@ -205,6 +204,11 @@ function removeItem(obj) {
                             location.reload();
                         }
                     })
+                } else {
+                    errorMsg(result.msg, () => {
+                        if (obj.callback && typeof (obj.callback) == 'function')
+                            obj.callback();
+                    });
                 }
 
             } catch (error) {

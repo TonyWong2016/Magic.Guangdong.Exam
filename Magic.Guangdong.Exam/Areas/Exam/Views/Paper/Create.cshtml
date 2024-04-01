@@ -1,0 +1,384 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <div class="layui-col-md6">
+        <fieldset class="layui-elem-field">
+            <legend>基本信息</legend>
+            <div class="layui-field-box">
+                <form class="layui-form" lay-filter="paperBaseForm">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">归属考试</label>
+                        <div class="layui-input-block">
+                            <select id="examId" name="examId" class="layui-select" disabled></select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">考试总分</label>
+                        <div class="layui-input-block">
+                            <input class="layui-input" id="examScore" name="examScore" type="number" readonly style="color:#eee" />
+                            <br />
+                            <blockquote class="layui-elem-quote">
+                                设置组卷规则时的总分<b style="color:red">上限</b>不能超过该分数
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">放开查询</label>
+                        <div class="layui-input-block">
+                            <select id="openResult" name="openResult" class="layui-select">
+                                <option value="0">暂不公开</option>
+                                <option value="1">立即公开</option>
+                            </select>
+                            <br />
+                            <blockquote class="layui-elem-quote">
+                                暂不公开：指考试成绩后出来后，由管理员控制分数是否放开
+                                <br />
+                                立即公开：指成绩出来后立即可以查询，若试卷全部为客观题则交卷后即可查询分数
+                            </blockquote>
+
+                        </div>
+
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">组卷方式</label>
+                        <div class="layui-input-block">
+                            <select id="paperType" name="paperType" class="layui-select">
+                                <option value="0" selected>机器组卷</option>
+                                <option value="1" disabled>人工组卷(努力支持中...)</option>
+                                <option value="2" disabled>随机抽题(努力支持中...)</option>
+                            </select>
+                            <br />
+                            <blockquote class="layui-elem-quote">
+                                机器组卷：考试之前先随机生成多套试卷，考试时随机分发，推荐采用此方式，考试前生成多套试卷既可以满足随机性，也可以对不同的试卷提前校验，避免题目疏漏等问题，适合大部分线上考试的场景；需要注意的是
+                                <b>机器组卷时无法读取每个题目导入时设定的分数，需要按题型和科目批量指定。</b>
+                                <br />
+                                人工组卷：人工组卷的出卷效率低，每场考试可能只可以组好少数几套试卷。但人工组卷可以最大限度保证试卷结构的合理和试题的准确性，适合严谨的考试场合，比如规定具体考试时间的统一考试，不适合单独测试。
+                                <br />
+                                随机抽题：每个学生考试时随机生成，不推荐正式考试用这种方式，无法对试卷进行校验，适合一些自主练习的场景
+                            </blockquote>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">组卷套数</label>
+                        <div class="layui-input-block">
+                            <input class="layui-input" id="paperNumber" name="paperNumber" lay-verify="required|number" required type="number" />
+                            <br />
+                            <blockquote class="layui-elem-quote">
+                                当组卷方式为【机器组卷】时该属性可自定义数字，比如1场考试设定10套试卷，则这里写10即可；
+                                <br />若为【人工组卷】，则该值为固定值1；
+                                <br />若为【随机抽题】，则根据参与抽题数量的用户，由系统自行设定。
+                            </blockquote>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">题目难度</label>
+                        <div class="layui-input-block">
+                            <div id="degree">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="text-align:right">
+                        <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+
+                        <a class="layui-btn" style="background-color:#0081ff" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+
+                    </div>
+
+                </form>
+            </div>
+
+        </fieldset>
+    </div>
+
+    <div class="layui-col-md6">
+        @* 这个组卷模板暂时弄简单点，固定题型，自定义科目和数量，后续升级可以让题型也自定义 *@
+        <fieldset class="layui-elem-field paper-type-one">
+            <legend>机器组卷规则设定</legend>
+            <div class="layui-field-box">
+                @*<a href="javascript:;" class="layui-btn" >创建题型</a>*@
+                <div id="TypeIdSelect">
+                </div>
+                <br />
+                <div class="layui-row" lay-filter="paperTypeOneForm" id="formView">
+                </div>
+                <br />
+                当前总分: <span class="layui-badge layui-bg-blue" id="currScore">0</span>
+            </div>
+
+        </fieldset>
+
+    </div>
+
+</div>
+
+<script type="text/html" id="subjectBlockTpl">
+    <form class="layui-form subform" lay-filter="{{d.value}}_form" data-typeid="{{d.value}}">
+        <div class="layui-card" id="{{d.value}}_card">
+            <input type="hidden" name="typename" value="{{d.text}}" />
+            <div class="layui-card-header" style="font-size:larger">{{d.text}} <a class="layui-btn" href="javascript:;" style="float:right" onclick="addQuestionItem('{{d.value}}')" title="新增科目"><i class="layui-icon layui-icon-add-circle"></i></a></div>
+            <div class="layui-card-body" id="{{d.value}}_view">
+
+            </div>
+        </div>
+    </form>
+</script>
+
+<script type="text/html" id="itemTpl">
+    {{# layui.each(d,function(index,item){}}
+         <div class="layui-form-item" lay-filter="divItem_{{item.typeId}}_{{item.orderIndex}}" id="divItem_{{item.typeId}}_{{item.orderIndex}}">
+            <div class="layui-input-inline"  style="width:30vh">
+                <select id="{{item.typeId}}_{{item.orderIndex}}" lay-filter="{{item.typeId}}_{{item.orderIndex}}" name="subjectId_{{item.orderIndex}}">
+                    <option value="0">请选择科目</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" placeholder="请输入题目数量" name="num_{{item.orderIndex}}" id="num_subjectId_{{item.orderIndex}}" />
+            </div>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" placeholder="请输入单题分数" name="score_{{item.orderIndex}}" id="score_subjectId_{{item.orderIndex}}" />
+            </div>
+            {{# if(item.orderIndex!=0){ }}
+            <div class="layui-input-inline">
+                <a href="javascript:;" onclick="removeItem('divItem_{{item.typeId}}_{{item.orderIndex}}')" class="layui-btn layui-btn-danger" title="移除"><i class="layui-icon layui-icon-reduce-circle"></i></a>
+            </div>
+            {{# } }}
+            <input type="hidden" name="end_{{item.orderIndex}}" value="{{item.orderIndex}}"/>
+        </div>
+    {{# }) }}
+</script>
+
+<script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js"></script>
+<script>
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+    let typeModelList = [];
+    let selectedSubjectArr = [];
+    form.render('select');
+
+    let examId = getUrlQueryParams('examId');
+    let associationId = getUrlQueryParams('associationId');
+    $('#btnBack').attr('href', `/exam/paper/index?examId=${examId}`)
+    form.on('submit(save)', function (data) {
+        let generateModel = data.field;
+        calScores()
+
+        if (!typeModelList || typeModelList.length == 0 || jText('currScore') == '0') {
+            TT.error('尚未设好置组卷规则');
+            return;
+        }
+        generateModel.degrees = degreeSelect.getValue('valueStr');
+        generateModel.paperScore = parseFloat(jText('currScore'));
+        generateModel.generateQuestionTypeModels = typeModelList;
+        console.log(generateModel);
+        $.post('@Url.Action("SetPaperRule")', { 'model': generateModel, '__RequestVerificationToken': token }, function (json) {
+            //console.log(json);
+            if (json.code == 1) {
+                layer.alert('操作成功', { icon: 1 }, v => {
+                    location.href = `@Url.Action("Index")?examId=${examId}&associationId=${associationId}`;
+                })
+            } else {
+                TT.error(json.msg);
+            }
+        })
+    })
+
+    var degreeSelect = xmSelect.render({
+        el: '#degree',
+        toolbar: {
+            show: true,
+        },
+        data: [
+            { name: '容易', value: 'easy' },
+            { name: '一般', value: 'normal' },
+            { name: '困难', value: 'difficult' },
+        ]
+    })
+
+
+    let objType = {
+        'url': '/exam/questiontype/GetQuestionTypeSelects'
+        , 'param': {}
+        , 'elem': 'TypeIdSelect'
+        , 'radio': false
+        , 'tips': '请选择试卷包含的题型'
+        , 'prop': { name: 'text', value: 'value' }
+        , 'initValue': []
+        , 'tool': false
+        , 'result': ''
+        , 'func': function (data) {
+            //console.log(data);
+            let change = data.change[0];
+            change.itemArr = [];
+
+            if (data.isAdd) {
+                makeQuestionBlock(change)
+            } else {
+                $('#' + change.value + '_card').remove();
+            }
+        }
+    }
+    makeXmSelect(objType);
+
+
+
+    getSelectItems('/exam/Examination/GetExamMini', { 'id': examId, 'type': 1 }, 'selectTpl', 'examId', false)
+        .then(v => {
+            setTimeout(() => {
+                let exam = selectRet[0];
+                jValSet('examScore', exam.score)
+                jValSet('examId', examId)
+                form.render('select')
+            }, 300)
+        })
+
+
+    //生成题型块
+    function makeQuestionBlock(model) {
+        return new Promise(function (resolve, reject) {
+            chargeTpl('subjectBlockTpl', 'formView', model, true);
+            resolve();
+        }).then(v => {
+            model.itemArr.push({ 'typeId': model.value, 'orderIndex': 0 });
+            chargeTpl('itemTpl', model.value + '_view', model.itemArr, true);
+            //form.render('select')
+        }).then(v => {
+            getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${model.value}_0`, true);
+        }).then(v => {
+            bindSelectEvent(`${model.value}_0`, model.value)
+        })
+    }
+
+    //动态新增题目数量
+    let addFlag = true;
+    function addQuestionItem(typeId) {
+        if (!addFlag) {
+            TT.error('操作过于频繁，因为涉及到一些计算，限制每秒只能添加1次')
+            return;
+        }
+        let orderIndex = Date.parse(new Date()) / 1000;
+        let itemArr = [{ 'typeId': typeId, 'orderIndex': orderIndex }]
+        //chargeTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
+        chargeTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
+        //form.render('select')
+        addFlag = false;
+        setTimeout(function () {
+            getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${typeId}_${orderIndex}`, true, `${typeId}_form`)
+                .then(function () {
+                    bindSelectEvent(`${typeId}_${orderIndex}`, typeId)
+                })
+            addFlag = true;
+        }, 1000)
+    }
+
+    //移除题型块
+    function removeItem(elemId) {
+        $('#' + elemId).remove();
+        let selectId = elemId.substr(8);
+        let delIndex = selectedSubjectArr.indexOf(selectedSubjectArr.filter(u => u.layfilter == selectId)[0]);
+        selectedSubjectArr.splice(delIndex, 1);
+    }
+
+    //获取设定规则的模型
+    function getSubModels() {
+        let subforms = $('.subform');
+        let i = 0;
+        typeModelList = [];
+        let orderIndex = 0;
+        while (i < subforms.length) {
+            let typeId = $(subforms[i]).data('typeid');
+            let subForm = form.val(typeId + '_form');
+            let keys = Object.keys(subForm);
+            // console.log(keys)
+            let model = {}
+            for (let key of keys) {
+                if (key.startsWith('subjectId_')) {
+                    model.subjectId = subForm[key]
+                    continue;
+                } if (key.startsWith('num_')) {
+                    model.number = subForm[key]
+                    continue;
+                } if (key.startsWith('score_')) {
+                    model.itemScore = subForm[key]
+                    continue;
+                } if (key.startsWith('end_')) {
+                    model.orderIndex = orderIndex;
+                    model.typeId = typeId;
+                    typeModelList.push(model);
+                    model = {};
+                    orderIndex++;
+                    continue;
+                }
+            }
+
+            i++
+        }
+
+        console.log(typeModelList);
+        //return typeModelList;
+    }
+
+    //计算已经组成的题目总分
+    function calScores() {
+        getSubModels();
+        if (!typeModelList || typeModelList.length == 0) {
+            //TT.error('尚未设置组题规则');
+            return;
+        }
+        let totalScore = 0;
+        for (let item of typeModelList) {
+            if (!item.itemScore || !item.number) {
+                totalScore += 0;
+                continue;
+            }
+            totalScore += parseFloat(item.itemScore) * parseInt(item.number)
+        }
+        $('#currScore').html(totalScore);
+        let maxScore = jVal('examScore');
+        $('#currScore').prop('class', 'layui-badge layui-bg-blue');
+        if (totalScore > maxScore) {
+            TT.error('总分数不可超过考试设定的上限分数')
+            $('#currScore').prop('class', 'layui-badge');
+        }
+        //TT.info(totalScore)
+    }
+
+    function bindSelectEvent(layfilter, typeId) {
+        if (selectedSubjectArr.length > 0) {
+            for (let item of selectedSubjectArr) {
+                jValSet(item.layfilter, item.subjectId);
+                form.render(`select`);
+            }
+        }
+        form.on(`select(${layfilter})`, function (data) {
+            //console.log(data);/
+            let currItem = {};
+            if (selectedSubjectArr.filter(u => u.layfilter == layfilter).length > 0) {
+                currItem = selectedSubjectArr.filter(u => u.layfilter == layfilter)[0];
+                if (currItem.subjectId != data.value) {
+                    let index = selectedSubjectArr.indexOf(selectedSubjectArr.filter(u => u.layfilter === currItem.layfilter)[0]);
+                    selectedSubjectArr.splice(index, 1);
+                }
+            }
+
+            if (selectedSubjectArr.filter(u => u.typeId == typeId && u.subjectId == data.value).length == 0) {
+                selectedSubjectArr.push({ 'typeId': typeId, 'subjectId': data.value, 'layfilter': layfilter });
+            }
+            else {
+                TT.error('已经设定了同题型，同科目的题目数量');
+                jValSet(layfilter, 0);
+                form.render(`select`);
+            }
+        })
+    }
+
+    setInterval(function () {
+        calScores()
+    }, 5000);
+
+</script>

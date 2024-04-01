@@ -22,7 +22,7 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigurePlug(_configuration);
             // builder.Services.BuildServiceProvider();
-            
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             return builder;
         }
 

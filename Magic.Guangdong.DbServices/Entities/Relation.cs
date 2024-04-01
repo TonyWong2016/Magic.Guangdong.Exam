@@ -34,7 +34,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long QuestionId { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(100)")]
+		[JsonProperty, Column(DbType = "nvarchar(200)")]
 		public string Remark { get; set; }
 
 		[JsonProperty]
