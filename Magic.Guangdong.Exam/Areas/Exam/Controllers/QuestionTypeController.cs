@@ -15,16 +15,21 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
     {
         private readonly IResponseHelper _resp;
         private readonly IQuestionTypeRepo _typeRepo;
-
+        private readonly IHttpContextAccessor _context;
+        private string adminId = "";
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="resp"></param>
         /// <param name="typeRepo"></param>
-        public QuestionTypeController(IResponseHelper resp, IQuestionTypeRepo typeRepo)
+        public QuestionTypeController(IResponseHelper resp, IQuestionTypeRepo typeRepo,IHttpContextAccessor httpContextAccessor)
         {
             _resp = resp;
             _typeRepo = typeRepo;
+            _context = httpContextAccessor;
+            adminId = _context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
+                Assistant.Utils.FromBase64Str(_context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
+            _context = httpContextAccessor;
         }
 
         /// <summary>
@@ -77,7 +82,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】已存在"));
             }
-            questionType.CreatedBy = HttpContext.User.Claims.First().Value;
+            questionType.CreatedBy = adminId;
             return Json(_resp.success(await _typeRepo.addItemAsync(questionType)));
         }
 
@@ -113,7 +118,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】已存在"));
             }
-            questionType.UpdatedBy = HttpContext.User.Claims.First().Value;
+            questionType.UpdatedBy = adminId;
             questionType.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _typeRepo.updateItemAsync(questionType)));
         }
@@ -139,7 +144,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"{questionType.Caption}是基础题型，不可删除"));
             }
-            questionType.UpdatedBy = HttpContext.User.Claims.First().Value;
+            questionType.UpdatedBy = adminId;
             questionType.UpdatedAt = DateTime.Now;
             questionType.IsDeleted = 1;
             return Json(_resp.success(await _typeRepo.updateItemAsync(questionType)));

@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
@@ -16,17 +17,23 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IResponseHelper _resp;
         private readonly ISubjectRepo _subjectRepo;
         private readonly IQuestionRepo _questionRepo;
+        private readonly IHttpContextAccessor _context;
+        private string adminId="system";
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="resp"></param>
         /// <param name="capBus"></param>
         /// <param name="subjectRepo"></param>
-        public SubjectController(IResponseHelper resp, IQuestionRepo questionRepo, ISubjectRepo subjectRepo)
+        public SubjectController(IResponseHelper resp, IQuestionRepo questionRepo, ISubjectRepo subjectRepo, IHttpContextAccessor contextAccessor)
         {
             _resp = resp;
             _subjectRepo = subjectRepo;
             _questionRepo = questionRepo;
+            _context = contextAccessor;
+            adminId = _context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
+               Assistant.Utils.FromBase64Str(_context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
+            _context = contextAccessor;
         }
         [RouteMark("科目管理")]
         public IActionResult Index()
@@ -74,7 +81,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"学科【{subject.Caption}】已存在"));
             }
-            subject.CreatedBy = HttpContext.User.Claims.First().Value;
+            subject.CreatedBy = adminId;
             return Json(_resp.success(await _subjectRepo.addItemAsync(subject)));
         }
 
@@ -110,7 +117,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"学科【{subject.Caption}】已存在"));
             }
-            subject.UpdatedBy = HttpContext.User.Claims.First().Value;
+            subject.UpdatedBy = adminId;
             subject.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _subjectRepo.updateItemAsync(subject)));
         }
@@ -133,7 +140,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.ret(-1, "当前学科下存在绑定的题目，请先将题库中归属该科目的题目清除，再执行删除科目的操作"));
             }
             var subject = await _subjectRepo.getOneAsync(u => u.Id == id);
-            subject.UpdatedBy = HttpContext.User.Claims.First().Value;
+            subject.UpdatedBy = adminId;
             subject.UpdatedAt = DateTime.Now;
             subject.IsDeleted = 1;
             return Json(_resp.success(await _subjectRepo.updateItemAsync(subject)));

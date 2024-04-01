@@ -251,7 +251,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<dynamic> SubmitPaper(SubmitPaperDto dto)
         {
-            if (await RedisHelper.HGetAsync("UserExamLog", dto.applyId) != dto.idNumber)
+            if (await RedisHelper.HGetAsync("UserExamLog", dto.reportId) != dto.idNumber)
             {
                 return -1;//当前赛队提交答卷的人和初始化答题的人不是一个，正常情况不会出现，这里就时以防万一
             }
@@ -269,7 +269,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     var currPaperRecords = await userAnswerRecordRepo.Where(u => u.PaperId == dto.paperId).ToListAsync(u => new
                     {
                         u.IdNumber,
-                        u.ApplyId,
+                        u.ReportId,
                         u.Score
                     });
 
@@ -279,7 +279,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     if (currPaperRecords.Where(u => u.IdNumber == dto.idNumber).Any())
                     {
                         record = await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber).ToOneAsync();
-                        if (record.ApplyId != dto.applyId)
+                        if (record.ReportId != dto.reportId)
                         {
                             uow.Dispose();//释放，正常情况不会走到这里，交卷前还会有验证
                             return new { code = -1, msg = "当前身份证号已经提交了其他活动的试卷，请检查答题人身份证号是否要参加当前考试" };
@@ -298,7 +298,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         record.PaperId = dto.paperId;
                         record.ExamId = paper.ExamId;
                         record.IdNumber = dto.idNumber;
-                        record.ApplyId = dto.applyId;
+                        record.ReportId = dto.reportId;
                         //record.Complated = 0;//创建考试
                         record.Remark = $"初始化答题并交卷，答题人识别码[{dto.idNumber}];";
                     }
@@ -306,7 +306,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     record.Complated = dto.complatedMode == 0 ? 0 : 1;
                     record.SubmitAnswer = JsonHelper.JsonSerialize(dto.Answers);
                     await userAnswerRecordRepo.InsertOrUpdateAsync(record);
-                    await RedisHelper.HDelAsync("UserExamLog", dto.applyId);
+                    await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
                     uow.Commit();
                     return 1;
                 }

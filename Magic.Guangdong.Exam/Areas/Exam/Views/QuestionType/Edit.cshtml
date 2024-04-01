@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.QuestionType
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt"/>
+        <input type="hidden" asp-for="CreatedBy" />
+        <div class="layui-form-item">
+            <label class="layui-form-label">题目类型</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Caption" placeholder="科目名称" lay-verify="required" style="color:gray" required readonly/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">大类</label>
+            <div class="layui-input-block">
+                <select asp-for="Objective" lay-filter="Objective" lay-verify="required" required>
+                    <option value="1" selected>客观题</option>
+                    <option value="0">主观题</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">唯一答案</label>
+            <div class="layui-input-block">
+                <select asp-for="SingleAnswer" lay-filter="SingleAnswer" lay-verify="required" required>
+                    <option value="1" selected>是</option>
+                    <option value="0">否</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Remark" placeholder="备注信息"  />
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="padding-left:30px">
+            <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack">返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+<script>
+    let form = layui.form;
+    form.render("select");
+    form.on("submit(save)",function(data){
+       
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('保存成功');
+            return;
+        }
+        errorMsg('保存失败')
+    })
+
+
+</script>

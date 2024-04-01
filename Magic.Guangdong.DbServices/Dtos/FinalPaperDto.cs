@@ -140,7 +140,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public int complatedMode { get; set; } = 0;
 
-        public string applyId { get; set; } = Guid.NewGuid().ToString();
+        public string reportId { get; set; }
 
         // public double itemScore { get; set; }
         public List<SubmitAnswerDto> Answers { get; set; }

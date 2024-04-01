@@ -30,7 +30,7 @@ namespace Magic.Guangdong.DbServices.Dto
         /// 如果需要关联赛队，这里要填写申报人员的申报id
         /// 不需要的话这里直接给个唯一值就可以，比如guid,这样就跳过同赛队参赛的验证了。
         /// </summary>
-        public string applyId { get; set; } = Guid.NewGuid().ToString();
+        public string reportId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// 考试id
@@ -47,7 +47,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
     public class MemberInfoDto
     {
-        public string applyId { get; set; }
+        public string reportId { get; set; }
 
         public string email { get; set; }
 
@@ -97,7 +97,7 @@ namespace Magic.Guangdong.DbServices.Dto
     {
         public long recordId { get; set; }
 
-        public string applyId { get; set; }
+        public string reportId { get; set; }
 
         public string submitAnswerStr { get; set; } = "";
 
@@ -161,7 +161,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string idNumber { get; set; }
 
-        public string applyId { get; set; }
+        public string reportId { get; set; }
 
     }
 }

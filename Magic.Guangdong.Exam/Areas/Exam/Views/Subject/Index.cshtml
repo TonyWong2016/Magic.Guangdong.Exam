@@ -1,0 +1,104 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-input-inline">
+            <a id="btnBack" href="/exam/question/index" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+        <div class="layui-input-inline">
+            @*<a id="btnReturn" class="layui-btn layui-btn-primary" href="javascript:;"><i class="layui-icon layui-icon-left"></i>返回活动列表</a>*@
+            <a href="@Url.Action("Create")" class="layui-btn" id="btnAddSubject"><i class="layui-icon layui-icon-add-1"></i>新增科目</a>
+
+        </div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="layui-input" id="keyword" placeholder="输入关键字检索"/>
+        </div>
+    </form>
+    <table id="table" class="layui-table" lay-filter="table"></table>
+</div>
+
+<script type="text/html" id="operationTpl">
+    @*<a class="layui-btn layui-btn-normal" href=" {{resourceHost + d.templateFileUrl}}" target="_blank">查看</a>*@
+    <a class="layui-btn layui-btn-normal" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deleteSubject('{{d.id}}')">删除</a>
+</script>
+
+<script>
+    let form = layui.form;
+    let table = layui.table;
+    let token = $('@Html.AntiForgeryToken()').val();
+
+    let whereJsonStr;
+
+    
+    getSubjects();
+    function getSubjects(){
+        makeWhereJson();
+        let params = {
+            url: '@Url.Action("GetSubjects")',
+            elem: '#table',
+            where: { "whereJsonStr": JSON.stringify(whereJsonStr) },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: "#indexTpl", width: "8%" }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'caption', title: '科目', width: "20%" }
+                , { field: 'remark', title: '备注', width: "20%" }
+                , { field: 'createdAt', title: '创建时间', width: "20%" }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    autoSearch("keyword", function () {
+        makeWhereJson();
+        getSubjects();
+    })
+
+    function makeWhereJson(){
+        whereJsonStr = {
+            "Logic": "And",
+            "Filters": [{
+                "Field": "IsDeleted",
+                "Operator": "Equal",
+                "Value": 0
+            }]
+        };
+        if (jVal("keyword")){
+            whereJsonStr.Filters.push({
+                "Logic": "And",
+                "Filters": [{
+                    "Field": "Caption",
+                    "Operator": "Contains",
+                    "Value": jVal("keyword")
+                }]
+            });
+        }
+        return whereJsonStr;
+    }
+
+    function deleteSubject(id){
+        layer.confirm("删除学科时会检查题库中是否存在归属当前学科的题目，如果有，则需要先清空对应的题目。<br /><b style='color:red'>注意：科目是重要的题库属性，删除前请确保相关管理人员已经知晓。</b><br />确定要删除当前学科吗？",{icon:0},async function(index){
+            layer.close(index);
+            
+            let formData = new FormData();
+            formData.append('id', Id);
+            FfrmData.append('__RequestVerificationToken',requestToken)
+            var ret = await request('Delete', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
+            if (ret.code == 0) {
+                successMsg('操作成功');
+                return;
+            }
+            errorMsg('操作失败')
+        })
+        
+    }
+</script>
+
+

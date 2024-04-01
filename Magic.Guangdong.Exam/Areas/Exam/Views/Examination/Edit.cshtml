@@ -141,43 +141,43 @@
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();    
     let laydate = layui.laydate;
-    let base_ajax_url = "";
-    $("#UpdatedBy").val(atob(localStorage.getItem('userId')));
-    InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+    let base_ajax_url = '';
+    $('#UpdatedBy').val(atob(localStorage.getItem('userId')));
+    InitTinymce('Description', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
   
     
     let objType = {
-        "url": "/exam/activity/getactivitydrops"
-        , "param": {  }
-        , "elem": "AssociationIdSelect"
-        , "radio": true
-        , "tips": "请选择活动"
-        , "prop": { name: "text", value: "value" }
-        , "initValue": ["@Model.AssociationId"]
-        , "tool": false
-        , "result": ""
-        , "func": function (data) {
+        'url': '/exam/activity/getactivitydrops'
+        , 'param': {  }
+        , 'elem': 'AssociationIdSelect'
+        , 'radio': true
+        , 'tips': '请选择活动'
+        , 'prop': { name: 'text', value: 'value' }
+        , 'initValue': ['@Model.AssociationId']
+        , 'tool': false
+        , 'result': ''
+        , 'func': function (data) {
             console.log(data);
-            jValSet("AssociationTitle",data.arr[0].text);
-            jValSet("AssociationId", data.arr[0].value);
+            jValSet('AssociationTitle',data.arr[0].text);
+            jValSet('AssociationId', data.arr[0].value);
         }
     }
     makeXmSelect(objType);
-    form.render("select");
+    form.render('select');
     laydate.render({
         elem: '#ExamDuration' //指定元素
         , type: 'datetime'
         , range: true
         , format: 'yyyy/MM/dd HH:mm:ss'
-        , value: jVal("StartTime").replace('-', '/').replace('-', '/') + " - " + jVal("EndTime").replace('-', '/').replace('-', '/')
+        , value: jVal('StartTime').replace('-', '/').replace('-', '/') + ' - ' + jVal('EndTime').replace('-', '/').replace('-', '/')
         , done: function (value, date, endDate) {
-            let parts = value.split(" - ");
-            jValSet("StartTime", parts[0]);
-            jValSet("EndTime", parts[1]);
+            let parts = value.split(' - ');
+            jValSet('StartTime', parts[0]);
+            jValSet('EndTime', parts[1]);
         }
     });
 
-    form.on("submit(save)", async function (data) {       
+    form.on('submit(save)', async function (data) {       
         
 
         let formData = objectToFormData(data.field);
@@ -196,11 +196,11 @@
         localStorage.setItem("initStr", jVal("ExtraInfo"));
         layer.open({
             type: 2,
-            content: "@Url.Action("SetValidate")?columnId=" + columnId,
+            content: '@Url.Action("SetValidate")?columnId=' + columnId,
             shade: [0.3, '#393D49'],
             area: ['100%', '100%'],
             closeBtn: 0,//不显示答题按钮，必须通过点击子页面内按钮关闭
-            title: "设定答题条件",
+            title: '设定答题条件',
             maxmin: true,
             zIndex: layer.zIndex,
             success: function (layero) {
@@ -211,7 +211,7 @@
             end: function () {
                 //关闭弹窗，重新加载列表
                 //getTable(params);
-                jValSet("ExtraInfo", localStorage.getItem("expressionStr"))
+                jValSet('ExtraInfo', localStorage.getItem('expressionStr'))
             }
         })
     }

@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-input-inline">
+            <a href="/exam/question/index" id="btnBack" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+
+        <div class="layui-input-inline">
+            <a href="javascript:;" class="layui-btn" id="btnAddQuestionType"><i class="layui-icon layui-icon-add-1"></i>新增题目类型</a>
+        </div>
+        
+        <div class="layui-input-inline" style="width:500px">
+            <input class="layui-input" id="keyword" placeholder="输入关键字检索"/>
+        </div>
+    </form>
+    <table id="table" class="layui-table" lay-filter="table"></table>
+</div>
+
+<script type="text/html" id="objectTiveTpl">
+    {{# if(d.objective==1){ }}
+    <span style="color:#1E9FFF">客观题</span>
+    {{# } else { }}
+    <span style="color:#ff5722">主观题</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    @*<a class="layui-btn layui-btn-normal" href=" {{resourceHost + d.templateFileUrl}}" target="_blank">查看</a>*@
+    <a class="layui-btn layui-btn-normal" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deleteQuestionType('{{d.id}}')">删除</a>
+</script>
+
+<script>
+    let form = layui.form;
+    let table = layui.table;
+    let token = $('@Html.AntiForgeryToken()').val();
+    
+    let whereJsonStr;
+
+    $('#btnAddQuestionType').attr('href', '@Url.Action("Create")');
+    
+    getQuestionTypes();
+    function getQuestionTypes(){
+        makeWhereJson();
+        let params = {
+            url: '@Url.Action("GetQuestionTypes")',
+            elem: '#table',
+            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '8%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'caption', title: '题目类型', width: '20%' }
+                , { templet: '#objectTiveTpl', title: '大类', width: '20%' }
+                , { field: 'createdAt', title: '创建时间', width: '20%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    autoSearch('keyword', function () {
+        makeWhereJson();
+        getQuestionTypes();
+    })
+
+    function makeWhereJson(){
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if (jVal('keyword')){
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Caption',
+                    'Operator': 'Contains',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+        return whereJsonStr;
+    }
+
+    function deleteQuestionType(id){
+        layer.confirm('确定要删除当前题目类型吗？',{icon:0},function(index){
+            layer.close(index);
+            $.post('@Url.Action("Delete")', { 'id': id, '__RequestVerificationToken': token }, function (json) {
+                if(json.code==1){
+                    getQuestionTypes();
+                   successMsg('删除成功');
+                    return;
+                }
+                errorMsg('操作失败：'+json.msg);
+            })
+        })
+        
+    }
+</script>
+
+

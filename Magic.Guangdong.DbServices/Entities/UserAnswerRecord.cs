@@ -12,7 +12,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string ApplyId { get; set; } = "";
+		public string ReportId { get; set; } = "";
 
 		/// <summary>
 		/// 作弊次数

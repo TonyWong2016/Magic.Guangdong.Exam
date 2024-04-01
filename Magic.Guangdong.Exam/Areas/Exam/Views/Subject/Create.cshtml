@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.Subject
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">科目名称</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Caption" placeholder="科目名称" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Remark" placeholder="备注信息"  />
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="padding-left:30px">
+            <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack">返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+<script>
+    let form = layui.form;
+    form.on("submit(save)",async function(data){
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Create")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('创建成功');
+            return;
+        }
+        errorMsg('创建失败')
+    })
+
+
+</script>

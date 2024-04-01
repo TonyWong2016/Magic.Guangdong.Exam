@@ -59,15 +59,15 @@ namespace Magic.Guangdong.DbServices.Methods
             }
 
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
-            if (await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ApplyId == dto.applyId && u.IsDeleted == 0).AnyAsync())
+            if (await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ReportId == dto.reportId && u.IsDeleted == 0).AnyAsync())
             {
-                var record = await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ApplyId == dto.applyId && u.IsDeleted == 0).ToOneAsync();
+                var record = await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ReportId == dto.reportId && u.IsDeleted == 0).ToOneAsync();
                 return new { code = 0, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
             }
             //如果当前赛队有人答题了，且答题人不是提交的身份证号所属人，也给他返回。
-            if (await userAnswerRecordRepo.Where(u => u.ApplyId == dto.applyId && u.IsDeleted == 0).AnyAsync())
+            if (await userAnswerRecordRepo.Where(u => u.ReportId == dto.reportId && u.IsDeleted == 0).AnyAsync())
             {
-                var record = await userAnswerRecordRepo.Where(u => u.ApplyId == dto.applyId && u.IsDeleted == 0).ToOneAsync();
+                var record = await userAnswerRecordRepo.Where(u => u.ReportId == dto.reportId && u.IsDeleted == 0).ToOneAsync();
                 return new { code = -1, msg = "当前赛队已经有其他人进行了答题，请和赛队中其他成员确认答题情况", data = record };
             }
 
@@ -86,7 +86,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
             {
                 IdNumber = dto.idNumber,
-                ApplyId = dto.applyId,
+                ReportId = dto.reportId,
                 UserId = dto.userId,
                 PaperId = myPaper.Id,
                 ExamId = dto.examId,
@@ -96,7 +96,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 CreatedAt = DateTime.Now
             });
             //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答
-            await RedisHelper.HSetAsync("UserExamLog", dto.applyId, dto.idNumber);
+            await RedisHelper.HSetAsync("UserExamLog", dto.reportId, dto.idNumber);
 
             return new { code = 1, msg = "success", data = finalRecord };
         }
@@ -198,7 +198,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
                 var record = await userAnswerRecordRepo.Where(u => u.Id == dto.recordId).ToOneAsync();
 
-                if (record.IdNumber != dto.idNumber || record.ApplyId != dto.applyId)
+                if (record.IdNumber != dto.idNumber || record.ReportId != dto.reportId)
                 {
                     return new { code = -2, msg = "提交记录和之前初始化时的信息不一致，请联系管理人员" };//提交记录和之前初始化时的信息不一致，这种情况常规也不会出现，就是避免一些特殊情况，比如后台偷偷给人家该信息，暗箱操作，但如果做的太天衣无缝也没招。。
                 }
@@ -227,7 +227,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.UsedTime = dto.usedTime;
                 record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 await userAnswerRecordRepo.InsertOrUpdateAsync(record);
-                await RedisHelper.HDelAsync("UserExamLog", dto.applyId);
+                await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
                 return new { code = 1, msg = "success", data = record };
             }
             catch

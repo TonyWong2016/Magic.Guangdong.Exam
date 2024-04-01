@@ -43,7 +43,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.Id,
                     u.UserName,
                     u.IdNumber,
-                    u.ApplyId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
+                    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
                     u.PaperTitle,
                     u.ExamTitle,
                     u.AssociationTitle,
@@ -67,7 +67,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.Id,
                     u.UserName,
                     u.IdNumber,
-                    u.ApplyId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
+                    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
                     u.PaperTitle,
                     u.ExamTitle,
                     u.AssociationTitle,
@@ -146,7 +146,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.UserName,
                 record.IdNumber,
                 record.Score,
-                record.ApplyId,
+                record.ReportId,
                 record.UpdatedAt,
                 record.LimitedTime,
                 record.UpdatedBy,
@@ -173,7 +173,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToOneAsync();
             record.IsDeleted = 1;
             record.IdNumber += "(被移除)";
-            record.ApplyId += "(被移除)";
+            record.ReportId += "(被移除)";
             record.Remark += $"|被{adminId}移除记录";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = $"{adminId}移除";

@@ -8,7 +8,7 @@ namespace Magic.Guangdong.DbServices.Entities
 	public partial class UserAnswerRecordView {
 
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string ApplyId { get; set; }
+		public string ReportId { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string AssociationId { get; set; }
