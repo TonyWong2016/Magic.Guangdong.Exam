@@ -1,6 +1,5 @@
 ﻿using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Dtos.System.Roles;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
@@ -14,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
+using Magic.Guangdong.DbServices.Dtos;
 
 namespace Magic.Guangdong.DbServices.Methods
 {

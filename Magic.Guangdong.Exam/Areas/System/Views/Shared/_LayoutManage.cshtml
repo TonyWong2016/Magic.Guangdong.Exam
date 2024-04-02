@@ -102,19 +102,13 @@
                 const result = await request('GET', '/system/menu/getmenus', { parentId: 0 });
                 //console.log(result)
                 renderTpl('navTopSideMenuTpl', 'sideNav', result.data, false)
-                    .then((ret) => {
-                        if (ret) {
-                            setTimeout(() => {
-                                //临时，框架完整后，修改成一次请求把当前账号有的管理菜单都获取下来
-                                result.data.forEach(u => {
-                                    // console.log(u) 
-                                    fetchSubMenus(JSON.stringify(u));
-                                })                                
-                            }, 100)
-                        }
-                        else
-                            layer.msg("菜单加载失败", { icon: 2 });
+                setTimeout(() => {
+                    //临时，框架完整后，修改成一次请求把当前账号有的管理菜单都获取下来
+                    result.data.forEach(u => {
+                        // console.log(u)
+                        fetchSubMenus(JSON.stringify(u));
                     })
+                }, 100)
 
             } catch (error) {
                 console.error('Error fetching data:', error);

@@ -10,14 +10,14 @@
         <div class="layui-form-item">
             <label class="layui-form-label">科目名称</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="Caption" placeholder="科目名称" lay-verify="required" required />
+                <input class="layui-input" asp-for="Caption" placeholder="科目名称" lay-verify="required" required autocomplete="off" lay-affix="clear" />
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">备注</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="Remark" placeholder="备注信息"  />
+                <input class="layui-input" asp-for="Remark" placeholder="备注信息" autocomplete="off" lay-affix="clear" />
             </div>
         </div>
 
@@ -35,7 +35,9 @@
         let formData = objectToFormData(data.field);
         var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
-            successMsg('操作成功');
+            successMsg('操作成功', () => {
+                window.location.href = 'index';
+            });
             return;
         }
         errorMsg('操作失败')

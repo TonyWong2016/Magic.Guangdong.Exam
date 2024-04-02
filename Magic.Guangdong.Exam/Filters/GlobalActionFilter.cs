@@ -96,7 +96,7 @@ namespace Magic.Guangdong.Exam.Filters
                 {
                     AdminId = Guid.Parse(userId),
                     Action = actionMark,
-                    Description = actionLog.Length > 700 ? actionLog.Substring(0, 700) : actionLog,
+                    Description = actionLog.Length > 1800 ? actionLog.Substring(0, 1800) : actionLog,
                     Router = $"{area}/{controller}/{action}",
                     CreatedAt = DateTime.Now
                 });

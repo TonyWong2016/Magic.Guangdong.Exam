@@ -1,5 +1,7 @@
 ﻿using FreeSql.DataAnnotations;
+using Magic.Guangdong.Assistant;
 using Newtonsoft.Json;
+using System.Web;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Entities
@@ -29,16 +31,30 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "nvarchar(1000)")]
 		public string Description { get; set; }
 
-		/// <summary>
-		/// 选项内容（description）是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
-		/// </summary>
-		[JsonProperty, Column(DbType = "nvarchar(500)")]
-		public string DescriptionText { get; set; }
+        /// <summary>
+        /// 选项内容（description）是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
+        /// </summary>
+        [JsonProperty, Column(DbType = "varchar(500)")]
+        public string DescriptionText
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Description))
+                {
+                    string txt = HttpUtility.HtmlDecode(Utils.StripHTML(Description));
+                    if (txt.Length > 500)
+                        return txt.Substring(0, 500);
+                    return txt;
+                }
+                return "";
+            }
+            set { }
+        }
 
-		/// <summary>
-		/// 是否是答案
-		/// </summary>
-		[JsonProperty]
+        /// <summary>
+        /// 是否是答案
+        /// </summary>
+        [JsonProperty]
 		public int IsAnswer { get; set; } = 0;
 
 		[JsonProperty]

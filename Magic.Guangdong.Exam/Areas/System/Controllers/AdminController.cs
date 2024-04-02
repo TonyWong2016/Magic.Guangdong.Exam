@@ -3,7 +3,7 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magic.Guangdong.Assistant;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,6 +54,19 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string adminId { get; set; }
 
-        public List<SubmitAnswerDto> answers { get; set; }
+        public string answersStr {  get; set; }
+
+        public List<SubmitAnswerDto> answers
+        {
+            set { }
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(answersStr))
+                {
+                    return JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(answersStr);
+                }
+                return null;
+            }
+        }
     }
 }

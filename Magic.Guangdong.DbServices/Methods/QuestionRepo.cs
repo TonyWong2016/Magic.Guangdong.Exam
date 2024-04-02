@@ -1,15 +1,11 @@
-﻿using Magic.Guangdong.Assistant;
+﻿using FreeSql.Internal.Model;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Dto;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
-using FreeSql.Internal.Model;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -128,6 +124,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
+                    
                     await questionRepo.InsertOrUpdateAsync(question);
 
                     var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();

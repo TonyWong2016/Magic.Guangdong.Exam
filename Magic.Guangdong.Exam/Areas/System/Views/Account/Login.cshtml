@@ -50,7 +50,7 @@
                             <div class="layui-input-prefix">
                                 <i class="layui-icon layui-icon-vercode"></i>
                             </div>
-                            <input type="text" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
+                            <input type="text" id="captcha" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
                         </div>
                     </div>
                     <div class="layui-col-xs5">
@@ -66,7 +66,7 @@
                 <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
             </div>
             <div class="layui-form-item">
-                <a class="layui-btn layui-btn-fluid" lay-submit lay-filter="exam-login">登录</a>
+                <a class="layui-btn layui-btn-fluid" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
             </div>
             @* <div class="layui-form-item exam-login-other">
                 <label>社交账号登录</label>
@@ -141,6 +141,25 @@
                 return false; // 阻止默认 form 跳转
             });
         });
+
+        var targetElement = document.getElementById('captcha');
+
+        // 添加键盘事件监听器，这里以 'keydown' 为例
+        targetElement.addEventListener('keydown', function (event) {
+            // 检查是否按下的是回车键（Enter键），其 keyCode 常数为 13
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault(); // 可选，阻止默认行为，如表单提交或页面滚动
+
+                // 在这里编写回车键被按下后要执行的代码
+                handleEnterKeyPress();
+
+            }
+        });
+
+        function handleEnterKeyPress() {
+            console.log('Enter key was pressed!');
+            document.getElementById('btnLogin').click();
+        }
 
 
 

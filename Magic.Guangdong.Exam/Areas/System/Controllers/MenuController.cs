@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Dtos.System.Permissions;
 using Magic.Guangdong.DbServices.Dtos.System.Routers;
 using Magic.Guangdong.DbServices.Dtos.System.Menus;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Reflection;
+using Magic.Guangdong.DbServices.Dtos;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {

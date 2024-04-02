@@ -1,4 +1,5 @@
 ﻿using FreeSql.DataAnnotations;
+using Magic.Guangdong.Assistant;
 using Newtonsoft.Json;
 using Yitter.IdGenerator;
 
@@ -59,13 +60,26 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "nvarchar(MAX)")]
 		public string Title { get; set; }
 
-		/// <summary>
-		/// title是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
-		/// </summary>
-		[JsonProperty, Column(DbType = "nvarchar(500)")]
-		public string TitleText { get; set; }
-
-		[JsonProperty]
+        /// <summary>
+        /// title是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示
+        /// </summary>
+        [JsonProperty, Column(DbType = "varchar(500)")]
+        public string TitleText
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    string txt = Utils.StripHTML(Title);
+                    if (txt.Length > 500)
+                        return txt.Substring(0, 500);
+                    return txt;
+                }
+                return "";
+            }
+            set { }
+        }
+        [JsonProperty]
 		public Guid TypeId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

@@ -1,9 +1,4 @@
-﻿using Magic.Guangdong.DbServices.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 
 namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 {
@@ -49,7 +44,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public List<PaperQuestionDto> Questions { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
     }
+
+
 }

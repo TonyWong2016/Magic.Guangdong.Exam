@@ -2,7 +2,8 @@
 using FreeSql.Internal;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +20,18 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IExaminationRepo _examinationRepo;
         private readonly IResponseHelper _resp;
         private readonly ICapPublisher _capBus;
-        private readonly IHttpContextAccessor _context;
+        private readonly IHttpContextAccessor _contextAccessor;
         private string adminId = "";
-        public PaperController(IPaperRepo paperRepo, IExaminationRepo examinationRepo, IResponseHelper resp, ICapPublisher capBus, IHttpContextAccessor context)
+        public PaperController(IPaperRepo paperRepo, IExaminationRepo examinationRepo, IResponseHelper resp, ICapPublisher capBus, IHttpContextAccessor contextAccessor)
         {
             _paperRepo = paperRepo;
             _examinationRepo = examinationRepo;
             _resp = resp;
             _capBus = capBus;
-            _context = context;
-            adminId = _context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
-                Assistant.Utils.FromBase64Str(_context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
-            _context = context;
+            _contextAccessor = contextAccessor;
+            adminId = (_contextAccessor.HttpContext!=null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
+               Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
+
         }
 
         [RouteMark("试卷管理")]

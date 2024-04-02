@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 {
+    internal class ImportDto
+    {
+    }
+
     public class ImportQuestionFromWord
     {
         public string title { get; set; }

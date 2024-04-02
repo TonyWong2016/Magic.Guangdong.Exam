@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.System.Roles;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;

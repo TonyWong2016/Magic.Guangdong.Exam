@@ -196,6 +196,10 @@ function initUploadFile(elemId, exts = 'pdf', url = '', callback) {
         , exts: exts
         , url: url //上传接口
         , size: 1024 * 30 //限定30M文件大小
+        , headers: { 'Authorization': localStorage.getItem('accessToken') }
+        , data: {
+             '__RequestVerificationToken': requestToken
+        }
         , before: function (obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
 
             layer.load(); //上传loading
@@ -217,12 +221,10 @@ function initUploadFile(elemId, exts = 'pdf', url = '', callback) {
 }
 
 //分块上传
-function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUrl = '', callback = '') {
+function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUrl = '',appendData='', callback = '') {
     if (url == '')
-        //url = "http://manage.xiaoxiaotong.net/fileupload/upload";
         url = "/fileupload/upload";
     if (checkUrl == '')
-        //checkUrl = "http://manage.xiaoxiaotong.net/fileupload/CheckFile";
         checkUrl = "/fileupload/CheckFile";
     var up = new fcup({
         id: elemId, // 绑定id
@@ -233,6 +235,8 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
         minsize: '', // 最小文件上传M数，单位为M，默认为无
         maxsize: "2048", // 上传文件最大M数，单位为M，默认200M
         timeout: 600000,
+        headers: { 'Authorization': localStorage.getItem('accessToken'), 'X-CSRF-TOKEN': requestToken },
+        apped_data: appendData,
         // 定义错误信息
         errormsg: {
             1000: "未找到上传id",
@@ -250,6 +254,7 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
         // 初始化事件
         start: () => {
             console.log('上传已准备就绪');
+            
             element.progress(progressElem, 0);
         },
 
@@ -335,6 +340,7 @@ function initUploadFilePro(obj) {
         , exts: obj.exts
         , url: obj.url //上传接口
         , size: 1024 * 30 //限定30M文件大小
+        , headers: { 'Authorization': localStorage.getItem('accessToken') }
         , before: function (obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
 
             layer.load(); //上传loading

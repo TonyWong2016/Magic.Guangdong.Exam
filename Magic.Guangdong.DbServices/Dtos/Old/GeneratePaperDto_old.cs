@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Magic.Guangdong.Assistant;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos.Old
 {
-    public class GeneratePaperDto
+    public class GeneratePaperDto_old
     {
         public Guid examId { get; set; }
 
@@ -32,12 +33,25 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string degrees { get; set; }
 
-        public List<GenerateQuestionTypeDto> generateQuestionTypeModels { get; set; }
+        public string generateQuestionTypeModelsStr { get; set; }
+
+        public List<GenerateQuestionTypeDto> generateQuestionTypeModels
+        {
+            set { }
+            get
+            {
+                if (!string.IsNullOrEmpty(generateQuestionTypeModelsStr))
+                {
+                    return JsonHelper.JsonDeserialize<List<GenerateQuestionTypeDto>>(generateQuestionTypeModelsStr);
+                }
+                return null;
+            }
+        }
 
 
     }
 
-    public class GenerateQuestionTypeDto
+    public class GenerateQuestionTypeDto_old
     {
         /// <summary>
         /// 题型

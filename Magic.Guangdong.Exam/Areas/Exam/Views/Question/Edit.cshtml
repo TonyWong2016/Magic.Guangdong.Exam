@@ -1,0 +1,536 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.QuestionView
+
+<style>
+    .answerOptions {
+        border-color: #1cbbb4;
+        border-width: medium;
+        border-style: dashed;
+        padding: 10px;
+        margin-bottom: 10px;
+        /* transition-property: width, background, transform;
+                                        transition-duration: .5s, 1s, 2s;
+                                        transition-timing-function: linear, ease, ease;
+                                        transition-delay: 1.9s, 2s, 0s;*/
+    }
+
+        .answerOptions:hover {
+            /*border-color:#0081ff;*/
+            border-style: solid;
+        }
+</style>
+<div class="layui-row" style="padding:15px">
+    <div class="layui-col-md6">
+        <fieldset class="layui-elem-field">
+            <legend>题目内容</legend>
+            <div class="layui-field-box" style="height:calc(88vh);overflow:auto">
+                <form class="layui-form" lay-filter="formMain">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">题目</label>
+                        <div class="layui-input-block">
+                            <textarea class="layui-textarea" asp-for="Title" placeholder="请输入题目内容" required lay-verify="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">解析</label>
+                        <div class="layui-input-block">
+                            <textarea class="layui-textarea" asp-for="Analysis" placeholder="请输入题目解析" required lay-verify="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">科目</label>
+                        <div class="layui-input-block">
+                            <select asp-for="SubjectId" lay-filter="SubjectId" lay-verify="required" required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-block">
+                            @*<select asp-for="TypeId" lay-filter="typeId" lay-verify="required" required>
+                            </select>*@
+                            <div id="TypeIdSelect">
+                            </div>
+                            <input type="hidden" asp-for="TypeId" />
+                        </div>
+                        
+                        <div class="layui-input-block" style="margin-top:10px">
+                            <blockquote class="layui-elem-quote">更换题目类型后，原来设置的答案将全部重置，请考虑好后再操作。</blockquote>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">分值</label>
+                        <div class="layui-input-block">
+                            <input class="layui-input" asp-for="Score" lay-verify="required|number" placeholder="分值" />
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">题目出处</label>
+                        <div class="layui-input-block">
+                            <input class="layui-input" asp-for="Author" placeholder="出题人或者题目来源" />
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">题目难度</label>
+                        <div class="layui-input-block">
+                            <select asp-for="Degree" lay-filter="Degree" lay-verify="required" required>
+                                <option value="easy">容易</option>
+                                <option value="normal">一般</option>
+                                <option value="difficult">困难</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否公开</label>
+                        <div class="layui-input-block">
+                            <select asp-for="IsOpen" lay-filter="IsOpen" lay-verify="required" required>
+                                <option value="1">公开</option>
+                                <option value="0">不公开</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">备注</label>
+                        <div class="layui-input-block">
+                            <input class="layui-input" asp-for="Remark" placeholder="备注信息" />
+                        </div>
+                    </div>
+                    <input type="hidden" asp-for="ColumnId" />
+
+                    <div class="layui-form-item" style="text-align:right">
+                        <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+    </div>
+
+    <div class="layui-col-md6">
+        <fieldset class="layui-elem-field">
+            <legend>答案内容</legend>
+            <div class="layui-field-box" style="height:calc(88vh);overflow:auto">
+                <form class="layui-form" lay-filter="formItem" id="itemView">
+                </form>
+                <a class="layui-btn layui-btn-normal addItem" onclick="addAnswerItem()" href="javascript:;"><i class="layui-icon layui-icon-add-1"></i>新增选项块</a>
+
+            </div>
+        </fieldset>
+
+
+    </div>
+</div>
+
+@*客观题答案内容*@
+<script type="text/html" id="objectiveItemTpl">
+    {{# layui.each(d,function(index, item){ }}
+    <div class="answerOptions" id="divItem_{{item.orderIndex}}">
+        <div class="layui-inline" style="margin-bottom:10px">
+            <label class="layui-form-label">选项代码</label>
+            <div class="layui-input-inline" style="width:220px">
+                <input id="code_{{ item.orderIndex }}" name="code_{{ item.orderIndex }}" value="{{item.code}}" class="layui-input" placeholder="如A，B，C，正确，错误" />
+            </div>
+
+            <div class="layui-input-inline" style="width: 100px;">
+                {{# if(item.isAnswer==1) { }}
+                    {{# correctAnswer.push("code_"+item.orderIndex) }}
+                    <input type="checkbox" id="answer_{{ item.orderIndex }}" name="answer_{{ item.orderIndex }}" value="{{item.code}}" data-area="code_{{ item.orderIndex }}" title="正确答案" lay-skin="primary" checked>
+                {{# } else { }}
+                    <input type="checkbox" id="answer_{{ item.orderIndex }}" name="answer_{{ item.orderIndex }}" value="{{item.code}}" data-area="code_{{ item.orderIndex }}" title="正确答案" lay-skin="primary">
+                {{# } }}
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">选项内容</label>
+            <div class="layui-input-block">
+                <div id="content_{{ item.orderIndex }}" name="content_{{ item.orderIndex }}" placeholder="请输入选项内容"></div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom:0px;margin-top:10px;text-align:right">
+            @*<a class="layui-btn layui-btn-normal" onclick="addItem({{ orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-add-1"></i>新增选项块</a>*@
+            <a class="layui-btn layui-btn-danger" onclick="removeItem({{ item.orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-delete"></i>删除当前块</a>
+
+        </div>
+    </div>
+    {{# }) }}
+</script>
+
+@*主观题答案内容*@
+<script type="text/html" id="unObjectiveItemTpl">
+    {{# layui.each(d,function(index, item){ }}
+    <div class="answerOptions" id="divItem_{{item.orderIndex}}">
+        @*<input type="hidden" name="code_{{orderIndex}}" value="主观题无选项代码"/>*@
+        <div class="layui-form-item">
+            <label class="layui-form-label">答案内容</label>
+            <div class="layui-input-block">
+                
+                <textarea id="content_{{ item.orderIndex }}" name="content_{{ item.orderIndex }}" class="layui-textarea" placeholder="请输入答案内容">{{ item.descriptionText }}</textarea>
+            </div>
+        </div>
+         <div class="layui-form-item">
+            <label class="layui-form-label">内容模式</label>
+            <div class="layui-input-block">
+                @*<input type="checkbox" lay-skin="switch" lay-filter="txtSwitch_{{ orderIndex }}" id="txtSwitch_{{ orderIndex }}" lay-text="复杂|简单">*@
+                <input type="radio" name="useless_mode_{{ item.orderIndex }}" id="radioSimple_{{ item.orderIndex }}" data-area="content_{{ item.orderIndex }}" value="1" title="简单" checked>
+                <input type="radio" name="useless_mode_{{ item.orderIndex }}" id="radioDifficulty_{{ item.orderIndex }}" data-area="content_{{ item.orderIndex }}" value="2" title="复杂" >
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom:0px;margin-top:10px;text-align:right">
+            @*<a class="layui-btn layui-btn-normal" onclick="addItem({{ orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-add-1"></i>新增选项块</a>*@
+            <a class="layui-btn layui-btn-danger removeItem" onclick="removeItem({{ item.orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-delete"></i>删除当前块</a>
+
+        </div>
+    </div>
+    {{# }) }}
+</script>
+
+<script src="~/plugins/tinymce/tinymce.min.js"></script>
+<script src="~/plugins/mytinymce.js"></script>
+<script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js"></script>
+<script>
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+    form.render('select');
+    let base_ajax_url = '';
+    let isSingleAnswer = 0;
+    let questionType = 1;//1-选择（单/多），2-判断，3-主观
+    //let isMult = 0;
+    let correctAnswer = [];
+    let itemAnswerArr = [];
+    let defaultArr = [];
+    let currIndex = 0;
+    let currQuestionId = '@Model.Id';
+    //let itemAnswerTotal = 4;
+    //getSelectItems('/exam/questiontype/GetQuestionTypeSelects',{},'selectTplInit','TypeId',false);
+    let questionTypeStr='@Html.Raw(Model.TypeName)';
+    if(questionTypeStr.indexOf('判断')>-1)
+        questionType=2;
+    else if (questionTypeStr.indexOf('填空') > -1 || questionTypeStr.indexOf('问答')>-1)
+        questionType = 3;
+    else
+        questionType=1;
+    getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', 'SubjectId', false).then(function(){
+        setTimeout(() => {
+            $('#SubjectId').val('@Model.SubjectId');
+            form.render('select');
+        },200)
+    });
+
+    let objType = {
+        'url': '/exam/questiontype/GetQuestionTypeSelects'
+        , 'param': {}
+        , 'elem': 'TypeIdSelect'
+        , 'radio': true
+        , 'tips': '请选择题型'
+        , 'prop': { name: 'text', value: 'value' }
+        , 'initValue': ['@Model.TypeId']
+        , 'tool': false
+        , 'result': ''
+        , 'func': function (data) {
+            
+            correctAnswer = [];
+            $('#itemView').html('');
+            let obj = data.arr[0];
+            $('#TypeId').val(obj.value);
+            isSingleAnswer = obj.single;
+            if (obj.type != 1) {
+                questionType = 3;
+                generateAnswerItems(1, false);//主观题
+            }
+            else if (obj.type == 1 && obj.text.indexOf('判断') > -1) {
+                questionType = 2;
+                generateAnswerItems(2, false)//客观判断题
+
+            }
+            else {
+                questionType = 1;
+                generateAnswerItems(4, false)//客观选择题，含单双选
+
+            }
+        }
+    }
+    makeXmSelect(objType)
+
+    GetInitItems()
+    function GetInitItems() {
+        $.getJSON('@Url.Action("GetQuestionItems")', { 'questionId': currQuestionId }, function (json) {
+            itemAnswerArr = json.data;
+            isSingleAnswer = itemAnswerArr.filter(u => u.isAnswer == 1).length;
+            
+            //for(let answer of answersArr)
+            //correctAnswer.push(answer.)
+            generateAnswerItems(itemAnswerArr.length, false, true);
+        });
+    }
+
+    //渲染题目和题目解析
+    InitTinymce('Title', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+    InitTinymce('Analysis', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+
+    form.on('radio', function (data) {
+        let elem = data.elem.id
+        let contentId = $('#' + elem).data('area')
+        if (data.value == 2) {
+            switchToTinymce(contentId)
+        } else {
+            ClearTinymce(contentId)
+        }
+        console.log(data.value);
+    })
+
+    form.on('checkbox', function (data) {
+        let elem = data.elem.id
+        let codeId = $('#' + elem).data('area')
+
+        if (isSingleAnswer == 1 && correctAnswer.length == 1 && data.elem.checked) {
+            errorMsg('单选题目，只能设置一个正确答案');
+            $('#' + elem).prop('checked', false);
+            form.render('checkbox')
+            return;
+        }
+
+        if (data.elem.checked) {
+            correctAnswer.push(codeId);
+        } else {
+            correctAnswer = correctAnswer.filter(item => item != codeId)
+        }
+    })
+
+    form.on('submit(save)', async function (data) {
+
+        if (settleItems()<0)
+         return;
+
+        
+        let question = data.field;
+        let items = itemAnswerArr;
+        
+
+
+        let formData = new FormData();
+        formData.append('questionStr', JSON.stringify(question));
+        formData.append('itemsStr', JSON.stringify(items));
+        formData.append('__RequestVerificationToken', requestToken);
+        //let formData = objectToFormData(json);
+        var ret = await request('POST', '@Url.Action("SaveQuestion")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('保存成功', () => {
+                window.location.href = 'index';
+            });
+            return;
+        }
+        errorMsg('保存失败')
+    })
+
+
+
+    //增加选项
+    function addAnswerItem() {
+        if (questionType == 0) {
+            errorMsg('请选择题目类型');
+            return;
+        }
+        if (questionType == 2) {
+            warnMsg('判断题只能有【对】和【错】两个选项');
+            return;
+        }
+        generateAnswerItems(1, true);
+    }
+
+    //生成选项
+    function generateAnswerItems(number = 4, isAppend = false, isInit = false) {
+        if (isInit) {
+            let obj={};
+            obj.arr = itemAnswerArr;
+            obj.index = 0;
+            obj.objective=itemAnswerArr[0].isOption
+            makeItems(obj);
+            return;
+        }
+        if (!isAppend) {
+            itemAnswerArr = [];//原有选项置空
+            currIndex = 0;//索引从0开始
+        }
+        //correctAnswer = [];//原正确答案置空
+        let i = 0;
+        let obj = { 'objective': 1 };
+        let isAnswer = 0;
+        if (questionType == 1)//单选/多选，最大9个选项，多了闹不了了
+            defaultArr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+        else if (questionType == 2)//判断没得说
+            defaultArr = ['对', '错'];
+        else if (questionType == 3) {//主观题默认就一个，可以自己添加
+            defaultArr = ['请填写正确答案'];
+            obj.objective = 2;
+            isAnswer = 1;//主观题，这里写的都是正确答案
+        }
+        while (i < number) {
+            let defaultCode = '';
+            if (defaultArr[currIndex]) {
+                defaultCode = defaultArr[currIndex];
+            }
+            itemAnswerArr.push({ 'orderIndex': currIndex, 'code': defaultCode, 'description': '', 'descriptionText':'', 'isAnswer': isAnswer });
+            i++;
+            currIndex += 1;
+        }
+        obj.arr = itemAnswerArr;
+        obj.index = 0;
+        if (isAppend)
+            obj.index = currIndex;
+        makeItems(obj);
+    }
+
+
+    //动态填充选项
+    async function makeItems(obj) {
+        if (obj.index > 0) {
+            let tmpArr = [];
+            tmpArr.push(obj.arr[obj.index - 1]);
+            obj.arr = tmpArr;
+        }
+        if (obj.objective == 1) {
+            await makeObjectItems(obj.arr)
+        } else {
+            await makeUnObjectItems(obj.arr)
+        }
+    }
+
+    //填充客观题选项
+    function makeObjectItems(arr) {
+        return new Promise(function (resolve, reject) {
+            renderTpl('objectiveItemTpl', 'itemView', arr, true);
+            resolve();
+        }).then(function () {
+            setTimeout(() => {
+                ClearTinymce('div');
+                form.render('checkbox');
+                switchToTinymce(arr, 'content_');
+                console.log('渲染完了')
+            },100)
+            
+        })
+    }
+
+
+    //填充主观题选项
+    function makeUnObjectItems(arr) {
+        return new Promise(function (resolve, reject) {
+            renderTpl('unObjectiveItemTpl', 'itemView', arr, true);
+            resolve();
+        }).then(function () {
+            setTimeout(() => {
+                ClearTinymce('div');
+                form.render('radio');
+                console.log('渲染完了');
+                $(".removeItem").hide();
+                $(".addItem").hide();
+            },10)
+            
+        })
+    }
+
+    //转换为富文本
+    function switchToTinymce(obj, prefix) {
+        if (!prefix)
+            prefix = '';
+        if (Array.isArray(obj)) {
+            let i = 0;
+            while (i < obj.length) {
+                ClearTinymce(prefix + obj[i].orderIndex);
+                InitTinymce(prefix + obj[i].orderIndex, obj[i].description, '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+                i++;
+            }
+        } else {
+            ClearTinymce(prefix + obj);
+            InitTinymce(prefix + obj, '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+
+        }
+    }
+
+    //移除选项
+    function removeItem(index) {
+        if (itemAnswerArr.length == 1) {
+            errorMsg('请至少保留1个答案内容');
+            return;
+        }
+        if (questionType == 2) {
+            errorMsg('判断题必须要有对、错两个答案');
+            return;
+        }
+        layer.confirm('注意，删除后所有选项会重新渲染排序，已经填充的答案需要重新填写，确定要删除改选项块吗?', { icon: 0 }, function (index2) {
+            layer.close(index2);
+            correctAnswer = [];
+            $('#itemView').html('');
+
+
+            let number = itemAnswerArr.filter(item => item.orderIndex != index).length;
+            generateAnswerItems(number, false)
+
+        })
+    }
+
+    function settleItems() {
+        let data = form.val('formItem');
+        let itemKeys = Object.keys(data).sort();
+
+        let codeKeys = itemKeys.filter(value => value.indexOf('code') > -1);
+        let contentKeys = itemKeys.filter(value => value.indexOf('content') > -1);
+        let answerKeys = itemKeys.filter(value => value.indexOf('answer') > -1)
+
+        let FinalAnswerArr = [];
+
+        //isSingleAnswer，判定是否有唯一答案，包含单选和判断
+        if (isSingleAnswer == 1 && answerKeys.length != 1) {
+            errorMsg('请确保单选/判断题，有唯一的正确答案');
+            return -1;
+        }
+
+        //questionType，题型是否是选择
+        if (questionType == 1 && answerKeys.length == 0) {
+            errorMsg('请确保选择题，至少有一个正确答案');
+            return -1;
+        }
+
+        let index = 0;
+        for (let key of contentKeys) {
+            let content = data[key];
+            if (!content && questionType!=2) {
+                warnMsg('请确保答案或选项内容不为空');
+                return 2;
+            }
+            let isOption = 0;
+
+            let codeKey = key.replace('content', 'code');
+            let codeValue = '';
+
+            if (questionType < 3) {
+                codeValue = data[codeKey];
+                isOption = 1;
+            }
+            let answerKey = key.replace('content', 'answer');
+            let answerValue = 0;
+            if (answerKeys.filter(item => item == answerKey).length > 0) {
+                answerValue = 1;
+            }
+            FinalAnswerArr.push({
+                'orderIndex': index
+                , 'description': data[key]
+                , 'code': codeValue
+                , 'isAnswer': answerValue
+                , 'isOption': isOption
+            });
+            index++;
+        }
+        itemAnswerArr = FinalAnswerArr;
+        //console.log(FinalAnswerArr);
+        return 1;
+    }
+</script>

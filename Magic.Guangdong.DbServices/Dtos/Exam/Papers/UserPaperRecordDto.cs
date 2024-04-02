@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 {
     public class UserPaperRecordDto
     {
@@ -47,7 +47,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
     public class MemberInfoDto
     {
-        public string reportId { get; set; }
+        public string applyId { get; set; }
 
         public string email { get; set; }
 
@@ -161,9 +161,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
         public string idNumber { get; set; }
 
-        public string reportId { get; set; }
+        public string applyId { get; set; }
 
     }
 }
-
-

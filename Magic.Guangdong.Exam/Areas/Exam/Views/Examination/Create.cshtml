@@ -175,7 +175,9 @@
         let formData = objectToFormData(data.field);
         var ret = await request('POST', '@Url.Action("Create")', formData, { 'Content-Type': 'multipart/form-data' });
         if(ret.code==0){
-            successMsg('创建成功');
+            successMsg('创建成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            });
             return;
         }
         errorMsg('创建失败')

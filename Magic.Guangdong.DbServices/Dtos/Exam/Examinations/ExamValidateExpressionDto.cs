@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
 {
     public class ExamValidateExpressionDto
     {

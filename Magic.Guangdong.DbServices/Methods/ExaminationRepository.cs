@@ -1,5 +1,4 @@
-﻿using Magic.Guangdong.DbServices.Dto;
-using Magic.Guangdong.DbServices.Interfaces;
+﻿using Magic.Guangdong.DbServices.Interfaces;
 using FreeSql.Internal.Model;
 using Newtonsoft.Json;
 using System;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Magic.Guangdong.DbServices.Dtos;
 
 namespace Magic.Guangdong.DbServices.Methods
 {

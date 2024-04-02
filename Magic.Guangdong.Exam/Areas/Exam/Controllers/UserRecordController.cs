@@ -1,11 +1,11 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
 {
@@ -41,6 +41,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             _activityReportRepo = activityReportRepo;
         }
 
+        [RouteMark("答题记录")]
         public IActionResult Index(string associationId)
         {
             return View();

@@ -59,9 +59,10 @@
             parentId: 0
         }
     }).then(result => {
-        renderTpl('menuTypeTpl', 'menuTypeView', result.data.data, false).then(() => {
+        renderTpl('menuTypeTpl', 'menuTypeView', result.data.data, false)
+        setTimeout(() => {
             renderLayuiFormElem({ elemType: 'select' })
-        })
+        },100)
     })
 
     form.on('select(menuType)', (data) => {

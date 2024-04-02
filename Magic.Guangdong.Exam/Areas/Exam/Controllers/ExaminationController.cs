@@ -3,7 +3,7 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -31,6 +31,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             _resp = resp;
             _redisCachingProvider = redisCachingProvider;
         }
+        [RouteMark("考试管理")]
         public async Task<IActionResult> Index()
         {
             ViewBag.onlineExamer = (await _redisCachingProvider.HGetAllAsync("UserExamLog")).Count();

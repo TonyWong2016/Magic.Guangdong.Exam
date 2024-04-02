@@ -218,13 +218,13 @@
     let token = $('@Html.AntiForgeryToken()').val();
     let answerArr=[];
     
-    $("#btnBack").attr("href", `@Url.Action("Index")?examId=@Model.ExamId&columnId=${columnId}&associationId=@Model.AssociationId`)
+    $('#btnBack').attr('href', `@Url.Action("Index")?examId=@Model.ExamId&associationId=@Model.AssociationId`)
 
-    form.render("radio");
-    form.render("checkbox");
-    form.render("select");
+    form.render('radio');
+    form.render('checkbox');
+    form.render('select');
 
-    form.on("submit(savePaper)", function (data) {
+    form.on('submit(savePaper)',  function (data) {
         console.log(data.field)
         let orginObj = data.field;
         let keys = Object.keys(orginObj);
@@ -234,71 +234,55 @@
         let index=0;
         while(index<keys.length){
             if(values[index])
-                answerArr.push({ "questionId": keys[index], "userAnswer": values[index].split("|") })
+                answerArr.push({ 'questionId': keys[index], 'userAnswer': values[index].split('|') })
             index++;
         }
         console.log(answerArr);
-        //SubmitPaperTest(answerArr)
         SubmitPaperForCorrection(answerArr)
     })
 
-    //form.on("radio",function(data){
-    //    $(".modify").hide();
-    //    //console.log(data.value)
-    //    let targetId = `modify_${data.elem.name}`;
-    //    $("#" + targetId).attr("data-answerId", data.value).show();
-    //    //console.log(data.elem.name)
-    //})
 
-    form.on("checkbox",function(data){
+    form.on('checkbox',function(data){
         console.log(data)
         let parts = data.value.split('|');
-        let obj = $("#" + parts[0]);
+        let obj = $('#' + parts[0]);
         let existValue = obj.val();
-        //let multAnswer="";
+        //let multAnswer='';
         if(data.elem.checked){
-            existValue = existValue + "|" + parts[1];
+            existValue = existValue + '|' + parts[1];
         }
         else{
-            existValue = existValue.replace("|" + parts[1], "").replace(parts[1] + "|", "").replace(parts[1], "")
+            existValue = existValue.replace('|' + parts[1], '').replace(parts[1] + '|', '').replace(parts[1], '')
         }
-        if (existValue.startsWith("|"))
+        if (existValue.startsWith('|'))
             existValue = existValue.substr(1);
         obj.val(existValue);
     })
-    
-    function SubmitPaperForCorrection(answerArr) {
+
+    async function SubmitPaperForCorrection(answerArr) {
         let dto={
-            "paperId":getQueryString("paperId"),
-            "paperTitle": jVal("PaperTitle"),
-            "paperDuration": jVal("Duration"),
-            "paperStatus": jVal("Status"),
-            "paperOpenResult": jVal("OpenResult"),
-            "adminId":adminId,
-            "answers": answerArr
+            'paperId':getUrlQueryParams('paperId'),
+            'paperTitle': jVal('PaperTitle'),
+            'paperDuration': jVal('Duration'),
+            'paperStatus': jVal('Status'),
+            'paperOpenResult': jVal('OpenResult'),
+            'adminId': atob(localStorage.getItem('userId')),
+            //'answers': answerArr
+            'answersStr': JSON.stringify(answerArr)
         }
-        $.post("@Url.Action("SubmitPaperForCorrection")", { "dto": dto, "__RequestVerificationToken": token }, function (json) {
-            //console.log(json)
-            if(json.code==1){
-                layer.msg("操作成功",{icon:1},function(){
-                    location.href = `@Url.Action("Index")?examId=@Model.ExamId&columnId=${columnId}&associationId=@Model.AssociationId`;
-                })
-            }
-        })
+        
+
+        let formData = objectToFormData(dto);
+        formData.append('__RequestVerificationToken', requestToken)
+        var ret = await request('POST', '@Url.Action("SubmitPaperForCorrection")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('操作成功', () => {
+                window.location.href = `@Url.Action("Index")?examId=@Model.ExamId&associationId=@Model.AssociationId`;
+            });
+            return;
+        }
+        errorMsg('创建失败')
     }
 
-    //后台测试提交试卷
-    function SubmitPaperTest(answerArr) {
-        let dto = {
-            "userId": adminId,//测试
-            "paperId": "@Model.PaperId",
-            "Answers": answerArr,
-            "idNumber": generateUUID(0)
-        }
-
-        $.post("@Url.Action("SubmitPaper")", { "dto": dto, "__RequestVerificationToken": token }, function (json) {
-            console.log(json)
-        })
-    }
 
 </script>

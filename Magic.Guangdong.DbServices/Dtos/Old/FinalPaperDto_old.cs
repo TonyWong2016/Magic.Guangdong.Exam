@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos.Old
 {
-    public class FinalPaperDto
+    public class FinalPaperDto_old
     {
         public Guid PaperId { get; set; }
 
@@ -52,7 +52,7 @@ namespace Magic.Guangdong.DbServices.Dto
 
     }
 
-    public class PaperQuestionDto
+    public class PaperQuestionDto_old
     {
 
         public long Id { get; set; }
@@ -91,7 +91,7 @@ namespace Magic.Guangdong.DbServices.Dto
             get
             {
                 if (!string.IsNullOrEmpty(Analysis))
-                    return Magic.Guangdong.Assistant.Utils.StripHTML(Analysis);
+                    return Assistant.Utils.StripHTML(Analysis);
                 return "无";
             }
         }
@@ -99,7 +99,7 @@ namespace Magic.Guangdong.DbServices.Dto
         public List<PaperQuestionItemDto> Items { get; set; }
     }
 
-    public class PaperQuestionItemDto
+    public class PaperQuestionItemDto_old
     {
         public long Id { get; set; }
 
@@ -117,7 +117,7 @@ namespace Magic.Guangdong.DbServices.Dto
     /// <summary>
     /// 初始化答题记录(开始作答的时候)
     /// </summary>
-    public class InitPaperDto
+    public class InitPaperDto_old
     {
         public string userId { get; set; }
 
@@ -126,7 +126,7 @@ namespace Magic.Guangdong.DbServices.Dto
         public Guid PaperId { get; set; }
     }
 
-    public class SubmitPaperDto
+    public class SubmitPaperDto_old
     {
         public long userId { get; set; }
 
@@ -146,7 +146,7 @@ namespace Magic.Guangdong.DbServices.Dto
         public List<SubmitAnswerDto> Answers { get; set; }
     }
 
-    public class SubmitAnswerDto
+    public class SubmitAnswerDto_old
     {
         public long questionId { get; set; }
 
@@ -159,7 +159,7 @@ namespace Magic.Guangdong.DbServices.Dto
         //public string[] subjectiveItems { get;set; }
     }
 
-    public class SubmitPaperForCorrectionDto
+    public class SubmitPaperForCorrectionDto_old
     {
         public Guid paperId { get; set; }
         public string paperTitle { get; set; }

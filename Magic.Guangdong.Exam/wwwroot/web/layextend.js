@@ -45,28 +45,31 @@ function autoCheckFormRequired() {
 }
 
 function renderTpl(tplid, viewid, checkbarParams, append) {
-    return new Promise((resolve, reject) => {
-        if (tplid && viewid) {
-            var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
-            layui.use('laytpl', function () {
-                var laytpl = layui.laytpl;
-                laytpl(tpl).render(checkbarParams, function (html) {
-                    if (append)
-                        view.innerHTML += html;
-                    else
-                        view.innerHTML = html;
-                })
-            });
-            resolve(true);
+    
+    if (tplid && viewid) {
+        var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
+        if (view.innerHTML.indexOf('请') > -1) {
+            tpl = tpl.replace('<option value="0">请选择</option>', '');
         }
-        reject(false);
-    })
-
+        layui.use('laytpl', function () {
+            var laytpl = layui.laytpl;
+            laytpl(tpl).render(checkbarParams, function (html) {
+                if (append)
+                    view.innerHTML += html;
+                else
+                    view.innerHTML = html;
+            })
+        });
+        
+    }
 }
 
 function renderTplNow(tplid, viewid, checkbarParams, append) {
     if (tplid && viewid) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
+        if (view.innerHTML.indexOf('请') > -1) {
+            tpl = tpl.replace('<option value="0">请选择</option>', '');
+        }
         layui.use('laytpl', function () {
             var laytpl = layui.laytpl;
             laytpl(tpl).render(checkbarParams, function (html) {
@@ -84,6 +87,9 @@ function renderTplNow(tplid, viewid, checkbarParams, append) {
 function renderTplByClass(tplid, viewclass, index, checkbarParams, append) {
     if (tplid && viewclass) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementsByClassName(viewclass)[index];
+        if (view.innerHTML.indexOf('请') > -1) {
+            tpl = tpl.replace('<option value="0">请选择</option>', '');
+        }
         layui.use('laytpl', function () {
             var laytpl = layui.laytpl;
             laytpl(tpl).render(checkbarParams, function (html) {
@@ -361,14 +367,14 @@ function getSelectItems(url, params, tpl, view, isAppend = true, parentfilter = 
         .then(function (data) {
             var json = data.data;
             if (document.getElementById(view)) {
-                renderTpl(tpl, view, json.data, isAppend).then(() => {
-                    setTimeout(() => {
-                        if (parentfilter)
-                            form.render('select', parentfilter);
-                        else
-                            form.render('select');
-                    },300)                    
-                });
+                renderTpl(tpl, view, json.data, isAppend)
+
+                setTimeout(() => {
+                    if (parentfilter)
+                        form.render('select', parentfilter);
+                    else
+                        form.render('select');
+                }, 300)    
             }
            
             selectRet = json.data;

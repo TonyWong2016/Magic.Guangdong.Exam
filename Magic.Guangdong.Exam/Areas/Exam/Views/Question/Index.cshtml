@@ -1,0 +1,292 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+       
+
+            <div class="layui-input-inline" style="width:350px">
+                <input class="layui-input" id="keyword" placeholder="输入关键字检索"/>
+            </div>
+
+        <div class="layui-input-inline">
+            <select id="SubjectId" lay-filter="SubjectId" class="layui-select" lay-search>
+                <option value="0">请选择科目</option>
+            </select>
+        </div>
+
+        <div class="layui-input-inline">
+            <select id="TypeId" lay-filter="TypeId" class="layui-select">
+                <option value="0">请选择题目类型</option>
+            </select>
+        </div>
+
+        <div class="layui-input-inline">
+            <select id="Degree" lay-filter="Degree" class="layui-select">
+                <option value="all">请选择题目难度</option>
+                <option value="easy">容易</option>
+                <option value="normal">一般</option>
+                <option value="difficult">困难</option>
+            </select>
+        </div>
+
+        <div class="layui-input-inline">
+            <a href="@Url.Action("Create")" class="layui-btn" id="btnAddQuestion"><i class="layui-icon layui-icon-add-1"></i>新增题目</a>
+        </div>
+
+        <div class="layui-input-inline">
+            <a href="/exam/subject/index" class="layui-btn" id="btnSubject"><i class="layui-icon layui-icon-read"></i>新增科目</a>
+        </div>
+
+        <div class="layui-input-inline">
+            <a href="/exam/questiontype/index" class="layui-btn" id="btnType"><i class="layui-icon layui-icon-star"></i>新增题型</a>
+        </div>
+
+        <div class="layui-input-inline">
+            <a href="javascript:;" class="layui-btn layui-btn-normal" id="btnUpload"><i class="layui-icon layui-icon-upload"></i>导入题库</a>
+        </div>
+    </form>
+    <table id="table" class="layui-table" lay-filter="table"></table>
+</div>
+
+<div class="layui-layer-notice" style="display:none" id="divUpload">
+    <div class="layui-row" style="padding:30px">
+        <blockquote class="layui-elem-quote">注意，通过excel上传时，只能上传客观题</blockquote>
+        <div class="layui-col-md6" style="padding:30px">
+            <div class="layui-panel">
+                <div style="padding: 30px; text-align:center" id="btnUploadFromWord">
+                    <img src="~/images/word.png" style="cursor:pointer;" title="上传word题库" />
+                </div>
+            </div>
+            <p style="text-align:center;margin-top:10px;"><a href="/tamplate/word格式题库导入模板.docx" target="_blank" style="color:#01AAED;text-decoration:underline">下载Word模板</a></p>
+        </div>
+        <div class="layui-col-md6" style="padding:30px">
+            <div class="layui-panel">
+                <div style="padding: 30px; text-align:center" id="btnUploadFromExcel">
+                    <img src="~/images/excel.png" style="cursor:pointer;" title="上传excel题库" />
+                    </div>
+            </div>
+            <p style="text-align:center;margin-top:10px;color:#01AAED"><a href="javascript:;" onclick="GenerationImportTemplate()" style="color:#01AAED;text-decoration:underline">下载Excel模板</a></p>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="degreeTpl">
+    {{# if(d.degree=="easy") { }}
+    容易
+    {{# } else if(d.degree=="normal") { }}
+    一般
+    {{# } else if(d.degree=="difficult") { }}
+    困难
+    {{# } }}
+</script>
+<script type="text/html" id="operationTpl">
+    @*<a class="layui-btn layui-btn-normal" href=" {{resourceHost + d.templateFileUrl}}" target="_blank">查看</a>*@
+    <a class="layui-btn layui-btn-normal" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deleteQuestion('{{d.id}}')">删除</a>
+</script>
+<script src="~/web/myfcup.js"></script>
+<script>
+    let form = layui.form;
+    let table = layui.table;
+    let token = $('@Html.AntiForgeryToken()').val();
+    let subjectId=0;
+    let typeId=0;
+    let degree = 'all';
+    //form.render('select');
+    getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', 'SubjectId', true)
+    getSelectItems('/exam/questiontype/GetQuestionTypeSelects', {}, 'selectTpl', 'TypeId', true)
+
+    let whereJsonStr;
+
+    
+    getQuestions();
+    function getQuestions() {
+        makeWhereJson();
+        let params = {
+            url: '@Url.Action("GetQuestions")',
+            elem: '#table',
+            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'titleText', title: '题目', width: '30%' }
+                , { field: 'type', title: '题型', width: '8%' }
+                , { field: 'subject', title: '科目', width: '10%' }
+                , { field: 'score', title: '分值', width: '8%' }
+                , { templet: '#degreeTpl', title: '难度', width: '8%' }
+                , { field: 'createdAt', title: '创建时间', width: '12%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    autoSearch('keyword', function () {
+        makeWhereJson();
+        getQuestions();
+    })
+
+    $('#btnUpload').click(function(){
+        openDiv('上传题库', 'divUpload', '60%', '85%', false)
+    })
+
+    initUploadFile('btnUploadFromExcel', 'xls|xlsx', '', async function (res) {
+        //console.log(res);
+        layer.msg('导入时长和您实际上传的数据量相关，请稍后', { icon: 0 })
+        layer.load(1);
+
+        let formData = new FormData();
+        formData.append('path', res.data);
+        formData.append('__RequestVerificationToken', requestToken);
+        var ret = await request('POST', '@Url.Action("ImportQuestionFromExcel")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('导入成功', () => {
+                layer.closeAll();
+                getQuestions();
+            });
+            return;
+        }
+        errorMsg('创建失败')
+        
+    })
+
+    initUploadFile('btnUploadFromWord', 'doc|docx', '',async function (res) {
+        
+        if (subjectId == 0 || subjectId == '0') {
+            layer.alert('word格式的试题需要选择默认科目，请到菜单页选择一下科目',{icon:0});
+            return;
+        }
+
+        layer.msg('导入时长和您实际上传的数据量相关，请稍后', { icon: 0 })
+        layer.load(1);
+
+      
+
+        let formData = new FormData();
+        formData.append('path', res.data);
+        formData.append('subjectId', subjectId);
+        formData.append('__RequestVerificationToken', requestToken);
+        var ret = await request('POST', '@Url.Action("ImportQuestionFromWord")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('导入成功', () => {
+                layer.closeAll();
+                getQuestions();
+            });
+            return;
+        }
+        errorMsg('创建失败')
+    })
+
+
+    form.on('select(TypeId)', function (data) {
+        typeId=data.value
+        getQuestions();
+    })
+
+    form.on('select(SubjectId)', function (data) {
+        subjectId = data.value
+        getQuestions();
+    })
+
+
+    form.on('select(Degree)',function(data){
+        degree=data.value;
+        getQuestions();
+    })
+
+    function makeWhereJson(){
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if (jVal('keyword')){
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+        if (typeId != '0') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'TypeId',
+                    'Operator': 'Equal',
+                    'Value': typeId
+                }]
+            });
+        }
+        if (subjectId != '0') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'SubjectId',
+                    'Operator': 'Equal',
+                    'Value': subjectId
+                }]
+            });
+        }
+        if(degree !='all'){
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Degree',
+                    'Operator': 'Equal',
+                    'Value': degree
+                }]
+            });
+        }
+        return whereJsonStr;
+    }
+
+    function deleteQuestion(id){
+        layer.confirm('删除题目前，需要确保要删除的题目没有被试卷抽中。<br /><b style="color:red">注意：题目是宝贵的数据资源，应予以保护，并避免题目答案外泄，删除前请确保相关管理人员均已知晓！</b><br /> 确定要删除当前题目吗？',{icon:0},function(index){
+            layer.close(index);
+            $.post('@Url.Action("Delete")', { 'id': id, '__RequestVerificationToken': token }, function (json) {
+                if(json.code==1){
+                    getQuestions();
+                    successMsg('删除成功');
+                    return;
+                }
+                errorMsg('操作失败：'+json.msg);
+            })
+        })
+        
+    }
+
+    async function GenerationImportTemplate() {
+        // $.post('@Url.Action("GenerationImportTemplate")', { '__RequestVerificationToken': token },function(json){
+        //     if(json.code==1){
+        //         window.open(json.data);
+        //     }
+        // })
+        layer.load(2);
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        //let formData = objectToFormData(json);
+        var ret = await request('POST', '@Url.Action("GenerationImportTemplate")', formData, { 'Content-Type': 'multipart/form-data' });
+        layer.closeAll('loading');
+        if (ret.code == 0) {
+            successMsg('下载即将开始...', () => {
+                window.open(ret.data);
+            });
+            return;
+        }
+        errorMsg('创建失败')
+    }
+</script>
+
+

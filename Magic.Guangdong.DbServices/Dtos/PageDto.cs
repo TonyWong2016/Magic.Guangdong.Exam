@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Magic.Guangdong.DbServices.Dto
+namespace Magic.Guangdong.DbServices.Dtos
 {
     public class PageDto
     {
@@ -20,7 +20,7 @@ namespace Magic.Guangdong.DbServices.Dto
         public string orderby { get; set; } = "id";
     }
 
-    public class  AdminListPageDto : PageDto
+    public class AdminListPageDto : PageDto
     {
         public long[] roleIds { get; set; }
     }

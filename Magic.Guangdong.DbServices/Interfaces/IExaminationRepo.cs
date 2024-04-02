@@ -1,4 +1,4 @@
-﻿using Magic.Guangdong.DbServices.Dto;
+﻿using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using NPOI.XWPF.UserModel;
@@ -113,7 +113,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
                 Regex scoreRegex = new Regex(@"^(分值：)");
                 if (scoreRegex.IsMatch(para.Text))
                 {
-                    questionModel.score = Convert.ToDouble(para.Text.Replace("分值:", ""));
+                    string s = para.Text.Replace("分值：", "");
+                    questionModel.score = Convert.ToDouble(s);
                     Console.WriteLine("分值：" + para.Text);
                     continue;
                 }

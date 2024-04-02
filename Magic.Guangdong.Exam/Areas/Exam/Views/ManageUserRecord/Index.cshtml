@@ -1,0 +1,463 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-input-inline" style="width:22%;display:inline;">
+                <select id="associationIdView" lay-filter="associationId">
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width:20%;display:none">
+                <select id="examId" lay-filter="examId" name="examId" class="layui-select"></select>
+            </div>
+
+
+
+            <div class="layui-input-inline" style="width:15%;display:none">
+                <select id="paperId" lay-filter="paperId" name="paperId" class="layui-select"></select>
+            </div>
+
+            <div class="layui-input-inline" style="width:20%">
+                <div id="exams">
+                </div>
+            </div>
+            <div class="layui-input-inline" style="width:15%">
+                <input class="layui-input" id="keyword" placeholder="输入答题人身份证或分数" />
+                @*注意，这里一个账号查出多条记录是正常现象*@
+            </div>
+            <div class="layui-input-inline">
+                <select id="isComplated" lay-filter="isComplated" name="isComplated" class="layui-select">
+                    <option value="-1">是否交卷</option>
+                    <option value="0">未交卷</option>
+                    <option value="1">已交卷</option>
+
+                </select>
+            </div>
+            @* <div class="layui-input-inline" style="width:8%">
+                <a class="layui-btn layui-btn-primary" href="javascript:;" target="_blank" id="btnFinal">决赛情况</a>
+            </div> *@
+
+            <div class="layui-input-inline">
+                <input type="checkbox" lay-filter="showDeleted" title="查看被清除的记录" lay-skin="primary">
+            </div>
+        </div>
+        <div class="layui-btn-container">
+            <a href="javascript:;" onclick="exportRecord()" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
+            @* <a href="javascript:;" onclick="SyncOnlineScoreToApplyMain(1)" class="layui-btn"><i class="layui-icon layui-icon-senior"></i>同步选拔赛成绩</a>
+            <a href="javascript:;" onclick="SyncOnlineScoreToApplyMain(2)" class="layui-btn"><i class="layui-icon layui-icon-senior"></i>同步决赛成绩</a> *@
+            <a href="javascript:;" onclick="ForceMarkingAll()" class="layui-btn layui-btn-danger"><i class="layui-icon layui-icon-fire"></i>强制交卷</a>
+        </div>
+        <blockquote class="layui-elem-quote">注意，【同步成绩】和【强制交卷】的操作必须在对应的考试结束后执行。</blockquote>
+
+    </form>
+    <table class="layui-table" id="table" lay-filter="table"></table>
+
+</div>
+
+<script type="text/html" id="examTplInit">
+    <option value="0">请选择考试</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="paperTplInit">
+    <option value="0">请选择试卷</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="applyTpl">
+    <a href="/MatchCheck/Detail/{{d.applyId.replaceAll('(被移除)','').replace('(被清除)','')}}?levelType=1&checkPage=1" style="color:#01AAED" target="_blank">点击查看</a>
+
+</script>
+
+<script type="text/html" id="userNameTpl">
+    {{ decodeURIComponent(d.userName) }}
+</script>
+
+<script type="text/html" id="complatedTpl">
+    {{# if(d.complated==0){ }}
+        <span style="color:red">否</span>
+    {{#} else { }}
+        <span style="color:#00B050">是</span>
+    {{#} }}
+</script>
+
+
+<script type="text/html" id="degreeTpl">
+    {{# if(d.paperDegree=="all"||(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1)){ }}
+    未限制
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1) { }}
+    容易，一般
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
+    容易，困难
+    {{# } else if(d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
+    一般，困难
+    {{# } else if(d.paperDegree.indexOf("easy")>-1 ) { }}
+    容易
+    {{# } else if(d.paperDegree.indexOf("normal")>-1 ) { }}
+    一般
+    {{# } else if(d.paperDegree.indexOf("difficult")>-1 ) { }}
+    困难
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+
+    {{# if(d.isDeleted==0){ }}
+    <a class="layui-btn layui-btn-normal" href="@Url.Action("Detail")?paperId={{d.paperId}}&urid={{d.id}}"><i class="layui-icon layui-icon-file-b"></i>详情</a>
+    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="RemoveUserRecord('{{d.id}}')"><i class="layui-icon layui-icon-tips"></i>清除</a>
+    {{#} else{ }}
+    <a class="layui-btn layui-btn-disabled" href="javascript:;"><i class="layui-icon layui-icon-tips"></i>已清除</a>
+    {{#}  }}
+</script>
+
+<script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js"></script>
+<script>
+
+    let form = layui.form;
+    let whereJsonStr = '';
+    let examId = '0';
+    let paperId = '0';
+    let token = $('@Html.AntiForgeryToken()').val();//token，防csrf
+    let showDeleted = 0;
+    let isComplated = -1;
+    let objExams;
+    let examValues = [];
+    if (sessionStorage.getItem('lastExamValues'))
+        examValues = JSON.parse(sessionStorage.getItem('lastExamValues'))
+
+    form.render('checkbox');
+    form.on('checkbox(showDeleted)', (data) => {
+        data.elem.checked ? showDeleted = 1 : showDeleted = 0;
+        getUserRecord()
+    })
+
+   // $('#btnFinal').attr('href', '/matchcheck/finalcheck?columnId=' + columnId)
+
+
+    function getExams() {
+        return new Promise((resolve, reject) => {
+            objExams = {
+                'url': '/exam/Examination/GetExamMini'
+                , 'param': { 'id': associationId, 'type': 0 }
+                , 'elem': 'exams'
+                , 'tips': '请选择考试'
+                , 'prop': { name: 'text', value: 'value' }
+                , 'initValue': examValues
+                , 'tool': false
+                , 'autoRow': true
+                , 'result': ''
+                , 'func': function (data) {
+                    //teamValues = objTeams.result.getValue('value');
+                    //console.log(data);
+                    //layer.load()
+                    setTimeout(v => {
+                        getUserRecord();
+                        layer.closeAll('loading')
+                    }, 300)
+                }
+            }
+            makeXmSelect(objExams);
+            setTimeout(v => {
+                
+                resolve();
+                layer.closeAll('loading')
+            }, 800);
+        })
+    }
+
+
+    // GetSessionList(function () {
+    //     getExams().then(v => { getUserRecord() })
+    // }, 2)
+
+    getSelectItems('/exam/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'associationIdView', false)
+        .then(v => {
+            setTimeout(()=>{
+                associationId = selectRet[0].value
+                form.render('select')
+                getExams()
+                getUserRecord()
+            },100)
+           
+        })
+
+    form.on('select(associationId)', function (data) {
+        associationId = data.value;
+        layer.load();
+        getExams().then(v => {
+            getUserRecord()
+            layer.closeAll('loading');
+        })
+    })
+
+    form.on('select(examId)', v => {
+        examId = v.value;
+        if (examId == '0')
+            getSelectItems('/exam/Paper/GetPaperMini', {}, 'paperTplInit', 'paperId', false);
+        else {
+            getSelectItems('/exam/Paper/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
+        }
+        getUserRecord();
+    })
+
+    form.on('select(paperId)', v => {
+        paperId = v.value
+        getUserRecord();
+    })
+
+    form.on('select(isComplated)', v => {
+        isComplated = v.value;
+        getUserRecord();
+    })
+
+    autoSearch('keyword', function () {
+        getUserRecord();
+    })
+
+    function getUserRecord() {
+        layer.load();
+        let params = {
+            url: '@Url.Action("GetUserRecord")',
+            elem: '#table',
+            where: { 'whereJsonStr': JSON.stringify(makeWhereJson()) },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { templet: '#userNameTpl', title: '答题账号', width: '12%' }
+                , { field: 'idNumber', title: '证件号', width: '12%' }
+                , { field: 'examTitle', title: '考试', width: '12%' }
+                , { field: 'paperTitle', title: '试卷', width: '15%' }
+                , { templet: '#complatedTpl', title: '是否交卷', width: '8%' }
+                , { field: 'score', title: '得分', width: '8%' }
+                //, { templet: '#degreeTpl', title: '试卷难度', width: '8%' }
+                , { templet: '#applyTpl', title: '申报详情', width: '8%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    async function exportRecord() {
+        let formData = new FormData();
+        formData.append('whereJsonStr', JSON.stringify(makeWhereJson()));
+        formData.append('__RequestVerificationToken', requestToken)
+        var ret = await request('POST', '@Url.Action("ExportUserRecord")', formData, { 'Content-Type': 'multipart/form-data' });
+        layer.closeAll('loading');
+        if (ret.code == 0) {
+            successMsg('导出成功', () => {
+                window.open(baseDownloadUrl + json.data);
+            });
+            return;
+        }
+        errorMsg('导出失败：' + json.msg);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': showDeleted
+            }]
+        };
+        if (associationId) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'AssociationId',
+                    'Operator': 'Equal',
+                    'Value': associationId
+                }]
+            });
+        }
+
+        let _keyword = jVal('keyword');
+
+        if (TestNonNegativeInteger(_keyword)) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Score',
+                    'Operator': 'Equal',
+                    'Value': _keyword
+                }]
+            });
+        } else if (_keyword) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'UserName',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }, {
+                    'Field': 'IdNumber',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+
+
+        if (objExams && objExams.result) {
+            examValues = objExams.result.getValue('value');
+            sessionStorage.setItem('lastExamValues', JSON.stringify(examValues))
+        }
+        if (examValues && examValues.length > 0) {
+            let examFilters = [];
+            examValues.forEach(v => {
+                examFilters.push({
+                    'Field': 'ExamId',
+                    'Operator': 'Equal',
+                    'Value': v
+                })
+            })
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': examFilters
+            });
+        }
+        if (paperId != '0') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'PaperId',
+                    'Operator': 'Equal',
+                    'Value': paperId
+                }]
+            });
+        }
+        if (isComplated > -1) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Complated',
+                    'Operator': 'Equal',
+                    'Value': isComplated
+                }]
+            });
+        }
+        return whereJsonStr;
+    }
+
+    function RemoveUserRecord(urid) {
+        layer.confirm("<b style='color:red'>执行该操作会强制将用户答题记录作废，若此时用户正在作答，将会造成不可预知的错误！请确认要删除的记录所对应的答题人已经退出答题窗口。<br />执行成功后，将会向答题人所用账号对应的邮箱发送一封邮件通知，若该账号未绑定邮箱，通知将发送失败，请确保答题人知晓自己原有的答题记录已被清理。</b><br>确定继续执行删除操作吗？"
+            , { icon: 0, btn: ['确定', '确定并邮件通知用户', '取消'] }, function (index1) {
+                DoRemove(urid, 0)
+                layer.close(index1);
+            }, function (index2) {
+                DoRemove(urid, 1)
+                layer.close(index2);
+            })
+    }
+
+    function DoRemove(urid, notice) {
+        $.post('@Url.Action("RemoveRecord")', { '__RequestVerificationToken': token, 'urid': urid, 'notice': notice }, function (json) {
+            if (json.code == 1) {
+                sussessMsg('操作成功');
+                getUserRecord();
+            } else {
+                sussessMsg(json.msg)
+            }
+
+        })
+    }
+
+    function SyncOnlineScoreToApplyMain(stage) {
+        warnMsg('暂不支持');
+        return;
+        layer.alert('同步成绩分为2种情况，<br />一种是增量同步，主要是排查那些有测评成绩却没有更新到申报表的情况，<br />另一种是全量同步，即不论申报表里的成绩是否存在，一律已答题记录为准重新同步(耗时长，非必要不推荐)', {
+            icon: 0,
+            btn: ['增量同步', '全量同步(慎重！)', '取消'],
+            btn1: v => {
+                TT.tips('您选择了【增量同步】');
+                DoSync(stage, 0)
+                layer.close(v)
+            },
+            btn2: v2 => {
+                TT.tips('您选择了【全量同步】');
+                DoSync(stage, 1)
+                layer.close(v2)
+            },
+            btn3: v3 => {
+                TT.tips('您取消了此次操作');
+                layer.close(v3)
+            }
+        })
+    }
+    function DoSync(stage, isForce) {
+        warnMsg('暂不支持');
+        return;
+        $.post('@Url.Action("SyncOnlineScoreToApplyMain")', { 'associationId': associationId, 'stage': stage, 'isForce': isForce, '__RequestVerificationToken': token }, v => {
+            if (v.code == 1) {
+                sussessMsg('同步成功')
+                return;
+            }
+            errorMsg('同步失败');
+        })
+    }
+
+    function ForceMarkingAll() {
+        //if (!TestGuid(examId)){
+        //    errorMsg('请先选择一场考试');
+        //    return;
+        //}
+
+        if (!examValues || examValues.length == 0) {
+            errorMsg('请先选择一场考试');
+            return;
+        }
+
+        layer.confirm('强制提交后，该考试下所有未提交的试卷均会被设置为提交状态，且判定相应分数。确定要继续执行吗？', { icon: 0 }, (index) => {
+            let cnt = 0;
+            examValues.forEach(v => {
+                console.log(v)
+               
+                let formData = new FormData();
+                formData.append('examId', v);
+                formData.append('__RequestVerificationToken', token);
+                var ret =  request('POST', '@Url.Action("ForceMarkingAll")', formData, { 'Content-Type': 'multipart/form-data' });
+                if (ret.code == 0) {
+                    cnt++;
+                    sussessMsg('第' + cnt + '场考试提交成功');
+                } else {
+                    errorMsg(ret.msg);
+                }
+                errorMsg('创建失败')
+            })
+            layer.close(index);
+        })
+    }
+
+    //验证Guid形式
+    function TestGuid(testID) {
+        var reg = new RegExp(/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/);
+        if (reg.test(testID)) {
+            return true;
+        }
+        return false;
+    }
+
+    function TestNonNegativeInteger(str) {
+        if (isChineseIDCard(str))
+            return false;
+        var num = Number(str);
+        return isNaN(num) ? false : parseInt(str, 10) >= 0;
+    }
+
+    function isChineseIDCard(id) {
+        var reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+        return reg.test(id);
+    }
+
+</script>

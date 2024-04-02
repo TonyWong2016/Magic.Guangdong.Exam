@@ -47,7 +47,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; }
-
-	}
+        
+		[JsonProperty]
+        public int IsDeleted { get; set; } = 0;
+    }
 
 }

@@ -164,7 +164,7 @@
     let examId = getUrlQueryParams('examId');
     let associationId = getUrlQueryParams('associationId');
     $('#btnBack').attr('href', `/exam/paper/index?examId=${examId}`)
-    form.on('submit(save)', function (data) {
+    form.on('submit(save)',async function (data) {
         let generateModel = data.field;
         calScores()
 
@@ -174,18 +174,19 @@
         }
         generateModel.degrees = degreeSelect.getValue('valueStr');
         generateModel.paperScore = parseFloat(jText('currScore'));
-        generateModel.generateQuestionTypeModels = typeModelList;
+        generateModel.generateQuestionTypeModelsStr = JSON.stringify(typeModelList);
         console.log(generateModel);
-        $.post('@Url.Action("SetPaperRule")', { 'model': generateModel, '__RequestVerificationToken': token }, function (json) {
-            //console.log(json);
-            if (json.code == 1) {
-                layer.alert('操作成功', { icon: 1 }, v => {
-                    location.href = `@Url.Action("Index")?examId=${examId}&associationId=${associationId}`;
-                })
-            } else {
-                TT.error(json.msg);
-            }
-        })
+        
+        let formData = objectToFormData(generateModel);
+        formData.append('__RequestVerificationToken',requestToken)
+        var ret = await request('POST', '@Url.Action("SetPaperRule")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('操作成功', () => {
+                window.location.href = `@Url.Action("Index")?examId=${examId}`;
+            });
+            return;
+        }
+        errorMsg('创建失败')
     })
 
     var degreeSelect = xmSelect.render({
@@ -241,16 +242,25 @@
     //生成题型块
     function makeQuestionBlock(model) {
         return new Promise(function (resolve, reject) {
-            chargeTpl('subjectBlockTpl', 'formView', model, true);
+            renderTpl('subjectBlockTpl', 'formView', model, true);
             resolve();
         }).then(v => {
-            model.itemArr.push({ 'typeId': model.value, 'orderIndex': 0 });
-            chargeTpl('itemTpl', model.value + '_view', model.itemArr, true);
+            setTimeout(()=>{
+                model.itemArr.push({ 'typeId': model.value, 'orderIndex': 0 });
+                renderTpl('itemTpl', model.value + '_view', model.itemArr, true);
+            },10)
+            
             //form.render('select')
         }).then(v => {
-            getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${model.value}_0`, true);
+            setTimeout(() => {
+                getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${model.value}_0`, true);
+
+            }, 10)
         }).then(v => {
-            bindSelectEvent(`${model.value}_0`, model.value)
+            setTimeout(() => {
+                bindSelectEvent(`${model.value}_0`, model.value)
+            }, 10)
+            
         })
     }
 
@@ -263,14 +273,17 @@
         }
         let orderIndex = Date.parse(new Date()) / 1000;
         let itemArr = [{ 'typeId': typeId, 'orderIndex': orderIndex }]
-        //chargeTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
-        chargeTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
+        //renderTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
+        renderTpl('itemTpl', typeId + '_view', itemArr, true, `${typeId}_form`);
         //form.render('select')
         addFlag = false;
         setTimeout(function () {
             getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${typeId}_${orderIndex}`, true, `${typeId}_form`)
                 .then(function () {
-                    bindSelectEvent(`${typeId}_${orderIndex}`, typeId)
+                    setTimeout(() => {
+                        bindSelectEvent(`${typeId}_${orderIndex}`, typeId)
+
+                    },10)
                 })
             addFlag = true;
         }, 1000)

@@ -1,10 +1,12 @@
 ﻿using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Magic.Guangdong.DbServices.Dtos.Exam.Questions;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.Exam.Extensions;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
 {
@@ -15,7 +17,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IQuestionRepo _questionRepo;
         private readonly IQuestionTypeRepo _typeRepo;
         private readonly ISubjectRepo _subjectRepo;
-
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly string adminId="system";
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -23,14 +26,18 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="questionRepo"></param>
         /// <param name="typeRepo"></param>
         /// <param name="subjectRepo"></param>
-        public QuestionController(IResponseHelper resp, IQuestionRepo questionRepo, IQuestionTypeRepo typeRepo, ISubjectRepo subjectRepo)
+        public QuestionController(IResponseHelper resp, IQuestionRepo questionRepo, IQuestionTypeRepo typeRepo, ISubjectRepo subjectRepo, IHttpContextAccessor contextAccessor)
         {
             _resp = resp;
             _questionRepo = questionRepo;
             _typeRepo = typeRepo;
             _subjectRepo = subjectRepo;
-        }
+            _contextAccessor = contextAccessor;
+            adminId = _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
+                Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
 
+        }
+        [RouteMark("试题管理")]
         public IActionResult Index()
         {
             return View();
@@ -51,6 +58,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// 新增题目
         /// </summary>
         /// <returns></returns>
+        [RouteMark("新增试题")]
         public IActionResult Create()
         {
             return View();
@@ -63,12 +71,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="items"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveQuestion(Question question, List<QuestionItem> items)
+        public async Task<IActionResult> SaveQuestion(SubmitQuestionDto dto)
         {
-            if (string.IsNullOrEmpty(question.CreatedBy))
-                question.CreatedBy = HttpContext.User.Claims.First().Value;
-            question.UpdatedBy = HttpContext.User.Claims.First().Value;
-            return Json(_resp.success(await _questionRepo.AddOrUpdateSingleQuestion(question, items)));
+            if (string.IsNullOrEmpty(dto.question.CreatedBy))
+                dto.question.CreatedBy = adminId;
+            dto.question.UpdatedBy = adminId;
+            return Json(_resp.success(await _questionRepo.AddOrUpdateSingleQuestion(dto.question, dto.items)));
         }
 
         /// <summary>
@@ -76,6 +84,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [RouteMark("编辑试题")]
         public async Task<IActionResult> Edit([FromServices] IQuestionViewRepo questionViewRepo, long id)
         {
             if (!await _questionRepo.getAnyAsync(u => u.Id == id))
@@ -118,7 +127,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Json(_resp.ret(-1, $"题目类型【{question.Title}】已存在"));
             }
-            question.UpdatedBy = HttpContext.User.Claims.First().Value;
+            question.UpdatedBy = adminId;
             question.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _questionRepo.updateItemAsync(question)));
         }
@@ -129,6 +138,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
+        [RouteMark("移除试题")]
         public async Task<IActionResult> Delete([FromServices] IRelationRepo relationRepo, long id)
         {
             if (await relationRepo.getAnyAsync(u => u.QuestionId == id))
@@ -136,7 +146,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.ret(-1, "当前题目已被某些试卷抽中，若要删除题目，请先删除抽中该题目的试卷。若无法知晓具体哪套试卷抽中该题，建议禁用该题目，避免后续的组卷仍然抽中该题。"));
             }
             var question = await _questionRepo.getOneAsync(u => u.Id == id);
-            question.UpdatedBy = HttpContext.User.Claims.First().Value;
+            question.UpdatedBy = adminId;
             question.UpdatedAt = DateTime.Now;
             question.IsDeleted = 1;
             return Json(_resp.success(await _questionRepo.updateItemAsync(question)));
@@ -149,6 +159,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="path"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
+        [RouteMark("导入word试题")]
         public async Task<IActionResult> ImportQuestionFromWord([FromServices] IWebHostEnvironment en, Guid subjectId, string columnId, string path)
         {
             //var types = await _typeRepo.getListAsync(u => u.IsDeleted == 0);
@@ -164,6 +175,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="templateName"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
+        [RouteMark("生成excel导入模板")]
         public async Task<IActionResult> GenerationImportTemplate(string templateName = "excel题库导入模板")
         {
             return Json(_resp.success(await ExcelHelper<ImportQuestionDto>.GenerateTemplate(templateName)));
@@ -175,7 +187,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="path"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportQuestionFromExcel(string path, string columnId)
+        [RouteMark("导入excel试题")]
+        public async Task<IActionResult> ImportQuestionFromExcel(string path)
         {
             try
             {
@@ -194,8 +207,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                     }
                     item.SubjectId = subjects.Find(u => u.Caption == item.QuestionSubject).Id;
                     item.QuestionTypeId = types.Find(u => u.Caption == item.QuestionType).Id;
-                    item.CreateBy = HttpContext.User.Claims.First().Value;
-                    item.ColumnId = columnId;
+                    item.CreateBy = adminId;
+                    item.ColumnId = "";
                 }
 
                 return Json(_resp.success(await _questionRepo.ImportQuestionFromExcel(importList)));

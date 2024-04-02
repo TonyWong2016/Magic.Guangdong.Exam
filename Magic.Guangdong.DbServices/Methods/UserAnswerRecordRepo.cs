@@ -1,5 +1,6 @@
 ﻿using Magic.Guangdong.Assistant;
-using Magic.Guangdong.DbServices.Dto;
+using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using System;
@@ -171,7 +172,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         Description = u.Description,
                         DescriptionTxt = u.DescriptionText,
                         //IsAnswer = u.IsAnswer,
-                        OrderIndex = u.OrderIndex
+                        OrderIndex = u.OrderIndex == null ? 0 : 1
                     });
                 question.Items = items.ToList();
             }

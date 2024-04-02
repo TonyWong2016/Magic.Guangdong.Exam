@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dtos\Old\**" />
+    <EmbeddedResource Remove="Dtos\Old\**" />
+    <None Remove="Dtos\Old\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FreeSql.Provider.SqlServer" Version="3.2.815" />
     <PackageReference Include="FreeSql.Repository" Version="3.2.815" />
     <PackageReference Include="IdleBus" Version="1.5.3" />
