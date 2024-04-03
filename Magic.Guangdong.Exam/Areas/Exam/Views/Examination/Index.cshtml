@@ -121,13 +121,13 @@
 </script>
 <script type='text/html' id='operationTpl'>
     <div class='layui-btn-group'>
-        <a class='layui-btn layui-btn-sm layui-btn-primary' href='@Url.Action("Edit")?id={{d.id}}'><i class='layui-icon layui-icon-edit'></i>编辑</a>
-        <a class='layui-btn layui-btn-sm layui-btn-primary' href='javascript:;' onclick='cloneExam('{{d.id}}')'><i class='layui-icon layui-icon-template-1'></i>克隆</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='@Url.Action("Edit")?id={{d.id}}'><i class='layui-icon layui-icon-edit'></i>编辑</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick='cloneExam("{{d.id}}")'><i class='layui-icon layui-icon-template-1'></i>克隆</a>
         {{# if(d.status==1) { }}
-        <a class='layui-btn layui-btn-sm layui-btn-primary' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷详情</a>
-        <a class='layui-btn layui-btn-sm layui-btn-primary' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷详情</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a>
         {{# } }}
-        <a class='layui-btn layui-btn-sm layui-btn-danger' href='javascript:;' onclick="removeItem({router:'/exam/examination/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getExamList();} })"><i class='layui-icon layui-icon-delete'></i>删除</a>
+        <a class='layui-btn layui-btn-sm  layui-btn-primary layui-border-red' href='javascript:;' onclick="removeItem({router:'/exam/examination/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getExamList();} })"><i class='layui-icon layui-icon-delete'></i>删除</a>
 
     </div>
 </script>
@@ -145,7 +145,7 @@
 
     $('#btnAddExamination').attr('href', '@Url.Action("Create")');
     $('#btnQuestion').attr('href', '@Url.Action("Index", "Question")')
-    getSelectItems('/exam/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'AssociationId', false)
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'AssociationId', true)
         .then(v => {
             associationId = selectRet[0].value
             form.render('select')
@@ -189,18 +189,29 @@
         })
     })
 
-    form.on('submit(clone)', function (data) {
+    form.on('submit(clone)',async function (data) {
         let param = data.field;
         param.examId = cloneExamId;
-        $.post('@Url.Action("CloneExam")', param, function (json) {
-            if (json.code == 1) {
-               successMsg('操作成功');
+        // $.post('@Url.Action("CloneExam")', param, function (json) {
+        //     if (json.code == 1) {
+        //        successMsg('操作成功');
+        //         layer.closeAll();
+        //         getExamList();
+        //         return;
+        //     }
+        //     errorMsg('操作失败');
+        // })
+
+        let formData = objectToFormData(param);
+        var ret = await request('POST', '@Url.Action("CloneExam")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('操作成功', () => {
                 layer.closeAll();
                 getExamList();
-                return;
-            }
-            errorMsg('操作失败');
-        })
+            });
+            return;
+        }
+        errorMsg('操作失败')
     })
 
     autoSearch('keyword', function () {

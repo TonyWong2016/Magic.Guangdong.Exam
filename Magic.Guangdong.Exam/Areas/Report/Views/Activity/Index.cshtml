@@ -1,0 +1,125 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+           
+            <div class="layui-form-item layui-row layui-col-space16">
+                <div class="layui-col-md3">
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-search"></i>
+                        </div>
+                        <input type="text" id="keyword" placeholder="关键字" class="layui-input">                       
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-note"></i>
+                        </div>
+                        <select id="status" lay-filter="status">
+                            <option value="">状态</option>
+                            <option value="0">正常</option>
+                            <option value="1">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="layui-input-wrap">
+                        <a href="@Url.Action("create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新建</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <hr />
+        <table class="layui-table" lay-filter="table" id="table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span class="layui-badge layui-bg-blue">正常</span>
+    {{# } else { }}
+    <span class="layui-badge">禁用</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/report/activity/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/report/activity/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getActivityTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+
+</script>
+
+<script>
+
+    let form = layui.form;
+
+    form.on('select(status)', (data) => {
+        getActivityTable()
+    })
+
+    autoSearch('keyword', function (value) {
+        getActivityTable()
+    })
+
+    getActivityTable()
+    function getActivityTable() {
+        var params = {
+            url: '@Url.Action("GetActivities")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl',width:120 }
+                //{ field: 'id', title: '角色id', type: 'checkbox' }
+                , { field: 'title', title: '活动名称' }
+                , { field: 'startTime', title: '开始时间' }
+                , { field: 'endTime', title: '结束时间' }
+                , { templet: '#statusTpl', title: '状态' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl', width: 300 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($('#status').val()) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'status',
+                    'Operator': 'Equal',
+                    'Value': $('#status').val()
+                }]
+            });
+        }
+        if ($("#keyword").val()) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'title',
+                    'Operator': 'Contains',
+                    'Value': $('#keyword').val()
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>

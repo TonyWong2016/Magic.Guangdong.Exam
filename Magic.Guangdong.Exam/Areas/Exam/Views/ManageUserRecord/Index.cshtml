@@ -108,8 +108,8 @@
 <script type="text/html" id="operationTpl">
 
     {{# if(d.isDeleted==0){ }}
-    <a class="layui-btn layui-btn-normal" href="@Url.Action("Detail")?paperId={{d.paperId}}&urid={{d.id}}"><i class="layui-icon layui-icon-file-b"></i>详情</a>
-    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="RemoveUserRecord('{{d.id}}')"><i class="layui-icon layui-icon-tips"></i>清除</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?paperId={{d.paperId}}&urid={{d.id}}"><i class="layui-icon layui-icon-file-b"></i>详情</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="RemoveUserRecord('{{d.id}}')"><i class="layui-icon layui-icon-tips"></i>清除</a>
     {{#} else{ }}
     <a class="layui-btn layui-btn-disabled" href="javascript:;"><i class="layui-icon layui-icon-tips"></i>已清除</a>
     {{#}  }}
@@ -156,10 +156,8 @@
                     //teamValues = objTeams.result.getValue('value');
                     //console.log(data);
                     //layer.load()
-                    setTimeout(v => {
-                        getUserRecord();
-                        layer.closeAll('loading')
-                    }, 300)
+                    getUserRecord();
+                    layer.closeAll('loading')
                 }
             }
             makeXmSelect(objExams);
@@ -176,14 +174,12 @@
     //     getExams().then(v => { getUserRecord() })
     // }, 2)
 
-    getSelectItems('/exam/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'associationIdView', false)
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'associationIdView', false)
         .then(v => {
-            setTimeout(()=>{
-                associationId = selectRet[0].value
-                form.render('select')
-                getExams()
-                getUserRecord()
-            },100)
+            associationId = selectRet[0].value
+            form.render('select')
+            getExams()
+            getUserRecord()
            
         })
 

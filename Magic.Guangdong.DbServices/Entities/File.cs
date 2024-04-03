@@ -74,6 +74,12 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty, Column(IsNullable = false)]
 		public string ConnId { get; set; } = "";
+
+		/// <summary>
+		/// 其他业务模型名称
+		/// </summary>
+		[JsonProperty]
+		public string ConnName { get; set; } = "";
     }
 
 }

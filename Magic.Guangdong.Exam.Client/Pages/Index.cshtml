@@ -1,0 +1,36 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "首页";
+}
+
+<main class="container">
+    <h2>Welcome</h2>
+    <article id="mainBody">
+
+    </article>
+</main>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    let token = $('@Html.AntiForgeryToken()').val();
+    let formData = new FormData();
+    formData.append('__RequestVerificationToken', token);
+    async function test() {
+        let ret = await request('POST', 'Index?handler=Test', formData, { 'Content-Type': 'multipart/form-data' })
+        console.log(ret)
+    }
+    test()
+    
+    // $.ajax({
+    //     url: 'Index?handler=Test',
+    //     type: 'POST',
+    //     data: { __RequestVerificationToken: token },
+    //     success: function (result) {
+    //         // 处理返回的数据
+    //         console.log(result)
+    //     },
+    //     error: function (xhr, status, error) {
+    //         console.error('Error:', error);
+    //     }
+    // });
+</script>

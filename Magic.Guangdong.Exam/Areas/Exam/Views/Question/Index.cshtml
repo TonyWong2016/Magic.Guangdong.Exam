@@ -83,8 +83,8 @@
 </script>
 <script type="text/html" id="operationTpl">
     @*<a class="layui-btn layui-btn-normal" href=" {{resourceHost + d.templateFileUrl}}" target="_blank">查看</a>*@
-    <a class="layui-btn layui-btn-normal" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
-    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deleteQuestion('{{d.id}}')">删除</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deleteQuestion('{{d.id}}')">删除</a>
 </script>
 <script src="~/web/myfcup.js"></script>
 <script>

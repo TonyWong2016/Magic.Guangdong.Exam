@@ -13,7 +13,7 @@
             <a href="javascript:;" class="layui-btn" id="btnAddPaper"><i class="layui-icon layui-icon-add-1"></i>新增考卷</a>
         </div>
         <div class="layui-input-inline">
-            <a href="@Url.Action("Index")" class="layui-btn layui-btn-primary" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+            <a href="/exam/examination/index" class="layui-btn layui-btn-primary" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
         </div>
     </form>
     <table class="layui-table" id="table" lay-filter="table"></table>
@@ -65,8 +65,8 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-normal" href="/exam/paper/preview?paperId={{d.id}}"><i class="layui-icon layui-icon-file"></i>预览试卷</a>
-    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="deletePaper('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/exam/paper/preview?paperId={{d.id}}"><i class="layui-icon layui-icon-file"></i>预览试卷</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deletePaper('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
 
 <script>
@@ -77,12 +77,10 @@
     let examId=getUrlQueryParams('examId');
 
     $('#btnAddPaper').attr('href', `/exam/paper/create?examId=${examId}`)
-    getSelectItems('/exam/Examination/GetExamMini', { 'id': getUrlQueryParams('examId'), 'type': 1 }, 'selectTpl', 'examId', false)
+    getSelectItems('/exam/Examination/GetExamMini', { 'id': examId, 'type': 1 }, 'selectTpl', 'examId', false)
         .then(v => {
-            setTimeout(()=>{
-                $("#examId").val(examId);
-                form.render('select')
-            },300)
+            $("#examId").val(examId);
+            form.render('select')
         })
        
     autoSearch('keyword', function () {

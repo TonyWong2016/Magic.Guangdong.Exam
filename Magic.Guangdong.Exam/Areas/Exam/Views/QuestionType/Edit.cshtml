@@ -39,7 +39,9 @@
         </div>
 
         <div class="layui-form-item" style="padding-left:30px">
-            <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+
             <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack">返回</a>
         </div>
         @Html.AntiForgeryToken()

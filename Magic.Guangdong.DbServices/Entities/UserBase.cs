@@ -50,6 +50,24 @@ namespace Magic.Guangdong.DbServices.Entities {
         
 		[JsonProperty]
         public int IsDeleted { get; set; } = 0;
+
+        [JsonProperty]
+        public string Password { get; set; }
+
+        [JsonProperty]
+        public string KeySecret { get; set; } = Assistant.Utils.GenerateRandomCodePro(16, 3);
+
+        [JsonProperty]
+        public string KeyId { get; set; } = Assistant.Utils.GenerateRandomCodePro(16, 3);
+
+        /// <summary>
+        /// 账号可用等级，default-仅用户名密码，email-另支持邮箱，mobile-另支持手机，email,mobile-邮箱手机都支持
+        /// </summary>
+        [JsonProperty]
+		public string AvailableLevel { get; set; } = "default";
+
+		[JsonProperty]
+		public string Avatar { get; set; } = "/images/avatar.png";
     }
 
 }

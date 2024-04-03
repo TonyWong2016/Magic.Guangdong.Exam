@@ -20,8 +20,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-		[JsonProperty, Column(DbType = "varchar(500)")]
-		public string Description { get; set; }
+		[JsonProperty]
+		public string Description { get; set; } = "无";
 
 		[JsonProperty]
 		public DateTime EndTime { get; set; }
@@ -41,6 +41,23 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+		/// <summary>
+		/// 报名表需要填写的内容
+		/// </summary>
+		[JsonProperty]
+		public string FieldJson { get; set; } = "{}";
+
+		/// <summary>
+		/// 活动报名的名额
+		/// </summary>
+		[JsonProperty]
+		public int Quota { get; set; } = 0;
+
+		/// <summary>
+		/// 费用
+		/// </summary>
+		[JsonProperty, Column(DbType = "money")]
+		public decimal Expenses { get; set; } = 0;
     }
 
 }

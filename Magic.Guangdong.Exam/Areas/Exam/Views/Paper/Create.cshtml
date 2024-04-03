@@ -83,9 +83,10 @@
                     </div>
 
                     <div class="layui-form-item" style="text-align:right">
-                        <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
 
-                        <a class="layui-btn" style="background-color:#0081ff" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn layui-btn-primary" href="javascript:;" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
 
                     </div>
 
@@ -164,7 +165,7 @@
     let examId = getUrlQueryParams('examId');
     let associationId = getUrlQueryParams('associationId');
     $('#btnBack').attr('href', `/exam/paper/index?examId=${examId}`)
-    form.on('submit(save)',async function (data) {
+    form.on('submit(save)', async function (data) {
         let generateModel = data.field;
         calScores()
 
@@ -176,9 +177,9 @@
         generateModel.paperScore = parseFloat(jText('currScore'));
         generateModel.generateQuestionTypeModelsStr = JSON.stringify(typeModelList);
         console.log(generateModel);
-        
+
         let formData = objectToFormData(generateModel);
-        formData.append('__RequestVerificationToken',requestToken)
+        formData.append('__RequestVerificationToken', requestToken)
         var ret = await request('POST', '@Url.Action("SetPaperRule")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
             successMsg('操作成功', () => {
@@ -230,14 +231,34 @@
 
     getSelectItems('/exam/Examination/GetExamMini', { 'id': examId, 'type': 1 }, 'selectTpl', 'examId', false)
         .then(v => {
-            setTimeout(() => {
-                let exam = selectRet[0];
-                jValSet('examScore', exam.score)
-                jValSet('examId', examId)
-                form.render('select')
-            }, 300)
+            let exam = selectRet[0];
+            jValSet('examScore', exam.score)
+            jValSet('examId', examId)
+            form.render('select')
         })
 
+
+    // axios.get('/exam/Examination/GetExamMini', {
+    //     params: { 'id': examId, 'type': 1 }
+    // })
+    //     .then(function (data) {
+    //         console.log(1)
+    //         var json = data.data;
+    //         if (document.getElementById('examId')) {
+    //             renderTpl('selectTpl', 'examId', json.data, false)
+    //             console.log(2)
+    //         }
+
+    //         selectRet = json.data;
+    //         console.log(3)
+    //     }).then(function (){
+    //         console.log(4)
+    //         let exam = selectRet[0];
+    //         jValSet('examScore', exam.score);
+    //         jValSet('examId', examId);
+    //         form.render('select');
+            
+    //         })
 
     //生成题型块
     function makeQuestionBlock(model) {
@@ -245,22 +266,15 @@
             renderTpl('subjectBlockTpl', 'formView', model, true);
             resolve();
         }).then(v => {
-            setTimeout(()=>{
-                model.itemArr.push({ 'typeId': model.value, 'orderIndex': 0 });
-                renderTpl('itemTpl', model.value + '_view', model.itemArr, true);
-            },10)
-            
+            model.itemArr.push({ 'typeId': model.value, 'orderIndex': 0 });
+            renderTpl('itemTpl', model.value + '_view', model.itemArr, true);
             //form.render('select')
         }).then(v => {
-            setTimeout(() => {
-                getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${model.value}_0`, true);
+            getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', `${model.value}_0`, true);
 
-            }, 10)
         }).then(v => {
-            setTimeout(() => {
-                bindSelectEvent(`${model.value}_0`, model.value)
-            }, 10)
-            
+            bindSelectEvent(`${model.value}_0`, model.value)
+
         })
     }
 
@@ -283,7 +297,7 @@
                     setTimeout(() => {
                         bindSelectEvent(`${typeId}_${orderIndex}`, typeId)
 
-                    },10)
+                    }, 10)
                 })
             addFlag = true;
         }, 1000)

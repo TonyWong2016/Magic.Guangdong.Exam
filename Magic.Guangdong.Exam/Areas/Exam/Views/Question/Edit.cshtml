@@ -103,7 +103,9 @@
                     <input type="hidden" asp-for="ColumnId" />
 
                     <div class="layui-form-item" style="text-align:right">
-                        <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+                        <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+
                         <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
                     </div>
                 </form>
@@ -218,10 +220,8 @@
     else
         questionType=1;
     getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', 'SubjectId', false).then(function(){
-        setTimeout(() => {
-            $('#SubjectId').val('@Model.SubjectId');
-            form.render('select');
-        },200)
+        $('#SubjectId').val('@Model.SubjectId');
+        form.render('select');
     });
 
     let objType = {
@@ -409,12 +409,10 @@
             renderTpl('objectiveItemTpl', 'itemView', arr, true);
             resolve();
         }).then(function () {
-            setTimeout(() => {
-                ClearTinymce('div');
-                form.render('checkbox');
-                switchToTinymce(arr, 'content_');
-                console.log('渲染完了')
-            },100)
+            ClearTinymce('div');
+            form.render('checkbox');
+            switchToTinymce(arr, 'content_');
+            console.log('渲染完了')
             
         })
     }
@@ -426,14 +424,11 @@
             renderTpl('unObjectiveItemTpl', 'itemView', arr, true);
             resolve();
         }).then(function () {
-            setTimeout(() => {
-                ClearTinymce('div');
-                form.render('radio');
-                console.log('渲染完了');
-                $(".removeItem").hide();
-                $(".addItem").hide();
-            },10)
-            
+            ClearTinymce('div');
+            form.render('radio');
+            console.log('渲染完了');
+            $(".removeItem").hide();
+            $(".addItem").hide();
         })
     }
 
