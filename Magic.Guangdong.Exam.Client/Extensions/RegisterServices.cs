@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.Assistant;
+﻿using FreeSql;
+using Magic.Guangdong.Assistant;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -14,6 +15,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
             Logger.InitLog();
 
+            builder.Services.ConfigureOrm(_configuration);
             builder.Services.ConfigureRazorPages();
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePlug(_configuration);
@@ -29,6 +31,48 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 {
                     option.Filters.Add(typeof(Filters.AuthorizeFilter));
                 });
+        }
+
+        static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
+        /// <summary>
+        /// 配置orm
+        /// </summary>
+        private static void ConfigureOrm(this IServiceCollection services, IConfiguration configuration)
+        {
+            #region orm框架
+            //IFreeSql fsql = new FreeSqlBuilder()
+            //.UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+            ////.UseAutoSyncStructure(true) //自动同步实体结构到数据库，FreeSql不会扫描程序集，只有CRUD时才会生成表。
+            ////.UseMonitorCommand(cmd => Console.Write(cmd.CommandText))
+            //.Build(); //请务必定义成 Singleton 单例模式
+
+            //services.AddSingleton<IFreeSql>(fsql);
+            if (configuration.GetSection("env").Value == "dev")
+            {
+                ib.Register("db_exam", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+                    .UseMonitorCommand(cmd =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"Sql：{cmd.CommandText}");
+                        Console.ResetColor();
+                    })//监听SQL语句
+                    .Build()
+                );
+            }
+            else
+            {
+                ib.Register("db_exam", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+                    .Build()
+                );
+            }
+
+
+            services.AddSingleton(ib);
+            #endregion
         }
 
 

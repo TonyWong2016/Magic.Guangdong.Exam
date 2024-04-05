@@ -142,7 +142,7 @@ function getUrlQueryParams(parameterName = null, url = window.location.href) {
 
     // 如果指定了参数名称，直接返回该参数的值
     if (parameterName !== null) {
-        return queryParams[decodeURIComponent(parameterName)] || null;
+        return queryParams[decodeURIComponent(parameterName)] || '';
     }
 
     return queryParams;
@@ -190,6 +190,47 @@ function checkStringVariety(str, cnt = 2) {
     count += hasSpecialChars ? 1 : 0;
 
     return count >= 2;
+}
+
+function buildFormData(...args) {
+    const formData = new FormData();
+
+    for (const arg of args) {
+        const type = typeof arg;
+        formData.append(type, JSON.stringify(arg));
+    }
+
+    return formData;
+}
+
+function objectToFormData(obj, form, namespace) {
+    const fd = form || new FormData();
+    const formKey = namespace ? `${namespace}[${encodeURIComponent(String(obj))}]` : encodeURIComponent(String(obj));
+
+    for (const property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            const value = obj[property];
+            const key = namespace ? `${formKey}[${encodeURIComponent(property)}]` : encodeURIComponent(property);
+
+            if (value instanceof File) {
+                fd.append(key, value);
+            } else if (value instanceof Blob) {
+                fd.append(key, value, value.name);
+            } else if (Array.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    objectToFormData(value[i], fd, `${key}[${i}]`);
+                }
+            } else if (value && typeof value === 'object' && !(value instanceof Date)) {
+                objectToFormData(value, fd, key);
+            } else {
+                fd.append(key, String(value));
+            }
+        }
+    }
+    if (requestToken)
+        fd.append('__RequestVerificationToken', requestToken);
+
+    return fd;
 }
 
 

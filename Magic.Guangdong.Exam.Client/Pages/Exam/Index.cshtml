@@ -110,11 +110,10 @@
 
 <script type="text/html" id="examTpl">
     {{# layui.each(d,function(index,item){ }}
-
-        {{# if(item.enabled==1){ }}
-            <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTime}}">{{item.text}}</option>
+        {{# if(item.status==1){ }}
+            <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTime}}">{{item.title}}</option>
         {{# } else { }}
-             <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTim}}" disabled>{{item.text}}(不在考试时间范围内)</option>
+            <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTim}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}
     {{# }) }}
 </script>
@@ -123,24 +122,95 @@
 @* <script src="~/web/exam/Index.js"></script> *@
 <script>
     
-    let formData = new FormData();
-    formData.append('__RequestVerificationToken', requestToken);
-    async function test() {
-        let ret = await request('POST', 'Index?handler=Test', formData, { 'Content-Type': 'multipart/form-data' })
-        console.log(ret)
-    }
-    test()
+    
 
-    let associationId = '';
+    let associationId = getUrlQueryParams('activityId');
     let examId = '';
     let groupCode = '';
+    async function getExams() {
+        // let paramsJson = {
+        //     'associationId': associationId,
+        //     'examId': examId,
+        //     'groupCode': groupCode,
+        //     '__RequestVerificationToken': requestToken
+        // };
 
-
-    function checkEnv() {
-        let checkElem = $("#CreateMyExam");
-        if (checkElem.text() == '提交' && checkElem.css("background-color") != 'rgb(89, 107, 120)') {
-            layer.alert("检测到您的当前的答题环境在兼容性问题，请尝试更换/升级当前答题浏览器，若您使用的微信进行的答题，可尝试升级微信或者使用手机浏览器扫码答题，若无法自行解决，可联系志愿者老师协助。")
+        let formData = objectToFormData(makeWhereJson());
+        let ret = await request('POST', '@Url.Page("Index")?handler=GetExams', formData, { 'Content-Type': 'multipart/form-data' })
+        if(ret.code==0){
+            renderTpl("examTpl", "exam", ret.data, examId == '');
         }
+        if (examId != '')
+            jValSet("info", formatTime(json.data[0].startTime, json.data[0].endTime))
+
     }
-    checkEnv();
+    getExams();
+
+    $("#exam").on('change', v => {
+        var span = $("#exam").find('option:selected').data("span")
+        //console.log(span)
+        jValSet("info", span.replaceAll('T', ' ').replaceAll(' - ',' ~ ').replaceAll('-', '/'));
+        //if (localStorage.getItem("lastIdNumber")) {
+        //    getApplyMemberInfo(jVal('idNumber'), associationId)
+        //}
+        if (span && jVal("idNumber")) {
+            checkIdCard(jVal("idNumber"))
+        }
+    })
+
+    function makeWhereJson() {
+        let whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if (associationId) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'associationId',
+                    'Operator': 'Equal',
+                    'Value': associationId
+                }]
+            });
+        }
+        if (examId) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'examId',
+                    'Operator': 'Equal',
+                    'Value': examId
+                }]
+            });
+        }
+        if (groupCode) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'groupCode',
+                    'Operator': 'Equal',
+                    'Value': groupCode
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'pageIndex': 1, 'pageSize': 1000 };
+    }
+
+
+    function formatTime(start, end) {
+        let finalTime = start + '-' + end
+        let startTime = new Date(start)
+        let endTime = new Date(end)
+        if (endTime - startTime < 86400000) {
+            let hour = endTime.getHours() < 10 ? "0" + endTime.getHours() : endTime.getHours();
+            let minute = endTime.getMinutes() < 10 ? "0" + endTime.getMinutes() : endTime.getMinutes();
+            finalTime = start + '-' + hour + ":" + minute
+        }
+        return finalTime;
+    }
 </script>
