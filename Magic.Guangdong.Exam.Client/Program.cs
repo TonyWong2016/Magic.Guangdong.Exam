@@ -2,10 +2,10 @@ using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Magic.Guangdong.Exam.Client.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args).SetupServices();
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+//builder.Services.AddRazorPages();
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureContainer<ContainerBuilder>(containerBuilder =>
             {

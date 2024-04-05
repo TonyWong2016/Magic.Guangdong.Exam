@@ -365,3 +365,95 @@ function SFID(card, sex) {
     return "OK";
     //return true;
 };
+
+const TT = {
+    tips: function (msg, url) {
+        Toastify({
+            text: msg,
+            destination: url,
+            newWindow: true,
+            duration: 1000 * 30,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#16baaa'
+            },
+            close: true
+        }).showToast();
+    },
+    tips2: function (msg, url) {
+        Toastify({
+            text: msg,
+            destination: url,
+            newWindow: true,
+            duration: 1000 * 30,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#16baaa'
+            },
+            close: true
+        }).showToast();
+    },
+    success: function (msg, cb) {
+        
+        Toastify({
+            text: msg,
+            duration: 1000 * 30,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#16b777'
+            },
+            close: true,
+        }).showToast();
+    },
+    info: function (msg, time = 5000) {
+        Toastify({
+            text: msg,
+            duration: time,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#1e9fff'
+            },        
+            })
+            .showToast();
+    },
+    notify: function (msg) {
+        Toastify({
+            text: msg,
+            duration: 5000,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#31bdec'
+            },  
+            close: true
+        }).showToast();
+    },
+    error: function (msg) {
+        Toastify({
+            text: msg,
+            duration: 5000,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#ff5722'
+            }, 
+            close: true
+        }).showToast();
+    },
+    warning: function (msg) {
+        Toastify({
+            text: msg,
+            duration: 5000,
+            gravity: 'top', // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            style:{
+                background: '#ffb800'
+            },
+            close: true
+        }).showToast();
+    }
+};

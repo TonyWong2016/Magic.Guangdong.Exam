@@ -29,10 +29,14 @@
     <None Include="wwwroot\lib\pico2\js\src\material-design-colors.js" />
     <None Include="wwwroot\lib\pico2\js\src\theme-switcher.js" />
     <None Include="wwwroot\lib\pico2\js\src\toggle-navigation.js" />
+    <None Include="wwwroot\web\exam\Index.js" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.1.0" />
+    <PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.1.0" />
+    <PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,6 +64,10 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Account\" />
   </ItemGroup>
 
 </Project>
