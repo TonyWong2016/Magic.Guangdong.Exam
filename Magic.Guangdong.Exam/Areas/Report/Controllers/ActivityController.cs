@@ -37,6 +37,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
              ));
         }
 
+        [ResponseCache(Duration = 10)]
         public IActionResult GetActivities(PageDto dto)
         {
             long total = 0;
