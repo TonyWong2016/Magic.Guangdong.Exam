@@ -1,5 +1,6 @@
 ﻿using FreeSql;
 using Magic.Guangdong.Assistant;
+using Microsoft.AspNetCore.ResponseCompression;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -31,6 +32,12 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 {
                     option.Filters.Add(typeof(Filters.AuthorizeFilter));
                 });
+            //数据压缩
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
+            });
         }
 
         static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));

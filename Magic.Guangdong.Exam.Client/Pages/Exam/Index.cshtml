@@ -128,15 +128,11 @@
     let examId = '';
     let groupCode = '';
     async function getExams() {
-        // let paramsJson = {
-        //     'associationId': associationId,
-        //     'examId': examId,
-        //     'groupCode': groupCode,
-        //     '__RequestVerificationToken': requestToken
-        // };
-
+        
         let formData = objectToFormData(makeWhereJson());
-        let ret = await request('POST', '@Url.Page("Index")?handler=GetExams', formData, { 'Content-Type': 'multipart/form-data' })
+        //let ret = await request('POST', '@Url.Page("Index")?handler=GetExams', formData, { 'Content-Type': 'multipart/form-data' })
+        let ret = await request('POST', '@Url.Action("GetExams","Exam")', formData, { 'Content-Type': 'multipart/form-data' })
+
         if(ret.code==0){
             renderTpl("examTpl", "exam", ret.data, examId == '');
         }

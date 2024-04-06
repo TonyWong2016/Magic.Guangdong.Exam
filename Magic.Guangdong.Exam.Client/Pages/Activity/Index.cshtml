@@ -1,0 +1,27 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Activity.IndexModel
+@{
+}
+<main class="container">
+    <h3>活动列表</h3>
+    <div id="content"></div>
+</main>
+
+<script id="activityTpl" type="text/html">
+    {{# layui.each(d,function(index, item){ }}
+    {{# if(index%3==0) { }}
+        <div class="grid">
+    {{# } }}
+        <article id="activityInfo{{ index }}">
+            <header>{{= item.title }}</header>
+            {{- item.description}}
+            
+        </article>
+    {{# if(index%3==0) { }}
+        </div>
+    {{# } }}
+    {{# } }}
+</script>
+<script>
+
+</script>

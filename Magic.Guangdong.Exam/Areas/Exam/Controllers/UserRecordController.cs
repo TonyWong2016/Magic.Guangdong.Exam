@@ -41,7 +41,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             _activityReportRepo = activityReportRepo;
         }
 
-        [RouteMark("答题记录")]
+        //[RouteMark("答题记录")]
         public IActionResult Index(string associationId)
         {
             return View();

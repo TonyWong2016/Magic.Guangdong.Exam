@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.DbServices"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.Exam", "Magic.Guangdong.Exam\Magic.Guangdong.Exam.csproj", "{1F659979-96A9-4EC2-91F2-72A07BB3480A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Magic.Guangdong.Exam.Client", "Magic.Guangdong.Exam.Client\Magic.Guangdong.Exam.Client.csproj", "{C378ECBD-E0D5-436F-B873-5E44E25CE13C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.Exam.Client", "Magic.Guangdong.Exam.Client\Magic.Guangdong.Exam.Client.csproj", "{C378ECBD-E0D5-436F-B873-5E44E25CE13C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

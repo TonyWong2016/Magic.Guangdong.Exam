@@ -177,7 +177,9 @@ function setLoginInfo(jwt) {
     let item = JSON.parse(window.atob(base64));
     let userId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
     let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    let userName = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
     localStorage.setItem('userId', userId);
+    localStorage.setItem('userName', userName);
     localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
     let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
     setCookie('userId', userId, expDays)
@@ -191,7 +193,7 @@ function clearLoginInfo() {
     deleteCookie('examToken');
     localStorage.removeItem('userId');
     localStorage.removeItem('accessToken');
-    
+    localStorage.removeItem('userName');
     if (parent.location) {
         parent.location.href = "/home/index"
     }

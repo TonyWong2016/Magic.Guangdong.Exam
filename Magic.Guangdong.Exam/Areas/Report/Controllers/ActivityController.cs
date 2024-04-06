@@ -22,6 +22,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
             _resp = resp;
         }
 
+        [RouteMark("活动管理")]
         public IActionResult Index()
         {
             return View();
@@ -91,5 +92,6 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
             activity.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _activityRepo.updateItemAsync(activity)));
         }
+
     }
 }

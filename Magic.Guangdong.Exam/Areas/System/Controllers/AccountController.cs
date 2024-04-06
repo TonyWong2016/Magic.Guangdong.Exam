@@ -71,7 +71,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 u =>
                 u.Name.Equals(account) ||
                 u.Email.Equals(account) ||
-                u.Name.Equals(account) &&
+                u.Mobile.Equals(account) &&
                 u.IsDeleted == 0))
             {
                 return Json(_resp.error("用户名不存在"));
@@ -80,7 +80,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 u =>
                 u.Name.Equals(account) ||
                 u.Email.Equals(account) ||
-                u.Name.Equals(account) &&
+                u.Mobile.Equals(account) &&
                 u.IsDeleted == 0);
 
             string password = Security.Decrypt(admin.Password, Encoding.UTF8.GetBytes(admin.KeyId), Encoding.UTF8.GetBytes(admin.KeySecret));

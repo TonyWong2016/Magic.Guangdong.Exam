@@ -23,7 +23,7 @@ namespace Magic.Guangdong.Exam.Client.Pages
         [AllowAnonymous]
         public void OnGet()
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            //RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         }
     }
 
