@@ -31,6 +31,9 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 .AddMvcOptions(option =>
                 {
                     option.Filters.Add(typeof(Filters.AuthorizeFilter));
+                    option.Filters.Add(typeof(Filters.GlobalActionFilter));
+                    option.Filters.Add(typeof(Filters.GlobalExceptionFilter));
+
                 });
             //数据压缩
             services.AddResponseCompression(options =>

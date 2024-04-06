@@ -32,5 +32,11 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public Guid AdminId { get; set; }
 
+        [JsonProperty]
+        public Guid AccountId { get; set; } = Guid.Empty;
+
+        [JsonProperty]
+        public int Type { get; set; } = 1;
+
     }
 }

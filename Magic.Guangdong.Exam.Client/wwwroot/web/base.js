@@ -1,4 +1,5 @@
-﻿function parseJwtPayload(jwt) {
+﻿let fileBaseUrl='https://localhost:7188/'
+function parseJwtPayload(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
@@ -252,6 +253,16 @@ function jHtmlSet(id, html) {
 function jTextSet(id, text) {
     $("#" + id).text(text);
 }
+//是否位数字
+//lesszero：是否允许负数
+function isNumeric(input, lesszero = false) {
+    let numericRegex = /^\d+(\.\d+)?$/; // 匹配正数和零，不包含负号
+    if (lesszero) {
+        numericRegex = /^-?\d+(\.\d+)?$/; // 匹配整数或小数，允许负号和小数点       
+    }
+    return numericRegex.test(input);
+}
+
 
 function SFID(card, sex) {
 

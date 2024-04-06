@@ -4,6 +4,16 @@
 }
 <main class="container">
     <h3>活动列表</h3>
+    <form>
+        <fieldset role="group">
+            <input type="text"
+                    id="keyword"
+                   name="keyword"
+                   placeholder="输入活动关键字"
+                   autocomplete="off" />
+            <input type="button" id="btnSearch" value="检索" />
+        </fieldset>
+    </form>
     <div id="content"></div>
 </main>
 
@@ -13,15 +23,84 @@
         <div class="grid">
     {{# } }}
         <article id="activityInfo{{ index }}">
-            <header>{{= item.title }}</header>
-            {{- item.description}}
+            <header>{{ item.title }}</header>
+            <p>
+                <a role="button" href="javascript:;" onclick="report({{item.id}})">报名</a>
+            </p>
+            {{- item.description.replaceAll('../../',fileBaseUrl)}}
             
         </article>
-    {{# if(index%3==0) { }}
+    {{# if(index%3==0 && index>0 || index==d.length-1) { }}
         </div>
     {{# } }}
-    {{# } }}
+    {{# }) }}
 </script>
 <script>
+    let pageSize = 6;
+    let pageIndex = 1;
 
+    autoSearch('keyword', function () {
+        getActivities();
+    })
+
+    getActivities();
+    function getActivities(){
+        axios.get('@Url.Action("GetActivities","Activity")', {
+            params: makeWhereJson(),
+            headers: {
+                '__RequestVerificationToken': requestToken
+            }
+        }).then(data => {
+            let json = data.data;
+            renderTpl('activityTpl', 'content', json.data.items, false);
+        })
+    }
+
+    function makeWhereJson() {
+        let keyword = $('#keyword').val();
+        let whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }, {
+                'Field': 'Status',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        
+        if (keyword && isNumeric(keyword)) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Expenses',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }]
+            });
+        } 
+        if (keyword && !isNumeric(keyword)) {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }]
+            });
+        }
+
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'pageIndex': pageIndex, 'pageSize': pageSize };
+    }
+
+    function report(activityId){
+
+    }
 </script>
