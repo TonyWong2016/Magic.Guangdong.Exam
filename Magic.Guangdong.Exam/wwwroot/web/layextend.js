@@ -44,19 +44,24 @@ function autoCheckFormRequired() {
     });
 }
 
-function renderTpl(tplid, viewid, checkbarParams, append) {
+function renderTpl(tplid, viewid, data, append) {
     
     if (tplid && viewid) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
+        
         if (view.innerHTML.indexOf('请') > -1) {
             tpl = tpl.replace('<option value="0">请选择</option>', '');
         }
+        if (!append && data != null && data.length > 0 && data[0].text.indexOf('请') == -1 && tpl.indexOf('请')== -1) {
+            data.unshift({ 'text': '请选择' });
+        }
         let laytpl = layui.laytpl;
-        laytpl(tpl).render(checkbarParams, function (html) {
+        laytpl(tpl).render(data, function (html) {
             if (append)
                 view.innerHTML += html;
-            else
+            else {                
                 view.innerHTML = html;
+            }
         })
         
     }
@@ -115,6 +120,7 @@ function renderLayuiFormElem(params) {
 }
 
 function successMsg(msg, callback = '') {
+    layer.closeAll('loading');
     $('.save').hide();
     $('.disabledsave').show();
     if (typeof (callback) == 'function') {
@@ -127,6 +133,7 @@ function successMsg(msg, callback = '') {
         layer.msg(msg, { icon: 1, offset: '16px' });
 }
 function errorMsg(msg, callback = '') {
+    layer.closeAll('loading');
     $('.save').hide();
     $('.disabledsave').show();
     if (typeof (callback) == 'function') {
@@ -139,6 +146,7 @@ function errorMsg(msg, callback = '') {
         layer.msg(msg, { icon: 2, offset: '16px' });
 }
 function warnMsg(msg, callback = '') {
+    layer.closeAll('loading');
     if (typeof (callback) == 'function') {
         layer.msg(msg, { icon: 0, offset: '16px' }, () => {
             callback();

@@ -16,14 +16,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long? ActivityId { get; set; } = 0;
 
-		[JsonProperty, Column(StringLength = 50)]
-		public string City { get; set; } = string.Empty;
+		[JsonProperty]
+		public int CityId { get; set; } = 0;
 
         [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-		[JsonProperty, Column(StringLength = 50)]
-		public string District { get; set; } = string.Empty;
+		[JsonProperty]
+		public int DistrictId { get; set; } = 0;
 
         [JsonProperty, Column(DbType = "varchar(50)")]
 		public string Email { get; set; } = string.Empty;
@@ -40,18 +40,20 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "varchar(50)")]
 		public string Mobile { get; set; } = string.Empty;
 
-        [JsonProperty, Column(StringLength = 100)]
+        [JsonProperty, Column(StringLength = 50)]
 		public string Name { get; set; } = string.Empty;
 
         [JsonProperty, Column(StringLength = 500)]
 		public string OtherInfo { get; set; } = string.Empty;
 
-        [JsonProperty, Column(StringLength = 50)]
-		public string Province { get; set; } = string.Empty;
+        [JsonProperty]
+		public int ProvinceId { get; set; } = 0;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-	}
+        [JsonProperty]
+        public long UnitId { get; set; } = 0;
+    }
 
 }

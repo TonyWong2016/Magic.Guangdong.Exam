@@ -113,7 +113,7 @@
             var layer = layui.layer;
             // 提交事件
             form.on('submit(exam-login)', async function (data) {
-
+                
                 var field = data.field; // 获取表单字段值
                 console.log(JSON.stringify(field))
                 if (parseInt(field.captcha) != captchaRet) {
@@ -121,6 +121,7 @@
                     generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
                     return;
                 }
+                layer.load();
                 field.captchaTsp = `${field.captcha}${Math.round(new Date() / 1000)}`
                 field.hashpwd = md5(`${field.password}${field.captchaTsp}`);
                 field.remember = 0;

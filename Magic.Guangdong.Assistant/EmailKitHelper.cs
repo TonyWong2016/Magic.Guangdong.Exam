@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
+using NPOI.SS.Formula.Functions;
 using System.Text;
 
 namespace Magic.Guangdong.Assistant
@@ -95,19 +96,27 @@ namespace Magic.Guangdong.Assistant
             {
                 new MailboxAddress("tony","wtlemon@126.com")
                 };
-            string tmpTxt = System.IO.File.ReadAllText(System.IO.Path.Combine(Environment.CurrentDirectory, "wwwroot", "tamplate", "emailError.txt"));
-            string content = tmpTxt.Replace("?error1?", ex.Message).Replace("?error2?", ex.StackTrace);
+            string templateFilePath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "web", "error.html");
+            //string content = templateFilePath.Replace("?error1?", ex.Message).Replace("?error2?", ex.StackTrace);
+            string content = ex.Message + ex.StackTrace;
+            using (StreamReader reader = new StreamReader(templateFilePath))
+            {
+                content = reader.ReadToEnd().Replace("?error1?", ex.Message).Replace("?error2?", ex.StackTrace);
 
+            }
             var message = new MimeMessage
             {
                 Subject = "系统异常",
                 Priority = MessagePriority.Urgent,
                 Date = DateTime.Now,
+               
                 Body = new BodyBuilder
                 {
                     HtmlBody = content
                 }.ToMessageBody()
             };
+            message.From.Add(new MailboxAddress(UserName, _tconfig.Email));
+            message.To.AddRange(address);
             using (var client = new SmtpClient())
             {
                 

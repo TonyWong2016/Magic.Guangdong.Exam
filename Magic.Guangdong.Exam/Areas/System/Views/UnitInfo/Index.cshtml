@@ -1,0 +1,176 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <select id="statusView" lay-verify="" lay-search lay-filter="status">
+                        <option value="-1">全部</option>
+                        <option value="0">正常</option>
+                        <option value="1">禁用</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="provinceView" lay-filter="provinceId">
+                        <option>请选择省份</option>
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <select id="cityView" lay-filter="cityId">
+                        <option>请选择城市</option>
+
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <select id="districtView" lay-filter="districtId">
+                        <option>请选择区/县</option>
+
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" id="keyword" name="keyword" lay-filter="keyword" placeholder="单位名称/组织机构代码" />
+                </div>
+                <div class="layui-input-inline">
+                    <a href="@Url.Action("Create")" class="layui-btn">添加新单位</a>
+                </div>
+            </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+    </div>
+</div>
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span style="color:#1e9fff">正常</span>
+    {{# } else { }}
+    <span style="color:#FF5722">禁用</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/district/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getDistrictTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+
+
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    let provinceId = 0;
+    let cityId = 0;
+    let districtId = 0;
+    getSelectItems('/system/province/GetProvinceDrops', {}, 'selectTpl', 'provinceView');
+
+    form.on('select(provinceId)', (data) => {
+        provinceId = data.value;
+        $('#districtView').val('').html('');
+        if (provinceId)
+            getSelectItems('/system/city/GetCityDrops', { provinceId: provinceId }, 'selectTpl', 'cityView', false);
+        else
+            $('#cityView').val('').html('');
+        getUnitInfoTable();
+    })
+
+    form.on('select(cityId)', (data) => {
+        cityId = data.value;
+        if (cityId)
+            getSelectItems('/system/district/GetDistrictDrops', { cityId: cityId }, 'selectTpl', 'districtView', false)
+        else {
+            $('#districtView').val('').html('');
+        }
+        getUnitInfoTable();
+    })
+    form.on('select(districtId)', (data) => {
+        districtId = data.value;
+        getUnitInfoTable();
+    })
+    getUnitInfoTable();
+    function getUnitInfoTable() {
+        var params = {
+            url: '@Url.Action("GetUnitInfos")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: 100 }
+                //{ field: 'id', title: '用户id', type: 'checkbox' }
+                , { field: 'unitCaption', title: '单位名称' }
+                , { field: 'organizationCode', title: '组织机构代码' }
+                , { field: 'address', title: '地址' }
+                , { field: 'telephone', title: '联系方式' }
+                , { field: 'provinceShortName', title: '省份' }
+                , { field: 'cityName', title: '城市' }
+                , { templet: '#statusTpl', title: '状态' }
+                , { title: '操作', templet: '#operationTpl', width: 260 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($('#statusView').val() && $('#statusView').val() != '-1') {
+            whereJsonStr.Filters.push({
+                'Field': 'status',
+                'Operator': 'Equal',
+                'Value': $('#statusView').val()
+            });
+        }
+
+        if (provinceId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'ProvinceId',
+                'Operator': 'Equal',
+                'Value': provinceId
+            });
+        }
+        if (cityId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'CityId',
+                'Operator': 'Equal',
+                'Value': cityId
+            });
+        }
+        if (districtId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'DistrictId',
+                'Operator': 'Equal',
+                'Value': districtId
+            });
+        }
+
+        if ($("#keyword").val()) {
+            let keyword = $("#keyword").val().trim();
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'UnitCaption',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }, {
+                    'Field': 'OrganizationCode',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }]
+            });
+        }
+
+        
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>

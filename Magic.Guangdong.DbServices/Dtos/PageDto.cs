@@ -24,4 +24,6 @@ namespace Magic.Guangdong.DbServices.Dtos
     {
         public long[] roleIds { get; set; }
     }
+
+    
 }

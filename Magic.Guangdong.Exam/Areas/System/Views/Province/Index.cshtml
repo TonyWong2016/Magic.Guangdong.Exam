@@ -1,0 +1,110 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+
+                <div class="layui-input-inline" style="width:50%">
+                    <div class="layui-input-group" style="width:-webkit-fill-available">
+                        <div class="layui-input-split layui-input-prefix">
+                            关键字
+                        </div>
+                        <input type="text" placeholder="省份，简称，代码" id="keyword" autocomplete="off" class="layui-input" lay-affix="clear">
+                    </div>
+
+                </div>
+                <div class="layui-input-inline" style="width:15%">
+                    <a href="@Url.Action("Create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>添加新省份</a>
+                </div>
+                </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+    </div>
+</div>
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/province/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/province/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getProvinceTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+
+</script>
+@* <script src="~/plugins/xm-select.js"></script> *@
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    getProvinceTable();
+    autoSearch('keyword', () => {
+        getProvinceTable();
+    })
+    function getProvinceTable() {
+        var params = {
+            url: '@Url.Action("GetProvinces")',
+            elem: '#table',
+            where: makeWhereJson(),
+            method: 'get',
+            headers: { Authorization: localStorage.getItem('accessToken') },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl',width:100 }
+                //{ field: 'id', title: '用户id', type: 'checkbox' }
+                , { field: 'provinceName', title: '省份' }
+                , { field: 'provinceShortName', title: '简称' }
+                , { field: 'provinceCode', title: '代码' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl'}
+            ],
+            height: 630
+        }
+        getTable(params);
+
+        table.on('checkbox(table)', function (obj) {
+            if (obj.type == 'all' && !obj.checked) {
+                roleArr = [];
+            } else if (obj.type == 'all' && obj.checked) {
+                roleArr = table.getData('table');
+            } else if (obj.type == 'one' && !obj.checked) {
+                let indexToRemove = roleArr.findIndex(item => item.id == obj.data.id);
+                if (indexToRemove !== -1)
+                    roleArr.splice(indexToRemove, 1);
+            } else {
+                roleArr.push(obj.data);
+            }
+            console.log(roleArr.map(u => u.id))
+            //todo..
+            //增加批量编辑（启用禁用）功能
+        })
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($("#keyword").val()) {
+            let keyword = $("#keyword").val().trim();
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'provinceShortName',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'provinceName',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }, {
+                    'Field': 'provinceCode',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>

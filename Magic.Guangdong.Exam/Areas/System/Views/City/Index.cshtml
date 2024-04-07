@@ -1,0 +1,163 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-card layui-panel">
+    <div style="padding:15px">
+        <form class="layui-form">
+            <div class="layui-form-item ">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <select id="statusView" lay-verify="" lay-search lay-filter="status">
+                        <option value="-1">全部</option>
+                        <option value="0">正常</option>
+                        <option value="1">禁用</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline" style="width:20%">
+                    <div id="provinceView">
+                    </div>
+                </div>
+                
+                <div class="layui-input-inline" style="width:20%">
+                    <input class="layui-input" type="text" id="keyword" name="keyword" lay-filter="name" placeholder="城市名称" />
+                </div>
+                <div class="layui-input-inline">
+                    <a href="@Url.Action("Create")" class="layui-btn">添加新城市</a>
+                </div>
+            </div>
+        </form>
+        <table id="table" class="layui-table" lay-filter="table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span style="color:#1e9fff">正常</span>
+    {{# } else { }}
+    <span style="color:#FF5722">禁用</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/city/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getCityTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+
+<script src="~/plugins/xm-select.js"></script>
+
+<script>
+    let table = layui.table;
+    let form = layui.form;
+    let province;
+    let provinceIds = [];    
+
+    getCityTable();
+
+    form.on('select(status)', function (data) {
+        getCityTable();
+    })
+
+    autoSearch('keyword', () => {
+        getCityTable();
+    })
+    axios.get('/system/province/GetProvinceDrops', {
+        params: {
+            rd: 0
+        }
+    }).then(json => {
+        province = xmSelect.render({
+            el: '#provinceView',
+            filterable: true,
+            paging: true,
+            tips: '请选择归属省份',
+            pageSize: 10,
+            pageEmptyShow: false,
+            theme: {
+                color: '#16baaa',
+            },
+            direction: 'down',
+            autoRow: true,
+            data: json.data.data,
+            on: function (data) {
+                //console.log(data)
+                if (data.isAdd) {
+                    provinceIds.push(data.change[0].value)
+                } else {
+                    let indexToRemove = provinceIds.findIndex(item => item == data.change[0].value);
+                    if (indexToRemove !== -1)
+                        provinceIds.splice(indexToRemove, 1);
+                }
+                getCityTable();
+            }
+        })
+    })
+
+    function getCityTable() {
+        var params = {
+            url: '@Url.Action("GetCities")',
+            elem: '#table',
+            where: makeWhereJson(),
+            // method:'POST',
+            // headers: { Authorization: localStorage.getItem('accessToken') },
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: 100 }
+                //{ field: 'id', title: '用户id', type: 'checkbox' }
+                , { field: 'cityName', title: '城市名称' }
+                , { field: 'provinceShortName', title: '省份简称' }
+                , { field: 'id', title: '行政代码' }
+                , { templet: '#statusTpl', title: '状态' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl', width: 260 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($('#statusView').val() && $('#statusView').val() != '-1') {
+            whereJsonStr.Filters.push({
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'status',
+                    'Operator': 'Equal',
+                    'Value': $('#statusView').val()
+                }]
+            });
+        }
+
+        if ($("#keyword").val()) {
+            let keyword = $("#keyword").val().trim();
+            whereJsonStr.Filters.push({
+                'Field': 'CityName',
+                'Operator': 'Contains',
+                'Value': keyword
+            });
+        }
+
+        if (provinceIds && provinceIds.length > 0) {
+            let provinceJson = { 'Logic': 'Or', 'Filters':[] };
+            provinceIds.forEach(item => {
+                provinceJson.Filters.push({
+                    'Field': 'ProvinceId',
+                    'Operator': 'Equal',
+                    'Value': item
+                });
+            });
+            whereJsonStr.Filters.push(provinceJson);
+        }
+
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>

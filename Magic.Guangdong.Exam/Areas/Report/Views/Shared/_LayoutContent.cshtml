@@ -17,6 +17,7 @@
     @await RenderSectionAsync("Scripts", required: false)    
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
+        const CT = { 'Content-Type': 'multipart/form-data' };
     </script>
 </head>
 <body>

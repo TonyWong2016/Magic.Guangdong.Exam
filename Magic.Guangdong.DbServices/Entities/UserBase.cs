@@ -40,9 +40,15 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string Name { get; set; } = "";
 
 		[JsonProperty]
-		public int? ProvinceCode { get; set; } = 0;
+		public int ProvinceId { get; set; } = 0;
 
-		[JsonProperty]
+        [JsonProperty]
+        public int CityId { get; set; } = 0;
+
+        [JsonProperty]
+        public int DistrictId { get; set; } = 0;
+
+        [JsonProperty]
 		public int Sex { get; set; } = 0;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

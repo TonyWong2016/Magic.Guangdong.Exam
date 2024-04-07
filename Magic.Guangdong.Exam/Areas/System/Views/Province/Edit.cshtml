@@ -1,0 +1,65 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.Province
+
+<div class="layui-card layui-panel">
+    <div class="layui-card-header" style="color:#16baaa;font-size:large">
+        新增省份
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form main-form" lay-filter="admin-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 行政代码</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="number" asp-for="Id" placeholder="国际统一行政代码" lay-affix="clear" autocomplete="off" readonly/>
+                    <blockquote class="layui-elem-quote" style="margin-top:5px">注意，行政代码不可以随意乱写，系统里已有的省份都是严格按照国家行政区划代码的设置填写，且包含了现有所有省，自治区，直辖市和港澳台地区。新增非国内省份时要注意该代码要有统一辨识度！</blockquote>
+
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 省份名称</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="ProvinceName" placeholder="请输入省份名称" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 省份简称</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="ProvinceShortName" placeholder="请输入省份简称" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 省份代码</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="ProvinceCode" placeholder="请输入省份代码" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
+                    <a href="index" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+           
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+
+<script>
+    let form = layui.form;
+    form.on('submit(form-submit)', async function (data) {
+        let field = data.field;
+        let formData = objectToFormData(field);
+        let ret = await request('POST', '@Url.Action("Edit")', formData, CT);
+        if (ret.code == 0) {
+            successMsg('修改成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            })
+            return;
+        }
+        errorMsg('修改失败,' + ret.msg);
+    })
+</script>
