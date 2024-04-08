@@ -7,7 +7,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
     {
         dynamic GetUnitInfos(PageDto dto, out long total);
 
-        Task<dynamic> GetUnitDropsAsync(string keyword, int districtId, int cityId, int provinceId);
+        Task<dynamic> GetUnitDropsAsync(string keyword, int cityId, int provinceId);
 
         Task<UnitInfoView> GetUnitInfoView(int id);
     }

@@ -1,0 +1,214 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Entities.UnitInfo
+<div class="layui-card layui-panel">
+    <div class="layui-card-header" style="color:#16baaa;font-size:large">
+        新增单位
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form main-form" lay-filter="admin-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 信用代码</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" lay-verify="organizationCode" asp-for="OrganizationCode" placeholder="统一社会信用代码" lay-affix="clear" autocomplete="off" />
+                    <blockquote class="layui-elem-quote" style="margin-top:5px">注意，统一社会信用代码由于成本原因暂时不支持联网比对（每次0.1-1元不等），请自行到<a href="https://www.gsxt.gov.cn/index" target="_blank" style="font-weight:bolder;color:#1e9fff">国家企业信用信息公示系统</a>查询。<br />
+                        而且，信用代码有严格的规范，分别为
+                        <br />1.由18位数字和字母组成。
+                        <br />2.不包含字母“I”、“O”、“Z”、“S”、“V”。
+                        <br />3.登记管理部门代码：1位，数字或大写英文字母。
+                        <br />4.机构类别代码：1位，数字或大写英文字母。
+                        <br />5.登记管理机关行政区划码：6位，数字。
+                        <br />6.主体标识码（组织机构代码）：9位，数字或大写英文字母。
+                        <br />7.校验码：1位，数字或大写英文字母。
+                    </blockquote>
+
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 注册号</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="UnitNo" placeholder="工商信息注册号码" lay-affix="clear" autocomplete="off" />
+                    <blockquote class="layui-elem-quote" style="margin-top:5px">注意，工商信息注册号由于成本原因暂时不支持联网比对（每次0.1-1元不等），请自行到<a href="https://www.gsxt.gov.cn/index" target="_blank" style="font-weight:bolder;color:#1e9fff">国家企业信用信息公示系统</a>查询！</blockquote>
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 单位</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="UnitCaption" placeholder="请输入单位名称" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 法人</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="LegalPerson" placeholder="请输入法人名称" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 经营状态</label>
+                <div class="layui-input-block">
+                    <select asp-for="UnitStatus">
+                        <option value=0>存续</option>
+                        <option value=1>在业</option>
+                        <option value=2>吊销</option>
+                        <option value=3>注销</option>
+                        <option value=4>迁出</option>
+                        <option value=5>迁入</option>
+                        <option value=6>停业</option>
+                        <option value=7>清算</option>
+                        <option value=8>其他</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 类型</label>
+                <div class="layui-input-block">
+                    <select asp-for="UnitType">
+                        <option value=0>未指定</option>
+                        <option value=1>社会团体</option>
+                        <option value=2>学校</option>
+                        <option value=3>科研机构</option>
+                        <option value=4>机关单位</option>
+                        <option value=5>事业单位</option>
+                        <option value=6>校外机构</option>
+                        <option value=7>企业</option>
+                        <option value=8>其他</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 省市区</label>
+                <div class="layui-input-inline" style="width:15%">
+                    <select id="ProvinceId" lay-filter="provinceId">
+                        <option>请选择省份</option>
+                    </select>
+
+                    @* <input type="hidden" id="ProvinceId"/> *@
+                </div>
+
+                <div class="layui-input-inline" style="width:15%">
+                    <select asp-for="CityId" lay-filter="cityId">
+                        <option>请选择城市</option>
+                    </select>
+                </div>
+
+                <div class="layui-input-inline" style="width:15%">
+                    <select asp-for="DistrictId" lay-filter="districtId">
+                        <option>请选择区县</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 详细地址</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Address" placeholder="请输入单位详细地址" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 状态</label>
+                <div class="layui-input-block">
+                    <select asp-for="Status">
+                        <option value=0>正常</option>
+                        <option value=1>禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 电话</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Telephone" lay-verify="number" placeholder="请输入单位电话" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 传真</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="Fax" placeholder="请输入单位传真" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 简介</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="UnitIntroduction" placeholder="请输入单位简介" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 网址</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" asp-for="UnitUrl" placeholder="请输入单位网址" lay-affix="clear" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn" lay-submit lay-filter="form-submit">立即提交</a>
+                    <a href="index" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+            <input type="hidden" asp-for="CreatedBy" />
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+<script>
+    let form = layui.form;
+    let provinceId = 0;
+    let cityId = 0;
+    let districtId = 0;
+    getSelectItems('/system/province/getprovincedrops', {}, 'selectTpl', 'ProvinceId')
+
+    form.verify({
+        organizationCode: function (value, elem) {
+            if (!new RegExp('^[0-9A-HJ-NP-RU-WY]{18}$').test(value)) {
+                return '统一社会信用代码格式错误';
+            }
+        }
+    })
+
+    form.on('select(provinceId)', function (data) {
+        provinceId = data.value;
+        $('#DistrictId').val('').html('');
+        $('#CityId').val('').html('');
+        form.render('select');
+        cityId = 0;
+        districtId = 0;
+        if (isNumeric(provinceId) && provinceId != '0')
+            getSelectItems('/system/city/GetCityDrops', { provinceId: provinceId }, 'selectTpl', 'CityId', false);
+
+    })
+    form.on('select(cityId)', (data) => {
+        cityId = data.value;
+        $('#DistrictId').val('').html('');
+        form.render('select');
+        districtId = 0;
+        if (isNumeric(cityId) && cityId != '0')
+            getSelectItems('/system/district/GetDistrictDrops', { cityId: cityId }, 'selectTpl', 'DistrictId', false)
+    })
+    form.on('select(districtId)', (data) => {
+        districtId = data.value;
+    })
+
+    form.on('submit(form-submit)', async function (data) {
+        let field = data.field;
+        field.ProvinceId = provinceId;
+        field.CityId = cityId;
+        field.DistrictId = districtId;
+        field.CreatedBy = localStorage.getItem('userName');
+        delete field.__Invariant
+        console.log(field)
+        let formData = objectToFormData(field);
+        let ret = await request('POST', '@Url.Action("Create")', formData, CT);
+        if (ret.code == 0) {
+            successMsg('添加成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            })
+            return;
+        }
+        errorMsg('添加失败,' + ret.msg);
+    })
+</script>
+

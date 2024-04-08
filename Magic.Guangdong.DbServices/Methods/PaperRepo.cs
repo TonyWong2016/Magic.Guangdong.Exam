@@ -101,9 +101,17 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 try
                 {
+                    if(paperIds==null || paperIds.Length==0)
+                    {
+                        return 0;
+                    }
+                    var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    var examItem = await examRepo.Where(u => u.Id == paperIds[0]).FirstAsync();
+                    long activityId = Convert.ToInt64(examItem.AssociationId);
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
                     var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
+                    
                     int totalRelation = 0;
                     List<Relation> targetRelations = new List<Relation>();
 
@@ -118,6 +126,7 @@ namespace Magic.Guangdong.DbServices.Methods
                                 .Where(u => u.SubjectId == rule.subjectId && u.TypeId == rule.typeId && u.IsDeleted == 0)
                                 .WhereIf(paper.PaperType == 2, u => u.IsOpen == 1)//如果是生成练习题，那就只抽取开放的题
                                 .WhereIf(paper.PaperDegree != "all", u => paper.PaperDegree.Contains(u.Degree))//如果没有设定试卷难度，那就抽取对应难度的题
+                                .Where(u => u.ActivityId == 0 || u.ActivityId == activityId)
                                 .ToListAsync();
                             int selectedCnt = selectedQuestions.Count();
 

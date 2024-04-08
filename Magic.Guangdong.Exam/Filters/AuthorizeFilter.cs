@@ -100,7 +100,8 @@ namespace Magic.Guangdong.Exam.Filters
                     Action = "权限认证失败",
                     Description = permissionCheckResult,
                     Router = $"{area}/{controller}/{action}",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    Type = 1
                 });
                 return;
             }

@@ -11,8 +11,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string ColumnId { get; set; } = "0";
+		[JsonProperty]
+		public long ActivityId { get; set; } =0;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }

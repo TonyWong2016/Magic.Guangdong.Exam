@@ -28,7 +28,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string degree { get; set; } = "normal";
 
-        public string columnId { get; set; }
+        public long ActivityId { get; set; } = 0;
 
         public List<ImportQuestionItem> items { get; set; }
     }

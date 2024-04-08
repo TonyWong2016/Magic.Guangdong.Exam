@@ -189,9 +189,9 @@ namespace Magic.Guangdong.Exam.Filters
             string remark = "";
             if (context.Result != null)
             {
-                if (context.Result is JsonResult)
+                if (context.Result is JsonResult && ((JsonResult)context.Result).Value != null)
                     remark = JsonConvert.SerializeObject(((JsonResult)context.Result).Value).Replace("\"", "'");
-                else if (context.Result is ObjectResult)
+                else if (context.Result is ObjectResult && ((ObjectResult)context.Result).Value != null)
                     remark = JsonConvert.SerializeObject(((ObjectResult)context.Result).Value);
                 if (remark.Length > 1000)
                 {

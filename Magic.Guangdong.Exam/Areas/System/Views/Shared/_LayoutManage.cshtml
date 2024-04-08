@@ -32,8 +32,8 @@
                 <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                     <i class="layui-icon layui-icon-spread-left"></i>
                 </li>
-                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中！该特性为SaaS类软件产品的核心概念，通过开通不同的租户来管理不同的客户数据，使租户数据在物理隔离的前提下仍能统一管理。',{icon:4})">租户管理</a></li>
-                
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中！该特性为SaaS类软件产品的核心概念，通过开通不同的租户来管理不同的客户数据，使租户数据在物理隔离的前提下仍能实现业务的一致性。',{icon:4})">租户管理</a></li>
+
             </ul>
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
@@ -69,9 +69,33 @@
             <!-- 底部固定区域 -->
             广东省教育协会 Copyright © 2024 By Tony
         </div>
+        <div style="display:none" class="layui-bg-gray" id="rightMsgSide">
+            <div class="layui-card" style="padding:10px;" id="rightMsgSide">
+                <blockquote class="layui-elem-quote">
+                    <a href="javascript:;">动作条数(待优化...) <span class="layui-badge" id="keyActionCnt"></span></a>
+
+                </blockquote>
+                <div class="layui-collapse" lay-filter="key-action" id="keyActionView" lay-accordion>
+                </div>
+                <br />
+                @* <p style="float:right;margin-right:10px"><a href="javascript:;" class="layui-btn layui-btn-primary" id="loadMoreActions" onclick=" keyActionPageIndex += 1;fetchKeyActions()">加载更多</a></p> *@
+
+            </div>
+        </div>
     </div>
 
+    <script type="text/html" id="keyActionTpl">
 
+        {{# layui.each(d,function(index,item){ }}
+                <div class="layui-colla-item">
+                    <div class="layui-colla-title">有新的管理动作-({{ item.action }})</div>
+                    <div class="layui-colla-content layui-show">
+                    动作内容：{{item.description}}<br />
+                    路由地址：{{item.router}}
+                    </div>
+                </div>
+        {{# }) }}
+    </script>
     <script type="text/html" id="navTopSideMenuTpl">
         {{# layui.each(d,function(index,item){ }}
         <li class="layui-nav-item">
@@ -82,10 +106,15 @@
     </script>
 
     <script type="text/html" id="navSideChildMenuTpl">
+
         {{# layui.each(d,function(index,item){ }}
         <dd>
             <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">{{ item.name }}</a>
-            <dl class="layui-nav-item" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
+            {{# if(item.isLeef==1){ }}
+                <dl class="layui-nav-item" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
+            {{# }else { }}
+                <dl class="layui-nav-child" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
+            {{#} }}
         </dd>
         {{# }) }}
     </script>
@@ -95,8 +124,9 @@
         var breadcrumbArr = [];
         var navs = [];
         var element = layui.element;
+        let keyActionPageIndex = 1;
         element.render('nav', 'sideNav');
-        
+
         async function fetchTopMenus() {
             try {
                 const result = await request('GET', '/system/menu/getmenus', { parentId: 0 });
@@ -119,31 +149,31 @@
             let item = {};
             if (typeof (itemStr) == 'object') {
                 item = itemStr
-            } else 
+            } else
                 item = JSON.parse(itemStr)
-            if (breadcrumbArr.filter(u => u.name == item.name & u.depth==item.depth).length == 0) {
+            if (breadcrumbArr.filter(u => u.name == item.name & u.depth == item.depth).length == 0) {
                 removeObjectFromArray(breadcrumbArr, 'depth', item.depth);
-                item.depth == 0 ? breadcrumbArr =[]:"";
-                    
+                item.depth == 0 ? breadcrumbArr = [] : "";
+
                 breadcrumbArr.push({ depth: item.depth, name: item.name });
             }
 
             if (breadcrumbArr.filter(u => u.depth == item.depth).length == 0)
                 breadcrumbArr.push({ depth: item.depth, name: item.name });
-            
 
-            localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a,b)=>a.depth-b.depth)))
-            
-            if (item.isLeef == 1 && item.router!=='') {
-                
-                $('#main-container').attr('src', item.router.replace('Controller',''));
+
+            localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a, b) => a.depth - b.depth)))
+
+            if (item.isLeef == 1 && item.router !== '') {
+
+                $('#main-container').attr('src', item.router.replace('Controller', ''));
             }
-            
+
             if (navs.length > 0 && navs.filter(u => u.menuId == item.id).length == 1 || item.sLeef == 1) {
                 return;
             }
 
-            
+
 
             try {
                 navs.push({ menuId: item.id.toString(), status: true });
@@ -158,13 +188,48 @@
 
         fetchTopMenus();
 
-        function LogoutAccount(){
+        function LogoutAccount() {
             layer.confirm('确定要推出当前账号吗', { icon: 0 }, function () {
                 location.href = '/system/account/login?msg=logout';
             })
         }
 
-        jHtmlSet('adminName',localStorage.getItem('userName'))
+        function fetchKeyActions() {
+            let whereJsonStr = {
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'AdminId',
+                    'Operator': 'NotEqual',
+                    'Value': '00000000-0000-0000-0000-000000000000'
+                }]
+            };
+            let dto = { 'pageindex': keyActionPageIndex, 'pagesize': 50, 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'isAsc': false, 'rd': randomInt };
+            //let ret = request('GET', '/system/keyaction/GetKeyActions', dto);
+            axios.get('/system/keyaction/GetKeyActions', { params: dto }).then(data => {
+                console.log(data)
+                let json = data.data;
+                if (json.code == 0) {
+                    $('#keyActionCnt').html(json.data.total);
+                    renderTpl('keyActionTpl', 'keyActionView', json.data.items, true);
+                    layer.open({
+                        type: 1,
+                        title: '消息',
+                        content: document.getElementById('rightMsgSide').innerHTML,
+                        area: ['360px', '100%'],
+                        offset: 'rt', // 右上角
+                        anim: 'slideLeft', // 从右侧抽屉滑出
+                        shadeClose: true,
+                        scrollbar: false
+                    });
+                    element.render('collapse', 'key-action');
+                }
+
+            })
+        }
+       
+        
+
+        jHtmlSet('adminName', localStorage.getItem('userName'))
     </script>
 </body>
 </html>

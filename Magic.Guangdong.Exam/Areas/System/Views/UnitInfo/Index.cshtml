@@ -5,12 +5,24 @@
     <div style="padding:15px">
         <form class="layui-form">
             <div class="layui-form-item ">
-                <label class="layui-form-label">状态</label>
                 <div class="layui-input-inline">
                     <select id="statusView" lay-verify="" lay-search lay-filter="status">
-                        <option value="-1">全部</option>
+                        <option value="-1">数据状态</option>
                         <option value="0">正常</option>
                         <option value="1">禁用</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="unitTypeView" lay-verify="" lay-search lay-filter="unitType">
+                        <option value=0>单位类型</option>
+                        <option value=1>社会团体</option>
+                        <option value=2>学校</option>
+                        <option value=3>科研机构</option>
+                        <option value=4>机关单位</option>
+                        <option value=5>事业单位</option>
+                        <option value=6>校外机构</option>
+                        <option value=7>企业</option>
+                        <option value=8>其他</option>
                     </select>
                 </div>
                 <div class="layui-input-inline">
@@ -52,9 +64,53 @@
     {{# } }}
 </script>
 
+<script type="text/html" id="typeTpl">
+    {{# if(d.unitType==0){ }}
+    未指定
+    {{# } else if(d.unitType==1) { }}
+    社会团体
+     {{# } else if(d.unitType==2) { }}
+    学校
+     {{# } else if(d.unitType==3) { }}
+    科研机构
+     {{# } else if(d.unitType==4) { }}
+    机关单位
+     {{# } else if(d.unitType==5) { }}
+    事业单位
+     {{# } else if(d.unitType==6) { }}
+    校外机构
+    {{# } else if(d.unitType==7) { }}
+    企业
+    {{# } else { }}
+    其他
+    {{# } }}
+</script>
+
+<script type="text/html" id="unitStatusTpl">
+    {{# if(d.unitStatus==0){ }}
+    <span style="color:#16b777">存续</span>
+    {{# } else if (d.unitStatus==1){ }}
+    <span style="color:#1e9fff">在业</span>
+    {{# } else if (d.unitStatus==2){ }}
+    <span style="color:#a233c6">吊销</span>
+    {{# } else if (d.unitStatus==3){ }}
+    <span style="color:#a233c6">注销</span>
+    {{# } else if (d.unitStatus==4){ }}
+    <span style="color:#ffb800">迁出</span>
+    {{# } else if (d.unitStatus==5){ }}
+    <span style="color:#ffb800">迁入</span>
+    {{# } else if (d.unitStatus==6){ }}
+    <span style="color:#ff5722">停业</span>
+    {{# } else if (d.unitStatus==7){ }}
+    <span style="color:#FF5722">清算</span>
+    {{# } else { }}
+    <span style="color:#2f363c">其他</span>
+    {{# } }}
+</script>
+
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/district/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getDistrictTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/unitinfo/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getUnitInfoTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
 
 
@@ -64,31 +120,42 @@
     let provinceId = 0;
     let cityId = 0;
     let districtId = 0;
+    let unitType = 0;
     getSelectItems('/system/province/GetProvinceDrops', {}, 'selectTpl', 'provinceView');
 
     form.on('select(provinceId)', (data) => {
         provinceId = data.value;
         $('#districtView').val('').html('');
-        if (provinceId)
+        $('#cityView').val('').html('');
+        form.render('select');
+        cityId = 0;
+        districtId = 0;
+        if (isNumeric(provinceId) && provinceId != '0')
             getSelectItems('/system/city/GetCityDrops', { provinceId: provinceId }, 'selectTpl', 'cityView', false);
-        else
-            $('#cityView').val('').html('');
+       
         getUnitInfoTable();
     })
 
     form.on('select(cityId)', (data) => {
         cityId = data.value;
-        if (cityId)
+        $('#districtView').val('').html('');
+        form.render('select');
+        districtId = 0;
+        if (isNumeric(cityId) && cityId!='0')
             getSelectItems('/system/district/GetDistrictDrops', { cityId: cityId }, 'selectTpl', 'districtView', false)
-        else {
-            $('#districtView').val('').html('');
-        }
+        
         getUnitInfoTable();
     })
     form.on('select(districtId)', (data) => {
         districtId = data.value;
         getUnitInfoTable();
     })
+
+    form.on('select(unitType)',(data)=>{
+        unitType = data.value;
+        getUnitInfoTable();
+    })
+
     getUnitInfoTable();
     function getUnitInfoTable() {
         var params = {
@@ -101,12 +168,13 @@
                 { title: '序号', templet: '#indexTpl', width: 100 }
                 //{ field: 'id', title: '用户id', type: 'checkbox' }
                 , { field: 'unitCaption', title: '单位名称' }
-                , { field: 'organizationCode', title: '组织机构代码' }
-                , { field: 'address', title: '地址' }
+                , { field: 'organizationCode', title: '统一信用代码' }
+                , { templet: '#typeTpl', title: '单位类型' }
                 , { field: 'telephone', title: '联系方式' }
                 , { field: 'provinceShortName', title: '省份' }
                 , { field: 'cityName', title: '城市' }
-                , { templet: '#statusTpl', title: '状态' }
+                , { templet: '#unitStatusTpl', title: '经营状态' }
+                , { templet: '#statusTpl', title: '数据状态' }
                 , { title: '操作', templet: '#operationTpl', width: 260 }
             ],
             height: 630
@@ -152,7 +220,13 @@
                 'Value': districtId
             });
         }
-
+        if (unitType > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'UnitType',
+                'Operator': 'Equal',
+                'Value': unitType
+            });
+        }
         if ($("#keyword").val()) {
             let keyword = $("#keyword").val().trim();
             whereJsonStr.Filters.push({

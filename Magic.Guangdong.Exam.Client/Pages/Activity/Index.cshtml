@@ -24,11 +24,12 @@
     {{# } }}
         <article id="activityInfo{{ index }}">
             <header>{{ item.title }}</header>
-            <p>
+            <p class="grid">
+                <a role="button" href="@Url.Page("Detail")?id={{item.id}}"class="secondary">查看</a>
                 <a role="button" href="javascript:;" onclick="report({{item.id}})">报名</a>
             </p>
-            {{- item.description.replaceAll('../../',fileBaseUrl)}}
-            
+            <img src="{{ fileBaseUrl+item.cover}}" alt="cover" />
+
         </article>
     {{# if(index%3==0 && index>0 || index==d.length-1) { }}
         </div>
@@ -40,6 +41,7 @@
     let pageIndex = 1;
 
     autoSearch('keyword', function () {
+        $('#content').attr('aria-busy', 'true');
         getActivities();
     })
 
@@ -53,6 +55,7 @@
         }).then(data => {
             let json = data.data;
             renderTpl('activityTpl', 'content', json.data.items, false);
+            $('#content').attr('aria-busy', false);
         })
     }
 

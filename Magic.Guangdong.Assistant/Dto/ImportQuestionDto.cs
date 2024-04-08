@@ -22,6 +22,10 @@ namespace Magic.Guangdong.Assistant.Dto
         [Required(ErrorMessage = "题型不能为空")]
         public string QuestionType { get; set; }
 
+        [ImporterHeader(Name = "归属活动", Description = "输入后台创建的活动，如果是通用题库则不用填", AutoTrim = true, FixAllSpace = true)]
+        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        public string ActivityTitle { get; set; }
+
         [ImporterHeader(Name = "难度", Description = "只能填入容易，普通，困难三种类型", AutoTrim = true, FixAllSpace = true)]
         [Required(ErrorMessage = "题型不能为空")]
         [ValueMapping("容易", "easy")]
@@ -89,6 +93,6 @@ namespace Magic.Guangdong.Assistant.Dto
         public string CreateBy { get; set; }
 
         [ImporterHeader(IsIgnore = true)]
-        public string ColumnId { get; set; }
+        public long ActivityId { get; set; } = 0;
     }
 }

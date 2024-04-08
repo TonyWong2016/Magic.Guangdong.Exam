@@ -198,7 +198,7 @@
         localStorage.setItem("initStr", jVal("ExtraInfo"));
         layer.open({
             type: 2,
-            content: '@Url.Action("SetValidate")?columnId=' + columnId,
+            content: '@Url.Action("SetValidate")',
             shade: [0.3, '#393D49'],
             area: ['100%', '100%'],
             closeBtn: 0,//不显示答题按钮，必须通过点击子页面内按钮关闭

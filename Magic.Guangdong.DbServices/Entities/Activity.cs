@@ -58,6 +58,12 @@ namespace Magic.Guangdong.DbServices.Entities {
 		/// </summary>
 		[JsonProperty, Column(DbType = "money")]
 		public decimal Expenses { get; set; } = 0;
+
+        /// <summary>
+        /// 宣传封面
+        /// </summary>
+        [JsonProperty]
+        public string Cover { get; set; } = "/images/cover.jpg";
     }
 
 }

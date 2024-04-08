@@ -54,6 +54,21 @@ namespace Magic.Guangdong.DbServices.Entities
 
         [JsonProperty]
         public long UnitId { get; set; } = 0;
+
+		[JsonProperty,Column(StringLength = 200)]
+		public string Address { get; set; } = string.Empty;
+
+		public CardType CardType { get; set; } = CardType.China;
     }
+
+	public enum CardType
+	{
+		China,
+		HongKong,
+		Macao,
+		Taiwan,
+		Passport,
+		Other
+	}
 
 }

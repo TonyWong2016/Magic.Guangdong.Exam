@@ -45,7 +45,14 @@
                     <blockquote class="layui-elem-quote" style="margin-top:10px">叶子节点才可以绑定路由访问路径</blockquote>
                 </div>
             </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="layui-badge-dot"></span> 排序</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="number" lay-affix="number" step="1" min="0" max="1000000" asp-for="OrderIndex" placeholder="请输入菜单排序" />
+                    <blockquote class="layui-elem-quote" style="margin-top:10px">影响菜单排布的属性，数字越小越靠前</blockquote>
 
+                </div>
+            </div>
             <div id="divProp" class="leafAttrs" style="display:none">
                 <div class="layui-form-item">
                     <label class="layui-form-label"><span class="layui-badge-purple"></span> 路由地址</label>
@@ -114,7 +121,7 @@
                     // console.log(data);
                     form.val('menu-form', { 'ParentId': 0 });
                     if (data.isAdd) {
-                        form.val('menu-form', { 'ParentId': data.arr[0].id, 'Depth': data.arr[0].depth + 1 });
+                        form.val('menu-form', { 'ParentId': data.arr[0].id, 'Depth': data.arr[0].depth + 1, 'OrderIndex': (data.arr[0].depth + 1)*10 });
                     }
                     if (data.change[0].isLeef == 1) {
                         menus.warning();

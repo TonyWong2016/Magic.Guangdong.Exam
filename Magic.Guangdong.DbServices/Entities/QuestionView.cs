@@ -13,8 +13,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string Author { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(50)")]
-		public string ColumnId { get; set; }
+		[JsonProperty]
+		public long ActivityId { get; set; }
 
 		[JsonProperty]
 		public DateTime CreatedAt { get; set; }

@@ -30,7 +30,7 @@ namespace Magic.Guangdong.DbServices.Entities
         public string Description { get; set; } = "";
 
         [JsonProperty]
-        public Guid AdminId { get; set; }
+        public Guid AdminId { get; set; } = Guid.Empty;
 
         [JsonProperty]
         public Guid AccountId { get; set; } = Guid.Empty;

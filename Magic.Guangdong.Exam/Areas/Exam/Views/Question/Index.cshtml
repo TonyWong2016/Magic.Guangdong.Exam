@@ -4,48 +4,47 @@
 
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
-       
+        <div class="layui-form-item layui-btn-group">
+            <a href="@Url.Action("Create")" class="layui-btn" id="btnAddQuestion"><i class="layui-icon layui-icon-add-1"></i>新增题目</a>
+            <a href="/exam/subject/index" class="layui-btn" id="btnSubject"><i class="layui-icon layui-icon-read"></i>新增科目</a>
+            <a href="/exam/questiontype/index" class="layui-btn" id="btnType"><i class="layui-icon layui-icon-star"></i>新增题型</a>
+            <a href="javascript:;" class="layui-btn layui-btn-normal" id="btnUpload"><i class="layui-icon layui-icon-upload"></i>导入题库</a>
 
-            <div class="layui-input-inline" style="width:350px">
-                <input class="layui-input" id="keyword" placeholder="输入关键字检索"/>
+        </div>
+
+        <div class="layui-form-item">
+            <div class='layui-input-inline' style='width:360px'>
+                <select id='ActivityId' lay-filter='ActivityId'>
+                    <option value='0'>请选择所属活动</option>
+                </select>
             </div>
 
-        <div class="layui-input-inline">
-            <select id="SubjectId" lay-filter="SubjectId" class="layui-select" lay-search>
-                <option value="0">请选择科目</option>
-            </select>
-        </div>
+            <div class="layui-input-inline">
+                <input class="layui-input" id="keyword" placeholder="输入关键字检索" />
+            </div>
 
-        <div class="layui-input-inline">
-            <select id="TypeId" lay-filter="TypeId" class="layui-select">
-                <option value="0">请选择题目类型</option>
-            </select>
-        </div>
+            <div class="layui-input-inline">
+                <select id="SubjectId" lay-filter="SubjectId" class="layui-select" lay-search>
+                    <option value="0">请选择科目</option>
+                </select>
+            </div>
 
-        <div class="layui-input-inline">
-            <select id="Degree" lay-filter="Degree" class="layui-select">
-                <option value="all">请选择题目难度</option>
-                <option value="easy">容易</option>
-                <option value="normal">一般</option>
-                <option value="difficult">困难</option>
-            </select>
-        </div>
+            <div class="layui-input-inline">
+                <select id="TypeId" lay-filter="TypeId" class="layui-select">
+                    <option value="0">请选择题目类型</option>
+                </select>
+            </div>
 
-        <div class="layui-input-inline">
-            <a href="@Url.Action("Create")" class="layui-btn" id="btnAddQuestion"><i class="layui-icon layui-icon-add-1"></i>新增题目</a>
+            <div class="layui-input-inline">
+                <select id="Degree" lay-filter="Degree" class="layui-select">
+                    <option value="all">请选择题目难度</option>
+                    <option value="easy">容易</option>
+                    <option value="normal">一般</option>
+                    <option value="difficult">困难</option>
+                </select>
+            </div>
         </div>
-
-        <div class="layui-input-inline">
-            <a href="/exam/subject/index" class="layui-btn" id="btnSubject"><i class="layui-icon layui-icon-read"></i>新增科目</a>
-        </div>
-
-        <div class="layui-input-inline">
-            <a href="/exam/questiontype/index" class="layui-btn" id="btnType"><i class="layui-icon layui-icon-star"></i>新增题型</a>
-        </div>
-
-        <div class="layui-input-inline">
-            <a href="javascript:;" class="layui-btn layui-btn-normal" id="btnUpload"><i class="layui-icon layui-icon-upload"></i>导入题库</a>
-        </div>
+        
     </form>
     <table id="table" class="layui-table" lay-filter="table"></table>
 </div>
@@ -93,8 +92,13 @@
     let token = $('@Html.AntiForgeryToken()').val();
     let subjectId=0;
     let typeId=0;
+    let activityId = 0;
     let degree = 'all';
     //form.render('select');
+
+    
+
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
     getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', 'SubjectId', true)
     getSelectItems('/exam/questiontype/GetQuestionTypeSelects', {}, 'selectTpl', 'TypeId', true)
 
@@ -194,6 +198,10 @@
         getQuestions();
     })
 
+    form.on("select(ActivityId)", data => {
+        activityId = data.value;
+        getQuestions();
+    })
 
     form.on('select(Degree)',function(data){
         degree=data.value;
@@ -209,44 +217,41 @@
                 'Value': 0
             }]
         };
-        if (jVal('keyword')){
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'Title',
-                    'Operator': 'Contains',
-                    'Value': jVal('keyword')
-                }]
-            });
-        }
+       
         if (typeId != '0') {
             whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'TypeId',
-                    'Operator': 'Equal',
-                    'Value': typeId
-                }]
+                'Field': 'TypeId',
+                'Operator': 'Equal',
+                'Value': typeId
             });
         }
         if (subjectId != '0') {
             whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'SubjectId',
-                    'Operator': 'Equal',
-                    'Value': subjectId
-                }]
+                'Field': 'SubjectId',
+                'Operator': 'Equal',
+                'Value': subjectId
+            });
+        }
+        if (activityId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'ActivityId',
+                'Operator': 'Equal',
+                'Value': activityId
             });
         }
         if(degree !='all'){
             whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'Degree',
-                    'Operator': 'Equal',
-                    'Value': degree
-                }]
+                'Field': 'Degree',
+                'Operator': 'Equal',
+                'Value': degree
+            });
+        }
+
+        if (jVal('keyword')) {
+            whereJsonStr.Filters.push({
+                'Field': 'Title',
+                'Operator': 'Contains',
+                'Value': jVal('keyword')
             });
         }
         return whereJsonStr;

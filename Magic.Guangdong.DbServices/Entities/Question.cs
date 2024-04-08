@@ -24,10 +24,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "nvarchar(50)")]
 		public string Author { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(50)")]
-		public string ColumnId { get; set; } = "0";
+		
 
-		[JsonProperty, Column(InsertValueSql = "getdate()")]
+        [JsonProperty]
+        public long ActivityId { get; set; } = 0;
+
+        [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]

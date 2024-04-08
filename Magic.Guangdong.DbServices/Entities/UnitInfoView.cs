@@ -27,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string Address { get; set; }
 
 		[JsonProperty]
-		public int? CheckStatus { get; set; }
+		public int UnitStatus { get; set; }
 
 		[JsonProperty]
 		public int CityId { get; set; }
@@ -38,8 +38,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public int DistrictId { get; set; }
 
-		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
-		public string DistrictName { get; set; }
+		//[JsonProperty, Column(StringLength = 50, IsNullable = false)]
+		//public string DistrictName { get; set; }
 
 		[JsonProperty, Column(StringLength = 20)]
 		public string Fax { get; set; }
@@ -80,6 +80,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = 100)]
 		public string UnitUrl { get; set; }
 
-	}
+        [JsonProperty, Column(StringLength = 50)]
+        public string LegalPerson { get; set; } = "";
+
+    }
 
 }

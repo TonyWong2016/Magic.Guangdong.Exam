@@ -22,7 +22,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
             _resp = resp;
         }
 
-        [RouteMark("活动管理")]
+        [RouteMark("活动报名")]
         public IActionResult Index()
         {
             return View();

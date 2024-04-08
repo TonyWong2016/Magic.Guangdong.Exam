@@ -83,6 +83,7 @@
                 , { field: 'name', title: '功能名称' }
                 , { field: 'description', title: '描述' }
                 , { field: 'depth', title: '栏目层级' }
+                , { field: 'orderIndex', title: '排序' }
                 , { templet: '#statusTpl', title: '状态' }
                 , { field: 'router', title: '路由地址' }
                 , { field: 'parentId', hide: true }
@@ -139,7 +140,7 @@
         }
 
 
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr),'orderby':'depth', 'rd': randomInt };
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr),'orderby':'orderindex', 'rd': randomInt };
     }
 
 

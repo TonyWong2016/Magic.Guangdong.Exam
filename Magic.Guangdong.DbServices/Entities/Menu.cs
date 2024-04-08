@@ -18,7 +18,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int Depth { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
+        [JsonProperty]
+        public int OrderIndex { get; set; } =0;
+
+        [JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
 		public string? Description { get; set; }
 
 		[JsonProperty]

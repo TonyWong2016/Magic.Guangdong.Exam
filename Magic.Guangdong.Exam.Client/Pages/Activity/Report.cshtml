@@ -1,0 +1,91 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Activity.ReportModel
+@{
+}
+
+<main class="container">
+    
+    <form>
+        <label>活动</label>
+        <input type="text"
+               id="ActivityTitle"
+               value="根据activityId获取的活动标题"
+               placeholder="Disabled"
+               aria-label="Disabled input"
+               disabled />
+        <!-- Input inside label -->
+        <label>
+            姓名
+        </label>
+        <input id="Name" name="Name"
+                placeholder="真实姓名"
+                autocomplete="off" />
+        
+
+        <!-- Input outside label -->
+        <label>邮箱</label>
+        <fieldset class="grid">
+            <input type="email"
+                   id="email"
+                   placeholder="请输入真实可用的邮箱地址，用来接收消息和通知"
+                   autocomplete="email"
+                   aria-describedby="email-helper" />           
+            <input type="number"
+                   id="emailVerify"
+                   placeholder="输入验证码"
+                   autocomplete="off" />
+            <input type="button" id="verifyEmail"
+                   value="发送验证码" />
+        </fieldset>
+        
+        <label>联系方式</label>
+        <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" />
+       
+        <label>证件号</label>
+        <fieldset class="grid">
+            <select name="CardType" id="CardType">
+                <option selected disabled value="">
+                    证件类型
+                </option>
+                <option value="0">中国大陆公民身份证</option>
+                <option value="1">香港身份证</option>
+                <option value="2">澳门身份证</option>
+                <option value="3">台湾身份证</option>
+                <option value="4">护照</option>
+                <option value="5">其他</option>
+
+            </select>
+            <input type="tel" id="IdCard" name="IdCard" placeholder="输入您的证件号码" aria-label="Tel" autocomplete="tel" />
+
+        </fieldset>
+
+
+        <label>
+            地址
+        </label>
+        <fieldset class="grid">
+            <select Id="ProvinceId" name="ProvinceId" aria-label="选择您所在的省份" required>
+                <option selected disabled value="">
+                    选择您所在的省份
+                </option>
+            </select>
+            <select Id="CityId" name="CityId" aria-label="选择您所在的城市" required>
+                <option selected disabled value="">
+                    选择您所在的城市
+                </option>
+            </select>
+            <select Id="DistrictId" name="DistrictId" aria-label="选择您所在的区/县" required>
+                <option selected disabled value="">
+                    选择您所在的区/县
+                </option>
+            </select>
+            <input type="text"
+                   id="Address"
+                   name="Address"
+                   placeholder="您的具体地址，街道，小区等" />
+        </fieldset>
+       
+       
+
+    </form>
+</main>

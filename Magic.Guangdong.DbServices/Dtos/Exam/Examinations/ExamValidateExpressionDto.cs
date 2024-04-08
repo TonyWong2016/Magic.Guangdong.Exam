@@ -12,7 +12,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
 
         public Guid[] PaperIds { get; set; }
 
-        public string ColumnId { get; set; }
+        public long ActivityId { get; set; }
 
         public string Expression { get; set; }
 

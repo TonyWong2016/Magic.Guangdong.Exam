@@ -34,10 +34,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword","districtId", "cityId", "provinceId" })]
-        public async Task<IActionResult> GetUnitInfoDrops(string keyword,int districtId=0, int cityId = 0, int provinceId = 0)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "cityId", "provinceId","rd" })]
+        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int cityId = 0, int provinceId = 0)
         {
-            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword, districtId, cityId, provinceId)));
+            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword,  cityId, provinceId)));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
@@ -55,11 +55,12 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UnitInfo unitInfo)
         {
-            if(await _unitInfoRepo.getAnyAsync(u=>u.OrganizationCode==unitInfo.OrganizationCode || 
-            (u.UnitCaption==unitInfo.UnitCaption &&
+            if(await _unitInfoRepo.getAnyAsync(u=>u.OrganizationCode==unitInfo.OrganizationCode &&             
+            u.UnitCaption==unitInfo.UnitCaption &&
             u.ProvinceId==unitInfo.ProvinceId &&
             u.CityId==unitInfo.CityId &&
-            u.DistrictId == unitInfo.DistrictId)))
+            u.DistrictId == unitInfo.DistrictId
+            ))
             {
                 return Json(_resp.error("单位已存在"));
             }
@@ -74,22 +75,22 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         }
 
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UnitInfoView unitInfo)
+        public async Task<IActionResult> Edit(UnitInfo unitInfo)
         {
             if (await _unitInfoRepo.getAnyAsync(u => u.Id != unitInfo.Id &&
-            u.OrganizationCode == unitInfo.OrganizationCode ||
-           (u.UnitCaption == unitInfo.UnitCaption &&
-           u.ProvinceId == unitInfo.ProvinceId &&
-           u.CityId == unitInfo.CityId &&
-           u.DistrictId == unitInfo.DistrictId)
+                u.OrganizationCode == unitInfo.OrganizationCode &&
+                u.UnitCaption == unitInfo.UnitCaption &&
+                u.ProvinceId == unitInfo.ProvinceId &&
+                u.CityId == unitInfo.CityId &&
+                u.DistrictId == unitInfo.DistrictId
            ))
             {
                 return Json(_resp.error("单位已存在"));
             }
-            var model = unitInfo.Adapt<UnitInfo>();
-            model.UpdatedAt = DateTime.Now;
+           // var model = unitInfo.Adapt<UnitInfo>();
+            unitInfo.UpdatedAt = DateTime.Now;
 
-            return Json(_unitInfoRepo.updateItemAsync(model));
+            return Json(_resp.success( await _unitInfoRepo.updateItemAsync(unitInfo)));
         }
 
         [RouteMark("删除单位")]

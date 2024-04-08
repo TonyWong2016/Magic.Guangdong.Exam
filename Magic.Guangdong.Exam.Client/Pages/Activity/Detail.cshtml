@@ -1,0 +1,15 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Activity.DetailModel
+@{
+}
+<main class="container">
+    <article>
+        @Html.Raw(Model.Deacription)
+        <footer class="grid">
+            <a role="button" href="@Url.Page("Report")?id=@Model.Id">去报名</a>
+        </footer>
+    </article>
+   
+</main>
+
+

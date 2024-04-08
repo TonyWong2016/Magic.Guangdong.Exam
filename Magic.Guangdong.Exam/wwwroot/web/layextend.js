@@ -52,7 +52,7 @@ function renderTpl(tplid, viewid, data, append) {
         if (view.innerHTML.indexOf('请') > -1) {
             tpl = tpl.replace('<option value="0">请选择</option>', '');
         }
-        if (!append && data != null && data.length > 0 && data[0].text.indexOf('请') == -1 && tpl.indexOf('请')== -1) {
+        if (!append && data != null && data.length > 0 && data[0].text && data[0].text.indexOf('请') == -1  && tpl.indexOf('请')== -1) {
             data.unshift({ 'text': '请选择' });
         }
         let laytpl = layui.laytpl;

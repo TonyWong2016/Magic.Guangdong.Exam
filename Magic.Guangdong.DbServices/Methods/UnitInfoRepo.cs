@@ -44,12 +44,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToList();
         }
 
-        public async Task<dynamic> GetUnitDropsAsync(string keyword, int districtId, int cityId, int provinceId)
+        public async Task<dynamic> GetUnitDropsAsync(string keyword, int cityId, int provinceId)
         {
             return await fsql.Get(conn_str).Select<UnitInfoView>()
                 .Where(u => u.IsDeleted == 0)
                 .WhereIf(!string.IsNullOrWhiteSpace(keyword),u=>u.UnitCaption.Contains(keyword))
-                .WhereIf(districtId>0, u=>u.DistrictId==districtId)
                 .WhereIf(cityId>0,u=>u.CityId==cityId)
                 .WhereIf(provinceId > 0, u => u.ProvinceId == provinceId)
                 .ToListAsync(u => new

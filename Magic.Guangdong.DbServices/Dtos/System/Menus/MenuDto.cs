@@ -31,6 +31,8 @@ namespace Magic.Guangdong.DbServices.Dtos.System.Menus
 
         public int IsLeef { get; set; }
 
+        public int OrderIndex {  get; set; }
+
         //public Guid CreatorId { get; set; } = Guid.Empty;
     }
 }

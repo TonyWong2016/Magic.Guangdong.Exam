@@ -17,6 +17,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IQuestionRepo _questionRepo;
         private readonly IQuestionTypeRepo _typeRepo;
         private readonly ISubjectRepo _subjectRepo;
+        private readonly IActivityRepo _activityRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly string adminId="system";
         /// <summary>
@@ -26,12 +27,13 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="questionRepo"></param>
         /// <param name="typeRepo"></param>
         /// <param name="subjectRepo"></param>
-        public QuestionController(IResponseHelper resp, IQuestionRepo questionRepo, IQuestionTypeRepo typeRepo, ISubjectRepo subjectRepo, IHttpContextAccessor contextAccessor)
+        public QuestionController(IResponseHelper resp, IQuestionRepo questionRepo, IQuestionTypeRepo typeRepo, ISubjectRepo subjectRepo,IActivityRepo activityRepo, IHttpContextAccessor contextAccessor)
         {
             _resp = resp;
             _questionRepo = questionRepo;
             _typeRepo = typeRepo;
             _subjectRepo = subjectRepo;
+            _activityRepo = activityRepo;
             _contextAccessor = contextAccessor;
             adminId = _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
                 Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
@@ -160,12 +162,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
         [RouteMark("导入word试题")]
-        public async Task<IActionResult> ImportQuestionFromWord([FromServices] IWebHostEnvironment en, Guid subjectId, string columnId, string path)
+        public async Task<IActionResult> ImportQuestionFromWord([FromServices] IWebHostEnvironment en, Guid subjectId, long activityId, string path)
         {
             //var types = await _typeRepo.getListAsync(u => u.IsDeleted == 0);
             //var importList = await new WordUtils(_questionRepo,typeRepo, _resp).ParseWord("C:\\Users\\Administrator\\Desktop\\测试导入.docx",subjectId);
             path = en.WebRootPath + path;
-            var importList = await new Utils.WordUtils(_typeRepo, _subjectRepo).ParseWord(path, subjectId, columnId);
+            var importList = await new Utils.WordUtils(_typeRepo, _subjectRepo,_activityRepo).ParseWord(path, subjectId, activityId);
             return Json(_resp.success(await _questionRepo.ImportQuestionsFromWord(importList)));
         }
 
@@ -193,22 +195,42 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             try
             {
                 List<ImportQuestionDto> importList = await ExcelHelper<ImportQuestionDto>.GetImportData(path);
-                var types = await _typeRepo.getListAsync(u => u.IsDeleted == 0);
-                var subjects = await _subjectRepo.getListAsync(u => u.IsDeleted == 0);
+                var types = (await _typeRepo.getListAsync(u => u.IsDeleted == 0)).Select(u => new
+                {
+                    u.Id,u.Caption
+                });
+                var subjects = (await _subjectRepo.getListAsync(u => u.IsDeleted == 0)).Select(u => new
+                {
+                    u.Id,u.Caption
+                });
+                var activities = (await _activityRepo.getListAsync(u => u.IsDeleted == 0)).Select(u => new
+                {
+                    u.Id,u.Title
+                });
                 foreach (var item in importList)
                 {
                     if (!types.Any(u => u.Caption == item.QuestionType))
                     {
                         return Json(_resp.ret(-1, "有不存在的题型，请确保导入的数据中的题型已录入系统"));
                     }
+                    item.QuestionTypeId = types.Where(u => u.Caption == item.QuestionType).First().Id;
+
                     if (!subjects.Any(u => u.Caption == item.QuestionSubject))
                     {
                         return Json(_resp.ret(-1, "有不存在的科目，请确保导入的数据中的科目已录入系统"));
                     }
-                    item.SubjectId = subjects.Find(u => u.Caption == item.QuestionSubject).Id;
-                    item.QuestionTypeId = types.Find(u => u.Caption == item.QuestionType).Id;
+                    item.SubjectId = subjects.Where(u => u.Caption == item.QuestionSubject).First().Id;
+
+                    //item.ActivityId = activities.Any() ? activities.Where(u => u.Title == item.ActivityTitle).First().Id : 0;
+                    if (string.IsNullOrEmpty(item.ActivityTitle))
+                        item.ActivityId = 0;
+                    else if (!activities.Where(u => u.Title == item.ActivityTitle).Any())
+                        return Json(_resp.ret(-1, "有不存在的活动，请确保导入的数据中的活动已录入系统，如要录入通用题库则清空活动标题单元格"));
+                    else
+                        item.ActivityId = activities.Where(u => u.Title == item.ActivityTitle).First().Id;
+
                     item.CreateBy = adminId;
-                    item.ColumnId = "";
+
                 }
 
                 return Json(_resp.success(await _questionRepo.ImportQuestionFromExcel(importList)));

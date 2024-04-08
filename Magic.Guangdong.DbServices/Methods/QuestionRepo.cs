@@ -191,7 +191,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             CreatedBy = item.CreateBy,
                             Score = item.Score,
                             Degree = item.Degree,
-                            ColumnId = item.ColumnId
+                            ActivityId = item.ActivityId
                         };
                         questionItems.AddRange(MakeQuestionItems(item, question.Id));
                         if (questionItems.Count > 1000)

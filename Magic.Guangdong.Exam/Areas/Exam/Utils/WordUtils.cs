@@ -11,10 +11,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
     {
         private readonly ISubjectRepo _subjectRepo;
         private readonly IQuestionTypeRepo _questionTypeRepo;
-        public WordUtils(IQuestionTypeRepo questionTypeRepo, ISubjectRepo subjectRepo)
+        private readonly IActivityRepo _activityRepo;
+        public WordUtils(IQuestionTypeRepo questionTypeRepo, ISubjectRepo subjectRepo, IActivityRepo activityRepo)
         {
             _questionTypeRepo = questionTypeRepo;
             _subjectRepo = subjectRepo;
+            _activityRepo = activityRepo;
         }
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
         /// <param name="path"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public async Task<dynamic> ParseWord(string path, Guid? subjectId, string columnId = "0")
+        public async Task<dynamic> ParseWord(string path, Guid? subjectId, long activityId = 0)
         {
             FileStream fis = new FileStream(path, FileMode.Open, FileAccess.Read);
             XWPFDocument doc = new XWPFDocument(fis);
@@ -35,7 +37,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
                 return false;
             }
             var types = await _questionTypeRepo.getListAsync(u => u.IsDeleted == 0);
-            var subjects = await _subjectRepo.getListAsync(u => u.IsDeleted == 0);
+            var subjects = (await _subjectRepo.getListAsync(u => u.IsDeleted == 0)).Select(u => new {u.Id,u.Caption});
+            var activities = (await _activityRepo.getListAsync(u => u.IsDeleted == 0)).Select(u => new { u.Id, u.Title });
             //var typeGroups = types.Select(u => u.Caption);
             List<ImportQuestionFromWord> questionlist = new List<ImportQuestionFromWord>();
             List<ImportQuestionItem> optionList = new List<ImportQuestionItem>();
@@ -49,11 +52,11 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
 
                 if (types.Any(u => u.Caption == para.Text))
                 {
-                    type = types.Find(u => u.Caption == para.Text);
+                    type = types.Where(u => u.Caption == para.Text).First();
                     continue;
                 }
                 questionModel.typeId = type.Id;
-                questionModel.columnId = columnId;
+                questionModel.ActivityId = activityId;
                 //匹配标题
                 Regex titleRegex = new Regex(@"^\d、|^\d\.");
                 if (titleRegex.IsMatch(para.Text))
@@ -135,7 +138,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
                     string subject = para.Text.Replace("科目:", "");
                     if (subjects.Any(u => u.Caption == subject))
                     {
-                        questionModel.subjectId = subjects.Find(u => u.Caption == subject).Id;
+                        questionModel.subjectId = subjects.Where(u => u.Caption == subject).First().Id;
                     }
                     Console.WriteLine("科目：" + para.Text);
                     continue;
@@ -143,6 +146,27 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Utils
                 else
                 {
                     questionModel.subjectId = (Guid)subjectId;
+                }
+
+                //匹配活动（如果导入中包含活动，则取活动，如果不包含则取0）
+                Regex activityRegex = new Regex(@"^(所属活动：)");
+                if (scoreRegex.IsMatch(para.Text))
+                {
+                    string activity = para.Text.Replace("所属活动:", "");
+                    if (string.IsNullOrWhiteSpace(activity))
+                    {
+                        questionModel.ActivityId = 0;
+                    }
+                    else if (activities.Any(u => u.Title == activity))
+                    {
+                        questionModel.ActivityId = activities.Where(u => u.Title == activity).First().Id;
+                    }
+                    Console.WriteLine("所属活动：" + para.Text);
+                    continue;
+                }
+                else
+                {
+                    questionModel.ActivityId = 0;
                 }
 
                 //匹配解析

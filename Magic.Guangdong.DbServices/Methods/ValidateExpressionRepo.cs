@@ -27,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         {
                             continue;
                         }
-                        await repo.Where(u => u.PaperId == paperId && u.ColumnId == dto.ColumnId)
+                        await repo.Where(u => u.PaperId == paperId && u.ActivityId == dto.ActivityId)
                              .ToUpdate()
                              .Set(u => u.IsDeleted, 1)
                              .Set(u => u.UpdatedAt, DateTime.Now)
@@ -35,12 +35,7 @@ namespace Magic.Guangdong.DbServices.Methods
                              .ExecuteAffrowsAsync();
                     }
                 }
-                //await repo.Where(u => u.ExamId == dto.ExamId &&  dto.PaperIds.Contains(u.PaperId) && u.ColumnId == dto.ColumnId)
-                //    .ToUpdate()
-                //    .Set(u => u.IsDeleted, 1)
-                //    .Set(u => u.UpdatedAt, DateTime.Now)
-                //    .Set(u => u.Remark, $"于{DateTime.Now}被管理员{dto.AdminId}删除")
-                //    .ExecuteAffrowsAsync();
+                
 
                 List<ValidateExpression> validateExpressions = new List<ValidateExpression>();
                 foreach (Guid paperId in dto.PaperIds)
@@ -54,7 +49,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         Expression = dto.Expression,
                         CreatedBy = dto.AdminId,
                         UpdatedBy = dto.AdminId,
-                        ColumnId = dto.ColumnId
+                        ActivityId = dto.ActivityId
                     });
                 }
                 await repo.InsertAsync(validateExpressions);

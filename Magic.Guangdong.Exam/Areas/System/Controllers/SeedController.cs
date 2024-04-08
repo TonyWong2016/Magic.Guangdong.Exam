@@ -129,7 +129,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                         ParentId = item.Id,
                         Depth = item.Depth + 1,
                         IsLeef = 0,
-                        Description = $"{name}有关操作"
+                        Description = $"{name}有关操作",
+                        OrderIndex = (item.Depth + 1) * 10
                     });
                     cnt++;
                 }
@@ -263,6 +264,11 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         public async Task<IActionResult> InitActivityData([FromServices]IActivityRepo activityRepo)
         {
+            if(await activityRepo.getCountAsync(u => u.Id > 0) != 0)
+            {
+                return Json(_resp.error("已有数据"));
+            }
+
             var list = new List<Activity>(){
                 new Activity()
                 {
@@ -283,6 +289,48 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success(true));
 
 
+        }
+    
+        public async Task<IActionResult> InitUnitInfoData([FromServices]IUnitInfoRepo unitInfoRepo)
+        {
+            if(await unitInfoRepo.getCountAsync(u => u.Id > 0) > 0)
+            {
+                return Json(_resp.error("已有数据"));
+            }
+            var list = new List<UnitInfo>(){
+                new UnitInfo()
+                {
+                    UnitNo="6666",
+                    UnitCaption="不正常人类研究中心",
+                    UnitIntroduction="不正常人类研究中心",
+                    UnitType=UnitType.ScientificResearchInstitution,
+                    UnitUrl = "https://github.com",
+                    Address="火星",
+                    ProvinceId=32,
+                    CityId=320100,
+                    DistrictId=320111,
+                    Status=0,
+                    OrganizationCode="123456",
+                    Telephone="123456"
+                },
+                new UnitInfo()
+                {
+                     UnitNo="6666",
+                    UnitCaption="正常人类研究中心",
+                    UnitIntroduction="正常人类研究中心",
+                    UnitType=UnitType.Enterprises,
+                    UnitUrl = "https://picocss.com",
+                    Address="地球星",
+                    ProvinceId=13,
+                    CityId=130600,
+                    DistrictId=130603,
+                    Status=0,
+                    OrganizationCode="654321",
+                    Telephone="123456789"
+                }
+            };
+            await unitInfoRepo.addItemsBulkAsync(list);
+            return Json(_resp.success(true));
         }
     }
 }

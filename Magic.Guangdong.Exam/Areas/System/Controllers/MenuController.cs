@@ -23,7 +23,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         //[Route("/Menu/")]
         private IResponseHelper _resp;
         private IMenuRepo _menuRepo;
-       
+        
 
         /// <summary>
         /// 栏目菜单相关
@@ -53,9 +53,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         {
             if (parentId == null)
             {
-                return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted == 0 && u.Status == 1)).Adapt<List<MenuDto>>()));
+                return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted == 0 && u.Status == 1)).OrderBy(u=>u.OrderIndex).Adapt<List<MenuDto>>()));
             }
-            return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted==0 && u.Status==1 && u.ParentId == (long)parentId)).Adapt<List<MenuDto>>()));
+            return Json(_resp.success((await _menuRepo.getListAsync(u => u.IsDeleted==0 && u.Status==1 && u.ParentId == (long)parentId)).OrderBy(u => u.OrderIndex).Adapt<List<MenuDto>>()));
         }
 
         [HttpGet]
@@ -141,6 +141,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             var item = await _menuRepo.getOneAsync(u => u.Id == id);
             item.UpdatedAt=DateTime.Now;
             item.IsDeleted = 1;
+            item.OrderIndex = 1000000;
             return Json(_resp.success(await _menuRepo.updateItemAsync(item)));
         }
 

@@ -23,6 +23,11 @@
       "provider": "cdnjs",
       "library": "tinymce@7.0.0",
       "destination": "wwwroot/plugins/tinymce/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "echarts@5.5.0",
+      "destination": "wwwroot/plugins/echarts/"
     }
   ]
 }
