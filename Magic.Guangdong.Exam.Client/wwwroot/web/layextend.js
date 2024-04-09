@@ -44,15 +44,18 @@ function autoCheckFormRequired() {
     });
 }
 
-function renderTpl(tplid, viewid, checkbarParams, append) {
+function renderTpl(tplid, viewid, data, append) {
     
     if (tplid && viewid) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
         if (view.innerHTML.indexOf('请') > -1) {
             tpl = tpl.replace('<option value="0">请选择</option>', '');
         }
+        if (!append && data != null && data.length > 0 && data[0].text && data[0].text.indexOf('请') == -1 && tpl.indexOf('请') == -1) {
+            data.unshift({ 'text': '请选择' });
+        }
         let laytpl = layui.laytpl;
-        laytpl(tpl).render(checkbarParams, function (html) {
+        laytpl(tpl).render(data, function (html) {
             if (append)
                 view.innerHTML += html;
             else

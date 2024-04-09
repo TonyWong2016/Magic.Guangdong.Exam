@@ -13,7 +13,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         /// <summary>
         /// 抽题人ID
         /// </summary>
-        public long userId { get; set; }
+        //public long userId { get; set; }
+        public string accountId { get; set; }
 
         /// <summary>
         /// 抽题人

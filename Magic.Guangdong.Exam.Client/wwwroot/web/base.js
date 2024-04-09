@@ -1,35 +1,40 @@
-﻿let fileBaseUrl='https://localhost:7188/'
+﻿let fileBaseUrl='https://localhost:7188'
 function parseJwtPayload(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
 }
-
+function checkLoginStatus() {
+    if (!getCookie('accountId') || isCookieExpired('accountId')) {
+        clearLoginInfo()
+    }
+    
+    console.log('login ok');
+}
 function setLoginInfo(jwt) {
-    let base64Url = jwt.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let item = JSON.parse(window.atob(base64));
-    let userId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
-    let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
-    let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
-    setCookie('userId', userId, expDays)
-    setCookie('examToken', jwt, expDays);
+    //let base64Url = jwt.split('.')[1];
+    //let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    //let item = JSON.parse(window.atob(base64));
+    //let userId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
+    //let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    //localStorage.setItem('userId', userId);
+    //localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
+    //let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
+    //setCookie('userId', userId, expDays)
+    //setCookie('examToken', jwt, expDays);
+   
 }
 
 
-
 function clearLoginInfo() {
-    deleteCookie('userId');
-    deleteCookie('examToken');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
+    deleteCookie('accountId');
+    deleteCookie('accessToken');
+    //localStorage.removeItem('accessToken');
 
     if (parent.location) {
-        parent.location.href = "/home/index"
+        parent.location.href = "/account/login"
     }
-    window.location.href = "/home/index";
+    window.location.href = "/account/login";
 }
 
 function autoSearch(elemId, callback) {
@@ -49,6 +54,74 @@ function autoSearch(elemId, callback) {
             }
         }, 1500);
     });
+}
+
+function listenChange(elementId, onChangeCallback) {
+    const element = document.getElementById(elementId);
+
+    if (!element) {
+        console.error(`Element with ID "${elementId}" not found.`);
+        return;
+    }
+
+    // 按类型区分处理
+    switch (element.tagName.toLowerCase()) {
+        case 'input':
+            const inputType = element.type.toLowerCase();
+
+            if (['text', 'password', 'number', 'email', 'url'].includes(inputType)) {
+                // 文本类输入框
+                element.addEventListener('input', onChangeCallback);
+            } else if (inputType === 'checkbox' || inputType === 'radio') {
+                // 单选框和复选框
+                element.addEventListener('change', onChangeCallback);
+            }
+            break;
+        case 'select':
+            // 下拉选择框
+            element.addEventListener('change', onChangeCallback);
+            break;
+        case 'textarea':
+            // 多行文本框
+            element.addEventListener('input', onChangeCallback);
+            break;
+        default:
+            console.warn(`Unsupported element type "${element.tagName}" for change listener.`);
+    }
+}
+
+function removeListen(elementId, onChangeCallback) {
+    const element = document.getElementById(elementId);
+
+    if (!element) {
+        console.error(`Element with ID "${elementId}" not found.`);
+        return;
+    }
+
+    // 按类型区分处理
+    switch (element.tagName.toLowerCase()) {
+        case 'input':
+            const inputType = element.type.toLowerCase();
+
+            if (['text', 'password', 'number', 'email', 'url'].includes(inputType)) {
+                // 文本类输入框
+                element.removeEventListener('input', onChangeCallback);
+            } else if (inputType === 'checkbox' || inputType === 'radio') {
+                // 单选框和复选框
+                element.removeEventListener('change', onChangeCallback);
+            }
+            break;
+        case 'select':
+            // 下拉选择框
+            element.removeEventListener('change', onChangeCallback);
+            break;
+        case 'textarea':
+            // 多行文本框
+            element.removeEventListener('input', onChangeCallback);
+            break;
+        default:
+            console.warn(`Unsupported element type "${element.tagName}" for removing change listener.`);
+    }
 }
 
 // 函数：设置（写入）cookie，支持SameSite属性
@@ -264,7 +337,7 @@ function isNumeric(input, lesszero = false) {
 }
 
 
-function SFID(card, sex) {
+function SFID(card) {
 
     var vcity = {
         11: "北京", 12: "天津", 13: "河北", 14: "山西", 15: "内蒙古",
@@ -405,9 +478,9 @@ function SFID(card, sex) {
         //return false;
     }
     //校验性别
-    if (checkSex(card, sex) == false) {
-        return '您的身份证与性别不一致,请重新输入';
-    }
+    //if (checkSex(card, sex) == false) {
+    //    return '您的身份证与性别不一致,请重新输入';
+    //}
     //检验位的检测
     if (checkParity(card) === false) {
         //  mui.alert('您的身份证校验位不正确,请重新输入');
@@ -509,3 +582,65 @@ const TT = {
         }).showToast();
     }
 };
+
+function getFormData(form) {
+    const formData = {};
+
+    for (const element of form.elements) {
+        // 忽略禁用的元素、按钮（除提交按钮）和其他非交互元素
+        if (element.disabled || element.type === 'button' && element.type !== 'submit') {
+            continue;
+        }
+
+        const name = element.name;
+        const value = getInputElementValue(element);
+
+        if (name) {
+            if (Array.isArray(formData[name])) {
+                formData[name].push(value);
+            } else if (formData.hasOwnProperty(name)) {
+                formData[name] = [formData[name], value];
+            } else {
+                formData[name] = value;
+            }
+        }
+    }
+
+    return formData;
+}
+
+function getInputElementValue(element) {
+    switch (element.type) {
+        case 'checkbox':
+        case 'radio':
+            return element.checked;
+        case 'select-multiple':
+            return Array.from(element.options).filter(option => option.selected).map(option => option.value);
+        default:
+            return element.value;
+    }
+}
+
+function interceptFormSubmit(form, onSubmitCallback) {
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // 阻止默认提交动作
+
+        const formData = getFormData(form);
+
+        // 在此处根据业务需求处理formData，例如动态修改表单内容
+        // 示例：若某个字段值为空，则添加错误提示
+        if (!formData.someField) {
+            const someFieldError = document.getElementById('some-field-error');
+            someFieldError.style.display = 'block'; // 显示错误提示
+            someFieldError.textContent = 'This field is required.';
+        }
+
+        // 调用业务处理回调函数，传递formData作为参数
+        onSubmitCallback(formData);
+
+        // 根据业务处理结果决定是否提交表单，例如：
+        if (shouldSubmit) {
+            form.submit(); // 手动提交表单
+        }
+    });
+}

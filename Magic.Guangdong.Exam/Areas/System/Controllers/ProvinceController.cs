@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
@@ -32,7 +33,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success(new {items= _provinceRepo.getList(dto, out total) ,total}));
         }
 
-        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "rd" })]
+        //[AllowAnonymous]
+        [ResponseCache(Duration = 600,VaryByQueryKeys = new string[] { "rd" })]
         public async Task<IActionResult> GetProvinceDrops()
         {
             var items = await _provinceRepo.getListAsync(u => u.IsDeleted==0);

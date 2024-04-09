@@ -26,7 +26,7 @@
             <header>{{ item.title }}</header>
             <p class="grid">
                 <a role="button" href="@Url.Page("Detail")?id={{item.id}}"class="secondary">查看</a>
-                <a role="button" href="javascript:;" onclick="report({{item.id}})">报名</a>
+                <a role="button" href="@Url.Page("Report")?id={{item.id}}" >报名</a>
             </p>
             <img src="{{ fileBaseUrl+item.cover}}" alt="cover" />
 

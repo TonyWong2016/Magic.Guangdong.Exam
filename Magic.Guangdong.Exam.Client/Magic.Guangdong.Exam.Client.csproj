@@ -33,10 +33,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Authing.ApiClient" Version="4.2.4.12" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.1.0" />
     <PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.1.0" />
     <PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
+    <PackageReference Include="NetDevPack.Security.JwtExtensions" Version="7.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -65,10 +68,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pages\Account\" />
   </ItemGroup>
 
 </Project>

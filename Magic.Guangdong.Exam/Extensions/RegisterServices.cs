@@ -169,7 +169,7 @@ namespace Magic.Guangdong.Exam.Extensions
             {
                 options.AddPolicy("api", builder =>
                 {
-                    builder.WithOrigins("https://localhost:5001").AllowAnyHeader().AllowCredentials().WithExposedHeaders("cyscc");
+                    builder.WithOrigins("https://localhost:5001,https://localhost:7296").AllowAnyHeader().AllowCredentials().WithExposedHeaders("cyscc");
 
                     builder.SetIsOriginAllowed(orgin => true).AllowCredentials().AllowAnyHeader();
                 });

@@ -34,7 +34,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public DateTime UpdatedAt { get; set; }
 
 		[JsonProperty]
-		public Guid UserId { get; set; }
+		public string AccountId { get; set; }
 
 	}
 

@@ -72,7 +72,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.error("用户信息不存在"));
             }
             var userInfo = await _userBaseRepo.getOneAsync(u => u.IdCard == idNumber);
-            if(!await _activityReportRepo.getAnyAsync(u=>u.UserId== userInfo.Id))
+            if(!await _activityReportRepo.getAnyAsync(u=>u.AccountId== userInfo.AccountId))
             {
                 return Json(_resp.error("用户没有报名当前活动"));
             }

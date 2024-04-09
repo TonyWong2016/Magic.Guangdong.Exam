@@ -84,9 +84,9 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double UsedTime { get; set; } = 0d;
 
 		[JsonProperty]
-		public long UserId { get; set; }
+        public string AccountId { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(150)")]
+        [JsonProperty, Column(DbType = "varchar(150)")]
 		public string UserName { get; set; }
 
 	}

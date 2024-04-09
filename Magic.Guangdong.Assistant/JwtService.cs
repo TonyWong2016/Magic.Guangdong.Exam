@@ -127,6 +127,106 @@ namespace Magic.Guangdong.Assistant
             }
         }
 
+        public static async Task<JwtSecurityToken> DecodeJwtAsync(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes("your-secret-key"); // 对于HS256算法
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = "https://pews7koru675-demo.authing.cn/oidc",
+                ValidateAudience = true,
+                ValidAudience = "64a389fbb0c0a11e43437345",
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ClockSkew = TimeSpan.Zero,
+            };
+
+            try
+            {
+                var validationResult = await tokenHandler.ValidateTokenAsync(token, validationParameters);
+                JwtSecurityToken validatedToken = validationResult.SecurityToken as JwtSecurityToken;
+                if (validationResult.IsValid && validatedToken != null)
+                {
+                    return validatedToken;
+                }
+                else
+                {
+                    Console.WriteLine($"Token validation failed: {validationResult.Exception.Message}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理验证过程中的其他异常
+                Console.WriteLine($"Unexpected error during token validation: {ex.Message}");
+                return null;
+            }
+        }
+        
+        //临时方案
+        public static string DecodeJwtString(string jwtToken)
+        {
+            // 分割JWT的三个部分：头部（header）、载荷（payload）和签名（signature）
+            var parts = jwtToken.Split('.');
+            if (parts.Length != 3)
+            {
+                throw new ArgumentException("Invalid JWT format. Expected three parts separated by dots.");
+            }
+
+            // 解码载荷（第二个部分）
+            string payloadBase64Url = parts[1];
+            byte[] payloadBytes = Base64UrlEncoder.DecodeBytes(payloadBase64Url);
+            string decodedPayloadJson = Encoding.UTF8.GetString(payloadBytes);
+
+            // 输出解码后的载荷
+            Console.WriteLine("Decoded Payload JSON:");
+            Console.WriteLine(decodedPayloadJson);
+
+            // 可选：将解码后的JSON字符串反序列化为强类型对象
+            var payload = JsonHelper.JsonDeserialize<Dictionary<string, object>>(decodedPayloadJson);
+            Console.WriteLine("\nDecoded Payload as Dictionary:");
+            string sub = "";
+            long exp = 0;
+            foreach (var entry in payload)
+            {
+                if(entry.Key.ToLower().Contains("sub"))
+                    sub = entry.Value.ToString();
+                if (entry.Key.ToLower().Contains("exp"))
+                {
+                    exp = Convert.ToInt64(entry.Value);
+                }                    
+                Console.WriteLine($"{entry.Key}: {entry.Value}");
+            }
+            if(Utils.TimeStampToDateTime(exp) < DateTime.Now)
+            {
+                return "expired";
+            }
+            return sub;
+        }
+        public static bool IsJwtTokenExpired(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            try
+            {
+                var jwtToken = handler.ReadJwtToken(token);
+
+                // 获取过期时间（Unix时间戳，即自1970年1月1日以来的秒数）
+                var expiration = long.Parse(jwtToken.Claims.First(claim => claim.Type == "exp").Value);
+
+                // 转换为DateTime对象
+                var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiration);
+
+                // 检查是否已过期
+                return expiresAt < DateTimeOffset.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                // 如果解析或提取过期时间时出错，认为token无效
+                Console.WriteLine($"Failed to validate token expiration: {ex.Message}");
+                return true;
+            }
+        }
 
         public static AccountClaim? ValidateJwt(string jwt)
         {

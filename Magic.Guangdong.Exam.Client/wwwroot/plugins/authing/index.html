@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="icon" href="https://cdn.authing.co/authing-fe-console/2.32.0/favicon.ico">
+
+  <!-- JavaScript 代码 -->
+  <script src="https://cdn.jsdelivr.net/npm/@authing/native-js-ui-components"></script>
+
+  <!-- JS SDK 代码 -->
+  <script src="https://cdn.jsdelivr.net/npm/authing-js-sdk/build/browser/index.min.js"></script>
+
+  <!-- CSS 文件 -->
+  <link href="https://cdn.jsdelivr.net/npm/@authing/native-js-ui-components/lib/index.min.css"
+    rel="stylesheet">
+  </link>
+
+  <title>Guard Demo</title>
+
+  <style>
+    .btn {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="user"></div>
+
+
+  <script>
+    const authClient = new Authing.AuthenticationClient({
+      // 替换你的 AppId
+      appId: "your_appId_at_authing_console",
+    });
+
+    const userDOM = document.getElementById('user')
+
+    const config = {
+      mode: "modal",
+    };
+
+    const guardInstance = new AuthingNativeJsUIComponents.Guard({
+      authClient,
+      config
+    });
+
+    const showGuard = () => {
+      // 显示 Guard
+      guardInstance.show();
+
+    };
+
+    const renderLogin = () => {
+      userDOM.innerHTML = `
+        <div class="btn" id='login'>
+          登录
+        </div>`
+
+      document.getElementById('login').addEventListener('click', showGuard)
+    }
+
+    const renderUserLogout = (userInfo) => {
+      userDOM.innerHTML = `
+        <img src="${userInfo.photo}" class="btn" alt="avatar" width="100" height="100">`
+
+    }
+
+    guardInstance.on("login", (userInfo) => {
+      console.log(userInfo);
+
+      guardInstance.hide();
+
+      renderUserLogout(userInfo)
+    });
+
+
+    guardInstance.on("close", () => {
+      // 隐藏 Guard
+      guardInstance.hide();
+    });
+
+    const checkLoginStatus = async () => {
+      // authClient 登录成功时 会将用户相关信息存储在 localStorage 中
+      const user = await authClient.getCurrentUser();
+
+      if (!user) return
+
+      const token = user.token;
+
+      const { status } = await authClient.checkLoginStatus(token);
+
+      if (status) {
+        return user
+      } else {
+        return
+      }
+    }
+
+    checkLoginStatus().then((user) => {
+      if (user) {
+        renderUserLogout(user)
+      } else {
+        renderLogin()
+      }
+    })
+  </script>
+</body>
+
+</html>

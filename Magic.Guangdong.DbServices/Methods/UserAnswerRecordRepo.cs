@@ -88,12 +88,13 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 IdNumber = dto.idNumber,
                 ReportId = dto.reportId,
-                UserId = dto.userId,
+                //UserId = dto.userId,
+                AccountId = dto.accountId,
                 PaperId = myPaper.Id,
                 ExamId = dto.examId,
                 UserName = dto.userName,
                 Remark = $"初始化答题，答题人识别码[{dto.idNumber}]；",
-                CreatedBy = dto.userId.ToString(),
+                CreatedBy = dto.accountId,
                 CreatedAt = DateTime.Now
             });
             //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答

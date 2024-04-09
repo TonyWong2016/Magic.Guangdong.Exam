@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
@@ -30,7 +31,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success(new { items = _districtRepo.GetDictricts(dto, out total), total }));
         }
 
-        [ResponseCache(Duration =100,VaryByQueryKeys = new string[] {"cityId","provinceId"})]
+        [ResponseCache(Duration = 600,VaryByQueryKeys = new string[] {"cityId","provinceId"})]
         public async Task<IActionResult> GetDistrictDrops(int cityId, int provinceId=0)
         {
             return Json(_resp.success(await _districtRepo.GetDistrictDropsAsync(cityId, provinceId)));

@@ -20,7 +20,13 @@
     <script src="~/web/layextend.js"></script>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
-
+        let accountId = getCookie('accountId');
+    </script>
+    <script type="text/html" id="selectTpl">
+        <option value="0">请选择</option>
+        {{# layui.each(d,function(index,item){}}
+        <option value="{{ item.value }}">{{item.text}}</option>
+        {{# }) }}
     </script>
 </head>
 <body>
@@ -57,7 +63,9 @@
         <img src="~/img/footer-ht-high.jpg" />
     </footer>
 
-
+    <script>
+        checkLoginStatus()
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

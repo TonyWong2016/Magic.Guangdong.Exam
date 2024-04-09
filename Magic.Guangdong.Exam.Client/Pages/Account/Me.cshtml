@@ -1,0 +1,29 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Account.MeModel
+@{
+}
+
+<main class="container">
+    <article>
+        <header>用户：<b id="userName"></b></header>
+
+        <a role="button" href="/activity/index" class="outline">看看有什么活动</a>
+    </article>
+</main>
+
+<script>
+   function getUserInfo(){
+
+   }
+
+   axios.get('/account/getuserinfo',{
+       params:{
+            'accountId':accountId
+       }
+   }).then(data=>{
+       let json = data.data;
+       if(json.code==0){
+           jHtmlSet('userName',json.data.name)
+       }
+   })
+</script>

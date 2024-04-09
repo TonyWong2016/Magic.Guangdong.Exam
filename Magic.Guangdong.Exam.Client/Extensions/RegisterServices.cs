@@ -1,6 +1,10 @@
-﻿using FreeSql;
+﻿using Authing.ApiClient.Auth;
+using FreeSql;
 using Magic.Guangdong.Assistant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.Tokens;
+using NetDevPack.Security.JwtExtensions;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -20,7 +24,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             builder.Services.ConfigureRazorPages();
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePlug(_configuration);
-
+            builder.Services.ConfigureAuthing();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             return builder;
         }
@@ -41,6 +45,52 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 options.Providers.Add<BrotliCompressionProvider>();
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
             });
+        }
+
+        private static void ConfigureAuthing(this IServiceCollection services)
+        {
+            var authenticationClient = new AuthenticationClient(options =>
+            {
+
+                options.AppId = _configuration["Authing.Config:AppId"];
+                options.Host = _configuration["Authing.Config:Host"];
+                options.UserPoolId = _configuration["Authing.Config:UserPoolId"];
+                options.Secret = _configuration["Authing.Config:Secret"];
+                options.RedirectUri = _configuration["Authing.Config:RedirectUri"];
+            });
+            services.AddSingleton(typeof(AuthenticationClient), authenticationClient);
+            var jwtSettings = new JwtSettings();
+            _configuration.Bind("JwtSettings", jwtSettings);
+            services.AddAuthentication(options =>
+            {
+                //认证middleware配置
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+           .AddJwtBearer(o =>
+           {
+               //主要是jwt  token参数设置
+               o.TokenValidationParameters = new TokenValidationParameters
+               {
+                   //Token颁发机构
+                   ValidIssuer = jwtSettings.Issuer,
+                   //颁发给谁
+                   ValidAudience = jwtSettings.Audience,
+                   //这里的key要进行加密，需要引用Microsoft.IdentityModel.Tokens
+                   // IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                   // ValidateIssuerSigningKey = true,
+                   //是否验证Token有效期，使用当前时间与Token的Claims中的NotBefore和Expires对比
+                   // ValidateLifetime = true,
+                   //允许的服务器时间偏移量
+                   // ClockSkew = TimeSpan.Zero,
+                   ValidAlgorithms = new string[] { "RS256" },
+                   // IssuerSigningKeys = signingKeys,
+               };
+               o.RequireHttpsMetadata = false;
+               o.SaveToken = false;
+               o.IncludeErrorDetails = true;
+               o.SetJwksOptions(new JwkOptions(jwtSettings.JwksUri, jwtSettings.Issuer, new TimeSpan(TimeSpan.TicksPerDay)));
+           });
         }
 
         static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
@@ -162,5 +212,17 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
         }
 
+    }
+
+    public class JwtSettings
+    {
+        //token是谁颁发的
+        public string Issuer { get; set; }
+        //token可以给哪些客户端使用
+        public string Audience { get; set; }
+        //加密的key
+        public string SecretKey { get; set; }
+        // JwksUri
+        public string JwksUri { get; set; }
     }
 }

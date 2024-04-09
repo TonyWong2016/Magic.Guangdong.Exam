@@ -11,10 +11,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		public long Id { get; set; }
 
 		[JsonProperty]
-		public Guid AccountId { get; set; }
+		public string AccountId { get; set; }
 
 		[JsonProperty]
-		public long? ActivityId { get; set; } = 0;
+		public long ActivityId { get; set; } = 0;
 
 		[JsonProperty]
 		public int CityId { get; set; } = 0;
@@ -23,7 +23,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 		[JsonProperty]
-		public int DistrictId { get; set; } = 0;
+		public int? DistrictId { get; set; } = 0;
 
         [JsonProperty, Column(DbType = "varchar(50)")]
 		public string Email { get; set; } = string.Empty;
@@ -59,6 +59,16 @@ namespace Magic.Guangdong.DbServices.Entities
 		public string Address { get; set; } = string.Empty;
 
 		public CardType CardType { get; set; } = CardType.China;
+
+		/// <summary>
+		/// 联系方式可用程度
+		/// 0-未验证
+		/// 1-邮箱验证可用
+		/// 2-手机号可用
+		/// 3-邮箱和手机号都可用
+		/// </summary>
+		[JsonProperty]
+        public int ConnAvailable { get; set; }
     }
 
 	public enum CardType

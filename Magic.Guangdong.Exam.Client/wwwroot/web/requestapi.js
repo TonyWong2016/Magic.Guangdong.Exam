@@ -10,7 +10,8 @@ var axiosInstance = axios.create({
 
 // 添加请求拦截器（例如：全局添加 Token）
 axiosInstance.interceptors.request.use(function (config) {
-    var token = localStorage.getItem('accessToken'); // 假设从localStorage获取token
+    //var token = localStorage.getItem('accessToken'); // 假设从localStorage获取token
+    var token = getCookie('accessToken'); 
     if (token) {
         //config.headers.Authorization = 'Bearer ' + token;
         config.headers.Authorization = token;

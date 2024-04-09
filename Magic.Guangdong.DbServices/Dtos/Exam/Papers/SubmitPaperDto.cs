@@ -10,7 +10,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
     public class SubmitPaperDto
     {
-        public long userId { get; set; }
+        //public long userId { get; set; }
+        public string accountId { get; set; }
 
         public string userName { get; set; }
 

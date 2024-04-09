@@ -1,4 +1,5 @@
-﻿using FreeSql.DatabaseModel;using System;
+﻿using FreeSql.DatabaseModel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Entities {
 
@@ -13,7 +15,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 	public partial class UserBase {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public Guid Id { get; set; }
+		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(StringLength = 200)]
 		public string Address { get; set; } = "";
@@ -52,7 +54,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public int Sex { get; set; } = 0;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime UpdatedAt { get; set; }
+		public DateTime UpdatedAt { get; set; } = DateTime.Now;
         
 		[JsonProperty]
         public int IsDeleted { get; set; } = 0;
@@ -74,6 +76,12 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty]
 		public string Avatar { get; set; } = "/images/avatar.png";
+
+		/// <summary>
+		/// 账号id
+		/// </summary>
+		[JsonProperty]
+		public string AccountId { get; set; }
     }
 
 }

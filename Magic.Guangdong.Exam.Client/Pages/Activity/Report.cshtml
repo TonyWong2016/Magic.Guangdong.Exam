@@ -4,9 +4,10 @@
 }
 
 <main class="container">
-    
-    <form>
-        <label>活动</label>
+    <h2>活动报名</h2>
+    <hr />
+    <form id="reportForm">
+        <label>活动名称</label>
         <input type="text"
                id="ActivityTitle"
                value="根据activityId获取的活动标题"
@@ -19,7 +20,7 @@
         </label>
         <input id="Name" name="Name"
                 placeholder="真实姓名"
-                autocomplete="off" />
+               autocomplete="off" required />
         
 
         <!-- Input outside label -->
@@ -29,21 +30,21 @@
                    id="email"
                    placeholder="请输入真实可用的邮箱地址，用来接收消息和通知"
                    autocomplete="email"
-                   aria-describedby="email-helper" />           
+                   aria-describedby="email-helper" required />
             <input type="number"
                    id="emailVerify"
                    placeholder="输入验证码"
                    autocomplete="off" />
-            <input type="button" id="verifyEmail"
+            <input type="button" id="verifyEmail" class="outline"
                    value="发送验证码" />
         </fieldset>
         
         <label>联系方式</label>
-        <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" />
+        <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
        
         <label>证件号</label>
         <fieldset class="grid">
-            <select name="CardType" id="CardType">
+            <select name="CardType" id="CardType" required>
                 <option selected disabled value="">
                     证件类型
                 </option>
@@ -55,10 +56,10 @@
                 <option value="5">其他</option>
 
             </select>
-            <input type="tel" id="IdCard" name="IdCard" placeholder="输入您的证件号码" aria-label="Tel" autocomplete="tel" />
-
+            <input type="text" id="IdCard" name="IdCard" placeholder="输入您的证件号码" aria-label="text" autocomplete="off" aria-describedby="invalid-helper" required />
+            
         </fieldset>
-
+        <small id="invalid-helper"></small>
 
         <label>
             地址
@@ -66,17 +67,17 @@
         <fieldset class="grid">
             <select Id="ProvinceId" name="ProvinceId" aria-label="选择您所在的省份" required>
                 <option selected disabled value="">
-                    选择您所在的省份
+                    请选择您所在的省份
                 </option>
             </select>
             <select Id="CityId" name="CityId" aria-label="选择您所在的城市" required>
                 <option selected disabled value="">
-                    选择您所在的城市
+                    请选择您所在的城市
                 </option>
             </select>
-            <select Id="DistrictId" name="DistrictId" aria-label="选择您所在的区/县" required>
+            <select Id="DistrictId" name="DistrictId" aria-label="选择您所在的区/县">
                 <option selected disabled value="">
-                    选择您所在的区/县
+                    请选择您所在的区/县
                 </option>
             </select>
             <input type="text"
@@ -84,8 +85,141 @@
                    name="Address"
                    placeholder="您的具体地址，街道，小区等" />
         </fieldset>
-       
-       
 
+        <label>工作单位</label>
+        <fieldset class="grid">
+            <input type="text" name="Job" placeholder="点击右侧按钮从单位库选择" readonly aria-label="Read-only input" required />
+
+            <input type="button" class="outline" id="unitSelect"
+                   value="选择" />
+        </fieldset>
+
+        <label>补充信息</label>
+        <textarea name="OtherInfo"
+                  id="OtherInfo"
+                  placeholder="如果您有补充的报名信息，请填写在这里"></textarea>
+
+        <button type="submit" class="container-fluid">提交报名信息</button>
+        <input type="hidden" name="AccountId"/>
+        <input type="hidden"/>
     </form>
 </main>
+
+<script>
+    let activityId = getUrlQueryParams('id');
+    let cardType;
+    axios.get('/activity/getactivity', { params: {
+            id: activityId
+    }
+    }).then(data => {
+        let json = data.data;
+        if (json.code == 0) {
+            jValSet('ActivityTitle', json.data.title);
+            getProvinceDrops()
+        } else
+            TT.error(json.msg);
+    })
+
+    //监听证件类型
+    listenChange('CardType', (event) => {
+        cardType = event.target.value;
+        jValSet('CardType', cardType)
+        $('#IdCard').val('').removeAttr('aria-invalid', false)
+        jHtmlSet('invalid-helper','')
+    })
+
+    //监听身份证变化，这个用另外一个方法
+    autoSearch('IdCard', () => {
+        if(cardType!= '0'){
+            return;
+        }
+        let checkRet = SFID(jVal('IdCard'));
+        if (checkRet != 'OK') {
+            $('#IdCard').attr('aria-invalid', true)
+            $('#invalid-helper').html(checkRet).attr('style', 'color:red;text-align:right')
+        } else {
+            $('#IdCard').attr('aria-invalid', false)
+            $('#invalid-helper').html(checkRet).attr('style', 'color:green;text-align:right')
+
+        }
+    })
+
+    //监听省份
+    listenChange('ProvinceId', (event) => {
+        $('#DistrictId').html('<option selected disabled value="">请选择您所在的区/县</option>');
+        getCityDrops(event.target.value)
+    })
+
+    //监听城市
+    listenChange('CityId', (event) => {
+        getDistrictDrops(event.target.value)
+    })
+
+    
+        
+
+    const form = document.querySelector('#reportForm');
+    interceptFormSubmit(form, (formData) => {
+        console.log(JSON.stringify(formData));
+
+        // // 在此处理业务逻辑，如验证数据、发起异步请求等
+        // // 根据业务结果设置shouldSubmit变量
+        // let shouldSubmit = true;
+
+        // // 示例：如果服务器返回错误，则不提交表单
+        // fetch('/api/validate', {
+        //     method: 'POST',
+        //     body: JSON.stringify(formData),
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (!data.isValid) {
+        //             shouldSubmit = false;
+        //             // 显示错误消息或标记表单字段
+        //         }
+        //     });
+
+        // // 返回一个Promise，以便在异步操作完成后决定是否提交表单
+        // return new Promise((resolve) => {
+        //     setTimeout(() => resolve(shouldSubmit), 2000); // 假设2秒后收到服务器响应
+        // });
+    })
+
+    function getProvinceDrops() {
+        axios.get('/activity/getprovincedrops').then(data => {
+            let json = data.data;
+            if (json.code == 0) {
+                renderTpl('selectTpl', 'ProvinceId', json.data, true)
+            }
+        })
+    }
+
+    function getCityDrops(provinceId) {
+        $('#CityId').html('<option selected disabled value="">请选择您所在的城市</option>');
+        axios.get('/activity/getcitydrops', {
+            params: {
+                'provinceId': provinceId
+            }
+        }).then(data => {
+            let json = data.data;
+            if (json.code == 0) {
+                renderTpl('selectTpl', 'CityId', json.data, true)
+            }
+        })
+    }
+
+    function getDistrictDrops(cityId) {
+        $('#DistrictId').html('<option selected disabled value="">请选择您所在的区/县</option>');
+
+        axios.get('/activity/getdistrictdrops', {
+            params: {
+                'cityId': cityId
+            }
+        }).then(data => {
+            let json = data.data;
+            if (json.code == 0) {
+                renderTpl('selectTpl', 'DistrictId', json.data, true)
+            }
+        })
+    }
+</script>

@@ -289,16 +289,16 @@ namespace Magic.Guangdong.DbServices.Methods
                             uow.Dispose();//释放，正常情况不会走到这里，交卷前还会有验证
                             return new { code = -1, msg = "当前身份证号已经提交了其他活动的试卷，请检查答题人身份证号是否要参加当前考试" };
                         }
-                        record.UpdatedBy = dto.userId.ToString();
+                        record.UpdatedBy = dto.accountId.ToString();
                         record.CheatCnt = dto.cheatCnt;
                         record.UpdatedAt = DateTime.Now;
                         record.Remark += $"交卷，答题人识别码[{dto.idNumber}]；";
                     }
                     else
                     {
-                        record.UserId = dto.userId;
+                        record.AccountId = dto.accountId;
                         record.UserName = dto.userName;
-                        record.CreatedBy = dto.userId.ToString();
+                        record.CreatedBy = dto.accountId.ToString();
                         record.CreatedAt = DateTime.Now;
                         record.PaperId = dto.paperId;
                         record.ExamId = paper.ExamId;
