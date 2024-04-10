@@ -44,18 +44,25 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToList();
         }
 
-        public async Task<dynamic> GetUnitDropsAsync(string keyword, int cityId, int provinceId)
+        public async Task<dynamic> GetUnitDropsAsync(string keyword, int provinceId, int cityId, int districtId, int limit=1000)
         {
+            if (limit <= 0)
+                limit = 1000;
             return await fsql.Get(conn_str).Select<UnitInfoView>()
-                .Where(u => u.IsDeleted == 0)
-                .WhereIf(!string.IsNullOrWhiteSpace(keyword),u=>u.UnitCaption.Contains(keyword))
-                .WhereIf(cityId>0,u=>u.CityId==cityId)
+                .Where(u => u.IsDeleted == 0 && u.Status == 0)//下拉列表里只能选通过审核的
+                .WhereIf(!string.IsNullOrWhiteSpace(keyword), u => u.UnitCaption.Contains(keyword))
                 .WhereIf(provinceId > 0, u => u.ProvinceId == provinceId)
+                .WhereIf(cityId > 0, u => u.CityId == cityId)                
+                .WhereIf(districtId > 0, u => u.DistrictId == districtId)
+                .Take(limit)
                 .ToListAsync(u => new
                 {
                     value = u.Id,
                     name = u.UnitCaption,
                     code = u.OrganizationCode,
+                    u.Address,
+                    //u.Status,
+                    u.UnitStatus
                     //province = u.ProvinceShortName
                 });
         }

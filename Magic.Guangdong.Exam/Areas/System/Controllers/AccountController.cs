@@ -215,7 +215,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <param name="username"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> GenerateCode(string to, string username, int length = 4)
         {
             string code = Utils.GenerateRandomCode(length);

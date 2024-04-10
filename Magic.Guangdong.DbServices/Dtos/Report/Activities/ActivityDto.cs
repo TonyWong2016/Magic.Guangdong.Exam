@@ -21,10 +21,37 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
 
         public int Status { get; set; } = 0;
 
-        public int Quota { get; set; } = 0;
 
-        public decimal Expenses { get; set; } = 0;
+        //public int Quota { get; set; } = 0;
+
+        //public decimal Expenses { get; set; } = 0;
 
         public string FieldJson { get; set; } = "{}";
+    }
+
+    public class ActivityReportDto()
+    {
+        public long ActivityId { get; set; }
+
+        public string Title { get; set; }
+
+        public int status { get; set; }
+
+        public List<ActivityExamDto> Exams { get; set; }
+    }
+
+    public class ActivityExamDto()
+    {
+        public Guid ExamId { get; set; }
+
+        public string ExamTitle { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+        
+        public int Quota { get; set; }
+
+        public decimal Expenses { get; set; }
     }
 }

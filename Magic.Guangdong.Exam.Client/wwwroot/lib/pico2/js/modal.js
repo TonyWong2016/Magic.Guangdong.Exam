@@ -18,7 +18,9 @@ const toggleModal = (event) => {
     event.preventDefault();
     const modal = document.getElementById(event.currentTarget.dataset.target);
     if (!modal) return;
+
     modal && (modal.open ? closeModal(modal) : openModal(modal));
+    
 };
 
 // Open modal
@@ -34,6 +36,7 @@ const openModal = (modal) => {
         html.classList.remove(openingClass);
     }, animationDuration);
     modal.showModal();
+    //getProvinceDrops('UnitProvinceId');
 };
 
 // Close modal

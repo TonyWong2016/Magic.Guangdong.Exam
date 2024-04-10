@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Magic.Guangdong.DbServices.Dtos;
+using NPOI.POIFS.Dev;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -84,7 +85,10 @@ namespace Magic.Guangdong.DbServices.Methods
                         await paperRepo.UpdateAsync(papers);
                     }
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-                    
+                    var oldExam = await examRepo.Where(u => u.Id == exam.Id).ToOneAsync();
+                    exam.Expenses=oldExam.Expenses;//费用不可以改
+                    if (exam.Quota < oldExam.Quota)//名额可以变大，不能变小
+                        exam.Quota = oldExam.Quota;
                     await examRepo.UpdateAsync(exam);
                     uow.Commit();
                     return true;
@@ -99,6 +103,12 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public async Task<bool> DeleteExamInfo(Guid examId)
         {
+            await fsql.Get(conn_str).Select<Paper>().Where(u => u.ExamId == examId)
+                .ToUpdate()
+                .Set(u => u.IsDeleted == 1)
+                .Set(u => u.UpdatedAt == DateTime.Now)
+                .Set(u => u.Remark == "考试信息被删除")
+                .ExecuteAffrowsAsync();
             var exam = await fsql.Get(conn_str).Select<Examination>().Where(u => u.Id == examId).ToOneAsync();
             exam.IsDeleted = 1;
             exam.UpdatedBy = "删除考试信息";
@@ -133,6 +143,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         ExamType = orginExam.ExamType,
                         ExtraInfo = orginExam.ExtraInfo,
                         IsDeleted = 0,
+                        Quota = orginExam.Quota,
+                        Expenses = orginExam.Expenses,
                         Remark = orginExam.Remark + $"(基本信息克隆自{orginExam.Id})",
                     };
                     await examRepo.InsertAsync(cloneExam);

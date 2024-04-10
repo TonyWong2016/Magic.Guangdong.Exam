@@ -47,17 +47,17 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public string FieldJson { get; set; } = "{}";
 
-		/// <summary>
-		/// 活动报名的名额
-		/// </summary>
-		[JsonProperty]
-		public int Quota { get; set; } = 0;
+		///// <summary>
+		///// 活动报名的名额
+		///// </summary>
+		//[JsonProperty]
+		//public int Quota { get; set; } = 0;
 
-		/// <summary>
-		/// 费用
-		/// </summary>
-		[JsonProperty, Column(DbType = "money")]
-		public decimal Expenses { get; set; } = 0;
+		///// <summary>
+		///// 费用
+		///// </summary>
+		//[JsonProperty, Column(DbType = "money")]
+		//public decimal Expenses { get; set; } = 0;
 
         /// <summary>
         /// 宣传封面

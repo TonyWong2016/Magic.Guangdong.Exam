@@ -68,7 +68,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 3-邮箱和手机号都可用
 		/// </summary>
 		[JsonProperty]
-        public int ConnAvailable { get; set; }
+		public ConnAvailable ConnAvailable { get; set; } = ConnAvailable.None;
     }
 
 	public enum CardType
@@ -79,6 +79,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		Taiwan,
 		Passport,
 		Other
+	}
+
+	public enum ConnAvailable
+	{
+		None,
+		Email,
+		Mobile,
+		EmailMobile
 	}
 
 }

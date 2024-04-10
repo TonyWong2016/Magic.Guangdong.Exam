@@ -524,7 +524,7 @@ const TT = {
         
         Toastify({
             text: msg,
-            duration: 1000 * 30,
+            duration: 1000 * 3,
             gravity: 'top', // `top` or `bottom`
             position: 'right', // `left`, `center` or `right`
             style:{
@@ -629,11 +629,11 @@ function interceptFormSubmit(form, onSubmitCallback) {
 
         // 在此处根据业务需求处理formData，例如动态修改表单内容
         // 示例：若某个字段值为空，则添加错误提示
-        if (!formData.someField) {
-            const someFieldError = document.getElementById('some-field-error');
-            someFieldError.style.display = 'block'; // 显示错误提示
-            someFieldError.textContent = 'This field is required.';
-        }
+        //if (!formData.someField) {
+        //    const someFieldError = document.getElementById('some-field-error');
+        //    someFieldError.style.display = 'block'; // 显示错误提示
+        //    someFieldError.textContent = 'This field is required.';
+        //}
 
         // 调用业务处理回调函数，传递formData作为参数
         onSubmitCallback(formData);
@@ -643,4 +643,47 @@ function interceptFormSubmit(form, onSubmitCallback) {
             form.submit(); // 手动提交表单
         }
     });
+}
+
+//倒计时
+//参数elementId，用于指定要显示倒计时的HTML元素ID。
+//获取该元素，并在开始前检查其是否存在，若不存在则抛出错误。
+//定义一个新的内部函数updateElementContent，它接受剩余时间作为参数，根据元素类型（input或非input）更新其内容。对于input元素，设置其value属性；对于其他元素，更新其textContent属性。
+//在countdown函数中，调用updateElementContent来实时更新元素内容。
+//在开始倒计时前，先将初始倒计时数值（完整秒数）显示在目标元素上。
+//现在，您可以传入一个元素ID，当该元素是button、a（链接）、span等非input元素时，倒计时进度会显示在其textContent中；如果是input元素，则显示在value属性中。
+function accurateCountdown(seconds, elementId, callback) {
+    const startTimestamp = Date.now();
+    const targetElement = document.getElementById(elementId);
+
+    if (!targetElement) {
+        throw new Error(`Element with ID "${elementId}" not found.`);
+    }
+
+    function updateElementContent(remainingTime) {
+        const isInput = targetElement.tagName.toLowerCase() === 'input';
+
+        if (isInput) {
+            targetElement.value = remainingTime;
+        } else {
+            targetElement.textContent = remainingTime;
+        }
+    }
+
+    function countdown() {
+        const remainingSeconds = Math.max(0, seconds - Math.floor((Date.now() - startTimestamp) / 1000));
+        if (remainingSeconds === 0) {
+            if (typeof callback === 'function') {
+                callback();
+            }
+            return;
+        }
+
+        updateElementContent(`${remainingSeconds} 秒`);
+
+        requestAnimationFrame(countdown);
+    }
+
+    updateElementContent(`${seconds} 秒`);
+    countdown();
 }

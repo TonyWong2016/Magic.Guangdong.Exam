@@ -45,10 +45,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [ResponseCache(Duration = 100,VaryByQueryKeys =new string[] {"id","rd"})]
         public async Task<IActionResult> GetActivity(long id)
         {
-            if(await _activityRepo.getAnyAsync(u => u.Id == id))
+            if(await _activityRepo.getAnyAsync(u => u.Id == id && u.IsDeleted==0))
             {
-                var ret = await _activityRepo.getOneAsync(u => u.Id == id);
-                return Json(_resp.success(ret.Adapt<ActivityDto>()));
+                return Json(_resp.success(await _activityRepo.GetActivityReportPoints(id)));
             }
             return Json(_resp.error("活动不存在"));
         }

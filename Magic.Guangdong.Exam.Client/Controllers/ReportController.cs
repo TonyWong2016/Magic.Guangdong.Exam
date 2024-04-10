@@ -17,7 +17,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IActivityRepo _activityRepo;
         private readonly ICapPublisher _capPublisher;
         private readonly IRedisCachingProvider _redisProvider;
-        public ReportController(IResponseHelper resp, IReportInfoRepo reportInfoRepo,IUserBaseRepo userBaseRepo, IActivityRepo activityRepo, ICapPublisher capPublisher, IRedisCachingProvider redisProvider)
+        private readonly IUnitInfoRepo _unitInfoRepo;
+        public ReportController(IResponseHelper resp, IReportInfoRepo reportInfoRepo,IUserBaseRepo userBaseRepo, IActivityRepo activityRepo, ICapPublisher capPublisher, IRedisCachingProvider redisProvider, IUnitInfoRepo unitInfoRepo)
         {
             _resp = resp;
             _reportInfoRepo = reportInfoRepo;
@@ -25,6 +26,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             _activityRepo = activityRepo;
             _capPublisher = capPublisher;
             _redisProvider = redisProvider;
+            _unitInfoRepo = unitInfoRepo;
         }
 
         [HttpPost,ValidateAntiForgeryToken]
@@ -48,6 +50,23 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             var reportInfo = dto.Adapt<ReportInfo>();
 
             return Json(_resp.success(await _reportInfoRepo.addItemAsync(reportInfo)));
+        }
+
+        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "activityId","idCard","rd" } )]
+        public async Task<IActionResult> CheckReportLog(long activityId, string idCard)
+        {
+            if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == idCard && r.ActivityId == activityId))
+            {
+                return Json(_resp.error("您已经报名该活动了"));
+            }
+
+            return Json(_resp.success("ok"));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "cityId", "provinceId", "districtId", "rd" })]
+        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int provinceId = 0, int cityId = 0, int districtId=0)
+        {
+            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword, provinceId, cityId,  districtId, 500)));
         }
     }
 }

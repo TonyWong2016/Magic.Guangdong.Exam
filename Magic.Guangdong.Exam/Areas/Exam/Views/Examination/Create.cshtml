@@ -30,6 +30,29 @@
             <input type="hidden" asp-for="AssociationId" />
             <input type="hidden" asp-for="AssociationTitle" />
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">报考名额</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Quota" value="0" placeholder="请输入当前考试限制的最高报考人数，0则表示不限制" lay-verify="required|number" required />
+                <br />
+
+                <blockquote class="layui-input-block layui-elem-quote">
+                    如果要限制报考名额的话，请注意创建考试时考虑好名额，创建之后不可以修改。
+                </blockquote>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">报名费用</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Expenses" value="0" placeholder="请输入当前考试的报名费用，0则表示没有费用" lay-verify="required|number" required />
+            </div>
+            <br />
+
+            <blockquote class="layui-input-block layui-elem-quote">
+                如果要设定报名费用的话，请注意创建考试时考虑好费用情况，创建之后不可以修改。
+            </blockquote>
+        </div>
 
         <div class="layui-form-item" >
             <label class="layui-form-label">基础分数</label>

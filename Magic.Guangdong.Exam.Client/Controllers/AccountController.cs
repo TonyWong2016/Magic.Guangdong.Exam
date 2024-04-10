@@ -7,6 +7,8 @@ using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NPOI.SS.Formula.Functions;
@@ -24,6 +26,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IResponseHelper _resp;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
 
         public AccountController(IResponseHelper resp,ICapPublisher capPublisher,AuthenticationClient authenticationClient,IUserBaseRepo userBaseRepo, IRedisCachingProvider redisCachingProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
@@ -168,6 +171,51 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 ub.Password = Utils.GenerateRandomCodePro(8, 2);
                 await _userBaseRepo.insertOrUpdateAsync(ub);
             }
+        }
+
+        /// <summary>
+        /// 发送验证码
+        /// TODO.. 这里后续要增加限流机制，避免被频繁请求
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="username"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateCode([FromServices] IWebHostEnvironment _webHostEnvironment,string to, string username, int length = 4)
+        {
+            string code = Utils.GenerateRandomCode(length);
+            //15+1分钟有效（冗余1分钟）
+            await _redisCachingProvider.StringSetAsync(to+"_report", code, DateTime.Now.AddMinutes(16) - DateTime.Now);
+
+            if (to.Contains("@"))
+            {
+                string htmlContent;
+                string templateFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "web", "emailcode.html");
+                using (StreamReader reader = new StreamReader(templateFilePath))
+                {
+                    htmlContent = reader.ReadToEnd().Replace("**content**", code);
+
+                }
+                await EmailKitHelper.SendVerificationCodeEmailAsync("报名邮箱验证", htmlContent, to, username);
+            }
+            return Json(_resp.success("发送成功"));
+        }
+
+        
+        public async Task<IActionResult> VerifyEmailCode(string email,string code)
+        {
+            if(!await _redisCachingProvider.KeyExistsAsync(email + "_report")) {
+                return Json(_resp.error("验证码错误"));
+            }
+
+            string verifyCode = await _redisCachingProvider.StringGetAsync(email + "_report");
+            if (verifyCode == code)
+            {
+                await _redisCachingProvider.KeyDelAsync(email + "_report");
+                return Json(_resp.success("验证成功"));
+            }
+            return Json(_resp.error("验证码错误"));
         }
     }
 }

@@ -70,4 +70,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Report\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.DbServices.Entities;
+﻿using Magic.Guangdong.DbServices.Dtos.Report.Activities;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,37 @@ namespace Magic.Guangdong.DbServices.Methods
             : base(fsql)
         {
             this.fsql = fsql;
+        }
+
+        /// <summary>
+        /// 获取活动报名时的关键信息
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActivityReportDto> GetActivityReportPoints(long activityId)
+        {
+            
+            var activity = await fsql.Get(conn_str).Select<Activity>()
+                .Where(u => u.Id == activityId)
+                .ToOneAsync();
+            
+            var exams = await fsql.Get(conn_str).Select<Examination>()
+                .Where(u => u.AssociationId == activityId.ToString() && u.Status == 0 && u.IsDeleted == 0)
+                .ToListAsync(u => new ActivityExamDto()
+                {
+                    ExamId = u.Id,
+                    ExamTitle = u.Title,
+                    StartTime = u.StartTime,
+                    EndTime = u.EndTime,
+                    Expenses = u.Expenses,
+                    Quota = u.Quota,
+                });
+            return new ActivityReportDto()
+            {
+                ActivityId = activity.Id,
+                status = activity.Status,
+                Title = activity.Title,
+                Exams = exams,
+            };
         }
     }
 }

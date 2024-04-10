@@ -34,10 +34,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "cityId", "provinceId","rd" })]
-        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int cityId = 0, int provinceId = 0)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "cityId", "provinceId", "districtId", "rd" })]
+        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int provinceId = 0, int cityId = 0, int districtId=0)
         {
-            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword,  cityId, provinceId)));
+            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword, provinceId, cityId, districtId, 1000)));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
