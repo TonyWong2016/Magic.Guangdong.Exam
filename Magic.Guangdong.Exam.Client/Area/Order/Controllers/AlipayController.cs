@@ -81,7 +81,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             {
                 Body = $"报名费用【{exam.Title}】_{DateTime.Now}",
                 Subject = exam.Title,
-                TotalAmount = exam.Expenses.ToString(),
+                TotalAmount = Math.Round(exam.Expenses, 2).ToString(),                
                 //交易单号32位，考试id的4位（21-24）+13位时间戳+15位随机数
                 OutTradeNo = $"{examId.ToString().Substring(20, 4)}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
                 ProductCode = "FAST_INSTANT_TRADE_PAY",                

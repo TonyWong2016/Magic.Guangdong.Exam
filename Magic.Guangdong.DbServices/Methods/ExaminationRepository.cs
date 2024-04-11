@@ -19,7 +19,10 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
-
+        public T getOne(Expression<Func<T, bool>> predicate)
+        {
+            return fsql.Get(conn_str).Select<T>().Where(predicate).First();
+        }
         public async Task<T> getOneAsync(Expression<Func<T, bool>> predicate)
         {
             return await fsql.Get(conn_str).Select<T>().Where(predicate).FirstAsync();

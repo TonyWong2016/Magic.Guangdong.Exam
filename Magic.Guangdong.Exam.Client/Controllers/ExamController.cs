@@ -32,7 +32,20 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             return new JsonResult(_resp.success(
                await _examRepo.getListAsync(dto)));
+        }
 
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
+        public async Task<IActionResult> GetExam(Guid id)
+        {
+            var exam = await _examRepo.getOneAsync(u => u.Id == id);
+            return new JsonResult(_resp.success(
+               new
+               {
+                   title = exam.Title,
+                   expenses = exam.Expenses,
+                   id = exam.Id
+               }
+               ));
         }
     }
 }

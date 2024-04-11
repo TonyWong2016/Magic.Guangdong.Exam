@@ -53,5 +53,14 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
         public int Quota { get; set; }
 
         public decimal Expenses { get; set; }
+
+        public string Amont {
+            get
+            {
+                if (Expenses > 0)
+                    return Math.Round(Expenses, 2).ToString();
+                return "0";
+            }
+        }
     }
 }

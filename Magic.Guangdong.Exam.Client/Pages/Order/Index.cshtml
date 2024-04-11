@@ -1,39 +1,57 @@
 ﻿@page
-@model Magic.Guangdong.DbServices.Dtos.Order.Alipay.AlipayTradePagePayViewModel
+@model Magic.Guangdong.Exam.Client.Pages.Order.IndexModel
 @{
 }
 <main class="container">
     <article>
         <header>支付报名费用</header>
         <form action="/order/alipay/pagepay" method="post" target="_blank">
-            <label>交易单号</label>
-            <input type="text" readonly class="disabled" id="OutTradeNo" value="@(Assistant.Utils.GenerateRandomCodePro(19)+DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())" />
-            
+           
             <label>报名科目</label>
-            <input type="text" readonly class="disabled" id="Subject" value="测试考试" />
+            <input type="text" readonly class="disabled" id="Subject" value="" />
 
             <label>报名费用</label>
-            <input type="text" readonly class="disabled" id="TotalAmount" value="0.01" />
-            @* <input type="hidden" asp-for="ProductCode" value="FAST_INSTANT_TRADE_PAY" />
-            <input type="hidden" asp-for="m"/> *@
+            <input type="text" readonly class="disabled" id="TotalAmount" value="" />
+         
 
             <label>考试id</label>
-            <input type="text" readonly class="disabled" name="examId" value="49D90000-4C24-00FF-2DAA-08DC51F62F0C" />
+            <input type="text" readonly class="disabled" id="examId" name="examId" value="" />
 
             @Html.AntiForgeryToken()
             <div class="grid">
                 <input type="button" class="pico-background-green-400" style="border-color:aliceblue" value="微信支付" />
                 <input type="submit" id="pay" class="pico-background-blue-600" style="border-color:aliceblue" value="支付宝支付" />
+                
             </div>
+
+            <input id="errorBtn" type="button" disabled class="pico-background-red-600" style="border-color:aliceblue;display:none" value="参数异常" />
         </form>
         
     </article>
 </main>
 <script>
-    $('#pay2').click(async () => {
-        let formData = new FormData();
-        formData.append('ExamId', '49D90000-4C24-00FF-2DAA-08DC51F62F0C');
-        formData.append('__RequestVerificationToken', requestToken);
-        let ret = await request('POST','order/alipay/pagepay',formData,CT)
-    })
+    let sub = getUrlQueryParams('sub');
+    if (!sub) {
+        TT.error('参数异常');
+        $('.grid').remove();
+        $('#errorBtn').show();
+    }    
+    let examModel = JSON.parse(decodeURIComponent(atob(sub)));
+    jValSet('Subject', examModel.title);
+    jValSet('TotalAmount', examModel.expenses);
+    jValSet('examId', examModel.id);
+    // axios.get('/exam/GetExam', { params: {
+    //     id:examId
+    // }
+    // }).then((data) => {
+    //     console.log(data.data)
+    //     let json = data.data;
+    //     if (json.code !== 0) {
+    //         TT.error('获取缴费信息失败，请稍后重试');
+    //         return;
+    //     }
+    //     jValSet('Subject', json.data.title);
+    //     jValSet('TotalAmount', json.data.expenses);
+    //     jValSet('examId', json.data.id);
+    // })
 </script>

@@ -125,7 +125,7 @@
         </article>
 
         <button type="submit" class="container-fluid">提交报名信息</button>
-        <button id="pay" class="container-fluid">缴费</button>
+        @* <button id="pay" class="container-fluid">缴费</button> *@
         <input type="hidden" name="UnitId" id="UnitId" value="0" />
         <input type="hidden" name="AccountId" id="AccountId" />
         <input type="hidden" name="ConnAvailable" id="ConnAvailable" value="0" />
@@ -207,7 +207,7 @@
 <script type="text/html" id="selectExamTpl">
     <option value="0">请选择</option>
     {{# layui.each(d,function(index,item){}}
-    <option value="{{ item.examId }}" data-money="{{item.expenses}}">{{item.examTitle}}</option>
+    <option value="{{ item.examId }}" data-money="{{item.amont}}">{{item.examTitle}}</option>
     {{# }) }}
 </script>
 <script type="text/html" id="unitDropTpl">
@@ -223,6 +223,7 @@
 
 <script>
     let activityId = getUrlQueryParams('id');
+    let examModel = {};
     let cardType;
     axios.get('/activity/getactivity', {
         params: {
@@ -239,8 +240,12 @@
     })
 
     listenChange('ExamId', (event) => {
+        examModel.id = event.target.value;
+        
         var selectedOption = event.target.options[event.target.selectedIndex];
         var money = selectedOption.getAttribute('data-money');
+        examModel.title = selectedOption.text;
+        examModel.expenses = money;
         jValSet('Expenses', money);
     })
 
@@ -345,6 +350,11 @@
     const form = document.querySelector('#reportForm');
     interceptFormSubmit(form, async (formData) => {
 
+        if (!examModel.id) {
+            TT.error('请选择要报名的考试');
+            return;
+        }
+
         if ($("#ConnAvailable").val() == '0') {
             TT.error('邮箱未通过有效性验证');
             return;
@@ -361,39 +371,17 @@
         let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
         if (ret.code == 0) {
             TT.success('报名成功');
-
-            //拉起缴费
         } else {
             TT.error('报名失败:' + ret.msg);
         }
-        let expenses = jVal('Expenses');
-        if (ret.code == 0 && isAmount(expenses) && parseFloat(expenses)>0) {
+
+        if (ret.code == 0 && isAmount(examModel.expenses) && parseFloat(examModel.expenses) > 0) {
             TT.info('即将跳转到付款页面...',3000);
             setTimeout(() => {
-                location.href = '/order/index?examId=' + encodeURIComponent(jVal('ExamId'))
+                let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
+                location.href = `/order/index?sub=${sub}`;
             },2000)
         }
-        // // 在此处理业务逻辑，如验证数据、发起异步请求等
-        // // 根据业务结果设置shouldSubmit变量
-        // let shouldSubmit = true;
-
-        // // 示例：如果服务器返回错误，则不提交表单
-        // fetch('/api/validate', {
-        //     method: 'POST',
-        //     body: JSON.stringify(formData),
-        // })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         if (!data.isValid) {
-        //             shouldSubmit = false;
-        //             // 显示错误消息或标记表单字段
-        //         }
-        //     });
-
-        // // 返回一个Promise，以便在异步操作完成后决定是否提交表单
-        // return new Promise((resolve) => {
-        //     setTimeout(() => resolve(shouldSubmit), 2000); // 假设2秒后收到服务器响应
-        // });
     })
 
     function getProvinceDrops(elemId) {

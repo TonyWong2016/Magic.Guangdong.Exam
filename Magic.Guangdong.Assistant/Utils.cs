@@ -216,7 +216,7 @@ namespace Magic.Guangdong.Assistant
         /// <returns></returns>
         public static string ToBase64Str(string Str)
         {
-            byte[] b = System.Text.Encoding.Default.GetBytes(Str);
+            byte[] b = System.Text.Encoding.UTF8.GetBytes(Str);
             return Convert.ToBase64String(b);
 
         }

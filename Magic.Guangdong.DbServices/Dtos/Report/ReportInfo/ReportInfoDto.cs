@@ -19,21 +19,21 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
         public int? DistrictId { get; set; } = 0;
 
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = "";
 
-        public string Mobile { get; set; }=string.Empty;
+        public string Mobile { get; set; }= "";
 
         public Guid ExamId { get; set; } = Guid.Empty;
 
-        public string IdCard { get; set; } = string.Empty;
+        public string IdCard { get; set; } = "";
 
-        public string Job { get; set; } = string.Empty;
+        public string Job { get; set; } = "";
 
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = "";
 
-        public string OtherInfo { get; set; } = string.Empty;
+        public string OtherInfo { get; set; } = "";
 
-        public string Address { get; set; } = string.Empty;
+        public string Address { get; set; } = "";
 
         public long UnitId { get; set; }
 

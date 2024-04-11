@@ -50,6 +50,13 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<T> getOneAsync(Expression<Func<T, bool>> predicate);
         /// <summary>
+        /// 取第一条
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        T getOne(Expression<Func<T, bool>> predicate);
+
+        /// <summary>
         /// 取前x条（异步）
         /// </summary>
         /// <param name="take"></param>
