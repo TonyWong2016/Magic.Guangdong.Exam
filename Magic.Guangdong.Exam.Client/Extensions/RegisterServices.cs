@@ -1,4 +1,6 @@
 ﻿using Authing.ApiClient.Auth;
+using Essensoft.Paylink.Alipay;
+using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +28,14 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             builder.Services.ConfigurePlug(_configuration);
             builder.Services.ConfigureAuthing();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // 添加Paylink依赖注入
+            builder.Services.AddAlipay();
+            builder.Services.AddWeChatPay();
+
+            // 在 appsettings.json(开发环境：appsettings.Development.json) 中 配置选项
+            builder.Services.Configure<AlipayOptions>(_configuration.GetSection("Alipay"));
+            builder.Services.Configure<WeChatPayOptions>(_configuration.GetSection("WeChatPay"));
             return builder;
         }
 

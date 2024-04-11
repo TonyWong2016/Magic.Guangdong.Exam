@@ -94,6 +94,7 @@ namespace Magic.Guangdong.DbServices.Entities
 
         /// <summary>
         /// 费用
+		/// 注意，这个最小单位要控制到分！不能再小。
         /// </summary>
         [JsonProperty, Column(DbType = "money")]
         public decimal Expenses { get; set; } = 0;

@@ -41,8 +41,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             {
                 return Json(_resp.error("活动不存在"));
             }
+
             //证件号作为唯一报名活动的重复性判定元素
-            if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && r.ActivityId == dto.ActivityId))
+            if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && (r.ActivityId == dto.ActivityId||r.ExamId==dto.ExamId)))
             {
                 return Json(_resp.error("您已经报名该活动了"));
             }

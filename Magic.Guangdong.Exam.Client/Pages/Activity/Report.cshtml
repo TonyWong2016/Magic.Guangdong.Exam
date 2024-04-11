@@ -55,8 +55,8 @@
                        placeholder="输入验证码"
                        autocomplete="off" />
                 <input type="button" id="verifyEmail" style="display:none" class="outline email-valid"
-                       value="发送验证码" onclick="GetVerifyCode()"/>
-                 <input type="button" id="verifyEmailWait" style="display:none" class="outline" disabled
+                       value="发送验证码" onclick="GetVerifyCode()" />
+                <input type="button" id="verifyEmailWait" style="display:none" class="outline" disabled
                        value="发送中" />
             </fieldset>
             <small id="invalid-helper-email"></small>
@@ -115,7 +115,7 @@
                 <input type="button" class="outline" id="unitSelect"
                        value="选择"
                        data-target="modal-unit"
-                       onclick="toggleModal(event)"/>
+                       onclick="toggleModal(event)" />
             </fieldset>
 
             <label>补充信息</label>
@@ -125,10 +125,11 @@
         </article>
 
         <button type="submit" class="container-fluid">提交报名信息</button>
-        <input type="hidden" name="UnitId" id="UnitId" value="0"/>
-        <input type="hidden" name="AccountId" id="AccountId"/>
+        <button id="pay" class="container-fluid">缴费</button>
+        <input type="hidden" name="UnitId" id="UnitId" value="0" />
+        <input type="hidden" name="AccountId" id="AccountId" />
         <input type="hidden" name="ConnAvailable" id="ConnAvailable" value="0" />
-        
+
     </form>
 </main>
 
@@ -137,7 +138,7 @@
         <header>选择单位库</header>
         <fieldset class="grid">
             <select id="unitType" aria-label="请选择单位所在的省份">
-                 <option selected disabled value="">
+                <option selected disabled value="">
                     请选择单位类型
                 </option>
                 <option value=1>社会团体</option>
@@ -149,20 +150,20 @@
                 <option value=7>企业</option>
                 <option value=8>其他</option>
             </select>
-            
-             <fieldset role="group">
-               <input id="UnitKeyword" type="text" class="form-control"
-                    placeholder="单位关键字"
-                    autocomplete="off" required />
-               <a role="button" href="javascript:;" id="btnUnitSearch">
+
+            <fieldset role="group">
+                <input id="UnitKeyword" type="text" class="form-control"
+                       placeholder="单位关键字"
+                       autocomplete="off" required />
+                <a role="button" href="javascript:;" id="btnUnitSearch">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
-               </a>
-              </fieldset>
+                </a>
+            </fieldset>
         </fieldset>
 
-        <fieldset class="grid">            
+        <fieldset class="grid">
             <select Id="UnitProvinceId" aria-label="请选择单位所在的省份">
                 <option selected disabled value="">
                     请选择单位所在的省份
@@ -173,7 +174,7 @@
                     请选择单位所在的城市
                 </option>
             </select>
-            <select Id="UnitDistrictId"aria-label="请选择单位所在的区/县">
+            <select Id="UnitDistrictId" aria-label="请选择单位所在的区/县">
                 <option selected disabled value="">
                     请选择单位所在的区/县
                 </option>
@@ -184,26 +185,23 @@
                 选择您的单位
             </summary>
             <ul id="unitDropView">
-            
             </ul>
         </details>
-        
+
         <footer>
-             <button
-            role="button"
-            class="secondary"
-            data-target="modal-unit"
-            onclick="toggleModal(event)"
-            id="dialogClose"
-          >
-            关闭</button
-          >
-         @*  <button autofocus data-target="modal-unit" onclick="toggleModal(event)">
+            <button role="button"
+                    class="secondary"
+                    data-target="modal-unit"
+                    onclick="toggleModal(event)"
+                    id="dialogClose">
+                关闭
+            </button>
+            @*  <button autofocus data-target="modal-unit" onclick="toggleModal(event)">
             确定
-          </button> *@
+            </button> *@
         </footer>
     </article>
-   
+
 
 </dialog>
 <script type="text/html" id="selectExamTpl">
@@ -221,14 +219,15 @@
         </label>
     </li>
     {{# }) }}
- </script>
+</script>
 
 <script>
     let activityId = getUrlQueryParams('id');
     let cardType;
-    axios.get('/activity/getactivity', { params: {
+    axios.get('/activity/getactivity', {
+        params: {
             id: activityId
-    }
+        }
     }).then(data => {
         let json = data.data;
         if (json.code == 0) {
@@ -244,17 +243,18 @@
         var money = selectedOption.getAttribute('data-money');
         jValSet('Expenses', money);
     })
+
     //监听证件类型
     listenChange('CardType', (event) => {
         cardType = event.target.value;
         jValSet('CardType', cardType)
         $('#IdCard').val('').removeAttr('aria-invalid', false)
-        jHtmlSet('invalid-helper','')
+        jHtmlSet('invalid-helper', '')
     })
 
     //监听身份证变化，这个用另外一个方法
     autoSearch('IdCard', () => {
-        if(cardType!= '0'){
+        if (cardType != '0') {
             return;
         }
         let checkRet = SFID(jVal('IdCard'));
@@ -271,45 +271,47 @@
     //监听省份
     listenChange('ProvinceId', (event) => {
         $('#DistrictId').html('<option selected disabled value="">请选择您所在的区/县</option>');
-        getCityDrops(event.target.value,'CityId')
+        getCityDrops(event.target.value, 'CityId')
     })
 
     //监听城市
     listenChange('CityId', (event) => {
-        getDistrictDrops(event.target.value,'DistrictId')
+        getDistrictDrops(event.target.value, 'DistrictId')
     })
 
     //监听邮箱输入
-    autoSearch('Email',async function(){
-        let email=jVal("Email");
+    autoSearch('Email', async function () {
+        let email = jVal("Email");
         let ret = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
-        if(!ret) {
+        if (!ret) {
             $('#Email').attr('aria-invalid', true);
             $('.email-valid').hide();
             $('#invalid-helper-email').html('邮箱格式错误').attr('style', 'color:red;text-align:right')
         } else {
             $('#Email').removeAttr('aria-invalid')
             $('.email-valid').show()
-            $('#invalid-helper-email').hide();            
-        }        
+            $('#invalid-helper-email').hide();
+        }
     })
 
     //监听验证码输入情况
     listenChange('verifyCode', (event) => {
         let code = event.target.value;
-        if(code.length!=4){
+        if (code.length != 4) {
             return;
         }
-        $('#verifyCode').attr('disabled',true);
-        axios('/account/VerifyEmailCode',{params:{
-            email : jVal("Email"),
-            code : code
-        }}).then(data=>{
-            let json=data.data;
-            if(json.code == 0) {
+        $('#verifyCode').attr('disabled', true);
+        axios('/account/VerifyEmailCode', {
+            params: {
+                email: jVal("Email"),
+                code: code
+            }
+        }).then(data => {
+            let json = data.data;
+            if (json.code == 0) {
                 TT.success('验证通过');
-                $('#Email').attr('aria-invalid', false).attr('readonly',true);
-                $('.email-valid').attr('disabled',true).hide();
+                $('#Email').attr('aria-invalid', false).attr('readonly', true);
+                $('.email-valid').attr('disabled', true).hide();
                 $('#verifyEmailWait').hide();
                 $("#ConnAvailable").val(1);
                 return;
@@ -322,27 +324,27 @@
     //获取验证码
     async function GetVerifyCode() {
         $('#verifyEmail').hide();
-        $('#verifyEmailWait').attr('aria-busy',true).show();
-        let email=jVal("Email");
+        $('#verifyEmailWait').attr('aria-busy', true).show();
+        let email = jVal("Email");
         let formData = new FormData();
-        formData.append('to',email);
-        formData.append('username',email)
+        formData.append('to', email);
+        formData.append('username', email)
         formData.append('__RequestVerificationToken', requestToken)
-        let ret = await request('POST','/account/GenerateCode',formData,CT);        
-        if(ret.code==0){
+        let ret = await request('POST', '/account/GenerateCode', formData, CT);
+        if (ret.code == 0) {
             TT.success('我们向您输入的邮箱发送了一封邮件，请查收并输入邮件中的验证码，以完成邮箱有效性验证。');
-            $('#verifyEmailWait').attr('aria-busy',false)
-            accurateCountdown('60','verifyEmailWait',()=>{
+            $('#verifyEmailWait').attr('aria-busy', false)
+            accurateCountdown('60', 'verifyEmailWait', () => {
                 $('#verifyEmail').show();
                 $('#verifyEmailWait').hide();
             })
         }
     }
-        
 
+    //表单提交
     const form = document.querySelector('#reportForm');
     interceptFormSubmit(form, async (formData) => {
-      
+
         if ($("#ConnAvailable").val() == '0') {
             TT.error('邮箱未通过有效性验证');
             return;
@@ -355,15 +357,22 @@
         formData.ActivityId = activityId;
         //formData.__RequestVerificationToken = requestToken;
         console.log(JSON.stringify(formData));
+      
+        let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
+        if (ret.code == 0) {
+            TT.success('报名成功');
 
-        let ret = await request('POST','/Report/ReportInfo',objectToFormData(formData),CT)
-        if(ret.code==0){
-            TT.success('报名成功')
             //拉起缴费
-        }else{
-            TT.error('报名失败:'+ret.msg);
+        } else {
+            TT.error('报名失败:' + ret.msg);
         }
-
+        let expenses = jVal('Expenses');
+        if (ret.code == 0 && isAmount(expenses) && parseFloat(expenses)>0) {
+            TT.info('即将跳转到付款页面...',3000);
+            setTimeout(() => {
+                location.href = '/order/index?examId=' + encodeURIComponent(jVal('ExamId'))
+            },2000)
+        }
         // // 在此处理业务逻辑，如验证数据、发起异步请求等
         // // 根据业务结果设置shouldSubmit变量
         // let shouldSubmit = true;
@@ -397,7 +406,7 @@
     }
 
     function getCityDrops(provinceId, elemId) {
-        $('#'+elemId).html('<option selected disabled value="">请选择所在的城市</option>');
+        $('#' + elemId).html('<option selected disabled value="">请选择所在的城市</option>');
         axios.get('/activity/getcitydrops', {
             params: {
                 'provinceId': provinceId
@@ -410,8 +419,8 @@
         })
     }
 
-    function getDistrictDrops(cityId,elemId) {
-        $('#'+elemId).html('<option selected disabled value="">请选择所在的区/县</option>');
+    function getDistrictDrops(cityId, elemId) {
+        $('#' + elemId).html('<option selected disabled value="">请选择所在的区/县</option>');
 
         axios.get('/activity/getdistrictdrops', {
             params: {
@@ -427,67 +436,68 @@
 </script>
 
 <script id="dialogJs">
-    let unitQueryParams={
-        provinceId:0,
-        cityId : 0,
-        districtId : 0,
-        keyword : ''
+    let unitQueryParams = {
+        provinceId: 0,
+        cityId: 0,
+        districtId: 0,
+        keyword: ''
     };
-    setTimeout(()=>{
-            getProvinceDrops('UnitProvinceId');
-    },500)
-     //监听单位库省份
+    setTimeout(() => {
+        getProvinceDrops('UnitProvinceId');
+    }, 500)
+    //监听单位库省份
     listenChange('UnitProvinceId', (event) => {
         unitQueryParams.provinceId = event.target.value;
         $('#UnitDistrictId').html('<option selected disabled value="">请选择您所在的区/县</option>');
-        getCityDrops(event.target.value,'UnitCityId')
+        getCityDrops(event.target.value, 'UnitCityId')
         getUnitDrops()
     })
 
     //监听单位库城市
     listenChange('UnitCityId', (event) => {
         unitQueryParams.cityId = event.target.value;
-        getDistrictDrops(event.target.value,'UnitDistrictId')
+        getDistrictDrops(event.target.value, 'UnitDistrictId')
         getUnitDrops()
     })
 
     //监听单位库区县
-    listenChange('UnitDistrictId',(event)=> {
+    listenChange('UnitDistrictId', (event) => {
         unitQueryParams.districtId = event.target.value;
         getUnitDrops()
     })
 
-    autoSearch('UnitKeyword',()=>{
+    autoSearch('UnitKeyword', () => {
         unitQueryParams.keyword = jVal('UnitKeyword');
         getUnitDrops();
     })
 
-    function getUnitDrops(){
-        jHtmlSet('selectedUnit','请选择您的单位');
-        axios.get('/report/GetUnitInfoDrops',{params:unitQueryParams})
-        .then((data)=>{
-            let json = data.data;
-            if(json.code!=0){               
-                jHtmlSet('selectedUnit','服务异常');
-                TT.error('服务异常');
-                return;
-            }
-            renderTpl('unitDropTpl','unitDropView',json.data);
-            if(json.data.length>0){
-                $('#unitDrops').attr('open',true);
-                $('#modal-unit article').attr('style','min-height:80%;max-width:75%')
-            } else
-                jHtmlSet('selectedUnit','无结果，请尝试更换检索条件或联系管理人员增加单位库');
-        })
+    function getUnitDrops() {
+        jHtmlSet('selectedUnit', '请选择您的单位');
+        axios.get('/report/GetUnitInfoDrops', { params: unitQueryParams })
+            .then((data) => {
+                let json = data.data;
+                if (json.code != 0) {
+                    jHtmlSet('selectedUnit', '服务异常');
+                    TT.error('服务异常');
+                    return;
+                }
+                renderTpl('unitDropTpl', 'unitDropView', json.data);
+                if (json.data.length > 0) {
+                    $('#unitDrops').attr('open', true);
+                    $('#modal-unit article').attr('style', 'min-height:80%;max-width:75%')
+                } else
+                    jHtmlSet('selectedUnit', '无结果，请尝试更换检索条件或联系管理人员增加单位库');
+            })
     }
 
-    function chooseUnit(unitId,unitName) {
-        jHtmlSet('selectedUnit',unitName);
-        jValSet('Job',unitName);
-        jValSet('UnitId',unitId);
+    function chooseUnit(unitId, unitName) {
+        jHtmlSet('selectedUnit', unitName);
+        jValSet('Job', unitName);
+        jValSet('UnitId', unitId);
         $('#unitDrops').removeAttr('open');
         document.getElementById('dialogClose').click()
-        $('#modal-unit article').attr('style','max-width:75%')
+        $('#modal-unit article').attr('style', 'max-width:75%')
     }
 
 </script>
+

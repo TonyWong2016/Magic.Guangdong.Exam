@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if mso]>
+    <style type="text/css">
+        * {
+            font-family: Arial, sans-serif !important;
+        }
+    </style>
+    <![endif]-->
+    <title>验证码确认</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            font-size: 24px;
+            color: #16b777;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        .code {
+            font-size: 20px;
+            font-weight: bold;
+            color: #16b777;
+            margin-bottom: 20px;
+        }
+
+        .instruction {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* 请在实际邮件中替换下面的占位符为您生成的实际验证码 */
+        .verification-code {
+            display: inline-block;
+            border: 1px solid #16b777;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            letter-spacing: 1px;
+			color: #16b777;
+			font-weight: bold;
+        }
+
+        .footer {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">来自广东教育协会的邮件</div>
+        <div class="content">
+            <p>尊敬的用户您好：</p>
+            <p class="instruction">为了保障您的账户安全，我们已向您发送了一条验证码，请妥善保管并在必要时输入该验证码：</p>
+            <div class="verification-code">**content**</div>
+            <p>此验证码有效时间为10分钟，请勿泄露给他人。</p>
+        </div>
+        <div class="footer">
+            如果您未进行相关操作，请忽略此邮件，如有任何疑问，请联系客服团队。
+            <br />
+            —— Developer Tony & Product-Manager Miao.Lei
+        </div>
+    </div>
+</body>
+</html>

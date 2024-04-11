@@ -335,7 +335,11 @@ function isNumeric(input, lesszero = false) {
     }
     return numericRegex.test(input);
 }
-
+//是否是金额
+function isAmount(str) {
+    const regex = /^(?:[$¥]?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\.\d{1,2})$/;
+    return regex.test(str);
+}
 
 function SFID(card) {
 
@@ -497,7 +501,7 @@ const TT = {
             text: msg,
             destination: url,
             newWindow: true,
-            duration: 1000 * 30,
+            duration: 1000 * 3,
             gravity: 'top', // `top` or `bottom`
             position: 'right', // `left`, `center` or `right`
             style:{

@@ -23,8 +23,13 @@ namespace Magic.Guangdong.Exam.Client.Filters
         public async void OnAuthorization(AuthorizationFilterContext context)
         {
             string page = "";
-            if (context.RouteData.Values.ContainsKey("page"))
-                page = context.RouteData.Values["page"].ToString().ToLower();
+            var routeValues = context.RouteData.Values;
+            if (routeValues.ContainsKey("page"))
+                page = routeValues["page"].ToString().ToLower();
+            if (routeValues.ContainsKey("controller"))
+                page = (routeValues["controller"].ToString()+"/"+ routeValues["action"].ToString()).ToLower();
+            if (routeValues.ContainsKey("controller") && routeValues.ContainsKey("area"))
+                page = (routeValues["area"].ToString()+"/" +routeValues["controller"].ToString()+"/" + routeValues["action"].ToString()).ToLower();
 
             Assistant.Logger.Info("访问：" + page);
 

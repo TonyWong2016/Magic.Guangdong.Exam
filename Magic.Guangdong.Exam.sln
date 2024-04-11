@@ -11,6 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.Exam", "Mag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.Exam.Client", "Magic.Guangdong.Exam.Client\Magic.Guangdong.Exam.Client.csproj", "{C378ECBD-E0D5-436F-B873-5E44E25CE13C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8269D169-F8B2-47D6-89BE-6E399024AFA3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
