@@ -2,3 +2,19 @@
 @model Magic.Guangdong.Exam.Client.Pages.Order.ResultModel
 @{
 }
+<main class="container">
+    <article>
+        <header class="pico-color-jade-400">报名成功</header>
+        <h4>考试科目：</h4>
+        <h4>考试时间：</h4>
+        <h4>考试地点：</h4>
+        <h4>注意事项：</h4>
+        <footer>
+            <button class="secondary">待打印准考证</button>
+            <button>打印准考证</button>
+        </footer>
+    </article>
+</main>
+<script>
+    let sub = getUrlQueryParams('sub');
+</script>

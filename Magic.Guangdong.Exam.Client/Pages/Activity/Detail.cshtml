@@ -6,7 +6,7 @@
     <article>
         @Html.Raw(Model.Deacription)
         <footer class="grid">
-            <a role="button" href="@Url.Page("Report")?id=@Model.Id">去报名</a>
+            <a role="button" href="@Url.Page("/Report/Create")?id=@Model.Id">去报名</a>
         </footer>
     </article>
    

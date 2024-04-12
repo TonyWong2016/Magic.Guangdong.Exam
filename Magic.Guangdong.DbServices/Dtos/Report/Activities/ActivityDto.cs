@@ -54,7 +54,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
 
         public decimal Expenses { get; set; }
 
-        public string Amont {
+        public string Amount {
             get
             {
                 if (Expenses > 0)

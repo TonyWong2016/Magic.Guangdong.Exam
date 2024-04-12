@@ -1,5 +1,6 @@
 ﻿using FreeSql.DataAnnotations;
 using Newtonsoft.Json;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Entities
 {
@@ -8,7 +9,7 @@ namespace Magic.Guangdong.DbServices.Entities
 	public partial class ReportInfo {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public long Id { get; set; }
+		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty]
 		public string AccountId { get; set; }

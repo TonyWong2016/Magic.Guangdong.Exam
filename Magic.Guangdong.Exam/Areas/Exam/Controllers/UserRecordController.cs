@@ -17,7 +17,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IResponseHelper _resp;
         private readonly IUserAnswerRecordRepo _userAnswerRecordRepo;
         private readonly IUserBaseRepo _userBaseRepo;
-        private readonly IActivityReportRepo _activityReportRepo;
+        private readonly IReportProcessRepo _reportProcessRepo;
         private readonly ICapPublisher _capBus;
         //IRedisDatabaseProvider _redisDatabaseProvider;
         private readonly IRedisCachingProvider _provider;
@@ -28,7 +28,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="examinationRepo"></param>
         /// <param name="resp"></param>
         /// <param name="capBus"></param>
-        public UserRecordController(IPaperRepo paperRepo, IExaminationRepo examinationRepo, IResponseHelper resp, IUserAnswerRecordRepo userAnswerRecordRepo, ICapPublisher capBus, IRedisCachingProvider provider, IUserBaseRepo userBaseRepo, IActivityReportRepo activityReportRepo)
+        public UserRecordController(IPaperRepo paperRepo, IExaminationRepo examinationRepo, IResponseHelper resp, IUserAnswerRecordRepo userAnswerRecordRepo, ICapPublisher capBus, IRedisCachingProvider provider, IUserBaseRepo userBaseRepo, IReportProcessRepo reportProcessRepo)
         {
             _paperRepo = paperRepo;
             _examinationRepo = examinationRepo;
@@ -38,7 +38,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             //_redisDatabaseProvider = redisDatabaseProvider;
             _provider = provider;
             _userBaseRepo = userBaseRepo;
-            _activityReportRepo = activityReportRepo;
+            _reportProcessRepo = reportProcessRepo;
         }
 
         //[RouteMark("答题记录")]
@@ -72,7 +72,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.error("用户信息不存在"));
             }
             var userInfo = await _userBaseRepo.getOneAsync(u => u.IdCard == idNumber);
-            if(!await _activityReportRepo.getAnyAsync(u=>u.AccountId== userInfo.AccountId))
+            if(!await _reportProcessRepo.getAnyAsync(u=>u.AccountId== userInfo.AccountId))
             {
                 return Json(_resp.error("用户没有报名当前活动"));
             }

@@ -34,10 +34,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "cityId", "provinceId", "districtId", "rd" })]
-        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int provinceId = 0, int cityId = 0, int districtId=0)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "keyword", "unitType", "cityId", "provinceId", "districtId", "rd" })]
+        public async Task<IActionResult> GetUnitInfoDrops(string keyword, int unitType, int provinceId = 0, int cityId = 0, int districtId = 0)
         {
-            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword, provinceId, cityId, districtId, 1000)));
+            return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword, unitType, provinceId, cityId, districtId, 1000)));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
@@ -52,13 +52,13 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return View();
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UnitInfo unitInfo)
         {
-            if(await _unitInfoRepo.getAnyAsync(u=>u.OrganizationCode==unitInfo.OrganizationCode &&             
-            u.UnitCaption==unitInfo.UnitCaption &&
-            u.ProvinceId==unitInfo.ProvinceId &&
-            u.CityId==unitInfo.CityId &&
+            if (await _unitInfoRepo.getAnyAsync(u => u.OrganizationCode == unitInfo.OrganizationCode &&
+            u.UnitCaption == unitInfo.UnitCaption &&
+            u.ProvinceId == unitInfo.ProvinceId &&
+            u.CityId == unitInfo.CityId &&
             u.DistrictId == unitInfo.DistrictId
             ))
             {
@@ -71,10 +71,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [RouteMark("编辑单位")]
         public async Task<IActionResult> Edit(long id)
         {
-            return View(await _unitInfoRepo.getOneAsync(u=>u.Id==id));
+            return View(await _unitInfoRepo.getOneAsync(u => u.Id == id));
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UnitInfo unitInfo)
         {
             if (await _unitInfoRepo.getAnyAsync(u => u.Id != unitInfo.Id &&
@@ -87,22 +87,22 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             {
                 return Json(_resp.error("单位已存在"));
             }
-           // var model = unitInfo.Adapt<UnitInfo>();
+            // var model = unitInfo.Adapt<UnitInfo>();
             unitInfo.UpdatedAt = DateTime.Now;
 
-            return Json(_resp.success( await _unitInfoRepo.updateItemAsync(unitInfo)));
+            return Json(_resp.success(await _unitInfoRepo.updateItemAsync(unitInfo)));
         }
 
         [RouteMark("删除单位")]
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(long id)
         {
-            if(await _reportInfoRepo.getAnyAsync(u => u.UnitId == id))
+            if (await _reportInfoRepo.getAnyAsync(u => u.UnitId == id))
             {
                 return Json(_resp.error("单位已被使用，不能删除"));
             }
 
-            if(!await _unitInfoRepo.getAnyAsync(u => u.Id == id))
+            if (!await _unitInfoRepo.getAnyAsync(u => u.Id == id))
             {
                 return Json(_resp.error("单位不存在"));
             }

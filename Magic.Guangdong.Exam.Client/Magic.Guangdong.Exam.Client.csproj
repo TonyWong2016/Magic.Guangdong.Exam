@@ -72,7 +72,6 @@
 
   <ItemGroup>
     <Folder Include="Area\Order\Views\" />
-    <Folder Include="Pages\Report\" />
   </ItemGroup>
 
 </Project>

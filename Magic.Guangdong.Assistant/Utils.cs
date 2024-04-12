@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Magic.Guangdong.Assistant
 {
@@ -229,6 +230,16 @@ namespace Magic.Guangdong.Assistant
         {
             byte[] b = Convert.FromBase64String(Str);
             return System.Text.Encoding.Default.GetString(b);
+        }
+
+        public static string EncodeUrlParam(string msg,bool base64=true)
+        {
+
+            if (base64)
+            {
+                return ToBase64Str(HttpUtility.UrlEncode(msg, Encoding.UTF8));
+            }
+            return HttpUtility.UrlEncode(msg, Encoding.UTF8);
         }
     }
 }

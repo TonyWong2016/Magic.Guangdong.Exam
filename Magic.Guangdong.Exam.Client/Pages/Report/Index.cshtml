@@ -1,0 +1,47 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Report.IndexModel
+@{
+}
+<main class="container">
+    <h3 class="pico-color-indigo-500">我的报名记录：</h3>
+    <div id="reportListView">
+
+    </div>
+</main>
+<script id="reportListTpl" type="text/html">
+    {{# layui.each(d,function(index, item){ }}
+    <article id="reportItem{{ index }}">
+        <h5>参与考试：{{item.subject}}</h5>
+        <h5>订单编号：{{item.outTradeNo}}</h5>
+        <h5>参与状态：
+            {{# if(item.reportStatus==0){ }}
+                <font class="pico-color-green-450">报名成功</font>
+            {{# } else if(item.reportStatus==2) { }}
+                <font class="pico-color-orange-450">待支付</font>
+            {{# } else { }}
+                <font class="pico-color-red-450">报名失败</font>
+            {{# }}}
+        </h5>
+        <a class="outline" role="button" href="/report/detail?id={{d.reportId}}">查看</a>
+        {{# if(item.reportStatus==2){ }}
+            <a class="pico-background-blue-500" style="border-color:aliceblue" role="button" href="javascript:;" onclick="Pay()">去支付</a>
+        {{# } }}
+
+    </article>
+    {{# }) }}
+</script>
+<script>
+    let queryDto = {
+        AccountId: accountId,
+        pageIndex: 1,
+        pageSize: 10
+    }
+    axios.get('/report/GetReportOrderList', {params:queryDto})
+        .then(data => {
+            let json = data.data;
+            if (json.code == 0) {
+                renderTpl('reportListTpl', 'reportListView', json.data.items, false);
+            }
+            console.log(data)
+        })
+</script>

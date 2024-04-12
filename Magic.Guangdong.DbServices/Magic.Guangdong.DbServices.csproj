@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Magic.Guangdong.Assistant\Magic.Guangdong.Assistant.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dtos\Order\新文件夹\" />
+  </ItemGroup>
+
 </Project>

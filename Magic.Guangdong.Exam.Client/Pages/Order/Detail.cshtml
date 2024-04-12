@@ -1,0 +1,58 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Order.DetailModel
+@{
+}
+<main class="container">
+    <article>
+        <header>支付报名费用</header>
+        <form action="/order/alipay/pagepay" method="post" target="_blank">
+           
+            <label>报名科目</label>
+            <input type="text" readonly class="disabled" id="Subject" value="" />
+
+            <label>报名费用</label>
+            <input type="text" readonly class="disabled" id="TotalAmount" value="" />
+         
+
+            <label>订单号</label>
+            <input type="text" readonly class="disabled" id="orderTradeNumber" name="orderTradeNumber" value="" />
+            <input type="hidden" id="examId"/>
+            @Html.AntiForgeryToken()
+            <div class="grid">
+                <input type="button" class="pico-background-green-400" style="border-color:aliceblue" value="微信支付" />
+                <input type="submit" id="pay" class="pico-background-blue-600" style="border-color:aliceblue" value="支付宝支付" />
+                
+            </div>
+
+            <input id="errorBtn" type="button" disabled class="pico-background-red-600" style="border-color:aliceblue;display:none" value="参数异常" />
+        </form>
+        
+    </article>
+</main>
+<script>
+    let sub = getUrlQueryParams('sub');
+    if (!sub) {
+        TT.error('参数异常');
+        $('.grid').remove();
+        $('#errorBtn').show();
+    }    
+    let examModel = JSON.parse(decodeURIComponent(atob(sub)));
+    jValSet('Subject', examModel.title);
+    jValSet('TotalAmount', examModel.expenses);
+    jValSet('examId', examModel.id);
+    jValSet('orderTradeNumber', examModel.orderTradeNumber);
+    // axios.get('/exam/GetExam', { params: {
+    //     id:examId
+    // }
+    // }).then((data) => {
+    //     console.log(data.data)
+    //     let json = data.data;
+    //     if (json.code !== 0) {
+    //         TT.error('获取缴费信息失败，请稍后重试');
+    //         return;
+    //     }
+    //     jValSet('Subject', json.data.title);
+    //     jValSet('TotalAmount', json.data.expenses);
+    //     jValSet('examId', json.data.id);
+    // })
+</script>

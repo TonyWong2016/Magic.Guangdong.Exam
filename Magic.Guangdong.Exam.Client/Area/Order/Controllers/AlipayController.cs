@@ -9,6 +9,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text;
+using System.Web;
 
 namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
 {
@@ -21,8 +22,8 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         private readonly IOptions<AlipayOptions> _optionsAccessor;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IOrderRepo _orderRepo;
-        private readonly IExaminationRepo _examinationRepo;
-        public AlipayController(IResponseHelper resp, ICapPublisher capPublisher, IAlipayClient alipayClient, IOptions<AlipayOptions> optionsAccessor, IRedisCachingProvider redisCachingProvider, IOrderRepo orderRepo, IExaminationRepo examinationRepo)
+
+        public AlipayController(IResponseHelper resp, ICapPublisher capPublisher, IAlipayClient alipayClient, IOptions<AlipayOptions> optionsAccessor, IRedisCachingProvider redisCachingProvider, IOrderRepo orderRepo)
         {
             _resp = resp;
             _capPublisher = capPublisher;
@@ -30,7 +31,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             _optionsAccessor = optionsAccessor;
             _redisCachingProvider = redisCachingProvider;
             _orderRepo = orderRepo;
-            _examinationRepo = examinationRepo;
+
         }
         public IActionResult Index()
         {
@@ -50,51 +51,38 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         /// 电脑网站支付
         /// </summary>
         /// <param name="viewModel"></param>
-        [HttpPost]
-        public async Task<IActionResult> PagePay2(AlipayTradePagePayViewModel viewModel)
-        {
-            var model = new AlipayTradePagePayModel
-            {
-                Body = viewModel.Body,
-                Subject = viewModel.Subject,
-                TotalAmount = viewModel.TotalAmount,
-                OutTradeNo = viewModel.OutTradeNo,
-                ProductCode = viewModel.ProductCode
-            };
-            var req = new AlipayTradePagePayRequest();
-            req.SetBizModel(model);
-            req.SetNotifyUrl(viewModel.NotifyUrl);
-            req.SetReturnUrl(viewModel.ReturnUrl);
-
-            var response = await _client.PageExecuteAsync(req, _optionsAccessor.Value);
-            return Content(response.Body, "text/html", Encoding.UTF8);
-        }
-
         [Route("pagepay")]
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> PagePay(Guid examId)
+        public async Task<IActionResult> PagePay(string orderTradeNumber)
         {
-            var exam = await _examinationRepo.getOneAsync(u=>u.Id==examId);
-            if (exam.Expenses == 0)
-                exam.Expenses = 1;
-            var model = new AlipayTradePagePayModel()
+            try
             {
-                Body = $"报名费用【{exam.Title}】_{DateTime.Now}",
-                Subject = exam.Title,
-                TotalAmount = Math.Round(exam.Expenses, 2).ToString(),                
-                //交易单号32位，考试id的4位（21-24）+13位时间戳+15位随机数
-                OutTradeNo = $"{examId.ToString().Substring(20, 4)}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
-                ProductCode = "FAST_INSTANT_TRADE_PAY",                
-            };
-            var req = new AlipayTradePagePayRequest();
-            req.SetBizModel(model);
-            string notifyUrl = Url.RouteUrl("/order/alipaynotify/pagepay");
-            Console.WriteLine(notifyUrl);
-            req.SetNotifyUrl("https://localhost:7296/order/alipaynotify/pagepay");
-            req.SetReturnUrl("https://localhost:7296/order/alipayreturn/pagepay");
+                if (await _orderRepo.getAnyAsync(u => u.OutTradeNo == orderTradeNumber))
+                    return Redirect("/Error?msg=" + HttpUtility.UrlEncode("订单不存在", Encoding.UTF8));
+                var order = await _orderRepo.getOneAsync(u => u.OutTradeNo == orderTradeNumber);
 
-            var response = await _client.PageExecuteAsync(req, _optionsAccessor.Value);
-            return Content(response.Body, "text/html", Encoding.UTF8);
+                var model = new AlipayTradePagePayModel()
+                {
+                    Body = $"报名费用【{order.Subject}】_{DateTime.Now}",
+                    Subject = order.Subject,
+                    TotalAmount = Math.Round(order.Expenses, 2).ToString(),
+                    //我们自己生成的订单，传入支付宝参数中，支付宝里也有一个TradeNo参数，那个咱不传了，用支付宝自己生成的
+                    OutTradeNo = order.OutTradeNo,
+                    ProductCode = "FAST_INSTANT_TRADE_PAY",
+                };
+                var req = new AlipayTradePagePayRequest();
+                req.SetBizModel(model);
+                req.SetNotifyUrl("https://localhost:7296/order/alipaynotify/pagepay");
+                req.SetReturnUrl("https://localhost:7296/order/alipayreturn/pagepay");
+
+                var response = await _client.PageExecuteAsync(req, _optionsAccessor.Value);
+                return Content(response.Body, "text/html", Encoding.UTF8);
+            }
+            catch(Exception ex)
+            {
+                Assistant.Logger.Error("拉起支付宝支付失败");
+                return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("拉起支付宝支付失败，请重试"));
+            }
         }
 
         /// <summary>

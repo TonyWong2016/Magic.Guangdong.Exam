@@ -1,14 +1,10 @@
 ﻿using Magic.Guangdong.DbServices.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 {
     public class ReportInfoDto
     {
+        public long Id { get; set; }
         public string AccountId { get; set; }
 
         public long ActivityId { get; set; }
@@ -47,5 +43,27 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 		/// 3-邮箱和手机号都可用
 		/// </summary>
         public int ConnAvailable { get; set; }
+
+        /// <summary>
+        /// 生成一个订单号返回到前台
+        /// </summary>
+        public string OrderTradeNumber { get; set; }
+    }
+
+    public class GetReportListDto
+    {
+        public long? ActivityId { get; set; }
+
+        public string AccountId { get; set; }
+
+        public Guid? ExamId { get; set; }
+
+        public Guid? OrderId { get; set; }
+
+        public int? ReportStatus { get; set; }
+
+        public int pageIndex {  get; set; }
+
+        public int pageSize { get; set; }
     }
 }

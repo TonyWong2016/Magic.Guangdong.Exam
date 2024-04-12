@@ -2,10 +2,14 @@
 using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Notify;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dtos.Order;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Web;
 
 namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
 {
@@ -43,17 +47,29 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             try
             {
                 var notify = await _client.ExecuteAsync<AlipayTradePagePayReturn>(Request, _optionsAccessor.Value);
+                Assistant.Logger.Debug(Assistant.JsonHelper.JsonSerialize(notify));
                 //ViewData["response"] = "支付成功";
                 Assistant.Logger.Info("支付成功");
-                //return View();
-                return Json(_resp.success("支付成功"));
+
+                string sub = Assistant.Utils.EncodeUrlParam($"{{tradeNo:{notify.TradeNo},outTradeNo:{notify.OutTradeNo},totalAmount:{notify.TotalAmount}}}");
+                //发布一个消息
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncOrderInfo", new SyncOrderDto()
+                {
+                    OutTradeNo = notify.OutTradeNo,
+                    TradeNo = notify.TradeNo,
+                    PayType = PayType.AliPay,
+                    TotalAmount = notify.TotalAmount,
+                    Timestamp = notify.Timestamp
+                });
+
+                return Redirect("/order/result?sub=" + sub);
             }
             catch (AlipayException ex)
             {
                 Assistant.Logger.Error("出现异常: " + ex.Message);
                 //ViewData["response"] = "出现错误";
                 //return View();
-                return Redirect("/Error?msg=payerror");
+                return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("支付异常，请进到【我的费用】栏目查看"));
             }
         }
 
@@ -81,6 +97,13 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                 return Redirect("/Error?msg=payerror");
 
             }
+        }
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "SyncOrderInfo")]
+        public async Task SyncOrderInfo(SyncOrderDto dto)
+        {
+            await _orderRepo.SyncOrderInfo(dto);
         }
     }
 }
