@@ -38,7 +38,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "nvarchar(1500)")]
 		public string Description { get; set; }
 
-		[JsonProperty]
+        [JsonProperty, Column(StringLength = 500)]
+        public string Address { get; set; }
+
+        [JsonProperty]
 		public DateTime EndTime { get; set; }
 
 		[JsonProperty]

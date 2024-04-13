@@ -18,7 +18,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 		[JsonProperty]
-		public Guid ExamId { get; set; }
+		public long ReportId { get; set; }
 
 		/// <summary>
 		/// 支付金额

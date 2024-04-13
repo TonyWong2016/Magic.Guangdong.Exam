@@ -1,6 +1,7 @@
 ﻿using Essensoft.Paylink.WeChatPay.V2.Request;
 using FreeSql.Internal.Model;
 using log4net.Repository.Hierarchy;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
@@ -29,12 +30,18 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public async Task<bool> ReportActivity(ReportInfoDto dto)
         {
-            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {
                 try
                 {
                     var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
                     var reportModel = dto.Adapt<ReportInfo>();
+                    //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
+                    reportModel.ReportNumber =
+                        reportModel.IdCard.Substring(reportModel.IdCard.Length - 4, 4) +
+                        Utils.DateTimeToTimeStamp(DateTime.Now) +
+                       (reportModel.ExamId == null ? Utils.GenerateRandomCodePro(6) : reportModel.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
+                    
                     await reportInfoRepo.InsertAsync(reportModel);
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
@@ -45,7 +52,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         ReportId = dto.Id,
                         ActivityId = dto.ActivityId,
                         Status = ReportStatus.UnChecked,
-                        Step = ReportStep.Reported,                        
+                        Step = ReportStep.Reported,
                     };
                     //await reportProcessRepo.InsertAsync(ReportProcessModel);
 
@@ -57,7 +64,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         var order = new Order()
                         {
                             AccountId = dto.AccountId,
-                            ExamId = dto.ExamId,
+                            //ExamId = dto.ExamId,
+                            ReportId = reportModel.Id,
                             Expenses = exam.Expenses,
                             //交易单号32位，考试id的4位（21-24）+13位时间戳+15位随机字符
                             //OutTradeNo = $"{exam.Id.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
@@ -73,7 +81,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     uow.Commit();
                     return true;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Assistant.Logger.Error(ex);
                     return false;
@@ -104,6 +112,37 @@ namespace Magic.Guangdong.DbServices.Methods
                     .ToListAsync();
             }
             return reportOrderList;
+        }
+    
+        /// <summary>
+        /// 获取报名详情
+        /// </summary>
+        /// <param name="outTradeNo"></param>
+        /// <returns></returns>
+        public async Task<dynamic> GetReportDetailByOutTradeNo(string outTradeNo)
+        {
+            var order = await fsql.Get(conn_str)
+                .Select<Order>()
+                .Where(u => u.OutTradeNo == outTradeNo)
+                .FirstAsync();
+
+            var detail = await fsql.Get(conn_str)
+                .Select<ReportInfo, Examination>()
+                .LeftJoin((a, b) => a.ExamId == b.Id)
+                .Where((a, b) => a.Id == order.ReportId)
+                .ToOneAsync((a, b) => new
+                {
+                    a.ReportNumber,
+                    b.StartTime,
+                    b.Title,
+                    b.AssociationTitle,
+                    b.Address,
+                    b.Remark,
+                    a.Name,
+                    idCard = a.IdCard.Substring(0, 2) + "**************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)
+                });
+
+            return detail;
         }
     }
 

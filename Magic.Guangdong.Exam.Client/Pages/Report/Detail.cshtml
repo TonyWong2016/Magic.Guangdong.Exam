@@ -2,3 +2,40 @@
 @model Magic.Guangdong.Exam.Client.Pages.Report.DetailModel
 @{
 }
+<main class="container">
+    <article>
+        <header class="pico-color-jade-400">报名成功</header>
+        <h6>考生姓名：<font id="name"></font></h6>
+        <h6>考生证件：<font id="idCard"></font></h6>
+        <h6>准考证号：<font id="reportNumber" class="pico-color-orange-450"></font></h6>
+        <h6>考试科目：<font id="subject" class="pico-color-orange-450"></font></h6>
+        <h6>考试时间：<font id="startTime" class="pico-color-orange-450"></font></h6>
+        <h6>考试地点：<font id="examAddress" class="pico-color-orange-450"></font></h6>
+        <h6>注意事项：<font id="remark" ></font></h6>
+        <footer>
+            <button class="secondary">待打印准考证</button>
+            <button>打印准考证</button>
+        </footer>
+    </article>
+</main>
+<script>
+    let outTradeNo = getUrlQueryParams('outTradeNo');
+    axios.get('/report/GetReportDetailByOutTradeNo', { params: {
+            outTradeNo: outTradeNo
+    }
+    }).then(data => {
+        let json = data.data;
+        if (json.code != 0) {
+            TT.error('网络异常');
+            return;
+        }
+        jHtmlSet('reportNumber', json.data.reportNumber);
+        jHtmlSet('subject', json.data.title);
+        jHtmlSet('startTime', json.data.startTime);
+        jHtmlSet('examAddress', json.data.address);
+        jHtmlSet('remark', (json.data.remark && json.data.remark!='null') ? json.data.remark:'请带好准考证，准时参加考试，不许作弊');
+        jHtmlSet('name', json.data.name);
+        jHtmlSet('idCard', json.data.idCard);
+    })
+   
+</script>

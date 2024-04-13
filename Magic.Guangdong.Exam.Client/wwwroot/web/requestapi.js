@@ -5,7 +5,7 @@ window.axios = axios; // 确保axios全局可用
 // 创建一个 Axios 实例，方便全局配置和拦截器
 var axiosInstance = axios.create({
     baseURL: window.location.origin,
-    timeout: 10000, // 设置超时时间
+    timeout: 15000, // 设置超时时间
 });
 
 // 添加请求拦截器（例如：全局添加 Token）

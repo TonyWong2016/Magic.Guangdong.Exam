@@ -3,18 +3,40 @@
 @{
 }
 <main class="container">
-    <article>
-        <header class="pico-color-jade-400">报名成功</header>
-        <h4>考试科目：</h4>
-        <h4>考试时间：</h4>
-        <h4>考试地点：</h4>
-        <h4>注意事项：</h4>
-        <footer>
-            <button class="secondary">待打印准考证</button>
-            <button>打印准考证</button>
-        </footer>
+    <article style="text-align:center">
+        <br /><br /><br /><br /><br />
+        <h4 id="checking" aria-busy="true">正在核对支付结果，请稍后...</h4>
+        <h4 id="error" class="pico-color-red-450" style="display:none">支付失败，请联系管理人员。</h4>
+        <h4 id="success" aria-busy="true" class="pico-color-jade-300" style="display:none">支付成功，即将跳转到详情页面...</h4>
+        <br /><br /><br /><br /><br />
     </article>
 </main>
 <script>
     let sub = getUrlQueryParams('sub');
+    let orderObj = JSON.parse(decodeURIComponent(atob(sub)));
+
+    if (orderObj.payType == 'alipay') {
+        OrderQuery()
+    }
+
+    function OrderQuery() {
+        setTimeout(async () => {
+            let formData = new FormData();
+            formData.append('__RequestVerificationToken', requestToken);
+            formData.append('OutTradeNo', orderObj.outTradeNo)
+            
+            let json = await request('POST', '/order/alipay/query', formData, CT);
+            $('#checking').hide();
+            if (json.code != 0) {
+                $('#error').show()
+                return;
+            }
+            if (json.data && json.data.trade_status == 'TRADE_SUCCESS') {
+                $('#success').show();
+                location.href = '/report/detail?outTradeNo=' + orderObj.outTradeNo
+                return
+            }
+            $('#error').show()
+        })
+    }
 </script>

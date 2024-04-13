@@ -3,7 +3,7 @@
 @{
 }
 <main class="container">
-    <h3 class="pico-color-indigo-500">我的报名记录：</h3>
+    <h3 class="pico-color-azure-500">我的报名记录：</h3>
     <div id="reportListView">
 
     </div>
@@ -11,20 +11,20 @@
 <script id="reportListTpl" type="text/html">
     {{# layui.each(d,function(index, item){ }}
     <article id="reportItem{{ index }}">
-        <h5>参与考试：{{item.subject}}</h5>
-        <h5>订单编号：{{item.outTradeNo}}</h5>
-        <h5>参与状态：
+        <h6>参与考试：{{item.subject}}</h6>
+        <h6>订单编号：{{item.outTradeNo}}</h6>
+        <h6>参与状态：
             {{# if(item.reportStatus==0){ }}
                 <font class="pico-color-green-450">报名成功</font>
             {{# } else if(item.reportStatus==2) { }}
-                <font class="pico-color-orange-450">待支付</font>
+                <font class="pico-color-amber-200">待支付</font>
             {{# } else { }}
                 <font class="pico-color-red-450">报名失败</font>
             {{# }}}
-        </h5>
-        <a class="outline" role="button" href="/report/detail?id={{d.reportId}}">查看</a>
+        </h6>
+        <a class="outline" role="button" href="/report/detail?id={{item.reportId}}">查看</a>
         {{# if(item.reportStatus==2){ }}
-            <a class="pico-background-blue-500" style="border-color:aliceblue" role="button" href="javascript:;" onclick="Pay()">去支付</a>
+            <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="javascript:;" onclick="Pay('{{ JSON.stringify(item) }}')">去支付</a>
         {{# } }}
 
     </article>
@@ -44,4 +44,16 @@
             }
             console.log(data)
         })
+
+    function Pay(obj){
+        obj = JSON.parse(obj);
+        let examModel = {
+            id: obj.examId,
+            title: obj.subject,
+            expenses: obj.expenses,
+            orderTradeNumber: obj.outTradeNo
+        };
+        let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
+        location.href = `/order/detail?sub=${sub}`;
+    }
 </script>

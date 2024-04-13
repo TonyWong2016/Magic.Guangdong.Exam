@@ -135,6 +135,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         CreatedBy = adminId + "执行克隆操作",
                         UpdatedBy = adminId,
                         Description = cloneExamName,
+                        Address = orginExam.Address,
                         BaseDuration = orginExam.BaseDuration,
                         StartTime = orginExam.StartTime,
                         EndTime = orginExam.EndTime,

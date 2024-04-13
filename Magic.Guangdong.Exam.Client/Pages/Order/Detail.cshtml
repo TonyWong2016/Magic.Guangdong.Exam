@@ -18,7 +18,7 @@
             <input type="text" readonly class="disabled" id="orderTradeNumber" name="orderTradeNumber" value="" />
             <input type="hidden" id="examId"/>
             @Html.AntiForgeryToken()
-            <div class="grid">
+            <div class="grid" id="payDiv">
                 <input type="button" class="pico-background-green-400" style="border-color:aliceblue" value="微信支付" />
                 <input type="submit" id="pay" class="pico-background-blue-600" style="border-color:aliceblue" value="支付宝支付" />
                 
@@ -41,18 +41,16 @@
     jValSet('TotalAmount', examModel.expenses);
     jValSet('examId', examModel.id);
     jValSet('orderTradeNumber', examModel.orderTradeNumber);
-    // axios.get('/exam/GetExam', { params: {
-    //     id:examId
-    // }
-    // }).then((data) => {
-    //     console.log(data.data)
-    //     let json = data.data;
-    //     if (json.code !== 0) {
-    //         TT.error('获取缴费信息失败，请稍后重试');
-    //         return;
-    //     }
-    //     jValSet('Subject', json.data.title);
-    //     jValSet('TotalAmount', json.data.expenses);
-    //     jValSet('examId', json.data.id);
-    // })
+    
+    
+    axios.get('/myorder/ConfirmOrderStatus', {
+        params: {
+            outTradeNo: examModel.orderTradeNumber
+        }
+    }).then(data => {
+        let json = data.data;
+        if (json.code !== 0) {
+            location.href = json.data.url;
+        }
+    })
 </script>

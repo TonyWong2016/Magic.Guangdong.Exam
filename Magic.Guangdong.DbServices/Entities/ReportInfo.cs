@@ -59,6 +59,9 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty,Column(StringLength = 200)]
 		public string Address { get; set; } = "无";
 
+		[JsonProperty]
+		public string ReportNumber { get; set; } = string.Empty;
+
 		public CardType CardType { get; set; } = CardType.China;
 
 		/// <summary>

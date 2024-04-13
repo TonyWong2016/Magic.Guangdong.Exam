@@ -51,7 +51,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                 //ViewData["response"] = "支付成功";
                 Assistant.Logger.Info("支付成功");
 
-                string sub = Assistant.Utils.EncodeUrlParam($"{{tradeNo:{notify.TradeNo},outTradeNo:{notify.OutTradeNo},totalAmount:{notify.TotalAmount}}}");
+                string sub = Assistant.Utils.EncodeUrlParam($"{{\"tradeNo\":\"{notify.TradeNo}\",\"outTradeNo\":\"{notify.OutTradeNo}\",\"payType\":\"alipay\",\"totalAmount\":{notify.TotalAmount}}}");
                 //发布一个消息
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncOrderInfo", new SyncOrderDto()
                 {

@@ -14,5 +14,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         Task<bool> ReportActivity(ReportInfoDto dto);
 
         Task<ReportOrderList> GetReportOrderList(GetReportListDto dto);
+        
+        Task<dynamic> GetReportDetailByOutTradeNo(string outTradeNo);
     }
 }

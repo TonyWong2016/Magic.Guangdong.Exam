@@ -22,6 +22,13 @@
         </div>
 
         <div class="layui-form-item">
+            <label class="layui-form-label">考试地点</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Address" placeholder="请创建考试标题，如xx年度xx活动第x次在线考试" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
             <label class="layui-form-label">关联活动</label>
             <div class="layui-input-block">
                @* <select asp-for="AssociationId" lay-filter="AssociationId" lay-verify="required" required>

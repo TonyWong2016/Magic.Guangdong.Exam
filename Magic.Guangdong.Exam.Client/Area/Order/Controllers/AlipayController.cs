@@ -57,9 +57,17 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         {
             try
             {
-                if (await _orderRepo.getAnyAsync(u => u.OutTradeNo == orderTradeNumber))
-                    return Redirect("/Error?msg=" + HttpUtility.UrlEncode("订单不存在", Encoding.UTF8));
+                if (!await _orderRepo.getAnyAsync(u => u.OutTradeNo == orderTradeNumber))
+                    return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单不存在"));
+                
+                
                 var order = await _orderRepo.getOneAsync(u => u.OutTradeNo == orderTradeNumber);
+
+                if(order.Status == DbServices.Entities.OrderStatus.Paid)
+                {
+                    return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单已支付"));
+
+                }
 
                 var model = new AlipayTradePagePayModel()
                 {
@@ -123,13 +131,15 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         [HttpGet]
         public IActionResult Query()
         {
-            return View();
+            return Content("请提交合适的参数");
+            //return View();
         }
 
         /// <summary>
         /// 交易查询
         /// </summary>
-        [HttpPost]
+        [Route("query")]
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Query(AlipayTradeQueryViewModel viewMode)
         {
             var model = new AlipayTradeQueryModel
@@ -141,9 +151,10 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             var req = new AlipayTradeQueryRequest();
             req.SetBizModel(model);
 
-            var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
-            ViewData["response"] = ((AlipayResponse)response).Body;
-            return View();
+            var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
+            //ViewData["response"] = ((AlipayResponse)response).Body;
+            //return View();
+            return Json(_resp.success(response));
         }
 
         /// <summary>

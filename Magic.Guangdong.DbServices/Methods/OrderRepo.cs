@@ -35,6 +35,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     order.PayType = dto.PayType;
                     order.PayTime = dto.Timestamp;
                     order.UpdatedAt = DateTime.Now;
+                    order.TradeNo = dto.TradeNo;
                     //await orderRepo.UpdateAsync(order);
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();

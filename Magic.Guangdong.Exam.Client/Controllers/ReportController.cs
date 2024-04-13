@@ -89,5 +89,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {            
             return Json(_resp.success(await _reportInfoRepo.GetReportOrderList(dto)));
         }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "outTradeNo","rd" })]
+        public async Task<IActionResult> GetReportDetailByOutTradeNo(string outTradeNo)
+        {
+            return Json(_resp.success(await _reportInfoRepo.GetReportDetailByOutTradeNo(outTradeNo)));
+        }
     }
 }
