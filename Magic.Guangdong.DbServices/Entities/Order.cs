@@ -76,13 +76,21 @@ namespace Magic.Guangdong.DbServices.Entities
 
         [JsonProperty, Column(InsertValueSql = "getdate()")]
         public DateTime ExpiredTime { get; set; } = DateTime.Now.AddMinutes(10);
-    }
+
+		/// <summary>
+		/// 退款账单
+		/// RE开头+OrderID去掉-
+		/// </summary>
+		[JsonProperty, Column(DbType = "varchar(100)")]
+		public string RefundNo { get; set; }
+	}
 
 	public enum OrderStatus { 
 		Paid, //支付成功，
         Unpaid, // 待支付
 		Expired, //过期，注意，订单过期要支持自动检测，10分钟内不支付自动过期，过期后要同步更新reportProcess里的状态
         Faild, //支付失败
+		Refund,//退款
     }
 
 	public enum PayType

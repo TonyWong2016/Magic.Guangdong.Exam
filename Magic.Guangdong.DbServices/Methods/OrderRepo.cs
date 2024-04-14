@@ -1,9 +1,13 @@
-﻿using Magic.Guangdong.DbServices.Dtos.Order;
+﻿using FreeSql.Internal.Model;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Order;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -55,12 +59,89 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
                 catch(Exception ex)
                 {
-                    Assistant.Logger.Error("同步支付信息失败");
+                    uow.Rollback();
+                    Assistant.Logger.Error("同步支付信息失败"+ex.Message);
                     return false;
                 }
             }
             
             
+        }
+
+        /// <summary>
+        /// 同步退款
+        /// </summary>
+        /// <param name="outTradeNo"></param>
+        /// <returns></returns>
+        public async Task<bool> SyncRefundOrderInfo(string outTradeNo)
+        {
+            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            {
+                try
+                {
+                    var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
+                    if (!await orderRepo.Where(u => u.OutTradeNo == outTradeNo || u.Status == OrderStatus.Paid).AnyAsync())
+                    {
+                        return false;
+                    }
+                    var order = await orderRepo.Where(u => u.OutTradeNo == outTradeNo).FirstAsync();
+                    order.Status = OrderStatus.Refund;
+                    order.UpdatedAt = DateTime.Now;
+                    order.RefundNo = $"RE{order.Id.ToString("N")}";
+                    order.Remark = "后台操作退款";
+
+                    var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    var reportProcess = await reportProcessRepo.Where(u => u.OrderId == order.Id).FirstAsync();
+                    reportProcess.Status = ReportStatus.Refunded;
+                    reportProcess.Step = ReportStep.Failed;
+                    reportProcess.UpdatedAt = DateTime.Now;
+
+                    await orderRepo.UpdateAsync(order);
+                    await reportProcessRepo.UpdateAsync(reportProcess);
+                    uow.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    uow.Rollback();
+                    Assistant.Logger.Error("同步退款信息失败"+ex.Message);
+                    return false;
+                }
+            }
+        }
+
+        public dynamic GetOrderList(PageDto pageDto, out long total)
+        {
+            var query = fsql.Get(conn_str).Select<Order, ReportInfo>()
+                .LeftJoin((o, r) => o.ReportId == r.Id)
+                .Where((o, r) => o.IsDeleted == 0);
+            if (!string.IsNullOrEmpty(pageDto.whereJsonStr))
+            {
+                DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
+                query = query
+                    .WhereDynamicFilter(dyfilter);
+            }
+            return query
+                .Count(out total)
+                .OrderByPropertyNameIf(!string.IsNullOrEmpty(pageDto.orderby), pageDto.orderby, pageDto.isAsc)
+                .Page(pageDto.pageindex, pageDto.pagesize)
+                .ToList((o, r) => new
+                {
+                    o.Id,
+                    o.OutTradeNo,
+                    o.TradeNo,
+                    o.Subject,
+                    o.PayType,
+                    o.PayTime,
+                    o.Expenses,
+                    o.InvoiceId,
+                    o.AccountId,
+                    o.CreatedAt,
+                    r.IdCard,
+                    r.Name,
+                    r.Email,
+                    r.Mobile
+                });
         }
     }
 }

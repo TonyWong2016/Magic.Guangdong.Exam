@@ -1,4 +1,7 @@
-﻿using FreeSql;
+﻿using Coravel;
+using Essensoft.Paylink.Alipay;
+using Essensoft.Paylink.WeChatPay;
+using FreeSql;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Exam.Filters;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -23,6 +26,14 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigurePlug(_configuration);
             // builder.Services.BuildServiceProvider();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // 添加Paylink依赖注入
+            builder.Services.AddAlipay();
+            builder.Services.AddWeChatPay();
+            // 在 appsettings.json(开发环境：appsettings.Development.json) 中 配置选项
+            builder.Services.Configure<AlipayOptions>(_configuration.GetSection("Alipay"));
+            builder.Services.Configure<WeChatPayOptions>(_configuration.GetSection("WeChatPay"));
+
             return builder;
         }
 
@@ -224,10 +235,18 @@ namespace Magic.Guangdong.Exam.Extensions
                 //设置失败重试次数
                 x.FailedRetryCount = 5;
 
-            });
-
+            });            
         }
 
-        
+        /// <summary>
+        /// 配置Coravel
+        /// </summary>
+        /// <param name="services"></param>
+        private static void ConfigureCoravel(this IServiceCollection services)
+        {
+            
+            services.AddScheduler();
+
+        }
     }
 }

@@ -1,0 +1,206 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class='layui-row' style='padding:15px'>
+    <form class='layui-form' lay-filter='formFilter'>
+        <div class="layui-row layui-col-space5">
+            <div class='layui-input-inline layui-col-md3'>
+                <select id='ActivityId' lay-filter='ActivityId'>
+                    <option value='0'>请选择活动</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline layui-col-md3">
+                <select id='ExamId' lay-filter='ExamId'>
+                    <option value='0'>请选择考试</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline layui-col-md2">
+                <select id='PayType' lay-filter='PayType'>
+                    <option value='0'>请选择支付方式</option>
+                    <option value='1'>微信</option>
+                    <option value='2'>支付宝</option>
+                    <option value='5' disabled>其他(暂不支持)</option>
+                </select>
+            </div>
+            <div class="layui-input-inline layui-col-md2">
+                <input class='layui-input' id='keyword' placeholder='关键字(业务订单号，或第三方支付的订单号)' />
+
+            </div>
+
+            <div class="layui-input-inline layui-col-md2">
+                <a href="javascript:;" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
+            </div>
+        </div>
+        
+    </form>
+
+    <table class="layui-table" lay-filter="table" id="table"></table>
+    <textarea style="display:none" id="refundResp"></textarea>
+</div>
+
+<script type="text/html" id="payTypeTpl">
+    {{# if(d.payType==0){ }}
+    <span class="layui-badge layui-bg-gray">未支付</span>
+    {{# } else if(d.payType==1){ }}
+    <span class="layui-badge layui-bg-green">微信支付</span>
+    {{# } else if(d.payType==2){ }}
+    <span class="layui-badge layui-bg-blue">支付宝</span>
+    {{# } else { }}
+    <span class="layui-badge layui-bg-purple">其他</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/order/order/detail?id={{d.orderId}}"><i class="layui-icon layui-icon-about"></i>详情</a>
+    <a class="layui-btn layui-btn-primary layui-border-purple" href="javascript:;" onclick="refund('{{ d.outTradeNo }}',{{d.payType}})"><i class="layui-icon layui-icon-rmb"></i>退款</a>
+</script>
+
+<script>
+    let form = layui.form;
+    let activityId = '0';
+    let examId = '';
+    let payType = 0;
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
+        .then(v => {            
+            form.render('select')
+            //getExamList();
+        })
+    form.on('select(ActivityId)', (data) => {
+        activityId = data.value
+        getOrderTable()
+        getSelectItems('/exam/examination/getexammini', { id: activityId, type: 0, rd: randomInt }, 'selectTpl', 'ExamId', false)
+            .then(v => {
+                form.render('select')
+            })
+    })
+
+    form.on('select(ExamId)', (data) => {
+        examId = data.value;
+        getOrderTable();
+    })
+
+    form.on('select(PayType)', (data) => {
+        payType = data.value;
+        getOrderTable()
+    })
+
+    autoSearch('keyword', () => {
+
+        getOrderTable()
+    })
+
+    getOrderTable();
+    function getOrderTable() {
+        var params = {
+            url: '@Url.Action("GetOrders")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: '#indexTpl', width: 120 }
+                { field: 'id', title: '订单id', type: 'checkbox' }
+                , { field: 'outTradeNo', title: '商家订单号',width:300 }
+                , { field: 'tradeNo', title: '支付平台订单号', width: 300 }
+                , { field: 'subject', title: '订单内容' }
+                , { field: 'expenses', title: '金额', width: 120 }
+                , { templet: '#payTypeTpl', title: '支付方式', width: 120 }
+                , { field: 'createdAt', title: '创建时间' }
+                , { field: 'payTime', title: '支付时间' }
+                , { title: '操作', templet: '#operationTpl', width: 300 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        let keyword = jVal('keyword');
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'Order.Id',
+                'Operator': 'NotEqual',
+                'Value': 0
+            }]
+        };
+        if (activityId!='0') {
+            whereJsonStr.Filters.push({
+                'Field': 'ActivityId',
+                'Operator': 'Equal',
+                'Value': activityId
+            });
+        }
+        if (examId) {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            });
+        }
+        if (payType != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'PayType',
+                'Operator': 'Equal',
+                'Value': payType
+            });
+        }
+        if (keyword && keyword.length > 0) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'TradeNo',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'OutTradeNo',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'paytime','isAsc':false, 'rd': randomInt };
+    }
+
+    function refund(outTradeNo, payType) {
+        layer.confirm('退款之后，报名信息也将随之作废，是否继续', { icon: 0 }, async function () {
+            if (payType == 1) {
+                //微信退款 todo..
+            } else if (payType == 2) {
+                let or
+                let formData = new FormData();
+                formData.append('__RequestVerificationToken', requestToken);
+                formData.append('outTradeNo', outTradeNo);
+                let ret = await request('POST', '/order/alipay/Refund', formData, CT);
+                if (ret.code == 0) {
+                    jHtmlSet('refundResp', ret.data);
+                    successMsg('平台退款成功,账单同步中...', () => {
+                        setTimeOut(async () => {
+                            refreshRandomInt();
+                            await syncRefundOrderInfo(outTradeNo)
+                        },3000)
+                        
+                    })
+                    return;
+                }
+                errorMsg(ret.msg);
+            }
+        })
+    }
+
+    async function syncRefundOrderInfo(outTradeNo) {
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('outTradeNo', outTradeNo);
+        let ret = await request('POST', '/order/order/SyncRefundOrderInfo', formData, CT);
+        if (ret.code == 0) {
+            successMsg('退款成功...', () => {
+                refreshRandomInt();
+                syncRefundOrderInfo(outTradeNo)
+            })
+        }
+    }
+</script>

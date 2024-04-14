@@ -22,7 +22,14 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
-
+        /// <summary>
+        /// 获取考试下拉列表，
+        /// type=0时，id代表活动id
+        /// type=1时，id代表考试id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public async Task<dynamic> GetExamMini(string id, int type)
         {
             return await fsql.Get(conn_str).Select<Examination>()

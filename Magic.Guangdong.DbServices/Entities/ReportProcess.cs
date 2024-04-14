@@ -62,7 +62,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 	{
 		Succeed,
 		Failed,
-		UnChecked		
+		UnChecked,
+		Refunded
 	}
 
 }

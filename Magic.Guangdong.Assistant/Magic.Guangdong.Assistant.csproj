@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="BceSdkDotNetCore" Version="1.0.6.1123" />
+    <PackageReference Include="Coravel" Version="5.0.3" />
     <PackageReference Include="EasyCaching.CSRedis" Version="1.9.2" />
     <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="1.9.2" />
     <PackageReference Include="Essensoft.Paylink.Alipay" Version="4.1.3" />

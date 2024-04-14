@@ -25,5 +25,10 @@ namespace Magic.Guangdong.DbServices.Dtos
         public long[] roleIds { get; set; }
     }
 
-    
+    public class PageResponse
+    {
+        public long total { get; set; }
+
+        public dynamic items { get; set; }
+    }
 }

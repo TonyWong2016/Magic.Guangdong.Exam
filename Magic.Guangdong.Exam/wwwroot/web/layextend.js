@@ -331,6 +331,8 @@ function getTable(params, callBack = '') {
             }
         }
     });
+
+   
 }
 
 function getTableNoUrl(params, callBack = '') {
