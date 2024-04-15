@@ -1,4 +1,5 @@
-﻿using DotNetCore.CAP;
+﻿using Azure;
+using DotNetCore.CAP;
 using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Domain;
@@ -132,7 +133,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
             var req = new AlipayTradeQueryRequest();
             req.SetBizModel(model);
 
-            var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
+            var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
             ViewData["response"] = ((AlipayResponse)response).Body;
             return View();
         }
@@ -165,7 +166,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
                     OutTradeNo = order.OutTradeNo,
                     TradeNo = order.TradeNo,
                     RefundAmount = Math.Round(order.Expenses, 2).ToString(),
-                    OutRequestNo = $"RE{order.Id.ToString("N")}",
+                    OutRequestNo = $"RE{order.Id.ToString("N").ToUpper()}",
                     RefundReason = "后台操作退款"
                 };
 
@@ -173,7 +174,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
                 req.SetBizModel(model);
 
                 //var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
-                var response = await _client.PageExecuteAsync(req, _optionsAccessor.Value);
+                var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
                 Console.WriteLine(response.Body);
                 ViewData["response"] = response.Body;
                 //return View();
@@ -202,6 +203,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> RefundQuery(AlipayTradeRefundQueryViewModel viewMode)
         {
+
             var model = new AlipayTradeFastpayRefundQueryModel
             {
                 OutTradeNo = viewMode.OutTradeNo,
@@ -212,9 +214,14 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
             var req = new AlipayTradeFastpayRefundQueryRequest();
             req.SetBizModel(model);
 
-            var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
-            ViewData["response"] = response.Body;
-            return View();
+            //var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
+            //ViewData["response"] = response.Body;
+            //return View();
+            var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
+            Console.WriteLine(response.Body);
+            //ViewData["response"] = response.Body;
+            //return View();
+            return Json(_resp.success(response.Body));
         }
 
         /// <summary>
@@ -229,7 +236,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
         /// <summary>
         /// 交易关闭
         /// </summary>
-        [HttpPost]
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Close(AlipayTradeCloseViewModel viewMode)
         {
             var model = new AlipayTradeCloseModel
@@ -242,9 +249,10 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
             req.SetBizModel(model);
             req.SetNotifyUrl(viewMode.NotifyUrl);
 
-            var response = await _client.CertificateExecuteAsync(req, _optionsAccessor.Value);
+            var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
+            Console.WriteLine(response.Body);
             ViewData["response"] = response.Body;
-            return View();
+            return Json(_resp.success(response.Body));
         }
 
         /// <summary>

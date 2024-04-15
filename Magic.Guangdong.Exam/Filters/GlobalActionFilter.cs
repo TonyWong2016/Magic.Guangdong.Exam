@@ -157,6 +157,7 @@ namespace Magic.Guangdong.Exam.Filters
 
         private void ResponseLog(ActionExecutedContext context)
         {
+            
             string ip = "";
             if (context.HttpContext.Request.Headers["x-Forwarded-For"].Any())
             {

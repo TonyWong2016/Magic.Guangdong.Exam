@@ -21,14 +21,14 @@ namespace Magic.Guangdong.Assistant
             this.resp = resp;
         }
 
-        public async Task<dynamic> SubmitExcelTask(string fileName,string whereJsonStr,int adminId)
+        public async Task<dynamic> SubmitExcelTask(string fileName,string whereJsonStr,string adminId)
         {
-            var tasks = await RedisHelper.HGetAllAsync("MakeComplexExcelTask");
+            var tasks = await RedisHelper.HGetAllAsync("MakeGDComplexExcelTask");
             if (tasks.Values.Any(u => u.Equals(whereJsonStr)))
             {
                 return resp.ret(-1, "提交的检索任务已在队列中存在，请稍后再试");
             }
-            await RedisHelper.HSetAsync("MakeComplexExcelTask", $"{fileName}|{adminId}|{Utils.DateTimeToTimeStamp(DateTime.Now)}", whereJsonStr);
+            await RedisHelper.HSetAsync("MakeGDComplexExcelTask", $"{fileName}|{adminId}|{Utils.DateTimeToTimeStamp(DateTime.Now)}", whereJsonStr);
             return resp.success(1,"导出任务已提交到后台队列，请耐心等待邮件通知。");
         }
 
@@ -149,7 +149,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -299,7 +299,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -500,7 +500,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -714,7 +714,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器                
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}/";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}/";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -891,7 +891,7 @@ namespace Magic.Guangdong.Assistant
         {
             try
             {
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}/";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}/";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{savePath}/upfile/{folder}";
@@ -1100,7 +1100,7 @@ namespace Magic.Guangdong.Assistant
             {
                 #region 保存到本地服务器
                 //string folder = DateTime.Now.ToString("yyyyMM");
-                string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
 
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 var uploadPath = save_path + "\\upfile\\" + folder + "\\";
@@ -1209,7 +1209,7 @@ namespace Magic.Guangdong.Assistant
             string storageType = ConfigurationHelper.GetSectionValue("storageType");
 
             //string folder = DateTime.Now.ToString("yyyyMM");
-            string folder = $"ScratchProgramApply/export/{DateTime.Now.ToString("yyyyMM")}";
+            string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
 
             string remoteBase = ConfigurationHelper.GetSectionValue("remoteBase");
             bool flag = FileHelper.connectState();

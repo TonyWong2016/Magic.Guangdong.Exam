@@ -3,7 +3,7 @@
 @{
 }
 <main class="container">
-    <article>
+    <article id="success">
         <header class="pico-color-jade-400">报名成功</header>
         <h6>考生姓名：<font id="name"></font></h6>
         <h6>考生证件：<font id="idCard"></font></h6>
@@ -17,6 +17,10 @@
             <button>打印准考证</button>
         </footer>
     </article>
+    <article id="error" style="display:none">
+        <header class="pico-color-red-500">报名失效</header>
+        <h5>信息：<font id="errorInfo" class="pico-color-orange-450"></font></h5>
+    </article>
 </main>
 <script>
     let outTradeNo = getUrlQueryParams('outTradeNo');
@@ -29,13 +33,22 @@
             TT.error('网络异常');
             return;
         }
-        jHtmlSet('reportNumber', json.data.reportNumber);
-        jHtmlSet('subject', json.data.title);
-        jHtmlSet('startTime', json.data.startTime);
-        jHtmlSet('examAddress', json.data.address);
-        jHtmlSet('remark', (json.data.remark && json.data.remark!='null') ? json.data.remark:'请带好准考证，准时参加考试，不许作弊');
-        jHtmlSet('name', json.data.name);
-        jHtmlSet('idCard', json.data.idCard);
+        if (json.data.orderStatus == 0) {
+           
+
+            jHtmlSet('reportNumber', json.data.reportNumber);
+            jHtmlSet('subject', json.data.title);
+            jHtmlSet('startTime', json.data.startTime);
+            jHtmlSet('examAddress', json.data.address);
+            jHtmlSet('remark', (json.data.remark && json.data.remark != 'null') ? json.data.remark : '请带好准考证，准时参加考试，不许作弊');
+            jHtmlSet('name', json.data.name);
+            jHtmlSet('idCard', json.data.idCard);
+        } else {
+            $('#success').remove();
+            $('#error').show();
+            jHtmlSet('errorInfo', '您的报名记录已失效');
+        }
+
     })
    
 </script>

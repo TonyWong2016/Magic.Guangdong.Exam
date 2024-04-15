@@ -11,10 +11,12 @@ using MathNet.Numerics.Distributions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -27,7 +29,11 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
-
+        /// <summary>
+        /// 报名参与活动
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public async Task<bool> ReportActivity(ReportInfoDto dto)
         {
             using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
@@ -89,12 +95,84 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
+        public dynamic GetReportInfos(PageDto pageDto, out long total)
+        {
+            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView>()
+                .LeftJoin((a, b) => a.Id == b.ReportId);
+            if (!string.IsNullOrEmpty(pageDto.whereJsonStr))
+            {
+                DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
+                query = query
+                    .WhereDynamicFilter(dyfilter);
+            }
+            return query
+                .Count(out total)
+                .OrderByPropertyNameIf(!string.IsNullOrEmpty(pageDto.orderby), pageDto.orderby, pageDto.isAsc)
+                .Page(pageDto.pageindex, pageDto.pagesize)
+                .ToList((a, b) => new
+                {
+                    a.Id,
+                    a.AccountId,
+                    a.Name,
+                    //IdCard = a.IdCard.Length > 4 ? (a.IdCard.Substring(0, 2) + "****************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)) : a.IdCard,
+                    a.IdCard,
+                    a.Email,
+                    a.Mobile,                    
+                    a.Job,
+                    //area = a.ProvinceName+a.CityName+(string.IsNullOrEmpty(a.DistrictName)?"": a.DistrictName),
+                    a.ProvinceName,
+                    a.CityName,
+                    a.DistrictName,
+                    a.ReportNumber,
+                    a.CreatedAt,
+                    b.OrderStatus,
+                    b.ReportStatus,
+                    b.Subject,
+                    b.ExamId,
+                    b.ActivityId
+                });
+        }
+
+        public async Task<List<ExportReportInfo>> GetReportInfosForExcel(string whereJsonStr)
+        {
+            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView>()
+               .LeftJoin((a, b) => a.Id == b.ReportId);
+            if (!string.IsNullOrEmpty(whereJsonStr))
+            {
+                DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(whereJsonStr);
+                query = query
+                    .WhereDynamicFilter(dyfilter);
+            }
+            var list =  await query.ToListAsync((a, b) => new 
+            {
+                a.Id,
+                a.AccountId,
+                a.Name,
+                IdCard = a.IdCard.Length > 4 ? (a.IdCard.Substring(0, 2) + "****************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)) : a.IdCard,
+                a.Email,
+                a.Mobile,
+                a.Job,
+                //area = a.ProvinceName+a.CityName+(string.IsNullOrEmpty(a.DistrictName)?"": a.DistrictName),
+                a.ProvinceName,
+                a.CityName,
+                a.DistrictName,
+                a.ReportNumber,
+                 //b.OrderStatus,
+                b.ReportStatus,
+                b.Subject,
+                //b.ExamId,
+                //b.ActivityId
+            });
+
+            return list.Adapt<List<ExportReportInfo>>();
+        }
+
         /// <summary>
         /// 获取报名列表
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        public async Task<ReportOrderList> GetReportOrderList(GetReportListDto dto)
+        public async Task<ReportOrderList> GetReportOrderListClient(GetReportListDto dto)
         {
             ReportOrderList reportOrderList = new ReportOrderList();
             var reportOrderRepo = fsql.Get(conn_str).GetRepository<ReportOrderView>();
@@ -126,12 +204,15 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.OutTradeNo == outTradeNo)
                 .FirstAsync();
 
+
             var detail = await fsql.Get(conn_str)
                 .Select<ReportInfo, Examination>()
                 .LeftJoin((a, b) => a.ExamId == b.Id)
                 .Where((a, b) => a.Id == order.ReportId)
                 .ToOneAsync((a, b) => new
                 {
+                    orderStatus=order.Status,
+                    orderStatusStr = order.Status == OrderStatus.Paid ? "支付成功" : "订单失败",
                     a.ReportNumber,
                     b.StartTime,
                     b.Title,
@@ -142,6 +223,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     idCard = a.IdCard.Substring(0, 2) + "**************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)
                 });
 
+           
+
             return detail;
         }
     }
@@ -151,5 +234,66 @@ namespace Magic.Guangdong.DbServices.Methods
         public List<ReportOrderView> items { get; set; }
 
         public long total { get; set; }
+    }
+
+    public class ExportReportInfo
+    {
+        public long Id { get; set; }
+
+        public int ReportStatus { get; set; }
+        public string AccountId { get; set; }
+        [Description("姓名")]
+        public string Name { get; set; }
+
+        [Description("证件号")]
+        public string IdCard { get; set; }
+    
+
+        [Description("考号")]
+        public string ReportNumber { get; set; }
+
+        [Description("省份")]
+        public string ProvinceName { get; set; }
+
+        [Description("城市")]
+        public string CityName { get; set; }
+
+        [Description("区县")]
+        public string DistrictName { get; set; }
+
+        [Description("电子邮箱")]
+        public string Email { get; set; }
+
+        [Description("电话")]
+        public string Mobile { get; set; }
+
+        [Description("单位")]
+        public string Job { get; set; }
+
+        [Description("考试科目")]
+        public string Subject { get; set; }
+
+        public string ReportStatusStr
+        {
+            get
+            {
+                if(ReportStatus==0)
+                {
+                    return "报名成功";
+                }else if(ReportStatus==3)
+                {
+                    return "已退款";
+                }else if (ReportStatus == 2)
+                {
+                    return "未审核";
+                }
+                else
+                {
+                    return "报名失败";
+                }
+            }
+        }
+
+
     }
 }

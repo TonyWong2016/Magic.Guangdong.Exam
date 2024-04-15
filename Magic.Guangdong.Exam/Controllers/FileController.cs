@@ -271,7 +271,7 @@ namespace Magic.Guangdong.Exam.Controllers
                     Ext = suffix,
                     Size = fileSize,
                     Path = fileResponseDto.path,
-                    UserId = adminId,
+                    AccountId = adminId,
                     ConnId = connId
                 };
 
@@ -451,7 +451,7 @@ namespace Magic.Guangdong.Exam.Controllers
                     Ext = fileExt,
                     Size = fileSize,
                     Path = path,
-                    UserId = adminId,
+                    AccountId = adminId,
                     ConnId = connId
                 };
                 await _fileRepo.addItemAsync(file);

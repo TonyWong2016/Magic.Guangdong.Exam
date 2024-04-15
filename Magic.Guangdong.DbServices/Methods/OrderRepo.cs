@@ -87,7 +87,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     var order = await orderRepo.Where(u => u.OutTradeNo == outTradeNo).FirstAsync();
                     order.Status = OrderStatus.Refund;
                     order.UpdatedAt = DateTime.Now;
-                    order.RefundNo = $"RE{order.Id.ToString("N")}";
+                    order.RefundNo = $"RE{order.Id.ToString("N").ToUpper()}";
                     order.Remark = "后台操作退款";
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
@@ -137,7 +137,9 @@ namespace Magic.Guangdong.DbServices.Methods
                     o.InvoiceId,
                     o.AccountId,
                     o.CreatedAt,
-                    r.IdCard,
+                    o.Status,
+                    o.RefundNo,
+                    IdCard = r.IdCard.Length > 4 ? (r.IdCard.Substring(0, 2) + "****************" + r.IdCard.Substring(r.IdCard.Length - 4, 4)) : r.IdCard,
                     r.Name,
                     r.Email,
                     r.Mobile

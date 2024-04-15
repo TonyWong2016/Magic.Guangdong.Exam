@@ -1,3 +1,281 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-row layui-col-space5">
+            <div class='layui-input-inline layui-col-md3'>
+                <select id='ActivityId' lay-filter='ActivityId'>
+                    <option value='0'>请选择活动</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline layui-col-md3">
+                <select id='ExamId' lay-filter='ExamId'>
+                    <option value='0'>请选择考试</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline layui-col-md2">
+                <select id='ProvinceId' lay-filter='ProvinceId'>
+                    <option value='0'>请选择省份</option>
+                </select>
+            </div>
+            <div class="layui-input-inline layui-col-md2">
+                <select id='CityId' lay-filter='CityId'>
+                    <option value='0'>请选择城市</option>
+                </select>
+            </div>
+            <div class="layui-input-inline layui-col-md2">
+                <select id='DistrictId' lay-filter='DistrictId'>
+                    <option value='0'>请选择区县</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-row layui-col-space5">
+            <div class="layui-input-inline layui-col-md3">
+                <select id='ReportStatus' lay-filter='ReportStatus'>
+                    <option value='-1'>请选择审核状态</option>
+                    <option value='0'>报名成功</option>
+                    <option value='2'>待审核</option>
+                    <option value='1'>审核不通过</option>
+                    <option value='3'>已退款</option>
+                </select>
+            </div>
+            <div class="layui-input-inline layui-col-md5">
+                <input class='layui-input' id='keyword' placeholder='考生信息关键字，支持考号（推荐优先以考号查询）,姓名，邮箱，电话，以及证件号' />
+
+            </div>
+            <div class="layui-input-inline layui-col-md3">
+                <a href="javascript:;" class="layui-btn" onclick="exportTable()"><i class="layui-icon layui-icon-export"></i>导出</a>
+            </div>
+        </div>
+    </form>
+    <table class="layui-table" lay-filter="table" id="table"></table>
+
+   
+</div>
+<script type="text/html" id="statusTpl">
+    {{# if(d.reportStatus==0){ }}
+    <span class="layui-badge layui-bg-green">报名成功</span>
+     {{# } else if(d.reportStatus==2){ }}
+    <span class="layui-badge layui-bg-yellow">待审核</span>
+    {{# } else if(d.reportStatus==3){ }}
+    <span class="layui-badge layui-bg-cyan">已退款</span>   
+    {{# } else { }}
+    <span class="layui-badge layui-bg-red">报名失败</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="areaTpl">
+    {{ d.provinceName + d.cityName + d.districtName }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="showMore('{{ JSON.stringify(d) }}')"><i class="layui-icon layui-icon-edit"></i>审核</a>    
+</script>
+<script>
+    let form = layui.form;
+    let activityId = '0';
+    let examId = '';
+    let reportStatus = '-1';
+    let provinceId = 0;
+    let cityId = 0;
+    let districtId = 0;
+
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
+        
+    form.on('select(ActivityId)', (data) => {
+        activityId = data.value
+        getReportInfoTable()
+        getSelectItems('/exam/examination/getexammini', { id: activityId, type: 0, rd: randomInt }, 'selectTpl', 'ExamId', false)
+            .then(v => {
+                form.render('select')
+            })
+    })
+
+    form.on('select(ExamId)', (data) => {
+        examId = data.value;
+        getReportInfoTable()
+    })
+
+    form.on('select(ReportStatus)', (data) => {
+        reportStatus = data.value
+        getReportInfoTable()
+    })
+
+    getSelectItems('/system/province/GetProvinceDrops', {}, 'selectTpl', 'ProvinceId');
+    form.on('select(ProvinceId)', (data) => {
+        provinceId = data.value;
+        $('#DistrictId').val('').html('');
+        $('#CityId').val('').html('');
+        form.render('select');
+        cityId = 0;
+        districtId = 0;
+        if (isNumeric(provinceId) && provinceId != '0')
+            getSelectItems('/system/city/GetCityDrops', { provinceId: provinceId }, 'selectTpl', 'CityId', false);
+        getReportInfoTable()
+    })
+    form.on('select(CityId)', (data) => {
+        cityId = data.value;
+        $('#DistrictId').val('').html('');
+        form.render('select');
+        districtId = 0;
+        if (isNumeric(cityId) && cityId != '0')
+            getSelectItems('/system/district/GetDistrictDrops', { cityId: cityId }, 'selectTpl', 'DistrictId', false)
+        getReportInfoTable()
+    })
+    form.on('select(DistrictId)', (data) => {
+        districtId = data.value;
+        getReportInfoTable()
+    })
+
+    autoSearch('keyword', () => {
+        getReportInfoTable();
+
+    })
+    
+    getReportInfoTable()
+    function getReportInfoTable(){
+        var params = {
+            url: '@Url.Action("GetReportInfos")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: '#indexTpl', width: 120 }
+                { field: 'id', title: '报名id', type: 'checkbox' }
+                , { field: 'name', title: '姓名', width: 120 }
+                , { field: 'idCard', title: '证件号', width: 180 }
+                , { field: 'reportNumber', title: '考号', width: 180 }
+                , { field: 'subject', title: '报考内容' }
+                , { field: 'email', title: '邮箱', width: 180 }
+                , { field: 'mobile', title: '电话', width: 150 }
+                , { templet: '#areaTpl', title: '地域', width: 200 }
+                , { templet: '#statusTpl', title: '报名状态', width: 150 }
+                , { field: 'createdAt', title: '报名时间', width: 200 }
+                , { title: '操作', templet: '#operationTpl'}
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+       
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'Id',
+                'Operator': 'NotEqual',
+                'Value': 0
+            }]
+        };
+        if (activityId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'ActivityId',
+                'Operator': 'Equal',
+                'Value': activityId
+            });
+        }
+        if (reportStatus != '-1') {
+            whereJsonStr.Filters.push({
+                'Field': 'ReportStatus',
+                'Operator': 'Equal',
+                'Value': reportStatus
+            })
+        }
+        if (examId) {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            });
+        }
+        if (provinceId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'ProvinceId',
+                'Operator': 'Equal',
+                'Value': provinceId
+            });
+        }
+        if (cityId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'CityId',
+                'Operator': 'Equal',
+                'Value': cityId
+            });
+        }
+        if (districtId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'DistrictId',
+                'Operator': 'Equal',
+                'Value': districtId
+            });
+        }
+        let keyword = jVal('keyword');
+        let stringType = identifyStringType(keyword);
+        if (stringType == 'idCard') {
+            whereJsonStr.Filters.push({
+                'Field': 'IdCard',
+                'Operator': 'Equal',
+                'Value': keyword
+            });
+        }
+        else if (stringType=='email') {
+            whereJsonStr.Filters.push({
+                'Field': 'Email',
+                'Operator': 'Equal',
+                'Value': keyword
+            });
+        }
+        else if (stringType == 'phone') {
+            whereJsonStr.Filters.push({
+                'Field': 'Mobile',
+                'Operator': 'Equal',
+                'Value': keyword
+            });
+        }
+        else if (stringType == 'pureChinese') {
+            whereJsonStr.Filters.push({
+                'Field': 'Name',
+                'Operator': 'Equal',
+                'Value': keyword
+            });
+        }
+        else if (stringType == 'string') {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'ReportNumber',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }, {
+                    'Field': 'IdCard',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }]
+            });
+        }
+       
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'Id', 'isAsc': false, 'rd': randomInt };
+    }
+
+    async function exportTable(){
+        let whereJson = makeWhereJson();
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('whereJsonStr', whereJson.whereJsonStr)
+        formData.append('adminId', atob(getCookie('userId')))
+        let ret = await request('POST', '@Url.Action("ExportReportInfos")', formData, CT);
+        if (ret.code == 0) {
+            successMsg('导出成功', (data) => {
+                window.open(ret.data)
+            })
+            return;
+        }
+        errorMsg(ret.msg)
+    }
+</script>

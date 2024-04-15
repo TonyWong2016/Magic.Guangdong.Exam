@@ -16,7 +16,7 @@ namespace Magic.Guangdong.Assistant.IService
         /// <param name="fileName"></param>
         /// <param name="whereJsonStr"></param>
         /// <returns></returns>
-        Task<dynamic> SubmitExcelTask(string fileName, string whereJsonStr, int adminId);
+        Task<dynamic> SubmitExcelTask(string fileName, string whereJsonStr, string adminId);
 
         /// <summary>
         /// 通用导出模板

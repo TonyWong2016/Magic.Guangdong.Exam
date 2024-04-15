@@ -87,7 +87,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         public async Task<IActionResult> GetReportOrderList(GetReportListDto dto)
         {            
-            return Json(_resp.success(await _reportInfoRepo.GetReportOrderList(dto)));
+            return Json(_resp.success(await _reportInfoRepo.GetReportOrderListClient(dto)));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "outTradeNo","rd" })]

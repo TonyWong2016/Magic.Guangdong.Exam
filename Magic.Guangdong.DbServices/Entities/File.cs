@@ -1,6 +1,4 @@
 ﻿using FreeSql.DataAnnotations;
-using FreeSql.Internal;
-using MassTransit;
 using Newtonsoft.Json;
 using Yitter.IdGenerator;
 
@@ -11,7 +9,7 @@ namespace Magic.Guangdong.DbServices.Entities
 	public partial class File {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public Guid Id { get; set; } = NewId.NextGuid();
+		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(InsertValueSql = "getdate()", IsNullable = false)]
 		public DateTime CreatedAt { get; set; }
@@ -44,8 +42,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// <summary>
 		/// 谁上传的
 		/// </summary>
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string UserId { get; set; } = "";
+		[JsonProperty, Column(DbType = "varchar(80)", IsNullable = false)]
+		public string AccountId { get; set; } = "";
 
         [JsonProperty, Column(InsertValueSql = "getdate()", IsNullable = false)]
 		public DateTime updatedAt { get; set; } = DateTime.Now;

@@ -33,11 +33,55 @@
                 <a href="javascript:;" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
             </div>
         </div>
-        
+
     </form>
 
     <table class="layui-table" lay-filter="table" id="table"></table>
-    <textarea style="display:none" id="refundResp"></textarea>
+    
+    <div class="layui-panel layui-card" id="detailDiv" style="display:none">
+        <div class="layui-card-header">更多订单信息</div>
+        <div class="layui-card-body">       
+            <form class="layui-form" lay-filter="order-more">
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">考生姓名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">证件号码</label>
+                <div class="layui-input-block">
+                    <input type="text" name="idCard" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">电子邮箱</label>
+                <div class="layui-input-block">
+                    <input type="text" name="email" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">联系方式</label>
+                <div class="layui-input-block">
+                    <input type="text" name="mobile" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">交易单号</label>
+                <div class="layui-input-block">
+                    <input type="text" name="tradeNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width:80%">
+                <label class="layui-form-label">退单号</label>
+                <div class="layui-input-block">
+                    <input type="text" name="refundNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+   
 </div>
 
 <script type="text/html" id="payTypeTpl">
@@ -52,9 +96,27 @@
     {{# } }}
 </script>
 
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span class="layui-badge layui-bg-green">支付成功</span>
+    {{# } else if(d.status==1){ }}
+    <span class="layui-badge layui-bg-yellow">待支付</span>
+    {{# } else if(d.status==4){ }}
+    <span class="layui-badge layui-bg-cyan">已退款</span>
+     {{# } else if(d.status==3){ }}
+    <span class="layui-badge layui-bg-red">交易失败</span>
+    {{# } else { }}
+    <span class="layui-badge layui-bg-gray">其他</span>
+    {{# } }}
+</script>
+
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="/order/order/detail?id={{d.orderId}}"><i class="layui-icon layui-icon-about"></i>详情</a>
-    <a class="layui-btn layui-btn-primary layui-border-purple" href="javascript:;" onclick="refund('{{ d.outTradeNo }}',{{d.payType}})"><i class="layui-icon layui-icon-rmb"></i>退款</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="showMore('{{ JSON.stringify(d) }}')"><i class="layui-icon layui-icon-more"></i>更多</a>
+    @* <a class="layui-btn layui-btn-primary layui-border-purple" href="javascript:;" onclick="refund('{{ d.outTradeNo }}',{{d.payType}})"><i class="layui-icon layui-icon-rmb"></i>退款</a> *@
+    {{# if(d.status==0 ) { }}
+        <a class="layui-btn layui-btn-primary layui-border-purple" id="refund_{{d.id}}" href="javascript:;" onclick="refund('{{ JSON.stringify(d) }}')"><i class="layui-icon layui-icon-rmb"></i>退款</a>
+        <a class="layui-btn layui-btn-primary layui-border-gray" id="refundDisabled_{{d.id}}" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-rmb"></i>退款中</a>
+    {{# } }}
 </script>
 
 <script>
@@ -63,7 +125,7 @@
     let examId = '';
     let payType = 0;
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
-        .then(v => {            
+        .then(v => {
             form.render('select')
             //getExamList();
         })
@@ -102,11 +164,12 @@
             cols: [ //表头
                 //{ title: '序号', templet: '#indexTpl', width: 120 }
                 { field: 'id', title: '订单id', type: 'checkbox' }
-                , { field: 'outTradeNo', title: '商家订单号',width:300 }
-                , { field: 'tradeNo', title: '支付平台订单号', width: 300 }
+                , { field: 'outTradeNo', title: '商家订单号', width: 300 }
+                // , { field: 'tradeNo', title: '支付平台订单号', width: 300 }
                 , { field: 'subject', title: '订单内容' }
                 , { field: 'expenses', title: '金额', width: 120 }
                 , { templet: '#payTypeTpl', title: '支付方式', width: 120 }
+                , { templet: '#statusTpl', title: '支付状态', width: 120 }
                 , { field: 'createdAt', title: '创建时间' }
                 , { field: 'payTime', title: '支付时间' }
                 , { title: '操作', templet: '#operationTpl', width: 300 }
@@ -126,7 +189,7 @@
                 'Value': 0
             }]
         };
-        if (activityId!='0') {
+        if (activityId != '0') {
             whereJsonStr.Filters.push({
                 'Field': 'ActivityId',
                 'Operator': 'Equal',
@@ -162,31 +225,66 @@
             });
         }
 
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'paytime','isAsc':false, 'rd': randomInt };
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'paytime', 'isAsc': false, 'rd': randomInt };
     }
 
-    function refund(outTradeNo, payType) {
+    function showMore(item) {
+        
+        let orderObj = JSON.parse(item);
+        form.val('order-more', {
+            'name':orderObj.name,
+            'idCard':orderObj.idCard,
+            'email':orderObj.email,
+            'mobile':orderObj.mobile,
+            'tradeNo':orderObj.tradeNo,
+            'refundNo': orderObj.status==4 ? orderObj.refundNo:'未退单'
+        })
+        layer.open({
+            type: 1,
+            title: false,
+            shade: false, // 不显示遮罩
+            area: ['600px', '390px'],
+            content: $('#detailDiv'), // 捕获的元素
+            end: function () {
+                // layer.msg('关闭后的回调', {icon:6});
+            }
+        });
+    }
+
+    function refund(item) {
+        let orderObj = JSON.parse(item);
         layer.confirm('退款之后，报名信息也将随之作废，是否继续', { icon: 0 }, async function () {
-            if (payType == 1) {
+            toggleRefund(orderObj.id, 1);
+            if (orderObj.payType == 1) {
                 //微信退款 todo..
-            } else if (payType == 2) {
-                let or
+            } else if (orderObj.payType == 2) {
                 let formData = new FormData();
                 formData.append('__RequestVerificationToken', requestToken);
-                formData.append('outTradeNo', outTradeNo);
+                formData.append('outTradeNo', orderObj.outTradeNo);
                 let ret = await request('POST', '/order/alipay/Refund', formData, CT);
-                if (ret.code == 0) {
-                    jHtmlSet('refundResp', ret.data);
-                    successMsg('平台退款成功,账单同步中...', () => {
-                        setTimeOut(async () => {
-                            refreshRandomInt();
-                            await syncRefundOrderInfo(outTradeNo)
-                        },3000)
-                        
-                    })
+                toggleRefund(orderObj.id, 2);
+                if (ret.code != 0) {
+                    errorMsg(ret.msg);
                     return;
                 }
-                errorMsg(ret.msg);
+                let refundResp = JSON.parse(ret.data);
+                if (refundResp.alipay_trade_refund_response.fund_change == 'Y') {
+                    successMsg('支付宝退款成功,账单同步中...',async () => {
+                        refreshRandomInt();
+                        await syncRefundOrderInfo(outTradeNo)
+
+                    })
+                } else {
+                    warnMsg('支付宝退款发生异常，正在进行二次确认，请稍后', async () => {
+                        let refundQuery = {
+                            OutTradeNo: orderObj.outTradeNo,
+                            TradeNo: orderObj.tradeNo,
+                            OutRequestNo: 'RE' + orderObj.id.replaceAll('-', '').toUpperCase()
+                        }
+                        await queryAlipayRefund(refundQuery)
+                    });
+                }
+
             }
         })
     }
@@ -197,10 +295,37 @@
         formData.append('outTradeNo', outTradeNo);
         let ret = await request('POST', '/order/order/SyncRefundOrderInfo', formData, CT);
         if (ret.code == 0) {
-            successMsg('退款成功...', () => {
+            successMsg('订单信息同步完成');
+        }
+    }
+
+    async function queryAlipayRefund(model) {
+        let formData = objectToFormData(model);
+        formData.append('__RequestVerificationToken', requestToken);
+
+        let ret = await request('POST', '/order/alipay/RefundQuery', formData, CT);
+        if (ret.code != 0) {
+            errorMsg(ret.msg);
+            return;
+        }
+        let json = JSON.parse(ret.data);
+        if (json.alipay_trade_fastpay_refund_query_response.refund_status == 'REFUND_SUCCESS') {
+            successMsg('退款成功...', async () => {
                 refreshRandomInt();
-                syncRefundOrderInfo(outTradeNo)
+                await syncRefundOrderInfo(model.OutTradeNo)
             })
+        }
+    }
+
+    function toggleRefund(id, type) {
+        if (type == 1) {
+            layer.load();
+            $('#refund_' + id).hide();
+            $('#refundDisabled_' + id).show();
+        } else {
+            layer.closeAll('loading');
+            $('#refund_' + id).show();
+            $('#refundDisabled_' + id).hide();
         }
     }
 </script>

@@ -415,3 +415,31 @@ function isNumeric(input, lesszero = false) {
     }
     return numericRegex.test(input);
 }
+
+function identifyStringType(input) {
+    if (!input || input.trim().length === 0) {
+        return "other";
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^(\+\d{1,4}\s?)?1\d{10}$/; // 中国手机号码（可能带国际区号）
+    const idCardRegex = /^\d{6}(18|19|20)?\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])\d{3}(\d|X|x)$/; // 简单的中国大陆18位身份证格式校验
+    const pureNumberRegex = /^\d+(\.\d+)?$/; // 数字
+    const amountRegex = /^(?:\d{1,3}(?:,\d{3})*|\d+)(?:\.\d{1,2})?$/; // 金额（精确到分）
+
+    if (emailRegex.test(input)) {
+        return "email";
+    } else if (phoneRegex.test(input)) {
+        return "phone";
+    } else if (idCardRegex.test(input)) {
+        return "idCard";
+    } else if (/^[\u4e00-\u9fa5]+$/.test(input)) { // 纯汉字
+        return "pureChinese";
+    } else if (pureNumberRegex.test(input)) {
+        return "pureNumber";
+    } else if (amountRegex.test(input)) {
+        return "amount";
+    } else {
+        return "string"; // 其他类型
+    }
+}

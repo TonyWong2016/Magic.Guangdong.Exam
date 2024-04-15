@@ -17,7 +17,7 @@ namespace Magic.Guangdong.Exam.Filters
             context.Result = new JsonResult(new { code = -1, msg = "系统错误，请稍后再试" });
             context.ExceptionHandled = true;
             Logger.Error("全局异常:"+errMsg);
-            await EmailKitHelper.SendEMailToDevExceptionAsync(ex);
+            //await EmailKitHelper.SendEMailToDevExceptionAsync(ex);
             return;
         }
     }

@@ -51,7 +51,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public string Remark { get; set; } = string.Empty;
 
 		/// <summary>
-		/// 0-支付成功，1-待支付，2-支付失败，3-订单过期（10分钟），4-订单取消/作废
+		/// 0-支付成功，1-待支付，2-订单过期（10分钟），3-订单取消/作废/支付失败，4-退单
 		/// </summary>
 		[JsonProperty]
 		public OrderStatus Status { get; set; } = OrderStatus.Unpaid;
