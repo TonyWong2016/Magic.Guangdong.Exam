@@ -97,8 +97,9 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public dynamic GetReportInfos(PageDto pageDto, out long total)
         {
-            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView>()
-                .LeftJoin((a, b) => a.Id == b.ReportId);
+            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView, UserBase>()
+                .LeftJoin((a, b, c) => a.Id == b.ReportId)
+                .LeftJoin((a, b, c) => a.AccountId == c.AccountId);
             if (!string.IsNullOrEmpty(pageDto.whereJsonStr))
             {
                 DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
@@ -109,7 +110,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Count(out total)
                 .OrderByPropertyNameIf(!string.IsNullOrEmpty(pageDto.orderby), pageDto.orderby, pageDto.isAsc)
                 .Page(pageDto.pageindex, pageDto.pagesize)
-                .ToList((a, b) => new
+                .ToList((a, b, c) => new
                 {
                     a.Id,
                     a.AccountId,
@@ -117,7 +118,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     //IdCard = a.IdCard.Length > 4 ? (a.IdCard.Substring(0, 2) + "****************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)) : a.IdCard,
                     a.IdCard,
                     a.Email,
-                    a.Mobile,                    
+                    a.Mobile,
                     a.Job,
                     //area = a.ProvinceName+a.CityName+(string.IsNullOrEmpty(a.DistrictName)?"": a.DistrictName),
                     a.ProvinceName,
@@ -129,9 +130,63 @@ namespace Magic.Guangdong.DbServices.Methods
                     b.ReportStatus,
                     b.Subject,
                     b.ExamId,
-                    b.ActivityId
+                    b.ActivityId,
+                    accountName = c.Name
                 });
         }
+
+        /// <summary>
+        /// 审查报名状态
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<bool> CheckReportInfo(ReportCheckHistoryDto dto)
+        {
+            if (dto.reportIds == null || dto.reportIds.Length == 0)
+            {
+                return false;
+            }
+            var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+            if(await reportProcessRepo.Where(u=>dto.reportIds.Contains(u.ReportId)).CountAsync() != dto.reportIds.Length)
+            {
+                return false;
+            }
+            using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            {
+                try
+                {
+                    var reportCheckHistoryRepo = fsql.Get(conn_str).GetRepository<ReportCheckHistory>();
+                    List<ReportCheckHistory> listHistory = new List<ReportCheckHistory>(dto.reportIds.Length);
+                    List<ReportProcess> listProcess = new List<ReportProcess>(dto.reportIds.Length);
+                    foreach (var reportId in dto.reportIds)
+                    {
+                        var reportProcess = await reportProcessRepo.Where(x => x.ReportId == reportId).FirstAsync();
+                        reportProcess.Status = dto.reportStatus;
+                        reportProcess.UpdatedAt = DateTime.Now;
+                        listProcess.Add(reportProcess);
+                        listHistory.Add(new ReportCheckHistory()
+                        {
+                            AdminId = dto.adminId,
+                            ReportId = reportId,
+                            CheckStatus = dto.checkStatus,
+                            CheckRemark = dto.checkRemark
+                        });
+
+                    }
+                    await reportProcessRepo.UpdateAsync(listProcess);
+                    await reportCheckHistoryRepo.InsertAsync(listHistory);
+                    
+                    uow.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Assistant.Logger.Error(ex);
+                    return false;
+                }
+            }
+        } 
+
 
         public async Task<List<ExportReportInfo>> GetReportInfosForExcel(string whereJsonStr)
         {
@@ -235,6 +290,8 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public long total { get; set; }
     }
+
+    
 
     public class ExportReportInfo
     {

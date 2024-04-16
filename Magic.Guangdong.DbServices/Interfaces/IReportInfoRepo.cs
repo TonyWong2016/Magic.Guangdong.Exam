@@ -27,6 +27,12 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<List<ExportReportInfo>> GetReportInfosForExcel(string whereJsonStr);
 
+        /// <summary>
+        /// 审查报名
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        Task<bool> CheckReportInfo(ReportCheckHistoryDto dto);
         Task<bool> ReportActivity(ReportInfoDto dto);
 
         /// <summary>

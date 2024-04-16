@@ -37,51 +37,51 @@
     </form>
 
     <table class="layui-table" lay-filter="table" id="table"></table>
-    
+
     <div class="layui-panel layui-card" id="detailDiv" style="display:none">
         <div class="layui-card-header">更多订单信息</div>
-        <div class="layui-card-body">       
+        <div class="layui-card-body">
             <form class="layui-form" lay-filter="order-more">
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">考生姓名</label>
-                <div class="layui-input-block">
-                    <input type="text" name="name" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">考生姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">证件号码</label>
-                <div class="layui-input-block">
-                    <input type="text" name="idCard" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">证件号码</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="idCard" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">电子邮箱</label>
-                <div class="layui-input-block">
-                    <input type="text" name="email" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">电子邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">联系方式</label>
-                <div class="layui-input-block">
-                    <input type="text" name="mobile" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">联系方式</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="mobile" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">交易单号</label>
-                <div class="layui-input-block">
-                    <input type="text" name="tradeNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">交易单号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="tradeNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-            <div class="layui-form-item" style="width:80%">
-                <label class="layui-form-label">退单号</label>
-                <div class="layui-input-block">
-                    <input type="text" name="refundNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                <div class="layui-form-item" style="width:80%">
+                    <label class="layui-form-label">退单号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="refundNo" readonly autocomplete="off" class="layui-input layui-bg-gray">
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
         </div>
     </div>
-   
+
 </div>
 
 <script type="text/html" id="payTypeTpl">
@@ -100,7 +100,7 @@
     {{# if(d.status==0){ }}
     <span class="layui-badge layui-bg-green">支付成功</span>
     {{# } else if(d.status==1){ }}
-    <span class="layui-badge layui-bg-yellow">待支付</span>
+    <span class="layui-badge layui-bg-orange">待支付</span>
     {{# } else if(d.status==4){ }}
     <span class="layui-badge layui-bg-cyan">已退款</span>
      {{# } else if(d.status==3){ }}
@@ -229,15 +229,15 @@
     }
 
     function showMore(item) {
-        
+
         let orderObj = JSON.parse(item);
         form.val('order-more', {
-            'name':orderObj.name,
-            'idCard':orderObj.idCard,
-            'email':orderObj.email,
-            'mobile':orderObj.mobile,
-            'tradeNo':orderObj.tradeNo,
-            'refundNo': orderObj.status==4 ? orderObj.refundNo:'未退单'
+            'name': orderObj.name,
+            'idCard': orderObj.idCard,
+            'email': orderObj.email,
+            'mobile': orderObj.mobile,
+            'tradeNo': orderObj.tradeNo,
+            'refundNo': orderObj.status == 4 ? orderObj.refundNo : '未退单'
         })
         layer.open({
             type: 1,
@@ -269,7 +269,7 @@
                 }
                 let refundResp = JSON.parse(ret.data);
                 if (refundResp.alipay_trade_refund_response.fund_change == 'Y') {
-                    successMsg('支付宝退款成功,账单同步中...',async () => {
+                    successMsg('支付宝退款成功,账单同步中...', async () => {
                         refreshRandomInt();
                         await syncRefundOrderInfo(outTradeNo)
 

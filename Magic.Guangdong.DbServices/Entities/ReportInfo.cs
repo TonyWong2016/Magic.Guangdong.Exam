@@ -73,6 +73,11 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
 		[JsonProperty]
 		public ConnAvailable ConnAvailable { get; set; } = ConnAvailable.None;
+
+		[JsonProperty]
+		public long FileId { get; set; } = 0;
+
+        
     }
 
 	public enum CardType

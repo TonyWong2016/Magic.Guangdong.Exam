@@ -3,6 +3,7 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Net;
 using System.Text;
 
@@ -32,7 +33,7 @@ namespace Magic.Guangdong.Exam.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(int ismult = 0, int del = 0)
+        public async Task<IActionResult> Upload(int ismult = 0, string userId="system", int del = 0)
         {
             try
             {
@@ -40,13 +41,15 @@ namespace Magic.Guangdong.Exam.Controllers
 
                 if (files.Count() > 1 || ismult == 1)
                 {
-                    List<DbServices.Entities.File> list = await UploadMultFiles(files);
+                    List<DbServices.Entities.File> list = await UploadMultFiles(files,userId);
                     return Json(resp.success(new { total = list.Count, items = list }));
                 }
                 else if (files.Count == 1)
                 {
                     bool isDel = del == 0 ? false : true;
-                    return Json(resp.success(await UploadFile(files[0], isDel)));
+                    string path = await UploadFile(files[0], userId, isDel);
+
+                    return Json(resp.success(path));
                 }
             }
             catch (Exception ex)
@@ -270,7 +273,7 @@ namespace Magic.Guangdong.Exam.Controllers
                     Name = fileName,
                     Ext = suffix,
                     Size = fileSize,
-                    Path = fileResponseDto.path,
+                    ShortUrl = fileResponseDto.path,
                     AccountId = adminId,
                     ConnId = connId
                 };
@@ -291,7 +294,7 @@ namespace Magic.Guangdong.Exam.Controllers
                             Directory.CreateDirectory(target);
                         string target_file = target + fileName;
                         fi.CopyTo(target_file, true);
-
+                        file.Path = target_file;
                     }
                     else if (storageType == "server")
                     {
@@ -309,12 +312,15 @@ namespace Magic.Guangdong.Exam.Controllers
                             //await Task.Run(() => FileHelper.Transport(finalPath, PathName, fileName));
                             //上传文件到附件服务器，同时删掉本地文件节省服务器空间
                             await FileHelper.Transport(finalPath, PathName, fileName, true);
+                            file.Path = Path.Combine(PathName,fileName);
                         }
                         else
                         {
                             Logger.Error("远程连接建立失败");
                         }
                     }
+
+                    await _fileRepo.addItemAsync(file);
                 }
                 catch
                 {
@@ -334,7 +340,7 @@ namespace Magic.Guangdong.Exam.Controllers
         /// <param name="file"></param>
         /// <param name="isDel">是否删除原文件</param>
         /// <returns></returns>
-        public async Task<string> UploadFile(IFormFile file, bool isDel = false)
+        public async Task<string> UploadFile(IFormFile file, string userId, bool isDel = false)
         {
             string uploadFileName = file.FileName.Replace(".", $"-{DateTime.Now.ToString("yyyyMMddHHmmss")}.");//a.jpg-->a-20220216161309.jpg
             string basepath = en.WebRootPath;
@@ -350,8 +356,21 @@ namespace Magic.Guangdong.Exam.Controllers
             using (FileStream fstream = new FileStream(save_file, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 await file.CopyToAsync(fstream);
+                
             }
-            return await FileHelper.SyncFile(save_file, uploadFileName, true);
+            FileInfo fi = new FileInfo(save_file);
+            string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
+            await _fileRepo.addItemAsync(new DbServices.Entities.File()
+            {
+                AccountId = userId,
+                ShortUrl = returnPath,
+                Path = fi.FullName,
+                Size = fi.Length,
+                Ext = fi.Extension,
+                Name = fi.Name
+            });
+            
+            return returnPath;
 
         }
 
@@ -360,7 +379,7 @@ namespace Magic.Guangdong.Exam.Controllers
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-        public async Task<List<DbServices.Entities.File>> UploadMultFiles(IFormFileCollection files)
+        public async Task<List<DbServices.Entities.File>> UploadMultFiles(IFormFileCollection files,string userId)
         {
             int cnt = files.Count();
             //List<string> list = new List<string>(cnt);
@@ -394,10 +413,22 @@ namespace Magic.Guangdong.Exam.Controllers
                 {
                     await file.CopyToAsync(fstream);
                 }
-                //await CopyFileAsync(save_file, path);
-                await FileHelper.SyncFile(save_file, path, true);
-            }
+                string returnPath = await FileHelper.SyncFile(save_file, path, true);
+                FileInfo fileInfo = new FileInfo(save_file);
+                attachMains.Add(new DbServices.Entities.File()
+                {
+                    AccountId = userId,
+                    ShortUrl = returnPath,
+                    Path = save_file,
+                    Size = fileInfo.Length,
+                    Ext = fileInfo.Extension,
+                    Name = fileInfo.Name,
 
+                });
+                //await CopyFileAsync(save_file, path);
+                
+            }
+            await _fileRepo.addItemsAsync(attachMains);
             return attachMains;
         }
 

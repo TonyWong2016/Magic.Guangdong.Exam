@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities {
+namespace Magic.Guangdong.DbServices.Entities
+{
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class ReportInfoView {
+	public partial class ReportInfoView
+	{
 
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string AccountId { get; set; }
@@ -75,6 +77,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string ReportNumber { get; set; }
 
-	}
+		[JsonProperty]
+		public long FileId { get; set; } = 0;
 
+	}
 }

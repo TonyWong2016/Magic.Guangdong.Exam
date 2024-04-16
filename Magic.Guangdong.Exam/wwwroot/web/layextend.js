@@ -129,8 +129,11 @@ function successMsg(msg, callback = '') {
             $('.save').show();
             $('.disabledsave').hide();
         });
-    } else
+    } else {
         layer.msg(msg, { icon: 1, offset: '16px' });
+        $('.save').show();
+        $('.disabledsave').hide();
+    }
 }
 function errorMsg(msg, callback = '') {
     layer.closeAll('loading');
@@ -142,8 +145,11 @@ function errorMsg(msg, callback = '') {
             $('.save').show();
             $('.disabledsave').hide();
         });
-    } else
+    } else {
         layer.msg(msg, { icon: 2, offset: '16px' });
+        $('.save').show();
+        $('.disabledsave').hide();
+    }
 }
 function warnMsg(msg, callback = '') {
     layer.closeAll('loading');
@@ -153,6 +159,12 @@ function warnMsg(msg, callback = '') {
         });
     } else
         layer.msg(msg, { icon: 0, offset: '16px' });
+}
+
+function loadingMsg() {
+    layer.load(2);
+    $('.save').hide();
+    $('.disabledsave').show();
 }
 
 //弹出层-初级封装

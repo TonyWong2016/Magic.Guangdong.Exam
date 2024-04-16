@@ -34,10 +34,21 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public int IsDeleted { get; set; } = 0;
 
+        /// <summary>
+        /// 审查状态
+        /// 这个是服务端控制的
+        /// </summary>
         [JsonProperty]
 		public ReportStatus Status { get; set; } = ReportStatus.UnChecked;
 
-		[JsonProperty]
+        /// <summary>
+        /// 报名进度，
+        /// 根据用户报名状态来修改，在客户端更改，服务端不会修改这个状态，即便是后台给他退款了，
+        /// 这个状态也不由服务端的操作而更改
+		/// 但该字段可能被自动服务修改，比如订单长时间未支付，后台服务会取关闭订单，同时将该
+		/// 字段修改为Failed
+        /// </summary>
+        [JsonProperty]
 		public ReportStep Step { get; set; } = ReportStep.Reported;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
@@ -49,6 +60,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public Guid OrderId { get; set; }
 
+		
+
 	}
 
 	public enum ReportStep
@@ -58,11 +71,19 @@ namespace Magic.Guangdong.DbServices.Entities {
 		Failed,//失败了,订单长时间没支付或者报名审核没通过或者其他原因
 	}
 
+	/// <summary>
+	/// 审查状态
+	/// 这个是后台根据实际情况修改的
+	/// </summary>
 	public enum ReportStatus
 	{
+		//通过
 		Succeed,
+		//不通过
 		Failed,
+		//待审核
 		UnChecked,
+		//已退款
 		Refunded
 	}
 

@@ -2,6 +2,9 @@
 //上传接口目前使用的是创新学院的接口，如后续有调整，需改url参数即可
 let element = layui.element;
 let uploadFlag = false;
+let fcupUserId = getCookie('userId');
+if (fcupUserId)
+    fcupUserId = atob(fcupUserId);
 function initFcup(elemId, types, callBackElem, progressElem = '', url = '', checkUrl = '') {
     if (url == '')
         //url = "http://manage.xiaoxiaotong.net/fileupload/upload";
@@ -115,7 +118,7 @@ var upload = layui.upload;
 function initLayuiUploadpic(elemId,callBackCoverElem,callBackUrlElem, url = '') {
     if (url == '')
 //        url = "http://manage.xiaoxiaotong.net/file/upload";
-        url = "/file/upload";
+        url = "/file/upload?userId=" + fcupUserId;
     var uploadInst = upload.render({
         elem: '#' + elemId //绑定元素
         , accept: 'images'
@@ -146,7 +149,7 @@ function initLayuiUploadpic(elemId,callBackCoverElem,callBackUrlElem, url = '') 
 function initLayuiUploadFile(elemId,  callBackUrlElem, output, exts='pdf', url = '') {
     if (url == '')
         //url = "http://manage.xiaoxiaotong.net/file/upload";
-        url = "/file/upload";
+        url = "/file/upload?userId=" + fcupUserId;
     var uploadInst = upload.render({
         elem: '#' + elemId //绑定元素
         , accept: 'file'
@@ -189,7 +192,7 @@ function initLayuiUploadFile(elemId,  callBackUrlElem, output, exts='pdf', url =
 //上传小文件
 function initUploadFile(elemId, exts = 'pdf', url = '', callback) {
     if (url == '')
-        url = "/file/upload";
+        url = "/file/upload?userId=" + fcupUserId;
     var uploadInst = upload.render({
         elem: '#' + elemId //绑定元素
         , accept: 'file'
@@ -333,7 +336,7 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
 //上传小文件，传入对象
 function initUploadFilePro(obj) {
     if (!obj.url || obj.url == '')
-        obj.url = "/file/upload";
+        obj.url = "/file/upload?userId=" + fcupUserId;
     var uploadInst = upload.render({
         elem: '#' + obj.elemId //绑定元素
         , accept: 'file'

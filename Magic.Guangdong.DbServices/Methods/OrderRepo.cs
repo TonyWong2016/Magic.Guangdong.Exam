@@ -93,7 +93,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
                     var reportProcess = await reportProcessRepo.Where(u => u.OrderId == order.Id).FirstAsync();
                     reportProcess.Status = ReportStatus.Refunded;
-                    reportProcess.Step = ReportStep.Failed;
+                    //后台操作不修改前台客户的报名进度字段
+                    //reportProcess.Step = ReportStep.Failed;
                     reportProcess.UpdatedAt = DateTime.Now;
 
                     await orderRepo.UpdateAsync(order);

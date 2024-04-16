@@ -12,7 +12,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(InsertValueSql = "getdate()", IsNullable = false)]
-		public DateTime CreatedAt { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 		/// <summary>
 		/// 文件名称
@@ -27,11 +27,11 @@ namespace Magic.Guangdong.DbServices.Entities
         public string Ext { get; set; }="";
 
 
-        /// <summary>
-        /// 文件大小
-        /// </summary>
-        [JsonProperty, Column(IsNullable = false)]
-		public int Size { get; set; }
+		/// <summary>
+		/// 文件大小
+		/// </summary>
+		[JsonProperty, Column(IsNullable = false)]
+		public long Size { get; set; } = 0;
 
 		/// <summary>
 		/// 文件类型，不是后缀，是业务类型

@@ -1,4 +1,7 @@
-﻿//增加一个富文本编辑器，tinymce，中文文档：http://tinymce.ax-z.cn/
+﻿let tinymceUserId = getCookie('userId');
+if (tinymceUserId)
+    tinymceUserId = atob(tinymceUserId);
+//增加一个富文本编辑器，tinymce，中文文档：http://tinymce.ax-z.cn/
 function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') {
     //let file_base_url = "http://v.superzb.cn/fileattach/";
     if (!base_ajax_url) {
@@ -27,7 +30,7 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
             var file = blobInfo.blob();//转化为易于理解的file对象
             xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
-            xhr.open('POST', '/file/upload');
+            xhr.open('POST', '/file/upload?userId=' + tinymceUserId);
             xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
 
             xhr.onload = function () {
@@ -62,7 +65,7 @@ function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') 
             //文件分类
             var filetype = '.pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .jpg, .png, .jpeg, .mp4';
             //后端接收上传文件的地址            
-            var upurl = '/file/upload';
+            var upurl = '/file/upload?userId=' + tinymceUserId;
             //模拟出一个input用于添加本地文件
             var input = document.createElement('input');
             input.setAttribute('type', 'file');
@@ -134,7 +137,7 @@ function InitTinymcePro(obj) {
             var file = blobInfo.blob();//转化为易于理解的file对象
             xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
-            xhr.open('POST', '/file/upload');
+            xhr.open('POST', '/file/upload?userId=' + tinymceUserId);
             xhr.setRequestHeader('Authorization', localStorage.getItem('accessToken')); // 设置自定义头
 
 
@@ -164,7 +167,7 @@ function InitTinymcePro(obj) {
             //文件分类
             var filetype = '.pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .jpg, .png, .jpeg';
             //后端接收上传文件的地址            
-            var upurl = '/file/upload';
+            var upurl = '/file/upload?userId=' + tinymceUserId;
             //模拟出一个input用于添加本地文件
             var input = document.createElement('input');
             input.setAttribute('type', 'file');
