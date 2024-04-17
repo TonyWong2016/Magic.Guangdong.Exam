@@ -73,7 +73,7 @@ namespace Magic.Guangdong.DbServices.Methods
         public async Task<List<ReportHistoryDto>> GetReportCheckHistory(long reportId)
         {
             return await fsql.Get(conn_str).Select<ReportCheckHistory, Admin>()
-                .LeftJoin((a, b) => a.AdminId == b.Id)
+                .LeftJoin((a, b) => a.AdminId == b.Id.ToString())
                 .Where((a, b) => a.ReportId == reportId)
                 .ToListAsync((a, b) => new ReportHistoryDto()
                 {
@@ -111,7 +111,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
-        public Guid adminId { get; set; }
+        public string adminId { get; set; }
 
         public string adminName { get; set; }
 

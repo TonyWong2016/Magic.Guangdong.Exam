@@ -40,9 +40,16 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// for client
         /// </summary>
         /// <param name="dto"></param>
-        /// <returns></returns>
+        /// <returns></returns>        
         Task<ReportOrderList> GetReportOrderListClient(GetReportListDto dto);
+            
+        Task<dynamic> GetReportDetailByOutTradeNoForClient(string outTradeNo);
         
-        Task<dynamic> GetReportDetailByOutTradeNo(string outTradeNo);
+        /// <summary>
+        /// 获取申报详情
+        /// </summary>
+        /// <param name="reportId"></param>
+        /// <returns></returns>
+        Task<dynamic> GetReportDetailForClient(long reportId);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EasyCaching.Core;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "whereJsonStr","pageIndex","pageSize","orderby","isAsc" })]
+        //[ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "whereJsonStr","pageIndex","pageSize","orderby","isAsc" })]
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> GetExams(PageDto dto)
         {
@@ -34,18 +35,29 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                await _examRepo.getListAsync(dto)));
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
-        public async Task<IActionResult> GetExam(Guid id)
+        //[ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id" })]
+        //public async Task<IActionResult> GetExam(Guid id)
+        //{
+        //    var exam = await _examRepo.getOneAsync(u => u.Id == id);
+        //    return new JsonResult(_resp.success(
+        //       new
+        //       {
+        //           title = exam.Title,
+        //           expenses = exam.Expenses,
+        //           id = exam.Id
+        //       }
+        //       ));
+        //}
+
+        public async Task<IActionResult> AnyReportExamsForClient(ReportExamDto dto)
         {
-            var exam = await _examRepo.getOneAsync(u => u.Id == id);
-            return new JsonResult(_resp.success(
-               new
-               {
-                   title = exam.Title,
-                   expenses = exam.Expenses,
-                   id = exam.Id
-               }
-               ));
+            return Json(_resp.success(await _examRepo.AnyReportExamsForClient(dto)));
         }
+
+        public async Task<IActionResult> GetReportExamsForClient(ReportExamDto dto)
+        {
+            return Json(_resp.success(await _examRepo.GetReportExamsForClient(dto)));
+        }
+
     }
 }

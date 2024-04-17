@@ -66,7 +66,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         Title = $"{exam.Title}卷{paperNum + existPaperCnt + 1}",
                         Remark = $"卷{paperNum + existPaperCnt + 1}抽题情况",
-                        Status = 1,
+                        Status = 0,
                         ExamId = model.examId,
                         Score = model.paperScore,
                         Duration = exam.BaseDuration,

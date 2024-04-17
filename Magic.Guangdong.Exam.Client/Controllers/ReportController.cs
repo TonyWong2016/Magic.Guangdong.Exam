@@ -53,7 +53,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             //var reportInfo = dto.Adapt<ReportInfo>();
             dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
             if (await _reportInfoRepo.ReportActivity(dto))
-                return Json(_resp.success(dto.OrderTradeNumber));
+                return Json(_resp.success(new { tradeNo= dto.OrderTradeNumber ,reportId = dto.Id}));
             return Json(_resp.error("报名失败"));
         }
 
@@ -90,10 +90,16 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return Json(_resp.success(await _reportInfoRepo.GetReportOrderListClient(dto)));
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "outTradeNo","rd" })]
-        public async Task<IActionResult> GetReportDetailByOutTradeNo(string outTradeNo)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "outTradeNo", "rd" })]
+        public async Task<IActionResult> GetReportDetailByOutTradeNoForClient(string outTradeNo)
         {
-            return Json(_resp.success(await _reportInfoRepo.GetReportDetailByOutTradeNo(outTradeNo)));
+            return Json(_resp.success(await _reportInfoRepo.GetReportDetailByOutTradeNoForClient(outTradeNo)));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "reportId", "rd" })]
+        public async Task<IActionResult> GetReportDetailForClient(long reportId)
+        {
+            return Json(_resp.success(await _reportInfoRepo.GetReportDetailForClient(reportId)));
         }
     }
 }

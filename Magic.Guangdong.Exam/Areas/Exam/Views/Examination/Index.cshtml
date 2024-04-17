@@ -141,14 +141,14 @@
     let status = '0';
 
     let cloneExamId = '';
-
+    getExamList();
     $('#btnAddExamination').attr('href', '@Url.Action("Create")');
     $('#btnQuestion').attr('href', '@Url.Action("Index", "Question")')
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'AssociationId', true)
         .then(v => {
-            associationId = selectRet[0].value
+            //associationId = selectRet[0].value
             form.render('select')
-            getExamList();
+            
         })
 
     form.render('checkbox');

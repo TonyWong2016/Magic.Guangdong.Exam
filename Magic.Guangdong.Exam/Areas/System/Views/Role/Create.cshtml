@@ -24,7 +24,7 @@
                 <label class="layui-form-label">角色类型</label>
                 <div class="layui-input-block">
                     <select asp-for="Type" lay-verify="" lay-search lay-filter="Type">
-                        <option value="1">超级</option>
+                        <option value="1" disabled>超级(暂时不支持创建额外的超级角色)</option>
                         <option value="2" selected>普通</option>
                         <option value="3">其他</option>
                     </select>
@@ -81,6 +81,7 @@
 
         })
     })
+
 
     form.on('submit(form-submit)', async function (data) {
         var field = data.field;

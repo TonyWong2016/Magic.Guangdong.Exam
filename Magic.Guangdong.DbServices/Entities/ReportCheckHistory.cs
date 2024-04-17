@@ -18,7 +18,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty]
-		public Guid AdminId { get; set; } = Guid.Empty;
+		public string AdminId { get; set; } = "";
 
 		[JsonProperty, Column(StringLength = 200, IsNullable = false)]
 		public string CheckRemark { get; set; } = "待审";

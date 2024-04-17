@@ -29,31 +29,22 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         /// </summary>
         /// <param name="outTradeNo"></param>
         /// <returns></returns>
-        [ResponseCache(Duration = 600, VaryByQueryKeys = new string[] { "outTradeNo", "rd" })]
-        public async Task<IActionResult> ConfirmOrderStatus(string outTradeNo)
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new string[] { "orderId", "rd" })]
+        public async Task<IActionResult> GetOrderDetail(Guid orderId)
         {
-            if (!await _orderRepo.getAnyAsync(u => u.OutTradeNo == outTradeNo))
+            if (!await _orderRepo.getAnyAsync(u => u.Id == orderId))
             {
-                //return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单不存在"));
-                return Json(_resp.error("订单不存在", new { url = "/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单不存在") }));
+                //return Json(_resp.error("订单不存在", new { url = "/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单不存在") }));
+                Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("订单不存在"));
             }
-            var order = await _orderRepo.getOneAsync(u=>u.OutTradeNo== outTradeNo);
+            var order = await _orderRepo.getOneAsync(u => u.Id == orderId);
             if (order.Status == DbServices.Entities.OrderStatus.Paid)
             {
-                return Json(_resp.ret(1,"已支付",new { url = "/Report/Index" }));
+                //return Json(_resp.ret(1,"已支付",new { url = "/Report/Index" }));
+                Redirect("/Report/detail?id=" + order.ReportId);
             }
-            //if(order.PayType==DbServices.Entities.PayType.AliPay)
-            //{
-            //    var model = new AlipayTradeQueryModel
-            //    {
-            //        OutTradeNo = order.OutTradeNo,
-            //        TradeNo = order.TradeNo
-            //    };
-            //    return Json(_resp.ret(1,"有差异",await AlipayTradeQuery(model)));
-            //}
-            ////微信，todo。。
-            //return Json(_resp.error("查询失败"));
-            return Json(_resp.success("待支付"));
+            
+            return Json(_resp.success(order));
         }
 
 

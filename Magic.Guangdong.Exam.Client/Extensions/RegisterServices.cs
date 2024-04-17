@@ -17,9 +17,15 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
         public static WebApplicationBuilder SetupServices(this WebApplicationBuilder builder)
         {
+            builder.Configuration
+                .AddJsonFile("Configs/cachesetting.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("Configs/mqsetting.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("Configs/paysetting.json", optional: true, reloadOnChange: true)
+               ;
+            
             _configuration = builder.Configuration;
             ConfigurationHelper.Initialize(_configuration);
-
+            
             Logger.InitLog();
 
             builder.Services.ConfigureOrm(_configuration);

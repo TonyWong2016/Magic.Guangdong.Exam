@@ -1,0 +1,53 @@
+{
+  "redislogkey": "eslog",
+  "RedisMode": "cluser", //redis连接模式，single-单节点，cluser-集群
+  "easycaching": {
+    //哨兵集群节点配置
+    "csredis": {
+      "MaxRdSecond": 120,
+      "EnableLogging": false,
+      "LockMs": 5000,
+      "SleepMs": 300,
+      "SerializerName ": "mymsgpack",
+      "dbconfig": {
+        "ConnectionStrings": [
+          "mymaster,password=magicloud666,defaultDatabase=5,poolsize=50"
+        ],
+        "Sentinels": [
+          "10.185.1.176:26379",
+          "10.185.1.178:26380",
+          "10.185.1.178:26381"
+        ],
+        "ReadOnly": false
+      }
+    },
+    //单节点配置
+    "csredisSingle": {
+      "MaxRdSecond": 120,
+      "EnableLogging": false,
+      "LockMs": 5000,
+      "SleepMs": 300,
+      "SerializerName ": "mymsgpack",
+      "dbconfig": {
+        "ConnectionStrings": [
+          "10.185.3.130:6379,defaultDatabase=10,poolsize=5,ssl=false,writeBuffer=10240"
+        ],
+        "ReadOnly": false
+      }
+    }
+  },
+
+  //哨兵集群节点配置（redishelper）
+  "CsredisStr": {
+    "ConnectionString": "mymaster,password=magicloud666,defaultDatabase=5,poolsize=50,ssl=false,writeBuffer=10240",
+    "Sentinels": [
+      "10.185.1.176:26379",
+      "10.185.1.178:26380",
+      "10.185.1.178:26381"
+    ]
+  },
+  //单节点配置（redishelper）
+  "CsredisStrSingle": {
+    "ConnectionString": "10.185.3.130:6379,defaultDatabase=5,poolsize=50,ssl=false,writeBuffer=10240"
+  }
+}

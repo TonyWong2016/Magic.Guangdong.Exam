@@ -20,17 +20,22 @@
                     <textarea class="layui-textarea" asp-for="Description" placeholder="请简要描述角色的管理定位，职能等"></textarea>
                 </div>
             </div>
-            <div class="layui-form-item">
+            <div class="layui-form-item" id="roleDiv">
                 <label class="layui-form-label">角色类型</label>
                 <div class="layui-input-block">
-                    <select asp-for="Type" lay-verify="" lay-search lay-filter="Type">
-                        <option value="1">超级</option>
-                        <option value="2" selected>普通</option>
+                    <select asp-for="Type"  lay-search lay-filter="Type">
+                        <option value="1">超级(暂时不支持创建额外的超级角色)</option>
+                        <option value="2">普通</option>
                         <option value="3">其他</option>
                     </select>
                 </div>
             </div>
-
+            <div class="layui-form-item" id="roleDiv2" style="display:none">
+                <label class="layui-form-label">角色类型</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" disabled value="暂时不支持修改的超级管理员的角色" />
+                </div>
+            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label"><span class="layui-badge-purple"></span>角色权限</label>
                 <div class="layui-input-block">
@@ -57,7 +62,12 @@
     let formParams = {};
     let roleId = $('#Id').val();
     let permissions;
-
+    //$('#RoleType').val('#Type').val());
+    //form.render('select(Type)')
+    if ($('#Type').val() == '1') {
+        $('#roleDiv').hide()
+        $('#roleDiv2').show()
+    }
     axios.get('/system/Permission/GetPermissions', {
         params: {
             rd: 0

@@ -121,7 +121,7 @@
                     generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
                     return;
                 }
-                layer.load();
+                layer.load(2);
                 field.captchaTsp = `${field.captcha}${Math.round(new Date() / 1000)}`
                 field.hashpwd = md5(`${field.password}${field.captchaTsp}`);
                 field.remember = 0;

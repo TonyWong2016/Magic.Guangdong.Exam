@@ -16,10 +16,10 @@
     let orderObj = JSON.parse(decodeURIComponent(atob(sub)));
 
     if (orderObj.payType == 'alipay') {
-        OrderQuery()
+        AlipayOrderQuery()
     }
 
-    function OrderQuery() {
+    function AlipayOrderQuery() {
         setTimeout(async () => {
             let formData = new FormData();
             formData.append('__RequestVerificationToken', requestToken);
@@ -33,7 +33,7 @@
             }
             if (json.data && json.data.trade_status == 'TRADE_SUCCESS') {
                 $('#success').show();
-                location.href = '/report/detail?outTradeNo=' + orderObj.outTradeNo
+                location.href = '/report/detail?id=' + orderObj.outTradeNo
                 return
             }
             $('#error').show()

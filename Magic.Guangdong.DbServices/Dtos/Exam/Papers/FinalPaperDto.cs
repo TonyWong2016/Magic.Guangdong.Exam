@@ -44,6 +44,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public List<PaperQuestionDto> Questions { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
     }
 
 

@@ -401,19 +401,21 @@
 
         let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
         if (ret.code == 0) {
-            examModel.orderTradeNumber = ret.data;
-            TT.success('报名成功');
+            //examModel.orderTradeNumber = ret.data.GetReportDetail;
+            TT.success('报名成功', {
+                location.href = `/report/detail?reportId=${ret.data.reportId}`
+            });
         } else {
             TT.error('报名失败:' + ret.msg);
         }
 
-        if (ret.code == 0 && isAmount(examModel.expenses) && parseFloat(examModel.expenses) > 0) {
-            TT.info('即将跳转到付款页面...', 3000);
-            setTimeout(() => {
-                let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
-                location.href = `/order/detail?sub=${sub}`;
-            }, 2000)
-        }
+        // if (ret.code == 0 && isAmount(examModel.expenses) && parseFloat(examModel.expenses) > 0) {
+        //     TT.info('即将跳转到付款页面...', 3000);
+        //     setTimeout(() => {
+        //         let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
+        //         location.href = `/order/detail?sub=${sub}`;
+        //     }, 2000)
+        // }
     })
 
     function getProvinceDrops(elemId) {

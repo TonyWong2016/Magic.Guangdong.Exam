@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;
@@ -27,5 +28,10 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="clonePaperTitle"></param>
         /// <returns></returns>
         Task<Guid[]> CloneExam(Guid examId, string adminId, string cloneExamName = "", string clonePaperTitle = "");
+
+
+        Task<List<ReportExamView>> GetReportExamsForClient(ReportExamDto dto);
+
+        Task<bool> AnyReportExamsForClient(ReportExamDto dto);
     }
 }

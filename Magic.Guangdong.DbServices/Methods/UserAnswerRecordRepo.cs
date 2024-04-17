@@ -22,7 +22,7 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
 
-        #region 客户端方法，已经迁移到CheckinSystem项目里，暂时保留
+        #region For ServerSide
         /// <summary>
         /// 获取当前有多少场考试
         /// </summary>
@@ -72,7 +72,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return new { code = -1, msg = "当前赛队已经有其他人进行了答题，请和赛队中其他成员确认答题情况", data = record };
             }
 
-            var papers = await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == 1 && u.IsDeleted == 0)
+            var papers = await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == 0 && u.IsDeleted == 0)
                 .ToListAsync(u => new
                 {
                     u.Id,
@@ -350,6 +350,10 @@ namespace Magic.Guangdong.DbServices.Methods
             return record;
 
         }
+        #endregion
+
+        #region For ClientSide
+
         #endregion
     }
 }

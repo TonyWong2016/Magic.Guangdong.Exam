@@ -11,7 +11,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
     {
         public long[] reportIds { get; set; }
         public CheckStatus checkStatus { get; set; }
-        public Guid adminId { get; set; }
+        public string adminId { get; set; }
         public string checkRemark { get; set; }
 
         public ReportStatus reportStatus

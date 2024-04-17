@@ -34,12 +34,12 @@
             <label class="layui-form-label">报考名额</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="Quota" value="0" placeholder="请输入当前考试限制的最高报考人数，0则表示不限制" lay-verify="required|number" required />
-                <br />
-
-                <blockquote class="layui-input-block layui-elem-quote">
-                    如果要限制报考名额的话，请注意创建考试时考虑好名额，创建之后不可以修改。
-                </blockquote>
+               
             </div>
+            <br />
+            <blockquote class="layui-input-block layui-elem-quote">
+                如果要限制报考名额的话，请注意创建考试时考虑好名额，创建之后不可以修改。
+            </blockquote>
         </div>
 
         <div class="layui-form-item">
@@ -99,8 +99,18 @@
             <label class="layui-form-label">状态</label>
             <div class="layui-input-block">
                 <select asp-for="Status">
+                    <option value=0 selected>开启</option>
+                    <option value=1>关闭</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">开启审核</label>
+            <div class="layui-input-block">
+                <select asp-for="Audit">
                     <option value=1 selected>开启</option>
-                    <option value=2>关闭</option>
+                    <option value=2>不开启</option>
                 </select>
             </div>
         </div>

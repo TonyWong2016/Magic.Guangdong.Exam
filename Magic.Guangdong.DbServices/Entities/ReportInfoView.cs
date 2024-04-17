@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class ReportInfoView
-	{
+	public partial class ReportInfoView {
 
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string AccountId { get; set; }
@@ -29,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int CityId { get; set; }
 
-		[JsonProperty, Column(StringLength = 15, IsNullable = false)]
+		[JsonProperty, Column(StringLength = 15)]
 		public string CityName { get; set; }
 
 		[JsonProperty]
@@ -41,7 +39,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int? DistrictId { get; set; }
 
-		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
+		[JsonProperty, Column(StringLength = 50)]
 		public string DistrictName { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(150)", IsNullable = false)]
@@ -49,6 +47,9 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty]
 		public Guid? ExamId { get; set; }
+
+		[JsonProperty]
+		public long FileId { get; set; }
 
 		[JsonProperty]
 		public long Id { get; set; }
@@ -65,20 +66,27 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
 		public string Name { get; set; }
 
+		[JsonProperty]
+		public Guid? OrderId { get; set; }
+
 		[JsonProperty, Column(StringLength = 500)]
 		public string OtherInfo { get; set; }
 
 		[JsonProperty]
 		public int ProvinceId { get; set; }
 
-		[JsonProperty, Column(StringLength = 15, IsNullable = false)]
+		[JsonProperty, Column(StringLength = 20)]
 		public string ProvinceName { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string ReportNumber { get; set; }
 
 		[JsonProperty]
-		public long FileId { get; set; } = 0;
+		public int ReportStatus { get; set; }
+
+		[JsonProperty]
+		public int ReportStep { get; set; }
 
 	}
+
 }

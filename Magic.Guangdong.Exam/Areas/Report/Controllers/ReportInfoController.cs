@@ -82,7 +82,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
             {
                 reportIds = new long[] { reportId },
                 checkStatus = (CheckStatus)checkResult,
-                adminId = Guid.Parse(adminId),
+                adminId = adminId,
                 checkRemark = checkRemark
             };
             if (await _reportInfoRepo.CheckReportInfo(dto))

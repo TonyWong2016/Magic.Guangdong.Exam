@@ -102,6 +102,18 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "money")]
         public decimal Expenses { get; set; } = 0;
 
+		/// <summary>
+		/// 报名考试是否需要审核资格
+		/// </summary>
+		[JsonProperty]
+		public ExamAudit Audit { get; set; } = ExamAudit.Yes;
+
     }
+
+	public enum ExamAudit
+	{
+        Yes = 1,
+        No = 2		
+	}
 
 }

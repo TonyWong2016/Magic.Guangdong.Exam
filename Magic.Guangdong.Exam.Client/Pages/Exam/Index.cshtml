@@ -23,14 +23,10 @@
             <input type="text" id="info" class="examItem" placeholder="请选择要参与的测评" disabled />
 
             <label for="idNumber">选手证件号码</label>
-            <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入赛队申报的证件号码" required>
-            <small style="margin-top:10px">注意：每个赛队仅需参与一次在线测评；多人赛队，请输入第一选手证件号码。</small>
+            <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
+            <small style="margin-top:5px" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</small>
 
-            <label for="specialId" id="specialId" style="font-size:smaller;color:#f4511e">
-                <input type="checkbox" id="specialId" name="specialId">
-                @* 使用港澳身份证、国外护照、通行证等进行的申报，请勾选此项后再输入证件号码 *@
-                非中国大陆身份证报名活动，请勾选此项（大陆身份证不要勾选）
-            </label>
+            
             <br />
             <a id="CreateMyExam" href="javascript:;" aria-busy="false" role="button" style="width:100%" class="secondary">提交</a>
             <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;">刷脸登录(beta)</a>
@@ -109,11 +105,12 @@
 </main>
 
 <script type="text/html" id="examTpl">
+    @* <option value="">请选择要参与的考试</option> *@
     {{# layui.each(d,function(index,item){ }}
-        {{# if(item.status==1){ }}
-            <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTime}}">{{item.title}}</option>
+        {{# if(item.status==0){ }}
+            <option value="{{ item.value }}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.title}}</option>
         {{# } else { }}
-            <option value="{{ item.value }}" data-span="{{item.startTime}} - {{item.endTim}}" disabled>{{item.title}}(不在考试时间范围内)</option>
+            <option value="{{ item.value }}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}
     {{# }) }}
 </script>
@@ -122,89 +119,72 @@
 @* <script src="~/web/exam/Index.js"></script> *@
 <script>
     $('#AnswerCard').show();
-    let associationId = getUrlQueryParams('activityId');
-    let examId = '';
-    let groupCode = '';
-    async function getExams() {
+
+    let examId = '@Model._examId';
+    let groupCode = '@Model._groupCode';
+    let idNumberType = 'idCard';
+    let idNumber = '';
+    
+    function getMyExams() {        
+        let queryModel = {
+            examId: examId,
+            groupCode: groupCode
+        };
+        axios.get('@Url.Action("GetReportExamsForClient","Exam")', { params: queryModel })
+            .then(data => {
+                let json = data.data;
+                if(json.data && json.data.length>0){
+                    renderTpl("examTpl", "exam", json.data, examId == '');
+                    jValSet("info", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
+
+                }else{
+                    TT.error('无可选的考试');
+                }
+            })
+       
         
-        let formData = objectToFormData(makeWhereJson());
-        //let ret = await request('POST', '@Url.Page("Index")?handler=GetExams', formData, { 'Content-Type': 'multipart/form-data' })
-        let ret = await request('POST', '@Url.Action("GetExams","Exam")', formData, { 'Content-Type': 'multipart/form-data' })
-
-        if(ret.code==0){
-            renderTpl("examTpl", "exam", ret.data, examId == '');
-        }
-        if (examId != '')
-            jValSet("info", formatTime(json.data[0].startTime, json.data[0].endTime))
-
     }
-    getExams();
+    getMyExams();
 
-    $("#exam").on('change', v => {
-        var span = $("#exam").find('option:selected').data("span")
-        //console.log(span)
-        jValSet("info", span.replaceAll('T', ' ').replaceAll(' - ',' ~ ').replaceAll('-', '/'));
-        //if (localStorage.getItem("lastIdNumber")) {
-        //    getApplyMemberInfo(jVal('idNumber'), associationId)
-        //}
-        if (span && jVal("idNumber")) {
-            checkIdCard(jVal("idNumber"))
+    autoSearch('idNumber', () => {
+        checkIdCard()
+    })
+
+    $('#exam').on('change', v => {
+        var span = $("#exam").find('option:selected').data('span')
+        jValSet("info", span);
+        examId = $("#exam").val();
+        if (span && jVal('idNumber')) {
+            //checkIdCard()
         }
     })
 
-    function makeWhereJson() {
-        let whereJsonStr = {
-            'Logic': 'And',
-            'Filters': [{
-                'Field': 'IsDeleted',
-                'Operator': 'Equal',
-                'Value': 0
-            }]
-        };
-        if (associationId) {
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'associationId',
-                    'Operator': 'Equal',
-                    'Value': associationId
-                }]
-            });
+    function checkIdCard() {
+        idNumber = jVal('idNumber');
+        idNumberType = 'idCard';
+        let result = SFID(idNumber);
+        if (!idNumber) return;
+        if (idNumber.length == 18 && result != 'OK') {
+            $('#CreateMyExam').html(result);
+            $('#idNumber').attr('aria-invalid', true)
+            return;
         }
-        if (examId) {
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'examId',
-                    'Operator': 'Equal',
-                    'Value': examId
-                }]
-            });
+        if (idNumber.length == 18 && result == 'OK') {
+            $('#CreateMyExam').html(result);
+            $('#idNumber').attr('aria-invalid', false)
+            return;
         }
-        if (groupCode) {
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'groupCode',
-                    'Operator': 'Equal',
-                    'Value': groupCode
-                }]
-            });
+        if (idNumber.length > 18) {
+            idNumberType = 'reportNumber';
+            $('#idNumber').attr('aria-invalid', false)
         }
-
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'pageIndex': 1, 'pageSize': 1000 };
+        
+        return result;
     }
 
 
-    function formatTime(start, end) {
-        let finalTime = start + '-' + end
-        let startTime = new Date(start)
-        let endTime = new Date(end)
-        if (endTime - startTime < 86400000) {
-            let hour = endTime.getHours() < 10 ? "0" + endTime.getHours() : endTime.getHours();
-            let minute = endTime.getMinutes() < 10 ? "0" + endTime.getMinutes() : endTime.getMinutes();
-            finalTime = start + '-' + hour + ":" + minute
-        }
-        return finalTime;
+    function getReportInfo(idNumber, examId) {
+        $('#CreateMyExam').html('身份信息核验中...').attr('aria-busy', true);
+
     }
 </script>

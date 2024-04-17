@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Magic.Guangdong.DbServices.Dtos;
 using NPOI.POIFS.Dev;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
+using Magicodes.ExporterAndImporter.Core.Extension;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -196,5 +198,39 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
             }
         }
+
+        //获取报名的考试列表
+        //执行之前先调用AnyReportExamsForClient进行检查
+        public async Task<List<ReportExamView>> GetReportExamsForClient(ReportExamDto dto)
+        {
+            if (!dto.isVaild)
+                return null;
+            var examReportView = fsql.Get(conn_str).GetRepository<ReportExamView>();
+            var query = examReportView
+                .WhereIf(dto.examId != null, u => u.Id == dto.examId)
+                .WhereIf(dto.reportId != null, u => u.ReportId == dto.reportId)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.groupCode), u => u.GroupCode == dto.groupCode)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.IdCard), u => u.IdCard == dto.IdCard)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.ReportNumber), u => u.ReportNumber == dto.ReportNumber);
+            return await query.ToListAsync();
+        }
+
+        public async Task<bool> AnyReportExamsForClient(ReportExamDto dto)
+        {
+            if (!dto.isVaild)
+                return false;
+            var examReportView = fsql.Get(conn_str).GetRepository<ReportExamView>();
+            var query = examReportView
+                .WhereIf(dto.examId != null, u => u.Id == dto.examId)
+                .WhereIf(dto.reportId != null, u => u.ReportId == dto.reportId)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.groupCode), u => u.GroupCode == dto.groupCode)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.IdCard), u => u.IdCard == dto.IdCard)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.ReportNumber), u => u.ReportNumber == dto.ReportNumber);
+            return await query.AnyAsync();
+
+        }
+
     }
 }

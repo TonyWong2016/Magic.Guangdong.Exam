@@ -1,8 +1,10 @@
-﻿using Essensoft.Paylink.WeChatPay.V2.Request;
+﻿using Essensoft.Paylink.Alipay.Domain;
+using Essensoft.Paylink.WeChatPay.V2.Request;
 using FreeSql.Internal.Model;
 using log4net.Repository.Hierarchy;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -29,8 +31,16 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
+
         /// <summary>
         /// 报名参与活动
+        /// 需要注意几个点
+        /// 1.先创建报名记录(ReportInfo)，这个只有个人信息
+        /// 2.创建报名进度记录(ReportProcess)，这个包含了报名记录和考试，订单，审核记录等关联的模型)，包含了报名记录和考试，订单，审核记录等关联的模型，
+        /// 审核状态，报名进度都是默认值，
+        /// 如果考试本身设定了不需要审核，则需要将审核状态的值调整为已审核，同时增加一条审核记录（ReportCheckHistory）
+        /// 3.创建订单(Order)
+        /// 如果考试本身设定了不需要交费，则要将缴费状态设置为已缴费，同时将2中的报名进度修改为已缴费
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
@@ -47,11 +57,11 @@ namespace Magic.Guangdong.DbServices.Methods
                         reportModel.IdCard.Substring(reportModel.IdCard.Length - 4, 4) +
                         Utils.DateTimeToTimeStamp(DateTime.Now) +
                        (reportModel.ExamId == null ? Utils.GenerateRandomCodePro(6) : reportModel.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
-                    
                     await reportInfoRepo.InsertAsync(reportModel);
 
+
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
-                    var ReportProcessModel = new ReportProcess()
+                    var reportProcessModel = new ReportProcess()
                     {
                         AccountId = dto.AccountId,
                         ExamId = dto.ExamId,
@@ -63,27 +73,45 @@ namespace Magic.Guangdong.DbServices.Methods
                     //await reportProcessRepo.InsertAsync(ReportProcessModel);
 
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    
                     var exam = await examRepo.Where(x => x.Id == dto.ExamId).FirstAsync();
-                    if (exam.Expenses > 0)
+                    var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
+                    var order = new Order()
                     {
-                        var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
-                        var order = new Order()
-                        {
-                            AccountId = dto.AccountId,
-                            //ExamId = dto.ExamId,
-                            ReportId = reportModel.Id,
-                            Expenses = exam.Expenses,
-                            //交易单号32位，考试id的4位（21-24）+13位时间戳+15位随机字符
-                            //OutTradeNo = $"{exam.Id.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
-                            OutTradeNo = dto.OrderTradeNumber,
-                            Subject = $"{exam.AssociationTitle}，{exam.Title}",
-                            InvoiceId = 0
-                        };
-                        await orderRepo.InsertAsync(order);
-                        ReportProcessModel.OrderId = order.Id;
+                        AccountId = dto.AccountId,
+                        //ExamId = dto.ExamId,
+                        ReportId = reportModel.Id,
+                        Expenses = exam.Expenses,
+                        //交易单号32位，考试id的4位（21-24）+13位时间戳+15位随机字符
+                        //OutTradeNo = $"{exam.Id.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
+                        OutTradeNo = dto.OrderTradeNumber,
+                        Subject = $"{exam.AssociationTitle}，{exam.Title}",
+                        InvoiceId = 0
+                    };
+                    reportProcessModel.OrderId = order.Id;
+                    if (exam.Expenses == 0)
+                    {
+                        order.Status = OrderStatus.Paid;//考试不需要交费的话，报名的同时就将缴费状态设置为已缴费
+                        reportProcessModel.Step = ReportStep.Paied;
                     }
-
-                    await reportProcessRepo.InsertAsync(ReportProcessModel);
+                    await orderRepo.InsertAsync(order);
+                   
+                    //如果考试本身设定了不需要审核
+                    if (exam.Audit == ExamAudit.No)
+                    {
+                        reportProcessModel.Status = ReportStatus.Succeed;
+                        var reportHistoryRepo = fsql.Get(conn_str).GetRepository<ReportCheckHistory>();
+                        await reportHistoryRepo.InsertAsync(new ReportCheckHistory()
+                        {
+                            AdminId = "nobody",
+                            CheckRemark = "本场考试报名无需审核，报名即通过.",
+                            CheckStatus = CheckStatus.Passed,
+                            ReportId = reportModel.Id,
+                            CreatedAt = DateTime.Now
+                        });                       
+                    }
+                    
+                    await reportProcessRepo.InsertAsync(reportProcessModel);
                     uow.Commit();
                     return true;
                 }
@@ -97,7 +125,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public dynamic GetReportInfos(PageDto pageDto, out long total)
         {
-            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView, UserBase>()
+            var query = fsql.Get(conn_str).Select<ReportInfoView, Order, UserBase>()
                 .LeftJoin((a, b, c) => a.Id == b.ReportId)
                 .LeftJoin((a, b, c) => a.AccountId == c.AccountId);
             if (!string.IsNullOrEmpty(pageDto.whereJsonStr))
@@ -126,11 +154,11 @@ namespace Magic.Guangdong.DbServices.Methods
                     a.DistrictName,
                     a.ReportNumber,
                     a.CreatedAt,
-                    b.OrderStatus,
-                    b.ReportStatus,
+                    a.ReportStatus,
+                    a.ExamId,
+                    a.ActivityId,
                     b.Subject,
-                    b.ExamId,
-                    b.ActivityId,
+                    OrderStatus = b.Status,
                     accountName = c.Name
                 });
         }
@@ -166,7 +194,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         listProcess.Add(reportProcess);
                         listHistory.Add(new ReportCheckHistory()
                         {
-                            AdminId = dto.adminId,
+                            AdminId = dto.adminId.ToString(),
                             ReportId = reportId,
                             CheckStatus = dto.checkStatus,
                             CheckRemark = dto.checkRemark
@@ -187,10 +215,14 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         } 
 
-
+        /// <summary>
+        /// 导出报名列表
+        /// </summary>
+        /// <param name="whereJsonStr"></param>
+        /// <returns></returns>
         public async Task<List<ExportReportInfo>> GetReportInfosForExcel(string whereJsonStr)
         {
-            var query = fsql.Get(conn_str).Select<ReportInfoView, ReportOrderView>()
+            var query = fsql.Get(conn_str).Select<ReportInfoView, Order>()
                .LeftJoin((a, b) => a.Id == b.ReportId);
             if (!string.IsNullOrEmpty(whereJsonStr))
             {
@@ -212,9 +244,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 a.CityName,
                 a.DistrictName,
                 a.ReportNumber,
-                 //b.OrderStatus,
-                b.ReportStatus,
+                a.ReportStatus,
                 b.Subject,
+                orderStatus = b.Status,
+                b.RefundNo,
+                b.TradeNo
                 //b.ExamId,
                 //b.ActivityId
             });
@@ -223,7 +257,7 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
         /// <summary>
-        /// 获取报名列表
+        /// 客户端获取报名列表
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
@@ -246,42 +280,50 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             return reportOrderList;
         }
-    
+
         /// <summary>
-        /// 获取报名详情
+        /// 通过订单号获取报名详情
         /// </summary>
         /// <param name="outTradeNo"></param>
         /// <returns></returns>
-        public async Task<dynamic> GetReportDetailByOutTradeNo(string outTradeNo)
+        public async Task<dynamic> GetReportDetailByOutTradeNoForClient(string outTradeNo)
         {
             var order = await fsql.Get(conn_str)
                 .Select<Order>()
                 .Where(u => u.OutTradeNo == outTradeNo)
                 .FirstAsync();
-
-
-            var detail = await fsql.Get(conn_str)
-                .Select<ReportInfo, Examination>()
-                .LeftJoin((a, b) => a.ExamId == b.Id)
-                .Where((a, b) => a.Id == order.ReportId)
-                .ToOneAsync((a, b) => new
-                {
-                    orderStatus=order.Status,
-                    orderStatusStr = order.Status == OrderStatus.Paid ? "支付成功" : "订单失败",
-                    a.ReportNumber,
-                    b.StartTime,
-                    b.Title,
-                    b.AssociationTitle,
-                    b.Address,
-                    b.Remark,
-                    a.Name,
-                    idCard = a.IdCard.Substring(0, 2) + "**************" + a.IdCard.Substring(a.IdCard.Length - 4, 4)
-                });
-
-           
-
-            return detail;
+            return await GetReportDetailForClient(order.ReportId);
         }
+
+        /// <summary>
+        /// 获取报名详情
+        /// </summary>
+        /// <param name="reportId"></param>
+        /// <returns></returns>
+        public async Task<dynamic> GetReportDetailForClient(long reportId)
+        {
+            var reportInfoView = await fsql.Get(conn_str).Select<ReportInfoView>()
+                .Where(a => a.Id == reportId)
+                .ToOneAsync();
+            var exam = await fsql.Get(conn_str).Select<Examination>()
+                .Where(a => a.Id == reportInfoView.ExamId)
+                .ToOneAsync();
+            return new
+            {
+                reportInfo = reportInfoView,
+                exam = new
+                {
+                    exam.Expenses,
+                    exam.Title,
+                    exam.AssociationTitle,
+                    exam.StartTime,
+                    exam.Address,
+                    exam.BaseDuration,
+                    exam.BaseScore
+                }
+            };
+        }
+
     }
 
     public class ReportOrderList()
@@ -290,12 +332,13 @@ namespace Magic.Guangdong.DbServices.Methods
 
         public long total { get; set; }
     }
-
-    
+        
 
     public class ExportReportInfo
     {
         public long Id { get; set; }
+
+        public int orderStatus { get; set; }
 
         public int ReportStatus { get; set; }
         public string AccountId { get; set; }
@@ -306,7 +349,7 @@ namespace Magic.Guangdong.DbServices.Methods
         public string IdCard { get; set; }
     
 
-        [Description("考号")]
+        [Description("准考证号")]
         public string ReportNumber { get; set; }
 
         [Description("省份")]
@@ -330,6 +373,8 @@ namespace Magic.Guangdong.DbServices.Methods
         [Description("考试科目")]
         public string Subject { get; set; }
 
+      
+        [Description("报名状态")]
         public string ReportStatusStr
         {
             get
@@ -351,6 +396,35 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
+        [Description("订单编号")]
+        public string TradeNo { get; set; }
 
+        [Description("退款编号")]
+        public string RefundNo { get; set; }
+
+        [Description("订单状态")]
+        public string OrderStatusStr
+        {
+            get
+            {
+                if (orderStatus == 0)
+                {
+                    return "支付成功";
+                }
+                else if (orderStatus == 2)
+                {
+                    return "订单过期";
+                }
+                else if(orderStatus == 3)
+                {
+                    return "支付失败";
+                }
+                else if (orderStatus == 4)
+                {
+                    return "已退款";
+                }
+                return "待支付";
+            }
+        }
     }
 }

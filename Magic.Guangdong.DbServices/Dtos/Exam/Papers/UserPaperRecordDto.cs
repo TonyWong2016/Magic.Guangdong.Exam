@@ -28,15 +28,15 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         /// <summary>
         /// 申报id
-        /// 如果需要关联赛队，这里要填写申报人员的申报id
-        /// 不需要的话这里直接给个唯一值就可以，比如guid,这样就跳过同赛队参赛的验证了。
         /// </summary>
-        public string reportId { get; set; } = Guid.NewGuid().ToString();
+        public string reportId { get; set; }
 
         /// <summary>
         /// 考试id
         /// </summary>
         public Guid examId { get; set; }
+
+        public string loginType { get; set; } = "证件号登录";
 
         /// <summary>
         /// 考试关键字
@@ -164,5 +164,41 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string applyId { get; set; }
 
+    }
+
+    public class ExamRecordDto
+    {
+        public long recordId { get; set; }
+        public string examTitle { get; set; }
+
+        public string paperTitle { get; set; }
+
+        public Guid paperId { get; set; }
+
+        public Guid examId { get; set; }
+
+        public string accountName { get; set; }
+
+        public string idNumber { get; set; }
+
+        public string applyId { get; set; }
+
+        public string associationId { get; set; }
+
+        public int openResult { get; set; }
+
+        public double score { get; set; }
+
+        public int isComplated { get; set; } = 0;
+
+        public DateTime CreatedAt { get; set; }
+
+        public string submitAnswer { get; set; }
+
+        public DateTime LimitedAt { get; set; }
+
+        public int isDeleted { get; set; } = 0;
+
+        public int isStrict { get; set; } = 0;
     }
 }

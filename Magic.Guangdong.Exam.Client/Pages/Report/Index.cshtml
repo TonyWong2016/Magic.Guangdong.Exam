@@ -15,16 +15,18 @@
         <h6>订单编号：{{item.outTradeNo}}</h6>
         <h6>参与状态：
             {{# if(item.reportStatus==0){ }}
-                <font class="pico-color-green-450">报名成功</font>
+                <font class="pico-color-green-400">审核通过</font>
+            {{# } else if(item.reportStatus==1) { }}
+                <font class="pico-color-red-200">审核不通过</font>
             {{# } else if(item.reportStatus==2) { }}
-                <font class="pico-color-amber-200">待支付</font>
+                <font class="pico-color-amber-200">待审核</font>
             {{# } else { }}
-                <font class="pico-color-red-450">报名失败</font>
+                <font class="pico-color-sand-900">已退款</font>
             {{# }}}
         </h6>
         <a class="outline" role="button" href="/report/detail?id={{item.reportId}}">查看</a>
-        {{# if(item.reportStatus==2){ }}
-            <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="javascript:;" onclick="Pay('{{ JSON.stringify(item) }}')">去支付</a>
+        {{# if(item.reportStatus==0 && item.step==0){ }}
+            <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="/order/detail?id={{ btoa(encodeURIComponent(item.orderId)) }}">去支付</a>
         {{# } }}
 
     </article>
@@ -45,15 +47,4 @@
             console.log(data)
         })
 
-    function Pay(obj){
-        obj = JSON.parse(obj);
-        let examModel = {
-            id: obj.examId,
-            title: obj.subject,
-            expenses: obj.expenses,
-            orderTradeNumber: obj.outTradeNo
-        };
-        let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
-        location.href = `/order/detail?sub=${sub}`;
-    }
 </script>

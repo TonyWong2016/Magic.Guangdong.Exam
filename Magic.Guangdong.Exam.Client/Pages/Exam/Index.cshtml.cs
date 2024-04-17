@@ -11,26 +11,28 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
         private readonly IResponseHelper _resp;
         private readonly IExaminationRepo _examRepo;
-        public IndexModel(ILogger<IndexModel> logger,IResponseHelper responseHelper,IExaminationRepo examRepo)
+        public string _examId { get; set; } = "";
+        public string _groupCode { get; set; } = "";
+        public IndexModel(IResponseHelper responseHelper,IExaminationRepo examRepo)
         {
-            _logger = logger;
             _resp = responseHelper;
             _examRepo = examRepo;
         }
 
-        public void OnGet()
+        public IActionResult OnGet(string examId,string groupCode)
         {
+            if(string.IsNullOrEmpty(examId) && string.IsNullOrEmpty(groupCode))           
+            {
+                Assistant.Logger.Error("非法请求");
+                return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
 
+            }
+            _examId = examId;
+            _groupCode = groupCode;
+            return Page();
         }
 
-        public async Task<IActionResult> OnPostGetExams(PageDto dto)
-        {            
-            return new JsonResult(_resp.success(
-                await _examRepo.getListAsync(dto)));
-            
-        }
     }
 }
