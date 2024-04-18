@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magic.Guangdong.Assistant;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,9 +33,17 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string degrees { get; set; }
 
-        public List<GenerateQuestionTypeDto> generateQuestionTypeModels { get; set; }
+        public List<GenerateQuestionTypeDto> generateQuestionTypeModels{
+            get {
+                if (!string.IsNullOrWhiteSpace(generateQuestionTypeModelsStr))
+                {
+                    return JsonHelper.JsonDeserialize<List<GenerateQuestionTypeDto>>(generateQuestionTypeModelsStr);
+                }
+                return null;
+            }
+        }
 
-
+        public string generateQuestionTypeModelsStr {  get; set; }
     }
 
     public class GenerateQuestionTypeDto

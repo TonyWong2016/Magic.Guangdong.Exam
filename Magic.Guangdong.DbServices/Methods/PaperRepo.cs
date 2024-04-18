@@ -105,8 +105,16 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         return 0;
                     }
-                    var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-                    var examItem = await examRepo.Where(u => u.Id == paperIds[0]).FirstAsync();
+                    //var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    //var examItem = await examRepo.Where(u => u.Id == paperIds[0]).FirstAsync();
+                    var examItem = await fsql.Get(conn_str).Select<Examination, Paper>()
+                        .LeftJoin((a, b) => a.Id == b.ExamId)
+                        .Where((a, b) => b.Id == paperIds[0])
+                        .ToOneAsync((a, b) => a);
+                    if (examItem == null)
+                    {
+                        return -1;
+                    }
                     long activityId = Convert.ToInt64(examItem.AssociationId);
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
@@ -124,7 +132,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         {
                             var selectedQuestions = await questionRepo
                                 .Where(u => u.SubjectId == rule.subjectId && u.TypeId == rule.typeId && u.IsDeleted == 0)
-                                .WhereIf(paper.PaperType == 2, u => u.IsOpen == 1)//如果是生成练习题，那就只抽取开放的题
+                                .WhereIf(paper.PaperType == PaperType.Practice, u => u.IsOpen == IsOpen.Yes)//如果是生成练习题，那就只抽取开放的题
                                 .WhereIf(paper.PaperDegree != "all", u => paper.PaperDegree.Contains(u.Degree))//如果没有设定试卷难度，那就抽取对应难度的题
                                 .Where(u => u.ActivityId == 0 || u.ActivityId == activityId)
                                 .ToListAsync();
@@ -193,7 +201,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     PaperScore = a.Score,
                     Duration = (double)a.Duration,
                     PaperType = (int)a.PaperType,
-                    Status = a.Status,
+                    Status = (int)a.Status,
                 });
 
             //试卷题目
@@ -340,7 +348,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
                     var paper = await paperRepo.Where(u => u.Id == dto.paperId).ToOneAsync();
                     paper.Title = dto.paperTitle;
-                    paper.Status = dto.paperStatus;
+                    paper.Status =(ExamStatus)dto.paperStatus;
                     paper.Duration = dto.paperDuration;
                     paper.OpenResult = dto.paperOpenResult;
                     paper.UpdatedBy = dto.adminId + "修改试卷信息";

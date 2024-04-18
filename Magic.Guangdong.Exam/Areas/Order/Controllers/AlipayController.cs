@@ -1,12 +1,9 @@
-﻿using Azure;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.Alipay.Request;
-using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos.Order;
 using Magic.Guangdong.DbServices.Dtos.Order.Alipay;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;

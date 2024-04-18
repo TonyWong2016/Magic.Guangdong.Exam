@@ -239,9 +239,29 @@
                 }
             })
     }
-
+    
+    
     //抽卷去答题
-    function confirmPaper(){
+    async function ConfirmMyPaper(){
+        $("#btnConfirm").hide();
+        $("#btnConfirm2").show();
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('examId', examId);
+        formData.append('reportId', reportId);
 
+        let json = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
+        if (json.code == 1 && json.data) {
+            TT.warning(json.msg);
+            json.data.complated == 1 ? location.href = `/examclient/result?urid=${json.data.id}` : location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`;
+            return;
+        }
+        if (json.code == 0) {
+            location.href = `/examclient/paper?urid=${json.data.id}&pid=${json.data.paperId}`
+            return;
+        }
+        TT.error(json.msg);
+        $("#btnConfirm").show();
+        $("#btnConfirm2").hide();
     }
 </script>

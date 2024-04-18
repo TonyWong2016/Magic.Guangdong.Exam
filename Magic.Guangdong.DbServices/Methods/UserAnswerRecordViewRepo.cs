@@ -37,7 +37,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToList(u => new
                 {
                     u.Id,
-                    u.UserName,
+                    userName= u.Name,
                     u.IdNumber,
                     u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
                     u.PaperTitle,
@@ -61,7 +61,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToList(u => new
                 {
                     u.Id,
-                    u.UserName,
+                    userName = u.Name,
                     u.IdNumber,
                     u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
                     u.PaperTitle,
@@ -86,7 +86,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     urid = u.Id,
                     idNumber = u.IdNumber,
-                    accountName = u.UserName,
+                    accountName = u.Name,
                     associationTitle = u.AssociationTitle,
                     examTitle = u.ExamTitle,
                     paperTitle = u.PaperTitle,
@@ -139,7 +139,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
             return new
             {
-                record.UserName,
+                userName = record.Name,
                 record.IdNumber,
                 record.Score,
                 record.ReportId,

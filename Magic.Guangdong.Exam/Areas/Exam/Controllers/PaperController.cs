@@ -43,7 +43,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("生成试卷")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPaperRule(GeneratePaperDto model)
-        {            
+        {
+            model.adminId = adminId;
             Guid[] paperIds = await _paperRepo.SetPaperRule(model);
             if (paperIds != null)
             {

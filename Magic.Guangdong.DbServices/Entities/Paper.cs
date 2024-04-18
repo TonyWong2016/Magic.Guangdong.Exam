@@ -78,6 +78,7 @@ namespace Magic.Guangdong.DbServices.Entities
 	public enum PaperType {
 		Rule,
 		Custom,
+		Practice,
 		Other
 	}
 

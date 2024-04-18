@@ -1,10 +1,17 @@
-﻿using EasyCaching.Core;
+﻿using Coravel.Cache;
+using DotNetCore.CAP;
+using EasyCaching.Core;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Drawing.Printing;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
@@ -15,14 +22,17 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IUserAnswerRecordClientRepo _userAnswerRecordClientRepo;
         private readonly IExaminationClientRepo _examRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
-
-        public ExamClientController(IHttpContextAccessor contextAccessor, IResponseHelper resp, IExaminationClientRepo examinationRepo, IRedisCachingProvider redisCachingProvider, IUserAnswerRecordClientRepo userAnswerRecordClientRepo)
+        private readonly IPaperRepo _paperRepo;
+        private readonly ICapPublisher _capPublisher;
+        public ExamClientController(IHttpContextAccessor contextAccessor, IResponseHelper resp, IExaminationClientRepo examinationRepo, IRedisCachingProvider redisCachingProvider, IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IPaperRepo paperRepo, ICapPublisher capPublisher)
         {
             _contextAccessor = contextAccessor;
             _resp = resp;
             _examRepo = examinationRepo;
             _redisCachingProvider = redisCachingProvider;
             _userAnswerRecordClientRepo = userAnswerRecordClientRepo;
+            _paperRepo = paperRepo;
+            _capPublisher = capPublisher;
         }
 
         public IActionResult Index()
@@ -51,7 +61,71 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         public async Task<IActionResult> ConfirmMyPaper(ConfirmPaperDto dto)
         {
-            return null;
+            return Json(_resp.success(await _userAnswerRecordClientRepo.ConfirmMyPaper(dto)));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetMyPaper(Guid paperId)
+        {
+            if (!await _paperRepo.getAnyAsync(u => u.Id == paperId && u.IsDeleted == 0))
+            {
+                return Json(-1, "试卷不存在或已被删除，请联系管理人员");
+            }
+            if(!await _redisCachingProvider.KeyExistsAsync(paperId.ToString()))
+            {
+                var paper = await _userAnswerRecordClientRepo.GetMyPaper(paperId);
+                await _redisCachingProvider.StringSetAsync(paperId.ToString(),
+                JsonHelper.JsonSerialize(paper),
+                DateTime.Now.AddMinutes(paper.Duration) - DateTime.Now);
+               
+            }
+            return Json(
+                   _resp.success(
+                       JsonHelper
+                       .JsonDeserialize<Paper>(
+                           await _redisCachingProvider
+                           .StringGetAsync(paperId.ToString()
+                           ))));
+        }
+
+        /// <summary>
+        /// 提交一整张试卷
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitMyPaper(SubmitMyAnswerDto dto)
+        {
+            if (!string.IsNullOrEmpty(dto.submitAnswerStr) && dto.submitAnswerStr == "null")
+                dto.submitAnswerStr = "";
+
+            if (dto.complatedMode == 1)
+            {
+                return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
+            }
+
+            Console.WriteLine($"{DateTime.Now}:发布事务--保存答案");
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitAnswer", dto);
+            if (!await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
+            {
+                var record = await _userAnswerRecordClientRepo.GetMyRecord(dto.recordId);
+                await _redisCachingProvider.StringSetAsync(dto.recordId.ToString(),
+                    JsonHelper.JsonSerialize(record),
+                    DateTime.Now.AddMinutes((long)record.PaperDuration) - DateTime.Now);
+            }
+
+            return Json(_resp.success(
+                    await _redisCachingProvider.StringGetAsync(dto.recordId.ToString())));
+
+        }
+
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "SubmitConsumerPure")]
+        public async Task SubmitAnswer(SubmitMyAnswerDto dto)
+        {
+            Console.WriteLine($"{DateTime.Now}:消费事务---提交答案");
+            await _userAnswerRecordClientRepo.SubmitMyPaper(dto);
         }
     }
 }

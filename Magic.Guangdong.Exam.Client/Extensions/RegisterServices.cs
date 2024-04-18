@@ -219,8 +219,8 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
                 });
                 //设置处理成功的数据在数据库中保存的时间（秒），为保证系统新能，数据会定期清理。
-                x.SucceedMessageExpiredAfter = 24 * 3600;
-
+                x.SucceedMessageExpiredAfter = 24 * 3600 * 3;
+                x.FailedMessageExpiredAfter = 24 * 3600 * 30;
                 //设置失败重试次数
                 x.FailedRetryCount = 5;
 

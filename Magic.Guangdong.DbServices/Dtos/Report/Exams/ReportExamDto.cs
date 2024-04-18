@@ -42,5 +42,6 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Exams
         public Guid examId { get; set; }
 
         public long reportId { get; set; }
+
     }
 }

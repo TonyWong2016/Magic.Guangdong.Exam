@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Interfaces
 {
-    public interface IUserAnswerRecordClientRepo
+    public interface IUserAnswerRecordClientRepo:IExaminationRepository<UserAnswerRecord>
     {
         Task<UserAnswerRecordView> GetUserRecordDetail(string idNumber, string reportId, Guid examId);
         Task<UserAnswerRecordView> GetUserRecordDetailById(long id);

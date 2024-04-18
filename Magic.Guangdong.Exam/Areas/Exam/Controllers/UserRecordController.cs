@@ -3,6 +3,7 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -195,8 +196,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
 
                 var record = await _userAnswerRecordRepo.getOneAsync(u => u.Id == dto.recordId);
                 record.SubmitAnswer = JsonHelper.JsonSerialize(submitList);
-                record.Complated = 1;
-                record.ComplatedMode = record.ComplatedMode == 0 ? 1 : 0;
+                record.Complated = ExamComplated.Yes;
+                record.ComplatedMode = (ExamComplatedMode)(record.ComplatedMode == 0 ? 1 : 0);
                 record.UpdatedAt = DateTime.Now;
                 record.Remark += $"[{record.IdNumber}],完成考试；";
 

@@ -1,20 +1,28 @@
-﻿using FreeSql.DataAnnotations;
+﻿using FreeSql.DatabaseModel;using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
+using FreeSql.DataAnnotations;
 
-namespace Magic.Guangdong.DbServices.Entities
-{
+namespace Magic.Guangdong.DbServices.Entities {
 
-    [JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
+	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class UserAnswerRecordView {
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string ReportId { get; set; }
+		[JsonProperty, Column(DbType = "varchar(100)")]
+		public string AccountId { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string AssociationId { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(100)")]
 		public string AssociationTitle { get; set; }
+
+		[JsonProperty]
+		public int? CardType { get; set; }
 
 		[JsonProperty]
 		public int CheatCnt { get; set; }
@@ -30,6 +38,9 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string CreatedBy { get; set; }
+
+		[JsonProperty, Column(DbType = "varchar(150)")]
+		public string Email { get; set; }
 
 		[JsonProperty]
 		public DateTime? EndTime { get; set; }
@@ -52,7 +63,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long Id { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		[JsonProperty, Column(DbType = "varchar(50)")]
+		public string IdCard { get; set; }
+
+		[JsonProperty, Column(DbType = "varchar(100)", IsNullable = false)]
 		public string IdNumber { get; set; }
 
 		[JsonProperty]
@@ -66,6 +80,12 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty]
 		public int Marked { get; set; }
+
+		[JsonProperty, Column(DbType = "varchar(50)")]
+		public string Mobile { get; set; }
+
+		[JsonProperty, Column(StringLength = 50)]
+		public string Name { get; set; }
 
 		[JsonProperty]
 		public int? OpenResult { get; set; }
@@ -94,6 +114,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(1000)")]
 		public string Remark { get; set; }
 
+		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		public string ReportId { get; set; }
+
+		[JsonProperty, Column(DbType = "varchar(50)")]
+		public string ReportNumber { get; set; }
+
 		[JsonProperty]
 		public double Score { get; set; }
 
@@ -114,15 +140,6 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty]
 		public double UsedTime { get; set; }
-
-		[JsonProperty]
-        public string AccountId { get; set; }
-
-        [JsonProperty, Column(DbType = "varchar(150)")]
-		public string UserName { get; set; }
-
-		[JsonProperty]
-		public int IdType { get; set; }
 
 	}
 

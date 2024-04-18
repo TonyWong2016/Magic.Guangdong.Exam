@@ -41,6 +41,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public Guid ExamId { get; set; }
 
+		//这里统一存准考证号，如果要查询其他信息，可以关联其他表格查询
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string IdNumber { get; set; } = "";
 
@@ -63,10 +64,10 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double Score { get; set; } = 0d;
 
 		/// <summary>
-		/// 参与的第几阶段答题
+		/// 保留字段
 		/// </summary>
 		[JsonProperty]
-		public int Stage { get; set; } = 1;
+		public int Stage { get; set; } = 0;
 
 		[JsonProperty, Column(DbType = "varchar(MAX)", IsNullable = false)]
 		public string SubmitAnswer { get; set; }
@@ -89,12 +90,7 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "varchar(150)")]
 		public string UserName { get; set; }
 
-		/// <summary>
-		/// idnumber的类型
-		/// 0-身份证，1-准考证
-		/// </summary>
-		[JsonProperty]
-		public IdType IdType { get; set; } = IdType.IdCard;
+		
 
 
     }

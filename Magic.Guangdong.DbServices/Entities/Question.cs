@@ -48,7 +48,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 是否是公开考题，设置否的话，生成练习题的时候会避开抽到该题，默认是
 		/// </summary>
 		[JsonProperty]
-		public int IsOpen { get; set; } = 1;
+		public IsOpen IsOpen { get; set; } = IsOpen.Yes;
 
 		[JsonProperty, Column(DbType = "nvarchar(150)")]
 		public string Remark { get; set; }
@@ -90,6 +90,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string UpdatedBy { get; set; }
 
+	}
+
+	public enum IsOpen
+	{
+        All,//不设定，就是都包含
+        Yes, 
+		No
 	}
 
 }

@@ -100,10 +100,46 @@ namespace Magic.Guangdong.DbServices.Methods
             if (await userAnswerRecordQuery.AnyAsync())
             {
                 var record = await userAnswerRecordQuery.ToOneAsync();
-                return new { code = 0, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
+                return new { code = 1, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
             }
 
+            var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+            var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
 
+            var papers = await paperRepo
+                .Where(u => u.ExamId == dto.examId)
+                .Where(u => u.Status == ExamStatus.Enabled)
+                .Where(u => u.IsDeleted == 0)
+                .ToListAsync(u => new
+                {
+                    u.Id,
+                    u.Title,
+                    u.Score,
+                    u.Duration
+                });
+            int rd = new Random().Next(papers.Count);
+            var myPaper = papers[rd];
+
+            long paperSeconds = Convert.ToInt64(myPaper.Duration) * 60;
+
+            var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+            var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
+            var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
+            {
+                IdNumber = reportInfo.ReportNumber,
+                ReportId = dto.reportId.ToString(),
+                AccountId = reportInfo.AccountId,
+                UserName = reportInfo.Name,
+                ExamId = dto.examId,
+                Remark = $"初始化答题，答题人证件号[{reportInfo.IdCard}]；",
+                CreatedBy = reportInfo.AccountId,
+                CreatedAt = DateTime.Now,
+                LimitedTime = DateTime.Now.AddSeconds(paperSeconds),
+                PaperId = myPaper.Id
+            }) ;
+            //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答
+            await RedisHelper.HSetAsync("UserExamLog", dto.reportId.ToString(), reportInfo.ReportNumber);
+            return new { code = 0, msg = "success", data = finalRecord };
         }
 
         /// <summary>
@@ -186,12 +222,8 @@ namespace Magic.Guangdong.DbServices.Methods
             }
 
             paper.Questions = paperQuestions;
-
-            //paper.ConfirmTime = DateTime.Now; 
-
             return paper;
         }
-        // public async Task<>
 
         public async Task<UserAnswerRecordView> GetMyRecord(long urid)
         {
@@ -217,7 +249,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     recordId = u.Id,
                     score = u.Score,
                     isComplated = u.Complated,
-                    accountName = u.UserName,
+                    accountName = u.Name,
                     examId = u.ExamId,
                     paperId = u.PaperId,
                     examTitle = u.ExamTitle,
