@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Methods;
 using System;
@@ -13,9 +14,11 @@ namespace Magic.Guangdong.DbServices.Interfaces
     {
         Task<UserAnswerRecordView> GetUserRecordDetail(string idNumber, string reportId, Guid examId);
         Task<UserAnswerRecordView> GetUserRecordDetailById(long id);
+
+        [Obsolete("请使用GetReportExamsForClient")]
         Task<List<SelectExaminationsDto>> GetExaminations(string associationId, string examId = "", string groupCode = "");
 
-        Task<dynamic> ConfirmMyPaper(UserPaperRecordDto dto);
+        Task<dynamic> ConfirmMyPaper(ConfirmPaperDto dto);
 
         Task<FinalPaperDto> GetMyPaper(Guid paperId);
 

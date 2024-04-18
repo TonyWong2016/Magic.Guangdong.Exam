@@ -22,7 +22,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public string userName { get; set; }
 
         /// <summary>
-        /// 唯一编号(身份证号)
+        /// 唯一编号(身份证号/准考证号)
         /// </summary>
         public string idNumber { get; set; }
 

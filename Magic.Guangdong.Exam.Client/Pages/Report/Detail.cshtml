@@ -17,11 +17,16 @@
             <h6>考试地点：<font id="examAddress" class="pico-color-jade-350"></font></h6>
             <h6>注意事项：<font id="remark" class="pico-color-jade-350"></font></h6>
         </div>
-        <h6>审核状态：<font id="checkStatus"></font></h6>
         <h6>交费状态：<font id="checkStep"></font></h6>
-        <footer>
-            <a role="button" id="exam" href="javascript:;" class="outline" style="border-color:#D9269D;color:#D9269D">去考试</a>
-            <a role="button" id="pay" href="javascript:;" style="display:none">去付款</a>
+        <h6>审核状态：<font id="checkStatus"></font></h6>        
+        <h6 class="unpass" style="display:none">审核意见：<font id="checkRemark"></font></h6>
+        <footer class="pass" style="display:none">
+            <a role="button" id="exam" href="javascript:;" class="outline pass" style="border-color:#D9269D;color:#D9269D">去考试</a>
+            <a role="button" id="pay" href="javascript:;" style="display:none" class="pass">去付款</a>
+        </footer>
+        <footer class="unpass" style="display:none">
+            <a role="button" href="javascript:;" class="outline pass" style="border-color:#525F7A;color:#525F7A">修改报名信息</a>
+
         </footer>
     </article>
     <article id="error" style="display:none">
@@ -52,7 +57,7 @@
    
     function renderPage(data) {
         let reportItem = data.reportInfo;
-        let examItem = data.exam;
+        let lastCheckHistory = data.lastCheckHistory;
         if (reportItem.reportStatus == 1) {
             $('#success').remove();
             $('#error').show();
@@ -60,16 +65,18 @@
             return;
         }
         jHtmlSet('reportNumber', reportItem.reportNumber);
-        jHtmlSet('subject', examItem.title);
-        jHtmlSet('startTime', convertDateFormat(examItem.startTime, 'yyyy/MM/dd HH:mm:ss'));
-        jHtmlSet('createdAt', convertDateFormat(reportItem.createdAt, 'yyyy/MM/dd HH:mm:ss'));
-        jHtmlSet('examAddress', examItem.address ? examItem.address : '等候通知')
+        jHtmlSet('subject', `${reportItem.title}(${reportItem.associationTitle})`);
+        jHtmlSet('startTime', convertDateFormat(reportItem.startTime, 'yyyy/MM/dd HH:mm:ss'));
+        jHtmlSet('createdAt', convertDateFormat(reportItem.reportTime, 'yyyy/MM/dd HH:mm:ss'));
+        jHtmlSet('examAddress', reportItem.examAddress ? reportItem.examAddress : '等候通知')
         jHtmlSet('remark', (reportItem.remark && reportItem.remark != 'null') ? reportItem.remark : '请带好准考证，准时参加考试，不许作弊');
         jHtmlSet('name', reportItem.name);
         jHtmlSet('idCard', reportItem.idCard);
         
         $('#audit').hide();
+        $('.pass').show();
         if (reportItem.reportStatus == 0) {
+            
             $('#checkStatus').html('审核通过').addClass('pico-color-jade-350');
             $('#audit').show()
         } else if (reportItem.reportStatus == 1) {
@@ -78,20 +85,32 @@
             $('#checkStatus').html('已退款').addClass('pico-color-sand-450')
         } else {
             $('#checkStatus').html('不通过').addClass('pico-color-red-500')
+            $('#checkRemark').html(lastCheckHistory.checkRemark).addClass('pico-color-red-500');
+            $('.unpass').show();
+            $('.pass').remove();
         }
         if (reportItem.reportStatus == 0 && reportItem.reportStep == 0) {
+            $('.pass').show();
             $('#pay').attr('href', '/order/detail?id=' + encodeURIComponent(btoa(reportItem.orderId))).show();
         }
 
         if (reportItem.reportStep == 0) {
             $('#checkStep').html('待交费').addClass('pico-color-amber-200')
+            $('#exam').remove();
         }
         else if (reportItem.reportStep == 1) {
             $('#checkStep').html('已交费').addClass('pico-color-jade-350');
-            $('#exam').attr('href','/exam/index?examId='+)
+            $('#exam').attr('href', '/exam/index?examId=' + reportItem.examId);            
+            $('#pay').remove();
         }
         else {
+            $('.unpass').show();
+            $('.pass').remove();
             $('#checkStep').html('未交费').addClass('pico-color-red-500')
         }
+    }
+
+    function getCheckRemark() {
+
     }
 </script>

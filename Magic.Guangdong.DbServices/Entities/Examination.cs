@@ -78,7 +78,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 状态
 		/// </summary>
 		[JsonProperty]
-		public int Status { get; set; } = 1;
+		public ExamStatus Status { get; set; } = ExamStatus.Enabled;
 
 		[JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
 		public string Title { get; set; }
@@ -110,6 +110,11 @@ namespace Magic.Guangdong.DbServices.Entities
 
     }
 
+	public enum ExamStatus
+	{
+		Enabled,
+		Disabled
+	}
 	public enum ExamAudit
 	{
         Yes = 1,

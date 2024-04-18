@@ -1,5 +1,6 @@
 ﻿using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using System;
@@ -41,10 +42,11 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="associationId"></param>
         /// <returns></returns>
+        [Obsolete("请使用GetReportExamsForClient")]
         public async Task<List<SelectExaminationsDto>> GetExaminations(string associationId, string examId = "", string groupCode = "")
         {
             var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-            if (!await examRepo.Where(u => u.AssociationId == associationId && u.Status == 1 && u.IsDeleted == 0).AnyAsync())
+            if (!await examRepo.Where(u => u.AssociationId == associationId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
             {
                 //return new { code = -1, msg = "当前活动尚未开启任何有效答题考试" };
                 return null;
@@ -81,99 +83,27 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        public async Task<dynamic> ConfirmMyPaper(UserPaperRecordDto dto)
+        public async Task<dynamic> ConfirmMyPaper(ConfirmPaperDto dto)
         {
             var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
-
-            if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == 1 && u.IsDeleted == 0).AnyAsync())
+            if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
             {
                 return new { code = -1, msg = "当前活动尚未创建任何有效试卷，暂时无法答题" };
             }
-
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+            var userAnswerRecordQuery = userAnswerRecordRepo
+                .Where(u => u.ReportId == dto.reportId.ToString() &&
+                u.ExamId == dto.examId &&
+                u.Complated !=ExamComplated.Cancle &&
+                u.IsDeleted == 0);
 
-            //if (await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ApplyId == dto.applyId && u.IsDeleted == 0).AnyAsync())
-            //{
-            //    var record = await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ApplyId == dto.applyId && u.IsDeleted == 0).ToOneAsync();
-            //    return new { code = 0, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
-            //}
-            if (await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ReportId == dto.reportId && u.ExamId == dto.examId && u.IsDeleted == 0).AnyAsync())
+            if (await userAnswerRecordQuery.AnyAsync())
             {
-                var record = await userAnswerRecordRepo.Where(u => u.IdNumber == dto.idNumber && u.ReportId == dto.reportId && u.ExamId == dto.examId && u.IsDeleted == 0).ToOneAsync();
+                var record = await userAnswerRecordQuery.ToOneAsync();
                 return new { code = 0, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
             }
-            //如果当前赛队有人答题了，且答题人不是提交的身份证号所属人，也给他返回。
-            //if (await userAnswerRecordRepo.Where(u => u.ApplyId == dto.applyId && u.IsDeleted == 0).AnyAsync())
-            //{
-            //    var record = await userAnswerRecordRepo.Where(u => u.ApplyId == dto.applyId && u.IsDeleted == 0).ToOneAsync();
-            //    return new { code = -1, msg = "当前赛队已经有其他人参与了测评，请和赛队中其他成员确认答题情况", data = record };
-            //}
-            //如果当前赛队有人参与了本场答题，且答题人不是提交的身份证号所属人，也给他返回。
-            if (await userAnswerRecordRepo.Where(u => u.ReportId == dto.reportId && u.ExamId == dto.examId && u.IsDeleted == 0).AnyAsync())
-            {
-                var record = await userAnswerRecordRepo.Where(u => u.ReportId == dto.reportId && u.ExamId == dto.examId && u.IsDeleted == 0).ToOneAsync();
-                return new { code = -1, msg = "当前赛队已经有其他人参与了测评，请和赛队中其他成员确认答题情况", data = record };
-            }
-
-            //每个赛队最多只能参与选拔赛和决赛2次考试
-            int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ReportId == dto.reportId && u.IdNumber == dto.idNumber && u.IsDeleted == 0).CountAsync());
-            //int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ApplyId == dto.applyId && u.IsDeleted == 0).CountAsync());
-            int examStage = 2;
-            if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("examStage")))
-                examStage = Convert.ToInt32(ConfigurationHelper.GetSectionValue("examStage"));
-            if (stage >= examStage)
-            {
-                return new { code = -1, msg = $"每个赛队最多参与{examStage}次考试" };
-            }
-            var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-            var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
-            if (exam.Title.Contains("决赛") || (!string.IsNullOrEmpty(exam.GroupCode) && exam.GroupCode.ToLower().Contains("final")))
-            {
-                stage = 1;//标识一下参与的是决赛(下面有增减逻辑，别轻易把这个1改成别的！！)
-            }
-            //机器抽题规则，
-            //未删除，正常状态
-            var papers = await paperRepo
-                .Where(u => u.ExamId == dto.examId
-                && u.Status == 1
-                && u.IsDeleted == 0)
-                //.ToListAsync();
-                .ToListAsync(u => new
-                {
-                    u.Id,
-                    u.Title,
-                    u.Score,
-                    u.Duration
-                });
-
-            int rd = new Random().Next(papers.Count);
-            var myPaper = papers[rd];
 
 
-            long paperSeconds = Convert.ToInt64(myPaper.Duration) * 60;
-
-            //long unixTimeSec = DateTimeOffset.Now.ToUnixTimeSeconds();
-
-            var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
-            {
-                IdNumber = dto.idNumber,
-                ReportId = dto.reportId,
-                AccountId = dto.accountId,
-                PaperId = myPaper.Id,
-                ExamId = dto.examId,
-                UserName = dto.userName,
-                Remark = $"{dto.loginType}_初始化答题，答题人识别码[{dto.idNumber}]；",
-                CreatedBy = dto.accountId,
-
-                CreatedAt = DateTimeOffset.UtcNow.LocalDateTime,
-                //LimitedTime = DateTime.Now.AddMinutes((double)myPaper.Duration)
-                Stage = stage + 1,
-                LimitedTime = DateTimeOffset.UtcNow.AddSeconds(paperSeconds).LocalDateTime
-            });
-            //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答
-            await RedisHelper.HSetAsync("UserExamLog", dto.reportId, dto.idNumber);
-            //await RedisHelper.HSetAsync("UserExamTime", dto.applyId, Utils.DateTimeToTimeStamp(DateTime.Now));
-            return new { code = 1, msg = "success", data = finalRecord };
         }
 
         /// <summary>
@@ -324,7 +254,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     return new { code = -2, msg = "提交记录和之前初始化时的信息不一致，请联系管理人员" };//提交记录和之前初始化时的信息不一致，这种情况常规也不会出现，就是避免一些特殊情况，比如后台偷偷给人家该信息，暗箱操作，但如果做的太天衣无缝也没招。。
                 }
 
-                if (record.Complated == 1)
+                if (record.Complated == ExamComplated.Yes)
                 {
                     return new { code = -3, msg = "测评已正常提交并完成，不用再次提交", data = record };//考试已经完成，不能再提交
                 }
@@ -349,8 +279,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
                 }
 
-                record.ComplatedMode = dto.complatedMode;
-                record.Complated = dto.complatedMode == 0 ? 0 : 1;
+                record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;
+                record.Complated = (ExamComplated)(dto.complatedMode == 0 ? 0 : 1);
                 record.UsedTime = dto.usedTime;
                 //record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 if (!string.IsNullOrEmpty(dto.submitAnswerStr) && dto.submitAnswerStr.Contains("userAnswer"))

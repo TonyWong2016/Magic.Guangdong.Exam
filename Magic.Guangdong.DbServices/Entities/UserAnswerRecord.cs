@@ -24,13 +24,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 是否完成考试
 		/// </summary>
 		[JsonProperty]
-		public int Complated { get; set; } = 0;
+		public ExamComplated Complated { get; set; } = ExamComplated.No;
 
 		/// <summary>
 		/// 交卷方式，0-自主交卷，1-到时间自动交卷，2-作弊次数过多强制交卷
 		/// </summary>
 		[JsonProperty]
-		public int ComplatedMode { get; set; } = 0;
+		public ExamComplatedMode ComplatedMode { get; set; } = ExamComplatedMode.Self;
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }
@@ -51,7 +51,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public DateTime LimitedTime { get; set; }
 
 		[JsonProperty]
-		public int Marked { get; set; } = 0;
+		public ExamMarked Marked { get; set; } = ExamMarked.No;
 
 		[JsonProperty]
 		public Guid PaperId { get; set; }
@@ -89,6 +89,40 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "varchar(150)")]
 		public string UserName { get; set; }
 
+		/// <summary>
+		/// idnumber的类型
+		/// 0-身份证，1-准考证
+		/// </summary>
+		[JsonProperty]
+		public IdType IdType { get; set; } = IdType.IdCard;
+
+
+    }
+
+	public enum ExamComplated
+	{
+		No,
+		Yes,
+		Cancle
+	}
+	public enum ExamComplatedMode
+	{
+		Self,
+		Timeup,
+		Force,
+		Cheat
 	}
 
+	public enum ExamMarked
+	{
+		No,
+		Yes
+	}
+
+	public enum IdType
+	{
+		IdCard,
+		ReportNumber,
+		Other
+	}
 }

@@ -3,14 +3,24 @@
 @{
     ViewData["Title"] = "首页";
 }
+<style>
+    .flashing-element {
+        animation: blink 2s linear infinite;
+    }
 
+    @@keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+</style>
 <main class="container">
 
     <article id="mainBody">
         <header>
             <h5 style="text-align:center" class="gradient-text">
                 @ViewData["ActivityName"] <br />
-                在线测评<span id="currStage"></span>
+                信息认证<span id="currStage"></span>
             </h5>
         </header>
         <form>
@@ -24,60 +34,53 @@
 
             <label for="idNumber">选手证件号码</label>
             <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
-            <small style="margin-top:5px" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</small>
+            <i style="font-size:smaller" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</i>
 
-            
-            <br />
-            <a id="CreateMyExam" href="javascript:;" aria-busy="false" role="button" style="width:100%" class="secondary">提交</a>
-            <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;">刷脸登录(beta)</a>
+            <a id="CreateMyExam" href="javascript:;" aria-busy="false" role="button" style="width:100%;margin-top:12px" class="secondary">提交</a>
 
-            <button id="CreateMyExam2"
-                    class="primary"
-                    style="display:none"
-                    data-target="modal-example"
+            <button id="ConfirmExam"
+                    class="primary container-fluid"
+                    style="display:none;margin-top:12px"
+                    data-target="model-confirm"
                     onClick="toggleModal(event)">
                 验证通过，开始答题
             </button>
+            <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;">刷脸登录(beta)</a>
 
             <a id="btnLogout" onclick="Logout()" href="javascript:;" role="button" style="width:100%;margin-top:12px;margin-bottom:12px;background-color:#e53935;border-color:#e53935;display:none">退出登录</a>
 
             <small>大赛组委会保证输入的证件号码仅用于在线测评验证</small>
             <p style="text-align:center;color:#039be5;margin-top:20px;margin-bottom:-30px;font-size:smaller;display:none"><a id="detectiveLink" href="/apply/test"><u>页面显示有问题?</u></a></p>
-            <dialog id="modal-example">
+            <dialog id="model-confirm">
                 <article>
-                    <a href="#close"
-                       aria-label="Close"
-                       class="close"
-                       data-target="modal-example"
-                       onClick="toggleModal(event)">
-                    </a>
                     <h3 style="text-align:center">信息确认</h3>
                     <p id="userInfo">
-                        选手姓名： <u id="memberName"> </u><br />
-                        选手性别： <u id="sex"> </u><br />
-                        参赛赛项： <u id="programType"> </u><br />
-                        参赛赛区： <u id="area"></u><br />
-                        赛队编号： <u id="projectNo"></u>
+                        选手姓名： <font class="pico-color-violet-500" id="name"> </font><br />
+                        考试科目： <font class="pico-color-violet-500" id="examTitle"> </font><br />
+                        证件号码： <font class="pico-color-violet-500" id="idCard"></font><br />
+                        准考证号： <font class="pico-color-violet-500" id="reportNumber"></font><br />
+                        电子邮箱： <font class="pico-color-violet-500" id="email"></font>
                     </p>
+                    <p class="pico-background-red-500 attention" style="display:none">注意，本场考试为正式考试，请仔细核对报考信息</p>
                     <p>
                         <small>
                             请核对信息是否正确，如无问题，请点击【去答题】；
-                            如有问题，请马上联系本赛区管理单位。<u style="color:orangered">注意，测评开始后手机尽量不要锁屏，直到完成测评</u>，否则可能影响赛队在线测评成绩！
-                            <u style="color:orangered">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
+                            如有问题，请马上联系考场管理人员。<u style="color:#D93526">注意，使用手机测评的考生，测评开始后尽量不要锁屏，直到完成测评</u>，否则可能影响赛队在线测评成绩！
+                            <u style="color:##93526">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
                         </small>
                     </p>
                     <footer>
                         <a href="#cancel"
                            role="button"
                            class="secondary"
-                           data-target="modal-example"
+                           data-target="model-confirm"
                            onClick="toggleModal(event)">
                             取消
                         </a>
                         <a id="btnConfirm"
                            href="#confirm"
                            role="button"
-                           data-target="modal-example"
+                           data-target="model-confirm"
                            onClick="ConfirmMyPaper()">
                             去答题
                         </a>
@@ -86,7 +89,7 @@
                            href="#confirm"
                            role="button"
                            aria-busy="true"
-                           data-target="modal-example">
+                           data-target="model-confirm">
                             抽卷中
                         </a>
                     </footer>
@@ -108,9 +111,9 @@
     @* <option value="">请选择要参与的考试</option> *@
     {{# layui.each(d,function(index,item){ }}
         {{# if(item.status==0){ }}
-            <option value="{{ item.value }}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.title}}</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.title}}</option>
         {{# } else { }}
-            <option value="{{ item.value }}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}
     {{# }) }}
 </script>
@@ -118,25 +121,33 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 @* <script src="~/web/exam/Index.js"></script> *@
 <script>
+    //测试用
+    setTimeout(() => {
+        jValSet('idNumber', '456817132301152DAAI6')
+        getReportInfo()
+    },200)
+
     $('#AnswerCard').show();
 
     let examId = '@Model._examId';
     let groupCode = '@Model._groupCode';
-    let idNumberType = 'idCard';
+
+    let reportId = 0;
     let idNumber = '';
-    
-    function getMyExams() {        
-        let queryModel = {
-            examId: examId,
-            groupCode: groupCode
-        };
-        axios.get('@Url.Action("GetReportExamsForClient","Exam")', { params: queryModel })
+    let queryModel = {};
+
+    function getMyExams() {
+        axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', { params: {
+                examId: examId,
+                groupCode: groupCode,
+                accountId: accountId
+        }})
             .then(data => {
                 let json = data.data;
                 if(json.data && json.data.length>0){
                     renderTpl("examTpl", "exam", json.data, examId == '');
                     jValSet("info", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
-
+                    reportId = json.data[0].reportId
                 }else{
                     TT.error('无可选的考试');
                 }
@@ -144,47 +155,93 @@
        
         
     }
+
     getMyExams();
 
     autoSearch('idNumber', () => {
-        checkIdCard()
+        getReportInfo()
     })
 
     $('#exam').on('change', v => {
         var span = $("#exam").find('option:selected').data('span')
         jValSet("info", span);
         examId = $("#exam").val();
+        reportId = $("#exam").find('option:selected').data('reportid')
         if (span && jVal('idNumber')) {
-            //checkIdCard()
+            getReportInfo()
         }
     })
-
-    function checkIdCard() {
+    //格式验证
+    function formatVerification() {
         idNumber = jVal('idNumber');
-        idNumberType = 'idCard';
+        //idNumberType = 'idCard';
         let result = SFID(idNumber);
         if (!idNumber) return;
         if (idNumber.length == 18 && result != 'OK') {
             $('#CreateMyExam').html(result);
             $('#idNumber').attr('aria-invalid', true)
-            return;
+            return false;
         }
         if (idNumber.length == 18 && result == 'OK') {
+            //idNumberType = 'idCard';
             $('#CreateMyExam').html(result);
             $('#idNumber').attr('aria-invalid', false)
-            return;
+            $('#CreateMyExam').html('身份证号码核验中...').attr('aria-busy', true);
+            queryModel.IdCard = idNumber;
+            queryModel.reportNumber = '';
+            return true;
         }
         if (idNumber.length > 18) {
-            idNumberType = 'reportNumber';
-            $('#idNumber').attr('aria-invalid', false)
+            //idNumberType = 'reportNumber';
+            $('#idNumber').attr('aria-invalid', false);
+            $('#CreateMyExam').html('准考证号核验中...').attr('aria-busy', true);
+            queryModel.IdCard = '';
+            queryModel.reportNumber = idNumber;
+            return true;
         }
-        
-        return result;
+        $('#CreateMyExam').html('请输入规范的身份证号码或者准考证号');
+        $('#idNumber').attr('aria-invalid', true)
+        return false;
     }
 
+    //身份验证
+    function getReportInfo() {
+        $('#CreateMyExam').removeAttr('aria-busy')
+        if (!formatVerification()) {
+            return;
+        }
+        queryModel.examId = examId;
+        queryModel.reportId = reportId;
+        axios.get('@Url.Action("InfoVerificationAuto", "ExamClient")',
+            {
+                params:
+                    queryModel
+            })
+            .then(data => {
+                $('#CreateMyExam').removeAttr('aria-busy')
+                let json = data.data;
+                if (json.code != 0) {
+                    TT.error(json.msg);
+                    $('#CreateMyExam').html(json.msg);
+                    $('#idNumber').attr('aria-invalid', true)
+                    return;
+                }
+                let item = $("#exam").find('option:selected');
+                jHtmlSet('name', item.data('name'));
+                jHtmlSet('examTitle', item.text());
+                jHtmlSet('idCard', item.data('idcard'));
+                jHtmlSet('reportNumber', item.data('reportnumber'));
+                jHtmlSet('email', item.data('email'));
+                $('#CreateMyExam').hide();
+                $('#ConfirmExam').show();
+                if (item.data('examtype') == '1') {
+                    $('.attention').addClass('flashing-element').show()
+                }
+            })
+    }
 
-    function getReportInfo(idNumber, examId) {
-        $('#CreateMyExam').html('身份信息核验中...').attr('aria-busy', true);
+    //抽卷去答题
+    function confirmPaper(){
 
     }
 </script>

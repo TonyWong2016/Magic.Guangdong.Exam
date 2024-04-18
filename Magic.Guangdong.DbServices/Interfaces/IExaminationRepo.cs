@@ -29,9 +29,5 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<Guid[]> CloneExam(Guid examId, string adminId, string cloneExamName = "", string clonePaperTitle = "");
 
-
-        Task<List<ReportExamView>> GetReportExamsForClient(ReportExamDto dto);
-
-        Task<bool> AnyReportExamsForClient(ReportExamDto dto);
     }
 }

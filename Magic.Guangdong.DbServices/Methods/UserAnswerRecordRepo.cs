@@ -205,7 +205,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     return new { code = -2, msg = "提交记录和之前初始化时的信息不一致，请联系管理人员" };//提交记录和之前初始化时的信息不一致，这种情况常规也不会出现，就是避免一些特殊情况，比如后台偷偷给人家该信息，暗箱操作，但如果做的太天衣无缝也没招。。
                 }
 
-                if (record.Complated == 1)
+                if (record.Complated == ExamComplated.Yes)
                 {
                     return new { code = -3, msg = "考试已经完成，不能再提交", data = record };//考试已经完成，不能再提交
                 }
@@ -224,8 +224,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     record.Remark += $"交卷,答题人识别码[{dto.idNumber}]";
                 }
 
-                record.ComplatedMode = dto.complatedMode;
-                record.Complated = dto.complatedMode == 0 ? 0 : 1;
+                record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;
+                record.Complated =(ExamComplated)(dto.complatedMode == 0 ? 0 : 1);
                 record.UsedTime = dto.usedTime;
                 record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 await userAnswerRecordRepo.InsertOrUpdateAsync(record);
@@ -338,13 +338,13 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             if (submit)//强制交卷
             {
-                record.Complated = 1;
-                record.ComplatedMode = 2;
+                record.Complated = ExamComplated.Yes;
+                record.ComplatedMode = ExamComplatedMode.Force;
             }
             record.Remark += $"客观题成绩为{userScore}分";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked";
-            record.Marked = 1;
+            record.Marked = ExamMarked.Yes;
             record.Score = userScore;
             await userAnswerRecordRepo.UpdateAsync(record);
             return record;

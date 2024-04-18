@@ -42,7 +42,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 0-机器组卷（考试之前先随机生成多套试卷，考试时随机分发，推荐采用此方式，考试前生成多套试卷既满足随机性，也可以对不同的试卷提前校验，避免疏漏，默认），1-人工组卷（严谨的场合下适用，比如统一考试等），2-即时组卷（每个学生考试时随机生成，不推荐正式考试用这种方式，无法对试卷进行校验）
 		/// </summary>
 		[JsonProperty]
-		public int? PaperType { get; set; } = 0;
+		public PaperType PaperType { get; set; } = PaperType.Rule;
 
 		/// <summary>
 		/// 抽题情况
@@ -60,7 +60,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double Score { get; set; }
 
 		[JsonProperty]
-		public int Status { get; set; } = 0;
+		public ExamStatus Status { get; set; } = ExamStatus.Enabled;
 
 		[JsonProperty, Column(DbType = "varchar(150)")]
 		public string Title { get; set; }
@@ -71,6 +71,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string UpdatedBy { get; set; }
 
+	}
+
+	
+
+	public enum PaperType {
+		Rule,
+		Custom,
+		Other
 	}
 
 }

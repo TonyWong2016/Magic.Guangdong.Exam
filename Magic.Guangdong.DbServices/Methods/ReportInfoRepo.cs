@@ -302,26 +302,47 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<dynamic> GetReportDetailForClient(long reportId)
         {
-            var reportInfoView = await fsql.Get(conn_str).Select<ReportInfoView>()
-                .Where(a => a.Id == reportId)
+            //var reportInfoView = await fsql.Get(conn_str).Select<ReportInfoView>()
+            //    .Where(a => a.Id == reportId)
+            //    .ToOneAsync();
+            //var exam = await fsql.Get(conn_str).Select<Examination>()
+            //    .Where(a => a.Id == reportInfoView.ExamId)
+            //    .ToOneAsync();
+            //return new
+            //{
+            //    reportInfo = reportInfoView,
+            //    exam = new
+            //    {
+            //        exam.Expenses,
+            //        exam.Title,
+            //        exam.AssociationTitle,
+            //        exam.StartTime,
+            //        exam.Address,
+            //        exam.BaseDuration,
+            //        exam.BaseScore
+            //    }
+            //};
+            var reportInfo = await fsql.Get(conn_str).Select<ReportExamView>()
+                .Where(a => a.ReportId == reportId)
                 .ToOneAsync();
-            var exam = await fsql.Get(conn_str).Select<Examination>()
-                .Where(a => a.Id == reportInfoView.ExamId)
-                .ToOneAsync();
+            var lastCheckHistory = await fsql.Get(conn_str).Select<ReportCheckHistory>()
+                .Where(a => a.ReportId == reportId)
+                .OrderByDescending(a => a.Id)                
+                .ToOneAsync(u => new
+                {
+                    u.Id,
+                    u.CheckRemark,
+                    u.CreatedAt,
+                    u.CheckStatus,
+                    //审核记录里只可能有通过和不通过，没有待审
+                    checkResult = u.CheckStatus == 0 ? "已通过" : "未通过"
+                }) ;
             return new
             {
-                reportInfo = reportInfoView,
-                exam = new
-                {
-                    exam.Expenses,
-                    exam.Title,
-                    exam.AssociationTitle,
-                    exam.StartTime,
-                    exam.Address,
-                    exam.BaseDuration,
-                    exam.BaseScore
-                }
+                reportInfo,
+                lastCheckHistory
             };
+
         }
 
     }

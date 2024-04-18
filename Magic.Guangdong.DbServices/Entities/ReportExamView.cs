@@ -15,9 +15,6 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string AccountId { get; set; }
 
-		[JsonProperty, Column(StringLength = 500)]
-		public string Address { get; set; }
-
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string AssociationId { get; set; }
 
@@ -36,9 +33,6 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public int CardType { get; set; }
 
-		[JsonProperty]
-		public DateTime? CreatedAt { get; set; }
-
 		[JsonProperty, Column(StringLength = 1500)]
 		public string Description { get; set; }
 
@@ -47,6 +41,12 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty]
 		public DateTime? EndTime { get; set; }
+
+		[JsonProperty, Column(StringLength = 500)]
+		public string ExamAddress { get; set; }
+
+		[JsonProperty]
+		public Guid? ExamId { get; set; }
 
 		[JsonProperty]
 		public int? ExamType { get; set; }
@@ -63,9 +63,6 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string GroupCode { get; set; }
 
-		[JsonProperty]
-		public Guid? Id { get; set; }
-
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string IdCard { get; set; }
 
@@ -77,6 +74,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
 		public string Name { get; set; }
+
+		[JsonProperty]
+		public Guid? OrderId { get; set; }
 
 		[JsonProperty]
 		public int? OrderIndex { get; set; }
@@ -92,6 +92,15 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string ReportNumber { get; set; }
+
+		[JsonProperty]
+		public int ReportStatus { get; set; }
+
+		[JsonProperty]
+		public int ReportStep { get; set; }
+
+		[JsonProperty]
+		public DateTime ReportTime { get; set; }
 
 		[JsonProperty]
 		public DateTime? StartTime { get; set; }
