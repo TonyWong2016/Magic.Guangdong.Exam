@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -120,12 +121,15 @@ namespace Magic.Guangdong.DbServices.Methods
             int rd = new Random().Next(papers.Count);
             var myPaper = papers[rd];
 
-            long paperSeconds = Convert.ToInt64(myPaper.Duration) * 60;
 
             var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
             var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
+            DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
+            Logger.Debug("试卷时间：" + myPaper.Duration);
+            Logger.Debug("限定时间：" + limitedTime);
             var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
             {
+                Id=YitIdHelper.NextId(),   
                 IdNumber = reportInfo.ReportNumber,
                 ReportId = dto.reportId.ToString(),
                 AccountId = reportInfo.AccountId,
@@ -133,12 +137,12 @@ namespace Magic.Guangdong.DbServices.Methods
                 ExamId = dto.examId,
                 Remark = $"初始化答题，答题人证件号[{reportInfo.IdCard}]；",
                 CreatedBy = reportInfo.AccountId,
-                CreatedAt = DateTime.Now,
-                LimitedTime = DateTime.Now.AddSeconds(paperSeconds),
+                CreatedAt = DateTimeOffset.UtcNow.LocalDateTime,
+                LimitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime,
                 PaperId = myPaper.Id
             }) ;
-            //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答
-            await RedisHelper.HSetAsync("UserExamLog", dto.reportId.ToString(), reportInfo.ReportNumber);
+
+            await RedisHelper.HSetAsync("GDExamLog", dto.reportId.ToString(), reportInfo.ReportNumber);
             return new { code = 0, msg = "success", data = finalRecord };
         }
 
@@ -147,13 +151,13 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="paperId"></param>
         /// <returns></returns>
-        public async Task<FinalPaperDto> GetMyPaper(Guid paperId)
+        public async Task<FinalPaperClientDto> GetMyPaper(Guid paperId)
         {
             //试卷基本信息
             var paper = await fsql.Get(conn_str).Select<Paper, Examination>()
                 .LeftJoin((a, b) => a.ExamId == b.Id)
                 .Where((a, b) => a.Id == paperId && a.IsDeleted == 0)
-                .ToOneAsync((a, b) => new FinalPaperDto()
+                .ToOneAsync((a, b) => new FinalPaperClientDto()
                 {
                     PaperId = a.Id,
                     AssociationTitle = b.AssociationTitle,
@@ -162,7 +166,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     EndTime = b.EndTime,
                     PaperTitle = a.Title,
                     PaperScore = a.Score,
-                    Duration = (double)a.Duration,
+                    Duration = a.Duration,
                     PaperType = (int)a.PaperType,
                     CreatedAt = a.CreatedAt
                 });
@@ -177,7 +181,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 })
                 .LeftJoin((a, b) => a.Id == b.QuestionId)
                 .Where((a, b) => b.PaperId == paperId && a.IsDeleted == 0)
-                .ToListAsync((a, b) => new PaperQuestionDto()
+                .ToListAsync((a, b) => new PaperQuestionClientDto()
                 {
                     Id = a.Id,
                     IsObjective = a.Objective,
@@ -209,7 +213,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 var items = questionItems
                     .Where(u => u.QuestionId == question.Id)
                     .OrderBy(u => u.OrderIndex)
-                    .Select(u => new PaperQuestionItemDto()
+                    .Select(u => new PaperQuestionItemClientDto()
                     {
                         Id = u.Id,
                         Code = u.Code,
@@ -308,7 +312,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     record.UpdatedBy = dto.userId.ToString();
                     record.Remark += $"交卷,答题人识别码[{dto.idNumber}]";
-                    await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
+                    await RedisHelper.HDelAsync("GDExamLog", dto.reportId);
+
                 }
 
                 record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;

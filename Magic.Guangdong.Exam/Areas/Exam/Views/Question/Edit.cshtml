@@ -244,6 +244,7 @@
             if (obj.type != 1) {
                 questionType = 3;
                 generateAnswerItems(1, false);//主观题
+                isSingleAnswer = 0;
             }
             else if (obj.type == 1 && obj.text.indexOf('判断') > -1) {
                 questionType = 2;
@@ -351,7 +352,7 @@
             let obj={};
             obj.arr = itemAnswerArr;
             obj.index = 0;
-            obj.objective=itemAnswerArr[0].isOption
+            obj.objective = (itemAnswerArr && itemAnswerArr.length>0) ? itemAnswerArr[0].isOption:0
             makeItems(obj);
             return;
         }

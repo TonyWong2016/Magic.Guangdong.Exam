@@ -41,6 +41,9 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         [BindProperty]
         public string Name { get; set; }
 
+        [BindProperty]
+        public double UsedTime { get; set; } = 0;
+
         public async Task<IActionResult> OnGet(long urid)
         {
             this.urid = urid;
@@ -57,7 +60,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             //不可以从结果页回到答题页，也不可以从非考试页进入答题页
             if (!referUrl.Contains("exam") || referUrl.Contains("/result") || record.Complated == (int)ExamComplated.Yes)
             {
-                return Redirect($"/examclient/index?examId={record.ExamId}");
+                return Redirect($"/exam/index?examId={record.ExamId}");
             }
             if (record == null || string.IsNullOrEmpty(record.ReportId) || string.IsNullOrEmpty(record.IdNumber))
             {
@@ -65,7 +68,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             }
             if (record.LimitedTime < DateTime.Now)
             {
-                return Redirect($"/examclient/Result?urid={record.Id}&force=1");
+                return Redirect($"/exam/Result?urid={record.Id}&force=1");
             }
 
             if (record.IdNumber != record.ReportNumber)
@@ -79,7 +82,9 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             Name = record.Name;
             ExamTitle = record.ExamTitle;
             SubmitAnswer = record.SubmitAnswer;
-            await _redisCachingProvider.HSetAsync("UserExamLog", record.ReportId, record.ReportNumber);
+
+            UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
+
             return Page();
         }
     }

@@ -215,6 +215,7 @@
             if (obj.type != 1) {
                 questionType = 3;
                 generateAnswerItems(1, false);//主观题
+                isSingleAnswer = 0;
             }
             else if (obj.type == 1 && obj.text.indexOf('判断') > -1) {
                 questionType = 2;

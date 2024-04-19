@@ -81,7 +81,7 @@ namespace Magic.Guangdong.Assistant
         {
             Log.Debug($"{{position}}:{msg}", log4Name);
           
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"Debug:{msg}....{DateTime.Now}");
             Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "debug"));

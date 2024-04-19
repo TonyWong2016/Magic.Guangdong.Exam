@@ -48,7 +48,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public int IsDeleted { get; set; } = 0;
 
-		[JsonProperty, Column(InsertValueSql = "dateadd(second,(-1),dateadd(day,(1),CONVERT([datetime],CONVERT([varchar](10),getdate(),(120)))))")]
+		[JsonProperty]
 		public DateTime LimitedTime { get; set; }
 
 		[JsonProperty]

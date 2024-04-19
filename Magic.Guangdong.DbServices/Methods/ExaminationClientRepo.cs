@@ -93,7 +93,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 ;
             if(await recordCheckQuery.AnyAsync())
             {
-                return "已经提交过该考试了";
+                return "已参加过考试|"+ (await recordCheckQuery.ToOneAsync()).Id.ToString();
             }
             return "ok";
         }

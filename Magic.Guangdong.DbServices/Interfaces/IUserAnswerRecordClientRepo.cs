@@ -20,7 +20,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<dynamic> ConfirmMyPaper(ConfirmPaperDto dto);
 
-        Task<FinalPaperDto> GetMyPaper(Guid paperId);
+        Task<FinalPaperClientDto> GetMyPaper(Guid paperId);
 
         Task<UserAnswerRecordView> GetMyRecord(long urid);
 

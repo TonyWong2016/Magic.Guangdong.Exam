@@ -231,45 +231,35 @@ function interceptFormSubmit(form, onSubmitCallback) {
     });
 }
 
-//倒计时
-//参数elementId，用于指定要显示倒计时的HTML元素ID。
-//获取该元素，并在开始前检查其是否存在，若不存在则抛出错误。
-//定义一个新的内部函数updateElementContent，它接受剩余时间作为参数，根据元素类型（input或非input）更新其内容。对于input元素，设置其value属性；对于其他元素，更新其textContent属性。
-//在countdown函数中，调用updateElementContent来实时更新元素内容。
-//在开始倒计时前，先将初始倒计时数值（完整秒数）显示在目标元素上。
-//现在，您可以传入一个元素ID，当该元素是button、a（链接）、span等非input元素时，倒计时进度会显示在其textContent中；如果是input元素，则显示在value属性中。
-function accurateCountdown(seconds, elementId, callback) {
-    const startTimestamp = Date.now();
-    const targetElement = document.getElementById(elementId);
+function executeFunctions(funcs) {
+    const results = [];
 
-    if (!targetElement) {
-        throw new Error(`Element with ID "${elementId}" not found.`);
-    }
-
-    function updateElementContent(remainingTime) {
-        const isInput = targetElement.tagName.toLowerCase() === 'input';
-
-        if (isInput) {
-            targetElement.value = remainingTime;
-        } else {
-            targetElement.textContent = remainingTime;
-        }
-    }
-
-    function countdown() {
-        const remainingSeconds = Math.max(0, seconds - Math.floor((Date.now() - startTimestamp) / 1000));
-        if (remainingSeconds === 0) {
-            if (typeof callback === 'function') {
-                callback();
-            }
-            return;
-        }
-
-        updateElementContent(`${remainingSeconds} 秒`);
-
-        requestAnimationFrame(countdown);
-    }
-
-    updateElementContent(`${seconds} 秒`);
-    countdown();
+    return funcs.reduce((promiseChain, func) => {
+        return promiseChain.then(() => (
+            new Promise((resolve, reject) => {
+                // 如果函数返回Promise，则等待其resolve/reject
+                if (func.constructor.name === 'AsyncFunction' || func instanceof Promise) {
+                    func().then(result => {
+                        results.push({ status: 'success', data: result });
+                        resolve();
+                    }).catch(err => {
+                        results.push({ status: 'error', error: err });
+                        resolve(); // 即使出错也继续执行后续函数
+                    });
+                }
+                // 如果函数是普通函数（同步函数），则立即执行并收集结果
+                else {
+                    try {
+                        const result = func();
+                        results.push({ status: 'success', data: result });
+                        resolve();
+                    } catch (err) {
+                        results.push({ status: 'error', error: err });
+                        resolve(); // 同样即使出错也继续执行后续函数
+                    }
+                }
+            })
+        ));
+    }, Promise.resolve())
+        .then(() => results);
 }

@@ -220,23 +220,33 @@
             .then(data => {
                 $('#CreateMyExam').removeAttr('aria-busy')
                 let json = data.data;
-                if (json.code != 0) {
-                    TT.error(json.msg);
-                    $('#CreateMyExam').html(json.msg);
-                    $('#idNumber').attr('aria-invalid', true)
+                if (json.code == 0) {
+                    let item = $("#exam").find('option:selected');
+                    jHtmlSet('name', item.data('name'));
+                    jHtmlSet('examTitle', item.text());
+                    jHtmlSet('idCard', item.data('idcard'));
+                    jHtmlSet('reportNumber', item.data('reportnumber'));
+                    jHtmlSet('email', item.data('email'));
+                    $('#CreateMyExam').hide();
+                    $('#ConfirmExam').show();
+                    if (item.data('examtype') == '0') {
+                        $('.attention').addClass('flashing-element').show()
+                    }
                     return;
                 }
-                let item = $("#exam").find('option:selected');
-                jHtmlSet('name', item.data('name'));
-                jHtmlSet('examTitle', item.text());
-                jHtmlSet('idCard', item.data('idcard'));
-                jHtmlSet('reportNumber', item.data('reportnumber'));
-                jHtmlSet('email', item.data('email'));
-                $('#CreateMyExam').hide();
-                $('#ConfirmExam').show();
-                if (item.data('examtype') == '1') {
-                    $('.attention').addClass('flashing-element').show()
+                if (json.code == 1) {
+                    $('#CreateMyExam').html(json.msg+"，即将跳转到考试界面");
+                    setTimeout(() => {
+                        location.href = `/exam/paper?urid=${json.data}`
+                    },2000)
+                    return;
                 }
+
+                TT.error(json.msg);
+                $('#CreateMyExam').html(json.msg);
+                $('#idNumber').attr('aria-invalid', true)
+                return;
+                
             })
     }
     
@@ -249,15 +259,16 @@
         formData.append('__RequestVerificationToken', requestToken);
         formData.append('examId', examId);
         formData.append('reportId', reportId);
-
-        let json = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
+        
+        let ret = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
+        let json = ret.data;
         if (json.code == 1 && json.data) {
             TT.warning(json.msg);
-            json.data.complated == 1 ? location.href = `/examclient/result?urid=${json.data.id}` : location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`;
+            json.data.complated == 1 ? location.href = `/exam/result?urid=${json.data.id}` : location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`;
             return;
         }
         if (json.code == 0) {
-            location.href = `/examclient/paper?urid=${json.data.id}&pid=${json.data.paperId}`
+            location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`
             return;
         }
         TT.error(json.msg);

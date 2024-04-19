@@ -21,7 +21,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 试卷的考试时间，默认继承examination的时间
 		/// </summary>
 		[JsonProperty]
-		public double? Duration { get; set; }
+		public double Duration { get; set; }
 
 		[JsonProperty]
 		public Guid ExamId { get; set; }

@@ -5,72 +5,91 @@
 <style>
     .parent {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(5, 1fr);
         grid-column-gap: 0px;
         grid-row-gap: 0px;
     }
 
-    .div1 {
-        grid-area: 1 / 1 / 6 / 6;
+    .contentDiv {
+        grid-area: 1 / 1 / 6 / 7;
     }
 
-    .div2 {
-        grid-area: 1 / 6 / 6 / 7;
+    .sideDiv {
+        grid-area: 1 / 7 / 6 / 9;
         margin-left:20px;
-        margin-top:-10px
+        /* margin-top:-10px;        */
     }
+
+    .contentDiv article {
+        position: relative; /* 设置为相对定位容器 */
+        min-height: 768px;
+        padding-bottom: 40px; /* 为 footer 留出足够的空间，防止内容被遮挡 */
+    }
+
+    .contentDiv footer {
+        position: absolute; /* 设置为绝对定位 */
+        bottom: 0; /* 使 footer 紧贴 article 底部 */
+        width: 100%; /* 使 footer 宽度与 article 相同 */
+        background-color: #f5f5f5; /* 添加背景色以覆盖可能存在的内容 */
+        box-sizing: border-box; /* 包含 padding 在内计算宽度 */
+        padding: 1rem; /* 可根据需要设置 footer 内边距 */
+    }
+
 </style>
+
 <main class="container">
 
-    <h4 id="paperTitle"></h4>
+    <h4 id="paperTitle">@Model.ExamTitle</h4>
     <div class="parent">
-        <article class="div1" id="main">
+        <div class="contentDiv">
+            <article id="main">
+            </article>
+
+            <article id="backup" class="contentDiv" style="display:none">
+                <header id="errMsg"></header>
+                <h1 aria-busy="true"></h1>
+                <footer style="text-align:center">
+                    <a href="/exam/paper?urid=@Model.urid&pid=@Model.PaperId" role="button" class="contrast outline">刷新重试</a>
+                </footer>
+            </article>
+        </div>
+
+        <article class="sideDiv">            
+           <header>
+                <button id="submitPaper"
+                        style="cursor:pointer;border-color:white;"
+                        class="pico-background-red-500 container-fluid"
+                        data-target="modal-submit"
+                        onClick="toggleModal(event)">
+                    交卷
+                </button>
+                <button id="submitPaperDisabled"
+                        class="pico-background-grey-300 container-fluid"
+                        style="display:none;border-color:white;">
+                    已交卷
+                </button>
+           </header>
+
+            <details class="dropdown" style="margin-top:20px">
+                <summary role="button" class="outline">答题卡</summary>
+                <ul id="answerSheet">
+                </ul>
+            </details>
+
+            <p style="margin:20px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16" style="margin-bottom:5px;">
+                    <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
+                    <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
+                    <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
+                </svg>&nbsp;
+                <strong>
+                    剩余时长：<u id="countdownTimer">00:00:00</u>
+                </strong>
+            </p>
 
         </article>
-        <aside class="div2">
-            <nav>
-                <ul>
-                    <li>
-                        <button id="submitPaper"
-                                style="cursor:pointer;border-color:white"
-                                class="pico-background-red-500 container-fluid"
-                                data-target="modal-submit"
-                                onClick="toggleModal(event)">
-                            交卷
-                        </button>
-                        <button id="submitPaperDisabled"
-                                class="pico-background-grey-300 container-fluid"
-                                style="display:none;border-color:white;">
-                            已交卷
-                        </button>
-                    </li>
-                    @* <li>
-                        <p class="pico-background-red-500" style="color:white;font-weight:bolder">提示：</p>
-                    </li> *@
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16" style="margin-bottom:5px;">
-                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
-                            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
-                            <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
-                        </svg>&nbsp;
-                        <strong>
-                            <u id="time">00:00:00</u>
-                        </strong>
-                       
-                    </li>
-                    
-                    <li>
-                        <details role="list" dir="rtl">
-                            <summary aria-haspopup="listbox" role="link">答题卡</summary>
-                            <ul role="listbox" id="answerSheet">
-                            </ul>
-                        </details>
-                    </li>
-                   
-                </ul>
-            </nav>
-        </aside>
+
        
     </div>
 
@@ -81,7 +100,7 @@
 
             <header>注意</header>
             <p id="userInfo">
-                本场测评一共 <u id="totalCnt" style="color:#1e88e5;font-weight:bolder">0</u> 道题，已提交 <u id="submitCnt" style="color:#f4511e;font-weight:bolder">0</u> 道题；<br />确认交卷后，将无法再进行修改，确定交卷吗？
+                本场测评一共 <u id="questionCnt" style="color:#1e88e5;font-weight:bolder">0</u> 道题，已提交 <u id="submitCnt" style="color:#f4511e;font-weight:bolder">0</u> 道题；<br />确认交卷后，将无法再进行修改，确定交卷吗？
             </p>
 
             <footer>
@@ -114,6 +133,7 @@
 
 
 </main>
+<script src="~/web/exam/paper.js"></script>
 <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
 
@@ -129,30 +149,33 @@
 <script type="text/html" id="mainTpl">
 
     <header>
-       {{# if(d.title.startsWith('<p>') ){ }}
-            <div id="questionTitle">{{d.title.replace('<p>','<p>'+d.orderIndex+'、')}}</div>
-            <kbd style="background-color:#66bb6a;">{{d.typeName}}({{d.itemScore}}分)</kbd>
-       {{#} else{ }}
-            <div id="questionTitle">{{d.orderIndex}}、{{d.title}}</div>
-            <kbd style="background-color:#66bb6a;margin-top:10px;">{{d.typeName}}({{d.itemScore}}分)</kbd>
-       {{#} }}
+       <div id="questionTitle">{{ processTitle(d.TitleRaw,d.orderIndex) }}</div>
+       <kbd class="pico-background-jade-350" style=" margin-top:10px">{{d.TypeName}}({{d.ItemScore}}分)</kbd>
     </header>
+    {{# if(d.IsObjective==1){ }}
+        <div id="optionItem">
+            {{# layui.each(d.Items,function(index,item){ }}
+                {{# let currItems = answerArr.filter(u=>u.questionId==d.Id) }}
+                {{# let optionContent = item.Code }}
+                {{# if(item.DescriptionTxt) optionContent+="、"+item.DescriptionTxt; }}
+                {{# if(currItems.length==1&&currItems[0].userAnswer.includes(item.Id.toString()) ){ }}
+                    <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{ optionContent }}</a>
+                {{#} else { }}
+                     <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{optionContent}}">{{optionContent}}</a>
 
-    <div id="options" >
-        {{# layui.each(d.items,function(index,item){ }}
-
-            {{# let currItems = answerArr.filter(u=>u.questionId==d.id) }}
-            {{# let optionContent = item.code }}
-            {{# if(item.descriptionTxt) optionContent+="、"+item.descriptionTxt; }}
-            {{# if(currItems.length==1&&currItems[0].userAnswer.indexOf(item.id)>-1 ){ }}
-                <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.id}}" data-questionid="{{d.id}}" data-single="{{d.singleAnswer==1}}" data-tooltip="{{ optionContent }}">{{ optionContent }}</a>
-            {{#} else { }}
-                 <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.id}}" data-questionid="{{d.id}}" data-single="{{d.singleAnswer==1}}" data-tooltip="{{optionContent}}">{{optionContent}}</a>
-
-            {{#} }}
-
-        {{# }) }}
-    </div>
+                {{#} }}
+            {{# }) }}
+        </div>
+    {{#} else { }}
+        <div id="textItem" >
+                <textarea
+                    id="txtAnswer"
+                  name="bio"
+                  placeholder="写下您的答案"
+                >
+                </textarea>
+        </div>
+    {{# } }}
     <footer>
         {{# if(d.orderIndex > 1){ }}
             <a href="javascript:;" onclick="renderQuestion({{d.orderIndex-2}})" id="previous" role="button" class="contrast outline">上一题({{d.orderIndex-1}})</a>
@@ -160,12 +183,194 @@
             <a href="javascript:;" disabled id="previous" role="button" class="contrast outline">上一题</a>
         {{# } }}
 
-        {{# if(d.orderIndex>=questionCnt){ }}
+        {{# if(d.orderIndex>=questionObj.questionCnt){ }}
             <a href="javascript:;"  id="next" role="button" class="outline" data-target="modal-submit" onClick="toggleModal(event)" style="float:right;border-color:#e53935;color:#e53935">交卷</a>
         {{#} else { }}
             <a href="javascript:;" onclick="renderQuestion({{d.orderIndex}})" id="next" role="button" class="outline" style="float:right">下一题({{d.orderIndex+1}})</a>
         {{# } }}
-
-
     </footer>
 </script>
+
+<script>
+    let urid = '@Model.urid';
+    let paperId = '@Model.PaperId';
+    let answerArr = [];
+    let createdAtStr = '@Model.CreatedAt';
+    let usedTime = '@Model.UsedTime';
+    let paperDetail;
+    let questionObj = {};
+    let countdown;
+    if (sessionStorage.getItem("answerArr"))
+        answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
+    
+    executeFunctions([generationPaper, renderPaper]);
+
+    async function generationPaper() {
+        
+        if (sessionStorage.getItem('paperDetail')) {
+            paperDetail = JSON.parse(sessionStorage.getItem("paperDetail"));
+
+        } else {
+            let formData = new FormData();
+            formData.append('paperId', paperId);
+            formData.append('__RequestVerificationToken', requestToken);
+            let ret = await request('POST', '/examclient/GetMyPaper', formData, CT);
+
+            if (ret.code != 0) {
+                toggleError(true, "获取考卷信息异常，请刷新重试");
+                return;
+            }
+            sessionStorage.setItem('paperDetail', ret.data);
+            paperDetail = JSON.parse(ret.data);
+
+        }
+
+        //renderPaper();
+    }
+
+    //渲染基本信息
+    function renderPaper() {
+
+        toggleError(false);
+        if (paperDetail && paperDetail.Questions) {
+            questionObj.questionCnt = paperDetail.Questions.length;
+            countdown = startCountdown(3900, 'countdownTimer', countdownEnded);
+            renderQuestion(0);
+            renderAnswerSheet();
+        }
+    }
+
+    //渲染答题卡
+    function renderAnswerSheet() {
+
+        renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+        jHtmlSet("questionCnt", questionObj.questionCnt)
+        if (answerArr.length > questionObj.questionCnt) {
+            answerArr = JSON.parse(confirmAnswerArr()).length;
+        }
+        jHtmlSet("submitCnt", answerArr.length);
+        if (questionObj.questionCnt == answerArr.length) {
+            $("#submitCnt").css("color", "#1e88e5")
+        } else {
+            $("#submitCnt").css("color", "#f4511e")
+        }
+    }
+
+    //渲染题目
+    function renderQuestion(index) {
+        if (index >= paperDetail.Questions.length)
+            return;
+        currQuestion = paperDetail.Questions[index];
+        currQuestion.orderIndex = index + 1;
+        renderTpl("mainTpl", "main", currQuestion, false);
+
+        $("#answerProgress").val(index + 1);
+        
+        //选择题会执行下面
+        makeOption(currQuestion.SingleAnswer);
+        //SubmitMyPaper(0)
+    }
+
+    //渲染选项(选择题会执行)
+    function makeOption(isSingle) {
+        $(".option").click(obj => {
+            let elem = $(obj.currentTarget);
+            if (isSingle == 1 && elem.hasClass("secondary outline")) {
+                $(".option").addClass("secondary outline").removeClass("correct")
+            }
+            let choice = {
+                "questionId": elem.data("questionid"),
+                "itemId": elem.data("itemid"),
+                "isSingle": elem.data("single")
+            }
+            if (elem.hasClass("secondary outline")) {
+                elem
+                    .removeClass("secondary outline")
+                    .addClass("correct");
+                makeChoice(choice);
+            }
+            else {
+                elem
+                    .addClass("secondary outline")
+                    .removeClass("correct");
+                cancleChoice(choice);
+            }
+
+        })
+        // footerPosition();
+        // $(window).resize(footerPosition);
+    }
+
+    //选中，并构造数组（选择题会执行）
+    function makeChoice(obj) {
+        let userAnswer = [];
+        let answerArrItem = {};
+        if (obj.isSingle) {
+            //如果是单选题，且列表里已经有选项，就清空重置
+            let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
+            // console.log(index)
+            if (index > -1)
+                answerArr.splice(index, 1);
+        } else if (answerArr.filter(u => u.questionId == obj.questionId).length > 0) {
+            answerArrItem = answerArr.filter(u => u.questionId == obj.questionId)[0];
+
+            userAnswer = answerArrItem.userAnswer;
+            answerArr.splice(answerArr.indexOf(answerArrItem), 1);
+
+        }
+        userAnswer.push(obj.itemId.toString())
+        answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
+        
+        sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
+        renderAnswerSheet();
+    }
+
+    //取消选中，并构造数组（选择题执行）
+    function cancleChoice(obj) {
+        if (answerArr.filter(u => u.questionId == obj.questionId).length == 0) {
+            return;
+        }
+
+        let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
+        
+        let userAnswer = answerArr.filter(u => u.questionId == obj.questionId)[0].userAnswer;
+        let itemIndex = userAnswer.indexOf(obj.itemId);
+
+        if (itemIndex > -1) {
+            userAnswer.splice(itemIndex, 1)
+        }
+        answerArr.splice(index, 1);
+        if (userAnswer.length > 0) {
+            answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
+        }
+        //sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
+        //renderAnswerSheet();
+
+        sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
+        renderAnswerSheet();
+    }
+
+    function makeSubjectiveQuestion() {
+
+    }
+    //错误提示
+    function toggleError(show,msg='') {
+        jHtmlSet("errMsg", msg);
+        if (show) {
+            $("#main").hide();
+            $("#backup").show();
+        } else {
+            $("#backup").hide();
+            $("#main").show();            
+        }
+    }
+
+
+    // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
+    function countdownEnded() {
+        console.log('Countdown has ended!');
+    }
+
+   
+    
+    </script>

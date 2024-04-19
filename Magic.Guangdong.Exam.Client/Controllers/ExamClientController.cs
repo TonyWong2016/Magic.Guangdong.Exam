@@ -46,13 +46,15 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             var result = await _examRepo.InfoVerificationAuto(dto);
             if (result == "ok")
                 return Json(_resp.success(result));
+            else if (result.StartsWith("已参加过考试"))
+                return Json(_resp.ret(1, "已参加过考试", result.Split("|")[1]));
             return Json(_resp.error(result));
         }
 
         public async Task<IActionResult> GetReportExamsForClient(ReportExamDto dto)
         {
             var items = await _examRepo.GetReportExamsForClient(dto);
-            if(items.Count == 0)
+            if (items.Count == 0)
             {
                 return Json(_resp.error("没有报名的考试记录"));
             }
@@ -71,21 +73,24 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             {
                 return Json(-1, "试卷不存在或已被删除，请联系管理人员");
             }
-            if(!await _redisCachingProvider.KeyExistsAsync(paperId.ToString()))
+            if (!await _redisCachingProvider.KeyExistsAsync(paperId.ToString()))
             {
                 var paper = await _userAnswerRecordClientRepo.GetMyPaper(paperId);
                 await _redisCachingProvider.StringSetAsync(paperId.ToString(),
                 JsonHelper.JsonSerialize(paper),
                 DateTime.Now.AddMinutes(paper.Duration) - DateTime.Now);
-               
             }
+            //return Json(
+            //       _resp.success(
+            //           JsonHelper
+            //           .JsonDeserialize<FinalPaperDto>(
+            //               await _redisCachingProvider
+            //               .StringGetAsync(paperId.ToString()
+            //               ))));
             return Json(
                    _resp.success(
-                       JsonHelper
-                       .JsonDeserialize<Paper>(
-                           await _redisCachingProvider
-                           .StringGetAsync(paperId.ToString()
-                           ))));
+                       await _redisCachingProvider
+                           .StringGetAsync(paperId.ToString())));
         }
 
         /// <summary>

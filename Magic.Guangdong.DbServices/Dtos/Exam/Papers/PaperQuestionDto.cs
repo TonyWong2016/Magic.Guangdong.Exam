@@ -70,6 +70,5 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public int OrderIndex { get; set; }
     }
 
-    
-
+   
 }
