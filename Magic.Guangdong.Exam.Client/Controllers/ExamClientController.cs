@@ -61,11 +61,21 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return Json(_resp.success(items));
         }
 
+        /// <summary>
+        /// 抽卷
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ConfirmMyPaper(ConfirmPaperDto dto)
         {
             return Json(_resp.success(await _userAnswerRecordClientRepo.ConfirmMyPaper(dto)));
         }
 
+        /// <summary>
+        /// 获取我的试卷
+        /// </summary>
+        /// <param name="paperId"></param>
+        /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> GetMyPaper(Guid paperId)
         {

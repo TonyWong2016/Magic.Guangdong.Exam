@@ -17,7 +17,7 @@
 
     .sideDiv {
         grid-area: 1 / 7 / 6 / 9;
-        margin-left:20px;
+        margin-left: 20px;
         /* margin-top:-10px;        */
     }
 
@@ -55,8 +55,8 @@
             </article>
         </div>
 
-        <article class="sideDiv">            
-           <header>
+        <article class="sideDiv">
+            <header>
                 <button id="submitPaper"
                         style="cursor:pointer;border-color:white;"
                         class="pico-background-red-500 container-fluid"
@@ -69,7 +69,7 @@
                         style="display:none;border-color:white;">
                     已交卷
                 </button>
-           </header>
+            </header>
 
             <details class="dropdown" style="margin-top:20px">
                 <summary role="button" class="outline">答题卡</summary>
@@ -90,7 +90,7 @@
 
         </article>
 
-       
+
     </div>
 
     <!-- Progress -->
@@ -137,7 +137,7 @@
 <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
 
-    {{# if(answerArr && answerArr.filter(u=>u.questionId==item.id).length>0){ }}
+    {{# if(answerArr && answerArr.filter(u=>u.questionId==item.Id).length>0){ }}
         <li><a href="javascript:;" style="color:#66bb6a" onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
     {{# } else { }}
         <li><a href="javascript:;"  onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
@@ -146,6 +146,8 @@
 
 </script>
 
+
+
 <script type="text/html" id="mainTpl">
 
     <header>
@@ -153,7 +155,7 @@
        <kbd class="pico-background-jade-350" style=" margin-top:10px">{{d.TypeName}}({{d.ItemScore}}分)</kbd>
     </header>
     {{# if(d.IsObjective==1){ }}
-        <div id="optionItem">
+        <div class="optionItem">
             {{# layui.each(d.Items,function(index,item){ }}
                 {{# let currItems = answerArr.filter(u=>u.questionId==d.Id) }}
                 {{# let optionContent = item.Code }}
@@ -167,14 +169,29 @@
             {{# }) }}
         </div>
     {{#} else { }}
-        <div id="textItem" >
-                <textarea
-                    id="txtAnswer"
-                  name="bio"
-                  placeholder="写下您的答案"
-                >
-                </textarea>
+        <div class="textItem" >
+            {{# if(!answerArr.includes(d.Id.toString())) { }}
+            <textarea
+                id="content_{{d.Id}}"
+                class="content_answer"
+                placeholder="写下您的答案"
+                style="height:36vh"
+
+            >
+            </textarea>
+            {{# } else { }}
+            <textarea
+                id="content_{{d.Id}}"
+                class="content_answer"
+                placeholder="写下您的答案"
+                style="height:36vh"
+                value="{{answerArr.filter(u => u.questionId == d.Id.toString())[0].userAnswer[0]}}"
+            >
+            </textarea>
+            {{# } }}
+            <small style="margin-top:0.4vh">在上述为本框中写下您的答案</small>
         </div>
+
     {{# } }}
     <footer>
         {{# if(d.orderIndex > 1){ }}
@@ -202,14 +219,13 @@
     let countdown;
     if (sessionStorage.getItem("answerArr"))
         answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
-    
+
     executeFunctions([generationPaper, renderPaper]);
 
+    //生成试卷
     async function generationPaper() {
-        
         if (sessionStorage.getItem('paperDetail')) {
             paperDetail = JSON.parse(sessionStorage.getItem("paperDetail"));
-
         } else {
             let formData = new FormData();
             formData.append('paperId', paperId);
@@ -242,7 +258,7 @@
 
     //渲染答题卡
     function renderAnswerSheet() {
-
+        //console.log(paperDetail.Questions)
         renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
         jHtmlSet("questionCnt", questionObj.questionCnt)
         if (answerArr.length > questionObj.questionCnt) {
@@ -265,10 +281,14 @@
         renderTpl("mainTpl", "main", currQuestion, false);
 
         $("#answerProgress").val(index + 1);
-        
+
         //选择题会执行下面
         makeOption(currQuestion.SingleAnswer);
         //SubmitMyPaper(0)
+        console.log(currQuestion);
+        if (currQuestion.IsObjective == 0) {
+            listenSubjectiveInput(currQuestion.Id)
+        }
     }
 
     //渲染选项(选择题会执行)
@@ -320,7 +340,7 @@
         }
         userAnswer.push(obj.itemId.toString())
         answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
-        
+
         sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
         renderAnswerSheet();
     }
@@ -332,9 +352,9 @@
         }
 
         let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
-        
+
         let userAnswer = answerArr.filter(u => u.questionId == obj.questionId)[0].userAnswer;
-        let itemIndex = userAnswer.indexOf(obj.itemId);
+        let itemIndex = userAnswer.indexOf(obj.itemId.toString());
 
         if (itemIndex > -1) {
             userAnswer.splice(itemIndex, 1)
@@ -343,25 +363,42 @@
         if (userAnswer.length > 0) {
             answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
         }
-        //sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
-        //renderAnswerSheet();
 
         sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
         renderAnswerSheet();
     }
 
-    function makeSubjectiveQuestion() {
+    //
+    function listenSubjectiveInput(questionId) {
+        let elemId = 'content_' + questionId;
+        let answerArrItem = {};
 
+        autoSearch(elemId, () => {
+            let userAnswer = [];
+            let elemValue = jVal(elemId);
+            if (answerArr.filter(u => u.questionId == questionId).length > 0) {
+                answerArrItem = answerArr.filter(u => u.questionId == questionId)[0];
+                userAnswer = answerArrItem.userAnswer;
+                answerArr.splice(answerArr.indexOf(answerArrItem), 1);
+            }
+
+            if (elemValue) {
+                userAnswer = [];
+                userAnswer.push(elemValue)
+                answerArr.push({ "questionId": questionId, "userAnswer": userAnswer })
+            }
+        })
+        renderAnswerSheet();
     }
     //错误提示
-    function toggleError(show,msg='') {
+    function toggleError(show, msg = '') {
         jHtmlSet("errMsg", msg);
         if (show) {
             $("#main").hide();
             $("#backup").show();
         } else {
             $("#backup").hide();
-            $("#main").show();            
+            $("#main").show();
         }
     }
 
@@ -371,6 +408,6 @@
         console.log('Countdown has ended!');
     }
 
-   
-    
-    </script>
+
+
+</script>
