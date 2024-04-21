@@ -185,7 +185,7 @@
                 class="content_answer"
                 placeholder="写下您的答案"
                 style="height:36vh"
-                value="{{answerArr.filter(u => u.questionId == d.Id.toString())[0].userAnswer[0]}}"
+               
             >
             </textarea>
             {{# } }}
@@ -285,7 +285,7 @@
         //选择题会执行下面
         makeOption(currQuestion.SingleAnswer);
         //SubmitMyPaper(0)
-        console.log(currQuestion);
+       // console.log(currQuestion);
         if (currQuestion.IsObjective == 0) {
             listenSubjectiveInput(currQuestion.Id)
         }
@@ -368,12 +368,14 @@
         renderAnswerSheet();
     }
 
-    //
+    //监听主观题输入
     function listenSubjectiveInput(questionId) {
         let elemId = 'content_' + questionId;
         let answerArrItem = {};
-
-        autoSearch(elemId, () => {
+        if (answerArr.filter(u => u.questionId == questionId).length > 0) { 
+            jValSet(elemId, answerArr.filter(u => u.questionId == questionId)[0].userAnswer)
+        }
+        monitorAswer(elemId, () => {
             let userAnswer = [];
             let elemValue = jVal(elemId);
             if (answerArr.filter(u => u.questionId == questionId).length > 0) {
@@ -387,6 +389,7 @@
                 userAnswer.push(elemValue)
                 answerArr.push({ "questionId": questionId, "userAnswer": userAnswer })
             }
+            sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
         })
         renderAnswerSheet();
     }
@@ -406,6 +409,19 @@
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
         console.log('Countdown has ended!');
+    }
+
+    function SubmitMyPaper(completedMode) {
+        let myCurrAnswer = confirmAnswerArr();
+        let params = new FormData();
+        params.append("recordId", urid);
+        params.append("reportId", '@Model.ReportId');
+        params.append("idNumber", '@Model.ReportNumber');
+        params.append("userId", accountId);
+        params.append("usedTime", usedTime);
+        params.append("complatedMode", complatedMode);
+        //params.append("submitAnswerStr", sessionStorage.getItem("answerArr"));
+        params.append("submitAnswerStr", myCurrAnswer);
     }
 
 

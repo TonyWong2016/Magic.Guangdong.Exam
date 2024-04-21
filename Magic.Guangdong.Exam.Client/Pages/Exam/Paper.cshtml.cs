@@ -3,6 +3,8 @@ using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Memory;
+
 
 namespace Magic.Guangdong.Exam.Client.Pages.Exam
 {
@@ -10,11 +12,12 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
     {
         private readonly IUserAnswerRecordClientRepo _userAnswerRecordClientRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        public PaperModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IRedisCachingProvider redisCachingProvider)
+        private readonly IMemoryCache _memoryCache;
+        public PaperModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IRedisCachingProvider redisCachingProvider, IMemoryCache memoryCache)
         {
             _userAnswerRecordClientRepo = userAnswerRecordClientRepo;
             _redisCachingProvider = redisCachingProvider;
-
+            _memoryCache = memoryCache;
         }
 
         [BindProperty]
@@ -44,15 +47,25 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         [BindProperty]
         public double UsedTime { get; set; } = 0;
 
+        [BindProperty]
+        public string ReportId { get; set; }
+
         public async Task<IActionResult> OnGet(long urid)
         {
             this.urid = urid;
-            var record = await _userAnswerRecordClientRepo.GetMyRecord(urid);
+            //var record = await _userAnswerRecordClientRepo.GetMyRecord(urid);
+            Console.WriteLine("走缓存");
+            var record = await _memoryCache.GetOrCreateAsync(urid, async (e) =>
+            {
+                Console.WriteLine("走库");
+                e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
+                return await _userAnswerRecordClientRepo.GetMyRecord(urid);
+            });
+
             if (!Request.Headers.Any(u => u.Key == "Referer") || record.IsDeleted == 1)
             {
                 Assistant.Logger.Error("非法请求");
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
-
             }
 
             var refer = Request.Headers.Where(u => u.Key == "Referer").First();
@@ -82,7 +95,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             Name = record.Name;
             ExamTitle = record.ExamTitle;
             SubmitAnswer = record.SubmitAnswer;
-
+            ReportId = record.ReportId;
             UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
 
             return Page();

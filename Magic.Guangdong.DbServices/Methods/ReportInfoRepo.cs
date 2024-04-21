@@ -275,7 +275,8 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 reportOrderList.items = await query
                     .Page(dto.pageIndex, dto.pageSize)
-                    .OrderByDescending(u => u.ReportStatus)
+                    .OrderBy(u => u.ReportStatus)
+                    .OrderByDescending(u=>u.OrderCreatedAt)
                     .ToListAsync();
             }
             return reportOrderList;
@@ -302,26 +303,6 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<dynamic> GetReportDetailForClient(long reportId)
         {
-            //var reportInfoView = await fsql.Get(conn_str).Select<ReportInfoView>()
-            //    .Where(a => a.Id == reportId)
-            //    .ToOneAsync();
-            //var exam = await fsql.Get(conn_str).Select<Examination>()
-            //    .Where(a => a.Id == reportInfoView.ExamId)
-            //    .ToOneAsync();
-            //return new
-            //{
-            //    reportInfo = reportInfoView,
-            //    exam = new
-            //    {
-            //        exam.Expenses,
-            //        exam.Title,
-            //        exam.AssociationTitle,
-            //        exam.StartTime,
-            //        exam.Address,
-            //        exam.BaseDuration,
-            //        exam.BaseScore
-            //    }
-            //};
             var reportInfo = await fsql.Get(conn_str).Select<ReportExamView>()
                 .Where(a => a.ReportId == reportId)
                 .ToOneAsync();

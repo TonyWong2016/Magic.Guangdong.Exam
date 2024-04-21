@@ -92,7 +92,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
     }
 
     /// <summary>
-    /// 暂时用不到
+    /// 提交答案模型
     /// </summary>
     public class SubmitMyAnswerDto
     {

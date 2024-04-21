@@ -1,37 +1,4 @@
-﻿function startCountdown1(seconds, countdownElementId, onCountdownEnd) {
-    let remainingTime = seconds;
-
-    function updateCountdown() {
-        // 将剩余秒数转换为小时、分钟和秒
-        const hours = Math.floor(remainingTime / 3600);
-        const minutes = Math.floor((remainingTime % 3600) / 60);
-        const remainingSeconds = remainingTime % 60;
-
-        // 格式化时间显示，补足两位数
-        function formatTime(num) {
-            return Math.floor(num).toString().padStart(2, '0');
-        }
-
-        // 更新倒计时标签内容
-        const countdownElement = document.getElementById(countdownElementId);
-        countdownElement.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(remainingSeconds)}`;
-
-        // 如果剩余时间大于0，继续调用requestAnimationFrame更新倒计时
-        if (remainingTime > 0) {
-            remainingTime -= 1/60;
-            requestAnimationFrame(updateCountdown);
-        } else {
-            // 计时结束，执行用户提供的回调函数
-            if (typeof onCountdownEnd === 'function') {
-                onCountdownEnd();
-            }
-        }
-    }
-
-    // 启动倒计时
-    updateCountdown();
-}
-
+﻿
 function startCountdown(seconds, countdownElementId, onCountdownEnd) {
     let remainingTime = seconds;
     let lastTimestamp = null;
@@ -101,4 +68,61 @@ function processTitle(title, customIndex) {
     const formattedTitle = `${customIndex}、${cleanedTitle}`;
 
     return formattedTitle;
+}
+
+function monitorAswer(elemId, callback) {
+    let last;
+    //搜索关键字
+    $("#" + elemId).on('input propertychange', function (event) {
+        last = event.timeStamp;
+        //利用event的timeStamp来标记时间，这样每次事件都会修改last的值，注意last必需为全局变量
+        setTimeout(function () {    //设时延迟x秒执行
+            if (last - event.timeStamp == 0)//如果时间差为0（也就是你停止输入x秒之内都没有其它的keyup事件发生）则做你想要做的事
+            {
+                if (typeof (callback) == 'function') {
+                    let value = $("#" + elemId).val().replace(/^\s+|\s+$/g, "");
+                    callback(value);
+
+                }
+            }
+        }, 200);
+    });
+}
+
+
+//净化一下选项
+function confirmAnswerArr() {
+    if (!paperDetail || !paperDetail.Questions) {
+        return '';//试卷没加载上
+    }
+    let currAnswer = sessionStorage.getItem("answerArr");
+    if (!currAnswer || !isStringConvertibleToObject(currAnswer)) {
+        return '';//还没答题
+    }
+    let currAnswerArr = JSON.parse(currAnswer);
+    let tmpCurrAnswerArr = [];
+    //if (currAnswerArr.length > paperDetail.questions.length) {
+
+    //}
+
+    for (let i = 0; i < currAnswerArr.length; i++) {
+        if (tmpCurrAnswerArr.filter(u => u.id == u.id == currAnswerArr[i].questionId).length == 1) {
+            continue;
+        }
+        if (paperDetail.Questions.filter(u => u.Id == currAnswerArr[i].questionId).length == 1) {
+            tmpCurrAnswerArr.push(currAnswerArr[i]);
+        }
+    }
+    return JSON.stringify(tmpCurrAnswerArr);
+
+}
+
+//判定是否可转换为数组
+function isStringConvertibleToObject(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
