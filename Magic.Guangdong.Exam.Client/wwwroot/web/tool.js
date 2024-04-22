@@ -402,6 +402,11 @@ const TT = {
             },
             close: true,
         }).showToast();
+        if (typeof (cb) == 'function') {
+            setTimeout(() => {
+                cb();
+            },2500);
+        }
     },
     info: function (msg, time = 5000) {
         Toastify({

@@ -69,6 +69,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		Reported,//报名了
 		Paied,//付款了
 		Failed,//失败了,订单长时间没支付或者报名审核没通过或者其他原因
+		Tested//考过试了
 	}
 
 	/// <summary>

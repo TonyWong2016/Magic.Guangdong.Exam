@@ -33,7 +33,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 是否公开成绩查询，0-不公开，1-公开
 		/// </summary>
 		[JsonProperty]
-		public int OpenResult { get; set; } = 0;
+		public PaperOpenResult OpenResult { get; set; } = PaperOpenResult.No;
 
 		[JsonProperty, Column(DbType = "varchar(100)", IsNullable = false)]
 		public string PaperDegree { get; set; } = "all";
@@ -82,4 +82,9 @@ namespace Magic.Guangdong.DbServices.Entities
 		Other
 	}
 
+	public enum PaperOpenResult
+	{		
+		No,
+		Yes
+	}
 }

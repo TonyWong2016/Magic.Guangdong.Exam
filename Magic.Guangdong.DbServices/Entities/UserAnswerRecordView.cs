@@ -88,7 +88,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string Name { get; set; }
 
 		[JsonProperty]
-		public int? OpenResult { get; set; }
+		public int OpenResult { get; set; }
 
 		[JsonProperty]
 		public DateTime? PaperCreatedAt { get; set; }

@@ -12,13 +12,11 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
     public class PaperModel : PageModel
     {
         private readonly IUserAnswerRecordClientRepo _userAnswerRecordClientRepo;
-        private readonly IRedisCachingProvider _redisCachingProvider;
-        private readonly IMemoryCache _memoryCache;
-        public PaperModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IRedisCachingProvider redisCachingProvider, IMemoryCache memoryCache)
+        //private readonly IRedisCachingProvider _redisCachingProvider;
+        public PaperModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo)
         {
             _userAnswerRecordClientRepo = userAnswerRecordClientRepo;
-            _redisCachingProvider = redisCachingProvider;
-            _memoryCache = memoryCache;
+            //_redisCachingProvider = redisCachingProvider;
         }
 
         [BindProperty]
@@ -58,21 +56,12 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         {
             this.urid = urid;
 
-            //Console.WriteLine("走缓存");
-            //if (!await _redisCachingProvider.KeyExistsAsync(urid.ToString()))
-            //{
-            //    Console.WriteLine("走库");
-            //    await _redisCachingProvider.StringSetAsync(urid.ToString(),
-            //        JsonHelper.JsonSerialize(await _userAnswerRecordClientRepo.GetMyRecord(urid)),
-            //        DateTime.Now.AddMinutes(1) - DateTime.Now);
-            //}
-            //var record = JsonHelper.JsonDeserialize<UserAnswerRecordView>(await _redisCachingProvider.StringGetAsync(urid.ToString()));
             //页面加载时不要走缓存，读取最新的。
             var record = await _userAnswerRecordClientRepo.GetMyRecord(urid);
             if (!Request.Headers.Any(u => u.Key == "Referer") || record.IsDeleted == 1)
             {
                 Logger.Error("非法请求");
-                return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
+                return Redirect("/Error?msg=" + Utils.EncodeUrlParam("非法请求"));
             }
 
             if (record.Complated == (int)ExamComplated.Yes)
@@ -109,6 +98,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             ExamTitle = record.ExamTitle;
             SubmitAnswer = record.SubmitAnswer;
             ReportId = record.ReportId;
+            
             UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
             RemainSecond = Math.Floor((record.LimitedTime - DateTime.Now).TotalSeconds);
             return Page();

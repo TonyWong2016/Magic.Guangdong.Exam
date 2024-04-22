@@ -345,7 +345,7 @@ namespace Magic.Guangdong.DbServices.Methods
             record.Remark += $"客观题成绩为{userScore}分";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked";
-            record.Marked = ExamMarked.Yes;
+            record.Marked = ExamMarked.Part;
             record.Score = userScore;
             await userAnswerRecordRepo.UpdateAsync(record);
             return record;

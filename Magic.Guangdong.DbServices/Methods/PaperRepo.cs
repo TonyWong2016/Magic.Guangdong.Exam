@@ -70,7 +70,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         ExamId = model.examId,
                         Score = model.paperScore,
                         Duration = exam.BaseDuration,
-                        OpenResult = model.openResult,
+                        OpenResult = (PaperOpenResult)model.openResult,
                         PaperDegree = model.degrees
                     };
 
@@ -350,7 +350,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     paper.Title = dto.paperTitle;
                     paper.Status =(ExamStatus)dto.paperStatus;
                     paper.Duration = dto.paperDuration;
-                    paper.OpenResult = dto.paperOpenResult;
+                    paper.OpenResult = (PaperOpenResult)dto.paperOpenResult;
                     paper.UpdatedBy = dto.adminId + "修改试卷信息";
                     paper.UpdatedAt = DateTime.Now;
                     await paperRepo.UpdateAsync(paper);

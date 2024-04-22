@@ -64,7 +64,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public double Score { get; set; } = 0d;
 
 		/// <summary>
-		/// 保留字段
+		/// 第几次参加（一般在练习模式生效）
 		/// </summary>
 		[JsonProperty]
 		public int Stage { get; set; } = 0;
@@ -113,7 +113,8 @@ namespace Magic.Guangdong.DbServices.Entities
 	public enum ExamMarked
 	{
 		No,
-		Yes
+		Part,//判分了，但不代表结束了，因为客观题是自动判，主观题是人工判
+		All//都判完了
 	}
 
 	public enum IdType

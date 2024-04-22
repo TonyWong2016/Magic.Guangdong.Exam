@@ -356,24 +356,24 @@ namespace Magic.Guangdong.DbServices.Methods
             //第一步：把提交的答案取出来
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecordView>();
             var record = await userAnswerRecordRepo.Where(u => u.Id == urid).ToOneAsync();
-            if (record.Marked == 1 && record.Complated == 1 && !string.IsNullOrEmpty(record.SubmitAnswer))
+            if (record.Marked != (int)ExamMarked.No && record.Complated == (int)ExamComplated.Yes && !string.IsNullOrEmpty(record.SubmitAnswer))
             {
                 return record;//已经给过分了
             }
 
-            if (record.Complated == 0 && record.LimitedTime > DateTime.Now && !submit)
+            if (record.Complated == (int)ExamComplated.No && record.LimitedTime > DateTime.Now && !submit)
             {
                 return record;//没交卷，答题也还没结束
             }
             //record.Stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ApplyId == record.ApplyId && u.IsDeleted == 0).CountAsync());
             //严格模式下，要判定是否超时，允许2分钟以内的误差交卷时间
-            //if(record.Complated==0 && record.LimitedTime < DateTime.Now)
             if (record.IsStrict == 1 && record.LimitedTime.AddMinutes(2) < DateTime.Now)
             {
                 //没交卷，答题也结束了且超过了误差允许范围，先给个0分
-                //record.Complated = 1;                
+                record.Complated = (int)ExamComplated.Yes;
+                record.ComplatedMode = (int)ExamComplatedMode.Timeup;
                 record.Remark = "未在规定时间内交卷，给0分";
-                record.Marked = 1;
+                record.Marked = (int)ExamMarked.All;
                 record.UpdatedAt = record.LimitedTime;
                 record.UpdatedBy = "systemmarked";
                 record.Score = 0;
@@ -488,19 +488,19 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                 }
             }
-
+           
 
             if (submit || (record.LimitedTime < DateTime.Now && record.IsStrict == 0))//强制交卷
             {
-                record.Complated = 1;
-                record.ComplatedMode = 2;
+                record.Complated = (int)ExamComplated.Yes;
+                record.ComplatedMode = submit ? (int)ExamComplatedMode.Force : (int)ExamComplatedMode.Timeup;
                 record.Remark += "强制交卷;";
             }
             record.Remark += $"客观题成绩为{userScore}分";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked";
             record.Score = userScore;
-            record.Marked = 1;
+            record.Marked = (int)ExamMarked.Part;
 
             await userAnswerRecordRepo.UpdateAsync(record);
             return record;

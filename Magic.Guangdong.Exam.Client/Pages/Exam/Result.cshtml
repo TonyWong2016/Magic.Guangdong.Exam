@@ -4,5 +4,73 @@
 }
 
 <main class="container">
+    <details>
+        <summary role="button">选手基本信息</summary>
+        <ul>
+            <li>
+                选手姓名：
+                <font class="pico-color-violet-500" id="name">@Model.Name</font>
+            </li>
+            <li>
+                考试科目：
+                <font class="pico-color-violet-500" id="examTitle">@Model.ExamTitle</font>
+            </li>
+            <li>
+                证件号码：
+                <font class="pico-color-violet-500" id="idCard">@Model.IdCard</font>
+            </li>
+            <li>
+                准考证号：
+                <font class="pico-color-violet-500" id="reportNumber">@Model.ReportNumber</font>
+            </li>
+            <li>
+                电子邮箱：
+                <font class="pico-color-violet-500" id="email">@Model.Email</font>
+            </li>
+            <li>
+                联系方式：
+                <font class="pico-color-violet-500" id="email">@Model.Mobile</font>
+            </li>
+        </ul>
+    </details>
 
+    <article style="text-align:center">
+        @{
+            if (Model.OpenResult == DbServices.Entities.PaperOpenResult.Yes)
+            {
+                <h3>您的考试成绩为</h3>
+                <h1 style="color:#e53935;">@Model.Score 分</h1>
+            }
+            else
+            {
+                <h3>提示</h3>
+                <h1 style="color:#e53935;" id="mainTip">已完成答题</h1>
+                //不让查成绩
+            }
+        }
+        @{
+            if (Model.Marked != DbServices.Entities.ExamMarked.No)
+            {
+            //<small id="msg" data-complated="no" style="color:#ffa000">未在规定时间内提交测评，无成绩</small>
+                <small id="msg" data-complated="no" style="color:#ffa000">测评已结束</small>
+            }
+            else if(Model.Force==1)
+            {
+                <small id="msg" data-complated="yes" style="color:#ffa000">已强制交卷</small>
+            }
+            else
+            {
+                <small id="msg" data-complated="yes" style="color:#ffa000">测评已结束</small>
+
+            }
+        }
+
+        <footer>
+            <a href="/report/index" role="button" class="outline" style="width:100%" id="btnBack">返回</a>
+        </footer>
+    </article>
 </main>
+
+<script>
+    sessionStorage.removeItem("paperDetail");
+</script>

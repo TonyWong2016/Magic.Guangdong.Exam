@@ -88,6 +88,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var recordCheckQuery = userAnswerRecordRepo
                 .Where(u => u.Complated != ExamComplated.Cancle)
                 .Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId.ToString())
+                .Where(u => u.Stage == dto.stage)
                 //.WhereIf(!string.IsNullOrWhiteSpace(dto.idCard), u => u.IdNumber == dto.idCard)
                 //.WhereIf(!string.IsNullOrWhiteSpace(dto.reportNumber), u => u.IdNumber == dto.reportNumber)
                 ;

@@ -133,10 +133,12 @@
             </footer>
         </article>
     </dialog>
-
-
 </main>
+
 <script src="~/web/exam/paper.js"></script>
+@* <script src="~/plugins/tinymce/tinymce.min.js"></script>
+<script src="~/plugins/mytinymce.js"></script> *@
+
 <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
     {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
@@ -492,7 +494,12 @@
 
         let ret = await request('POST', '/examclient/SubmitMyPaper', params, CT);
         let json = ret.data;
-        console.log(json);
+        //console.log(json);
+        if (json.code == 0 && complatedMode != 4) {
+            TT.success('交卷成功', () => {
+                location.href = '/exam/result?urid=' + urid;
+            })
+        }
     }
 
 

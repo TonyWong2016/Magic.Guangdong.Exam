@@ -22,6 +22,10 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Exams
 
         public string reportNumber { get; set; }
 
+        /// <summary>
+        /// 第几次参加，一般用在练习模式
+        /// </summary>
+        public int stage { get; set; } = 0;
         //public bool isVaild
         //{
         //    get

@@ -11,6 +11,7 @@ using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using OfficeOpenXml.FormulaParsing.Utilities;
 using System.Drawing.Printing;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
@@ -114,8 +115,10 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             if (!string.IsNullOrEmpty(dto.submitAnswerStr) && dto.submitAnswerStr == "null")
                 dto.submitAnswerStr = "";
 
-            if (dto.complatedMode == 0)
+            if (dto.complatedMode != (int)ExamComplatedMode.Auto)
             {
+                await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { dto.reportId });
+
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
             }
 
