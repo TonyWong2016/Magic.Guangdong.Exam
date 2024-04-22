@@ -226,7 +226,8 @@ namespace Magic.Guangdong.DbServices.Methods
 
                 record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;
                 record.Complated =(ExamComplated)(dto.complatedMode == 0 ? 0 : 1);
-                record.UsedTime = dto.usedTime;
+                //record.UsedTime = dto.usedTime;
+                record.UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
                 record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 await userAnswerRecordRepo.InsertOrUpdateAsync(record);
                 await RedisHelper.HDelAsync("UserExamLog", dto.reportId);

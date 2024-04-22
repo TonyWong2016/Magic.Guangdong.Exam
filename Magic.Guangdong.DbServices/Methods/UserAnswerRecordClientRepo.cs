@@ -192,7 +192,6 @@ namespace Magic.Guangdong.DbServices.Methods
                     // IsOpen = a.IsOpen,
                     Title = a.Title,
                     SingleAnswer = a.SingleAnswer,
-
                     //Analysis = a.Analysis,
                 });
 
@@ -317,8 +316,10 @@ namespace Magic.Guangdong.DbServices.Methods
                 }
 
                 record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;
-                record.Complated = (ExamComplated)(dto.complatedMode == 0 ? 0 : 1);
-                record.UsedTime = dto.usedTime;
+                record.Complated = (ExamComplated)(dto.complatedMode == 4 ? 0 : 1);
+                //record.UsedTime = dto.usedTime;
+                record.UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
+
                 //record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 if (!string.IsNullOrEmpty(dto.submitAnswerStr) && dto.submitAnswerStr.Contains("userAnswer"))
                 {

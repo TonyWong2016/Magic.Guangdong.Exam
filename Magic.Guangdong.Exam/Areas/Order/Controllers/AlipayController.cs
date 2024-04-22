@@ -23,8 +23,8 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
         private readonly IOptions<AlipayOptions> _optionsAccessor;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IOrderRepo _orderRepo;
-
-        public AlipayController(IResponseHelper resp, ICapPublisher capPublisher, IAlipayClient client, IOptions<AlipayOptions> optionsAccessor, IRedisCachingProvider redisCachingProvider, IOrderRepo orderRepo)
+        private readonly IUserAnswerRecordRepo _userAnswerRecordRepo;
+        public AlipayController(IResponseHelper resp, ICapPublisher capPublisher, IAlipayClient client, IOptions<AlipayOptions> optionsAccessor, IRedisCachingProvider redisCachingProvider, IOrderRepo orderRepo, IUserAnswerRecordRepo userAnswerRecordRepo)
         {
             _resp = resp;
             _capPublisher = capPublisher;
@@ -32,7 +32,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
             _optionsAccessor = optionsAccessor;
             _redisCachingProvider = redisCachingProvider;
             _orderRepo = orderRepo;
-
+            _userAnswerRecordRepo = userAnswerRecordRepo;
         }
 
         [RouteMark("订单管理")]
@@ -155,8 +155,9 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
                 var order = await _orderRepo.getOneAsync(u => u.OutTradeNo == outTradeNo && u.Status == OrderStatus.Paid);
                 if (order == null)
                     return Json(_resp.error("订单无法退款"));
-                if(order.Status == OrderStatus.Refund)
-                    return Json(_resp.error("订单已退款"));
+
+                if (await _userAnswerRecordRepo.getAnyAsync(u => u.ReportId == order.ReportId.ToString()))
+                    return Json(_resp.error("该考生已参与考试，无法退款"));
 
                 var model = new AlipayTradeRefundModel
                 {

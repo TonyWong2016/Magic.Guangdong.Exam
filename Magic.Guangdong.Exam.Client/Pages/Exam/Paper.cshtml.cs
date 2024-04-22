@@ -1,4 +1,5 @@
 using EasyCaching.Core;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -50,22 +51,34 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         [BindProperty]
         public string ReportId { get; set; }
 
+        [BindProperty]
+        public double RemainSecond { get; set; } = 0;
+
         public async Task<IActionResult> OnGet(long urid)
         {
             this.urid = urid;
-            //var record = await _userAnswerRecordClientRepo.GetMyRecord(urid);
-            Console.WriteLine("走缓存");
-            var record = await _memoryCache.GetOrCreateAsync(urid, async (e) =>
-            {
-                Console.WriteLine("走库");
-                e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
-                return await _userAnswerRecordClientRepo.GetMyRecord(urid);
-            });
 
+            //Console.WriteLine("走缓存");
+            //if (!await _redisCachingProvider.KeyExistsAsync(urid.ToString()))
+            //{
+            //    Console.WriteLine("走库");
+            //    await _redisCachingProvider.StringSetAsync(urid.ToString(),
+            //        JsonHelper.JsonSerialize(await _userAnswerRecordClientRepo.GetMyRecord(urid)),
+            //        DateTime.Now.AddMinutes(1) - DateTime.Now);
+            //}
+            //var record = JsonHelper.JsonDeserialize<UserAnswerRecordView>(await _redisCachingProvider.StringGetAsync(urid.ToString()));
+            //页面加载时不要走缓存，读取最新的。
+            var record = await _userAnswerRecordClientRepo.GetMyRecord(urid);
             if (!Request.Headers.Any(u => u.Key == "Referer") || record.IsDeleted == 1)
             {
-                Assistant.Logger.Error("非法请求");
+                Logger.Error("非法请求");
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
+            }
+
+            if (record.Complated == (int)ExamComplated.Yes)
+            {
+                Logger.Error("已经完成答题");
+                return Redirect("/exam/result?urid=" + urid);
             }
 
             var refer = Request.Headers.Where(u => u.Key == "Referer").First();
@@ -97,7 +110,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             SubmitAnswer = record.SubmitAnswer;
             ReportId = record.ReportId;
             UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
-
+            RemainSecond = Math.Floor((record.LimitedTime - DateTime.Now).TotalSeconds);
             return Page();
         }
     }

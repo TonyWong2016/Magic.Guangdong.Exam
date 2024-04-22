@@ -114,19 +114,19 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             if (!string.IsNullOrEmpty(dto.submitAnswerStr) && dto.submitAnswerStr == "null")
                 dto.submitAnswerStr = "";
 
-            if (dto.complatedMode == 1)
+            if (dto.complatedMode == 0)
             {
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
             }
 
             Console.WriteLine($"{DateTime.Now}:发布事务--保存答案");
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitAnswer", dto);
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitMyAnswer", dto);
             if (!await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
             {
                 var record = await _userAnswerRecordClientRepo.GetMyRecord(dto.recordId);
                 await _redisCachingProvider.StringSetAsync(dto.recordId.ToString(),
                     JsonHelper.JsonSerialize(record),
-                    DateTime.Now.AddMinutes((long)record.PaperDuration) - DateTime.Now);
+                    DateTime.Now.AddMinutes(1) - DateTime.Now);
             }
 
             return Json(_resp.success(
@@ -136,8 +136,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SubmitConsumerPure")]
-        public async Task SubmitAnswer(SubmitMyAnswerDto dto)
+        [CapSubscribe(CapConsts.PREFIX + "SubmitMyAnswer")]
+        public async Task SubmitMyAnswer(SubmitMyAnswerDto dto)
         {
             Console.WriteLine($"{DateTime.Now}:消费事务---提交答案");
             await _userAnswerRecordClientRepo.SubmitMyPaper(dto);

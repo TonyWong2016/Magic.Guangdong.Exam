@@ -39,9 +39,9 @@
 </style>
 
 <main class="container">
-
+    @* <div id="editor-container" style="height: 500px; border: 1px solid #ccc;"></div> *@
     <h4 id="paperTitle">@Model.ExamTitle</h4>
-    <div class="parent">
+    <div class="parent" id="parentDiv">
         <div class="contentDiv">
             <article id="main">
             </article>
@@ -49,10 +49,13 @@
             <article id="backup" class="contentDiv" style="display:none">
                 <header id="errMsg"></header>
                 <h1 aria-busy="true"></h1>
+                
                 <footer style="text-align:center">
                     <a href="/exam/paper?urid=@Model.urid&pid=@Model.PaperId" role="button" class="contrast outline">刷新重试</a>
                 </footer>
             </article>
+
+            <input type="hidden" id="lastAnswer" value="@Model.SubmitAnswer" />
         </div>
 
         <article class="sideDiv">
@@ -117,7 +120,7 @@
                    id="btnSubmit"
                    style="background-color:#1e88e5;border-color:#1e88e5"
                    data-target="modal-submit"
-                   onClick="SubmitMyPaper(1)">
+                   onClick="SubmitMyPaper(0)">
                     确定
                 </a>
                 <a href="#confirm"
@@ -136,11 +139,13 @@
 <script src="~/web/exam/paper.js"></script>
 <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
-
+    {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
+    <li style="font-size:16px;color:#C6C6C6"><u>{{item.TypeName}}</u></li>
+    {{# } }}
     {{# if(answerArr && answerArr.filter(u=>u.questionId==item.Id).length>0){ }}
-        <li><a href="javascript:;" style="color:#66bb6a" onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
+        <li><a href="javascript:;" style="color:#524ED2;margin-left:4px" onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
     {{# } else { }}
-        <li><a href="javascript:;"  onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
+        <li><a href="javascript:;" style="margin-left:4px"  onclick="renderQuestion({{index}})">第{{index + 1}}题 </a></li >
     {{# } }}
     {{# }) }}
 
@@ -168,6 +173,22 @@
                 {{#} }}
             {{# }) }}
         </div>
+    {{#} else if(d.TypeName.indexOf('编程')>-1 || d.TypeName.indexOf('代码')>-1) { }}
+        <div class="codeItem">
+            <select id="codelanguage"  aria-label="请选择适合自己的编程语言作答">
+                <option value=""  disabled>请选择适合自己的编程语言作答</option>
+                <option value="cpp">c/c++</option>
+                <option value="csharp">c#</option>
+                <option value="go">go</option>
+                <option value="java">java</option>
+                <option value="javascript" selected>javascript</option>
+                <option value="php">php</option>
+                <option value="python">python</option>
+                <option value="sql">sql（数据库编程题请选择此项）</option>
+            </select>
+            <div id="code_{{d.Id}}" style="height: 50vh; border: 1px solid #ccc;"></div>
+            <small style="margin-top:0.4vh">在上述为代码编辑器中编写程序</small>
+        </div>
     {{#} else { }}
         <div class="textItem" >
             {{# if(!answerArr.includes(d.Id.toString())) { }}
@@ -175,19 +196,13 @@
                 id="content_{{d.Id}}"
                 class="content_answer"
                 placeholder="写下您的答案"
-                style="height:36vh"
-
-            >
-            </textarea>
+                style="height:36vh"></textarea>
             {{# } else { }}
             <textarea
                 id="content_{{d.Id}}"
                 class="content_answer"
                 placeholder="写下您的答案"
-                style="height:36vh"
-               
-            >
-            </textarea>
+                style="height:36vh"></textarea>
             {{# } }}
             <small style="margin-top:0.4vh">在上述为本框中写下您的答案</small>
         </div>
@@ -200,7 +215,7 @@
             <a href="javascript:;" disabled id="previous" role="button" class="contrast outline">上一题</a>
         {{# } }}
 
-        {{# if(d.orderIndex>=questionObj.questionCnt){ }}
+        {{# if(d.orderIndex>=questionObj.total){ }}
             <a href="javascript:;"  id="next" role="button" class="outline" data-target="modal-submit" onClick="toggleModal(event)" style="float:right;border-color:#e53935;color:#e53935">交卷</a>
         {{#} else { }}
             <a href="javascript:;" onclick="renderQuestion({{d.orderIndex}})" id="next" role="button" class="outline" style="float:right">下一题({{d.orderIndex+1}})</a>
@@ -208,17 +223,33 @@
     </footer>
 </script>
 
+<script src="~/plugins/monaco-editor/min/vs/loader.min.js"></script>
+@* <link href="~/plugins/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
+<script src="~/plugins/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+
+<script src="~/plugins/monaco-editor/min/vs/editor/editor.main.js"></script> *@
 <script>
+
     let urid = '@Model.urid';
     let paperId = '@Model.PaperId';
     let answerArr = [];
     let createdAtStr = '@Model.CreatedAt';
-    let usedTime = '@Model.UsedTime';
+    let RemainSecond = '@Model.RemainSecond';
     let paperDetail;
-    let questionObj = {};
-    let countdown;
+    let questionObj = {
+        total: 0
+    };
+    let countdown;//倒计时
+    let stopExecution;//定时执行动动作
+    let editorManager;//代码编辑器
+    let typeNames = [];
+
+    if (jVal('lastAnswer')) 
+        answerArr = JSON.parse(jVal('lastAnswer'));
+    
     if (sessionStorage.getItem("answerArr"))
         answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
+    
 
     executeFunctions([generationPaper, renderPaper]);
 
@@ -238,34 +269,30 @@
             }
             sessionStorage.setItem('paperDetail', ret.data);
             paperDetail = JSON.parse(ret.data);
-
         }
-
         //renderPaper();
     }
 
     //渲染基本信息
     function renderPaper() {
-
         toggleError(false);
         if (paperDetail && paperDetail.Questions) {
-            questionObj.questionCnt = paperDetail.Questions.length;
-            countdown = startCountdown(3900, 'countdownTimer', countdownEnded);
+            questionObj.total = paperDetail.Questions.length;
+            countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
             renderQuestion(0);
             renderAnswerSheet();
+            stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
         }
     }
 
     //渲染答题卡
     function renderAnswerSheet() {
-        //console.log(paperDetail.Questions)
+        typeNames = [];
+        answerArr = JSON.parse(confirmAnswerArr());
         renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
-        jHtmlSet("questionCnt", questionObj.questionCnt)
-        if (answerArr.length > questionObj.questionCnt) {
-            answerArr = JSON.parse(confirmAnswerArr()).length;
-        }
+        jHtmlSet("questionCnt", questionObj.total)
         jHtmlSet("submitCnt", answerArr.length);
-        if (questionObj.questionCnt == answerArr.length) {
+        if (questionObj.total == answerArr.length) {
             $("#submitCnt").css("color", "#1e88e5")
         } else {
             $("#submitCnt").css("color", "#f4511e")
@@ -280,15 +307,18 @@
         currQuestion.orderIndex = index + 1;
         renderTpl("mainTpl", "main", currQuestion, false);
 
-        $("#answerProgress").val(index + 1);
-
         //选择题会执行下面
         makeOption(currQuestion.SingleAnswer);
-        //SubmitMyPaper(0)
-       // console.log(currQuestion);
+
         if (currQuestion.IsObjective == 0) {
+            
             listenSubjectiveInput(currQuestion.Id)
         }
+        if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
+
+            renderCodeQuestion()
+        }
+
     }
 
     //渲染选项(选择题会执行)
@@ -393,6 +423,40 @@
         })
         renderAnswerSheet();
     }
+
+    //渲染编程题
+    function renderCodeQuestion() {
+        let lastCode = sessionStorage.getItem('currCode_' + currQuestion.Id);
+
+        //如果缓存里没有代码记录，且已提交的答案里包含了编程题答案，更新代码缓存
+        if (!lastCode && 
+            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 && 
+            answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer
+        ) {
+            sessionStorage.setItem('currCode_' + currQuestion.Id, answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer[0])
+        }
+
+        setTimeout(async () => {
+            let editorObj = {
+                containerId: 'code_' + currQuestion.Id,
+                defaultCode: sessionStorage.getItem('currCode_' + currQuestion.Id)
+            }
+
+            editorManager = createMonacoEditor(editorObj);
+            await editorManager.init();
+
+            listenChange('codelanguage', (data) => {
+                console.log($(data.target).val())
+                editorManager.setLanguage($(data.target).val())
+            })
+
+            editorManager.monitorCode(currQuestion.Id);
+
+        }, 50)
+    }
+
+    
+    
     //错误提示
     function toggleError(show, msg = '') {
         jHtmlSet("errMsg", msg);
@@ -405,23 +469,30 @@
         }
     }
 
-
+    
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
         console.log('Countdown has ended!');
     }
 
-    function SubmitMyPaper(completedMode) {
+    async function SubmitMyPaper(complatedMode) {
         let myCurrAnswer = confirmAnswerArr();
+        sessionStorage.setItem("answerArr", myCurrAnswer);
         let params = new FormData();
         params.append("recordId", urid);
         params.append("reportId", '@Model.ReportId');
         params.append("idNumber", '@Model.ReportNumber');
         params.append("userId", accountId);
-        params.append("usedTime", usedTime);
         params.append("complatedMode", complatedMode);
-        //params.append("submitAnswerStr", sessionStorage.getItem("answerArr"));
         params.append("submitAnswerStr", myCurrAnswer);
+        params.append("__RequestVerificationToken", requestToken);
+        if (complatedMode != 4) {
+            sessionStorage.clear();
+        }
+
+        let ret = await request('POST', '/examclient/SubmitMyPaper', params, CT);
+        let json = ret.data;
+        console.log(json);
     }
 
 

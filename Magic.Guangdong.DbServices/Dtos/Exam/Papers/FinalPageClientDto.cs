@@ -79,6 +79,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string TypeName { get; set; }
 
+
         public int? IsObjective { get; set; } = 1;
 
         public int? SingleAnswer { get; set; } = 1;

@@ -197,7 +197,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 var record = await _userAnswerRecordRepo.getOneAsync(u => u.Id == dto.recordId);
                 record.SubmitAnswer = JsonHelper.JsonSerialize(submitList);
                 record.Complated = ExamComplated.Yes;
-                record.ComplatedMode = (ExamComplatedMode)(record.ComplatedMode == 0 ? 1 : 0);
+                record.ComplatedMode = record.ComplatedMode;
                 record.UpdatedAt = DateTime.Now;
                 record.Remark += $"[{record.IdNumber}],完成考试；";
 

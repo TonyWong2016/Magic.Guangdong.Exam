@@ -69,10 +69,6 @@
     {{# }) }}
 </script>
 
-<script type="text/html" id="applyTpl">
-    <a href="/MatchCheck/Detail/{{d.applyId.replaceAll('(被移除)','').replace('(被清除)','')}}?levelType=1&checkPage=1" style="color:#01AAED" target="_blank">点击查看</a>
-
-</script>
 
 <script type="text/html" id="userNameTpl">
     {{ decodeURIComponent(d.userName) }}
@@ -227,13 +223,11 @@
                 { title: '序号', templet: '#indexTpl', width: '6%' }
                 , { field: 'id', title: 'id', hide: true }
                 , { templet: '#userNameTpl', title: '答题账号', width: '12%' }
-                , { field: 'idNumber', title: '证件号', width: '12%' }
+                , { field: 'idNumber', title: '证件号/考号', width: '16%' }
                 , { field: 'examTitle', title: '考试', width: '12%' }
                 , { field: 'paperTitle', title: '试卷', width: '15%' }
                 , { templet: '#complatedTpl', title: '是否交卷', width: '8%' }
                 , { field: 'score', title: '得分', width: '8%' }
-                //, { templet: '#degreeTpl', title: '试卷难度', width: '8%' }
-                , { templet: '#applyTpl', title: '申报详情', width: '8%' }
                 , { title: '操作', templet: '#operationTpl' }
             ],
             height: 630,

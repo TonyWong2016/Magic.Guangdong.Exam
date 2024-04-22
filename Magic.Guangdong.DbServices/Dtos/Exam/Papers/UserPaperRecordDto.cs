@@ -108,7 +108,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public int complatedMode { get; set; } = 0;
 
-        public double usedTime { get; set; }
+        //public double usedTime { get; set; }
     }
 
     /// <summary>

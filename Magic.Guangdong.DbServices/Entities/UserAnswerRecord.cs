@@ -106,7 +106,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		Self,
 		Timeup,
 		Force,
-		Cheat
+		Cheat,
+		Auto//草稿自动保存的状态
 	}
 
 	public enum ExamMarked
