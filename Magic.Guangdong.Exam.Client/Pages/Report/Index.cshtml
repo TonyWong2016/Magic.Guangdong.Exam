@@ -11,6 +11,7 @@
 <script id="reportListTpl" type="text/html">
     {{# layui.each(d,function(index, item){ }}
     <article id="reportItem{{ index }}">
+       
         <h6>参与考试：{{item.subject}}</h6>
         <h6>订单编号：{{item.outTradeNo}}</h6>
         <h6>参与状态：
@@ -24,11 +25,15 @@
                 <font class="pico-color-sand-900">已退款</font>
             {{# }}}
         </h6>
-        <a class="outline" role="button" href="/report/detail?id={{item.reportId}}">查看</a>
-        {{# if(item.reportStatus==0 && item.step==0){ }}
-            <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="/order/detail?id={{ btoa(encodeURIComponent(item.orderId)) }}">去支付</a>
-        {{# } }}
-
+        <footer>
+            <a class="outline" role="button" href="/report/detail?id={{item.reportId}}">查看</a>
+            {{# if(item.reportStatus==0 && item.step==0){ }}
+                <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="/order/detail?id={{ btoa(encodeURIComponent(item.orderId)) }}">去支付</a>
+            {{# } }}
+            {{# if(item.testedTime>0){ }}
+                <a class="pico-color-pumpkin-300 outline" style="border-color:#FF9500" role="button" href="/exam/history?reportId={{item.reportId}}">成绩</a>
+            {{# } }}
+        </footer>
     </article>
     {{# }) }}
 </script>

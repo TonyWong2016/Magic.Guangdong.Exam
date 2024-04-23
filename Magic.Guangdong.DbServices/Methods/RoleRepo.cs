@@ -98,12 +98,19 @@ namespace Magic.Guangdong.DbServices.Methods
                             List<RolePermission> delRps = new List<RolePermission>();
                             foreach (var needDeletePermissionId in needDeletePermissionIds)
                             {
+                                if(!originPermissions.Where(u => u.PremissionId == needDeletePermissionId && u.RoleId == dto.Id && u.IsDeleted == 0).Any())
+                                {
+                                    continue;
+                                }
                                 var delRp = originPermissions.Where(u => u.PremissionId == needDeletePermissionId && u.RoleId == dto.Id && u.IsDeleted == 0).First();
                                 delRp.IsDeleted = 1;
                                 delRp.UpdatedAt = DateTime.Now;
                                 delRps.Add(delRp);
                             }
-                            await rolePermissionRepo.UpdateAsync(delRps);
+                            if(delRps.Any())
+                            {
+                                await rolePermissionRepo.UpdateAsync(delRps);
+                            }
                         }
 
 

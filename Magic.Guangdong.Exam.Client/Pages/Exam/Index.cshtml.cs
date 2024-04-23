@@ -12,13 +12,15 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
     public class IndexModel : PageModel
     {
         private readonly IResponseHelper _resp;
-        private readonly IExaminationRepo _examRepo;
+        //private readonly IExaminationClientRepo _examRepo;
         public string _examId { get; set; } = "";
         public string _groupCode { get; set; } = "";
-        public IndexModel(IResponseHelper responseHelper,IExaminationRepo examRepo)
+
+        public string reportNumber { get; set; }
+        public IndexModel(IResponseHelper responseHelper)
         {
             _resp = responseHelper;
-            _examRepo = examRepo;
+            //_examRepo = examRepo;
         }
 
         public IActionResult OnGet(string examId,string groupCode)
@@ -31,6 +33,8 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             }
             _examId = examId;
             _groupCode = groupCode;
+            
+            
             return Page();
         }
 

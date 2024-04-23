@@ -45,7 +45,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		public DateTime EndTime { get; set; }
 
 		[JsonProperty]
-		public int ExamType { get; set; } = 0;
+		public ExamType ExamType { get; set; } = ExamType.Examination;
 
 		[JsonProperty, Column(DbType = "nvarchar(2000)")]
 		public string ExtraInfo { get; set; }
@@ -119,6 +119,12 @@ namespace Magic.Guangdong.DbServices.Entities
 	{
         Yes = 1,
         No = 2		
+	}
+
+	public enum ExamType
+	{
+		Examination,
+		Practice
 	}
 
 }

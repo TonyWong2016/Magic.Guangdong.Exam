@@ -91,6 +91,8 @@
     <span class="layui-badge layui-bg-green">微信支付</span>
     {{# } else if(d.payType==2){ }}
     <span class="layui-badge layui-bg-blue">支付宝</span>
+     {{# } else if(d.payType==5){ }}
+    <span class="layui-badge layui-bg-green">免费</span>
     {{# } else { }}
     <span class="layui-badge layui-bg-purple">其他</span>
     {{# } }}
@@ -113,7 +115,7 @@
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="showMore('{{ JSON.stringify(d) }}')"><i class="layui-icon layui-icon-more"></i>更多</a>
     @* <a class="layui-btn layui-btn-primary layui-border-purple" href="javascript:;" onclick="refund('{{ d.outTradeNo }}',{{d.payType}})"><i class="layui-icon layui-icon-rmb"></i>退款</a> *@
-    {{# if(d.status==0 ) { }}
+    {{# if(d.status==0 && d.payType>0 && d.payType<5 ) { }}
         <a class="layui-btn layui-btn-primary layui-border-purple" id="refund_{{d.id}}" href="javascript:;" onclick="refund('{{ JSON.stringify(d) }}')"><i class="layui-icon layui-icon-rmb"></i>退款</a>
         <a class="layui-btn layui-btn-primary layui-border-gray" id="refundDisabled_{{d.id}}" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-rmb"></i>退款中</a>
     {{# } }}

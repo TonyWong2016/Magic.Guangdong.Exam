@@ -402,9 +402,10 @@
         let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
         if (ret.code == 0) {
             //examModel.orderTradeNumber = ret.data.GetReportDetail;
-            TT.success('报名成功', {
-                location.href = `/report/detail?reportId=${ret.data.reportId}`
+            TT.success('报名成功',()=>{
+                location.href = `/report/detail?id=${ret.data.reportId}`;
             });
+            
         } else {
             TT.error('报名失败:' + ret.msg);
         }
@@ -487,9 +488,8 @@
         $('#submitInfo').show();
         $('#submitInfoDisabled').hide();
     }
-</script>
 
-<script id="dialogJs">
+    //------------------------dialog js---------------------------//
     let unitQueryParams = {
         unitType: 0,
         provinceId: 0,

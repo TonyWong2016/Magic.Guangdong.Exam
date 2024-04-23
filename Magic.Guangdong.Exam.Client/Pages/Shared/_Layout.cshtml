@@ -51,7 +51,7 @@
                         <ul dir="rtl">
                             <li><a href="#">个人中心</a></li>
                             <li><a href="/report/index">报名记录</a></li>
-                            <li><a href="#">考试成绩</a></li>
+                            <li><a id="examHistoryHref" href="javascript:;">考试成绩</a></li>
                             <li><a href="#">退出账号</a></li>
                         </ul>
                     </details>
@@ -66,7 +66,9 @@
     </footer>
 
     <script>
-        checkLoginStatus()
+        checkLoginStatus();
+        if (accountId)
+            $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

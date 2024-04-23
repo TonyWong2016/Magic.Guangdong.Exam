@@ -35,7 +35,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
             _userAnswerRecordRepo = userAnswerRecordRepo;
         }
 
-        [RouteMark("订单管理")]
+        //[RouteMark("订单管理")]
         public IActionResult Index()
         {
             return View();

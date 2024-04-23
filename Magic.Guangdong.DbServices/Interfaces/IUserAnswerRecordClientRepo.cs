@@ -20,22 +20,27 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<dynamic> ConfirmMyPaper(ConfirmPaperDto dto);
 
+        Task<dynamic> ConfirmMyPracticePaper(ConfirmPaperDto dto);
+
         Task<FinalPaperClientDto> GetMyPaper(Guid paperId);
 
         Task<UserAnswerRecordView> GetMyRecord(long urid);
+
+        Task<dynamic> GetUserAnswer(long urid);
 
         /// <summary>
         /// 获取账号下的答题记录
         /// 一个账号可以使用多个身份证号答题
         /// </summary>
-        /// <param name="accountId"></param>
+        /// <param name="reportId"></param>
         /// <returns></returns>
+        Task<List<ExamRecordDto>> GetMyReportExamRecords(string reportId);
+
         Task<List<ExamRecordDto>> GetMyAccountExamRecords(string accountId);
 
         Task<dynamic> SubmitMyPaper(SubmitMyAnswerDto dto);
 
         Task<UserAnswerRecordView> Marking(long urid, bool submit = false);
 
-        Task<int> ClearTestData();
     }
 }

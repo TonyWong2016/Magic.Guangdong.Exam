@@ -34,7 +34,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return null;
             var examReportView = fsql.Get(conn_str).GetRepository<ReportExamView>();
             var query = examReportView
-                .Where(u=>u.ReportStatus==0 && u.ReportStep==1)
+                .Where(u=>u.ReportStatus==0 && u.ReportStep==1 && u.ExamType==(int)ExamType.Examination)
                 .WhereIf(dto.examId != null, u => u.ExamId == dto.examId)
                 .WhereIf(dto.reportId != null, u => u.ReportId == dto.reportId)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)
@@ -56,15 +56,29 @@ namespace Magic.Guangdong.DbServices.Methods
 
             var reportCheckQuery = examReportRepo
                 .Where(u => u.Status == 0 && u.ReportStatus == (int)ReportStatus.Succeed && u.ReportStep == (int)ReportStep.Paied)
-                .Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId);
+                .Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId)
+                .Where(u => u.ExamType == (int)ExamType.Examination)
+                ;
                 
 
             if (!await reportCheckQuery.AnyAsync())
             {
-                return "没有报名考试";
+                return "没有有效的报名记录";
             }
+            
             var examReport = await reportCheckQuery.ToOneAsync();
-
+            //if (examReport.ExamType == (int)ExamType.Practice)
+            //{
+            //    return "请到练习模式完成后续操作";
+            //}
+            //if (examReport.ReportStep == (int)ReportStep.Tested)//这个单独判定一下
+            //{
+            //    return "已参加过考试";
+            //}
+            //if(examReport.ReportStep != (int)ReportStep.Paied)
+            //{
+            //    return "没有交费";
+            //}
             if(!string.IsNullOrWhiteSpace(dto.idCard) && examReport.IdCard.Trim() != dto.idCard.Trim())
             {
                 return "身份证号核验失败";
@@ -99,5 +113,12 @@ namespace Magic.Guangdong.DbServices.Methods
             return "ok";
         }
 
+        public async Task<ReportExamView> GetReportExamView(long reportId)
+        {
+            return await fsql.Get(conn_str).Select<ReportExamView>()
+                .Where(u => u.ReportId == reportId)
+                .ToOneAsync();
+                
+        }
     }
 }

@@ -20,6 +20,14 @@
                 <option value='2'>关闭</option>
             </select>
         </div>
+
+        <div class='layui-input-inline'>
+            <select id='examType' lay-filter='examType'>
+                <option>请选择考试模式</option>
+                <option value='0'>考试</option>
+                <option value='1'>练习</option>
+            </select>
+        </div>
         
         <div class='layui-input-inline'>
             <a href='javascript:;' class='layui-btn' id='btnAddExamination'><i class='layui-icon layui-icon-add-1'></i>新增考试</a>
@@ -29,7 +37,7 @@
             <a href='javascript:;' id='btnRefreshExamCount' onclick='RefreshExamCount()' class='layui-btn layui-btn-warm'>实时答题人数:@ViewBag.onlineExamer</a>
         </div>
 
-        <div class='layui-input-inline'>
+        <div class='layui-input-inline' style="display:none">
             <input type='checkbox' name='allowPure' id='allowPure' lay-filter='allowPure' title='允许免登录' lay-skin='tag'>
         </div>
     </form>
@@ -118,6 +126,14 @@
     <span style='color:red'>关闭</span>
     {{#} }}
 </script>
+
+<script type='text/html' id='examTypeTpl'>
+    {{# if(d.examType==0){ }}
+    <span style='color:#D9269D'>考试</span>
+    {{# } else { }}
+    <span style='color:#FFBF00'>练习</span>
+    {{#} }}
+</script>
 <script type='text/html' id='operationTpl'>
     <div class='layui-btn-group'>
         <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='@Url.Action("Edit")?id={{d.id}}'><i class='layui-icon layui-icon-edit'></i>编辑</a>
@@ -139,8 +155,9 @@
     let whereJsonStr = ''
     let associationId = '0';
     let status = '0';
-
+    let examType = '';
     let cloneExamId = '';
+
     getExamList();
     $('#btnAddExamination').attr('href', '@Url.Action("Create")');
     $('#btnQuestion').attr('href', '@Url.Action("Index", "Question")')
@@ -172,6 +189,14 @@
         getExamList();
     })
 
+    form.on('select(examType)', function (data) {
+        examType = '';
+        if (data.value >= 0)
+            examType = data.value;
+        
+        getExamList();
+    })
+
     form.on('checkbox(allowPure)',function(data){
         //console.log(data.elem.checked)
         let status = 'no';
@@ -191,16 +216,7 @@
     form.on('submit(clone)',async function (data) {
         let param = data.field;
         param.examId = cloneExamId;
-        // $.post('@Url.Action("CloneExam")', param, function (json) {
-        //     if (json.code == 1) {
-        //        successMsg('操作成功');
-        //         layer.closeAll();
-        //         getExamList();
-        //         return;
-        //     }
-        //     errorMsg('操作失败');
-        // })
-
+        
         let formData = objectToFormData(param);
         var ret = await request('POST', '@Url.Action("CloneExam")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
@@ -236,11 +252,11 @@
                 , { field: 'associationTitle', title: '所属活动', width: '10%' }
                 , { field: 'startTime', title: '开始时间', width: '10%' }
                 , { field: 'endTime', title: '结束时间', width: '10%' }
-                , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: '7%', edit: 'text' }
-                , {
-                    field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 </span>', width: '5%', edit: 'text'
-                }
+                // , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: '7%', edit: 'text' }
+               
+                , { field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 </span>', width: '5%', edit: 'text' }
                 , { field: 'baseDuration', title: '考试时长', width: '7%' }
+                , { title: '考试类型', templet: '#examTypeTpl', width: '6%' }
                 , { title: '状态', templet: '#statusTpl', width: '6%' }
                 , { title: '操作', templet: '#operationTpl' }
             ],
@@ -273,6 +289,29 @@
                 'Value': 0
             }]
         };
+        
+        if (associationId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'AssociationId',
+                'Operator': 'Equal',
+                'Value': associationId
+            });
+        }
+
+        if (status != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'status',
+                'Operator': 'Equal',
+                'Value': status
+            });
+        }
+        if (examType) {
+            whereJsonStr.Filters.push({
+                'Field': 'examType',
+                'Operator': 'Equal',
+                'Value': examType
+            });
+        }
         let keyword = $('#keyword').val();
         if (keyword) {
             whereJsonStr.Filters.push({
@@ -289,28 +328,6 @@
                 }]
             });
         }
-        if (associationId != '0') {
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'AssociationId',
-                    'Operator': 'Equal',
-                    'Value': associationId
-                }]
-            });
-        }
-
-        if (status != '0') {
-            whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'status',
-                    'Operator': 'Equal',
-                    'Value': status
-                }]
-            });
-        }
-
         return whereJsonStr;
     }
 

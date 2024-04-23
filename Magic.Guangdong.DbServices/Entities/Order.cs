@@ -100,6 +100,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		AliPay,//支付宝
 		UnionPay,//银联
 		BankTransfer,//银行卡转账
+		None,//不需要支付
 		Other//其他
 	}
 }

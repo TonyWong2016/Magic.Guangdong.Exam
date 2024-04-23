@@ -60,8 +60,14 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public Guid OrderId { get; set; }
 
-		
-
+		/// <summary>
+		/// 参与测试的次数
+		/// 0-没参加
+		/// 1-参加了一次考试/测试，考试一般只有1次
+		/// >1-参加了多次考试/测试，测试一般有多次
+		/// </summary>
+		[JsonProperty]
+		public int TestedTime { get; set; } = 0;
 	}
 
 	public enum ReportStep
@@ -69,7 +75,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		Reported,//报名了
 		Paied,//付款了
 		Failed,//失败了,订单长时间没支付或者报名审核没通过或者其他原因
-		Tested//考过试了
+		//Tested//考过试了,这个不要更新了
 	}
 
 	/// <summary>

@@ -46,10 +46,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string ExamAddress { get; set; }
 
 		[JsonProperty]
-		public Guid? ExamId { get; set; }
+		public Guid ExamId { get; set; }
 
 		[JsonProperty]
-		public int? ExamType { get; set; }
+		public int ExamType { get; set; }
 
 		[JsonProperty, Column(DbType = "money")]
 		public decimal? Expenses { get; set; }
@@ -110,7 +110,14 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty, Column(DbType = "varchar(200)")]
 		public string Title { get; set; }
-
-	}
+        /// <summary>
+        /// 参与测试的次数
+        /// 0-没参加
+        /// 1-参加了一次考试/测试，考试一般只有1次
+        /// >1-参加了多次考试/测试，测试一般有多次
+        /// </summary>
+        [JsonProperty]
+        public int TestedTime { get; set; }
+    }
 
 }

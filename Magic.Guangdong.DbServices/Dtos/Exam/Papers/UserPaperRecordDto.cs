@@ -200,5 +200,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public int isDeleted { get; set; } = 0;
 
         public int isStrict { get; set; } = 0;
+
+        public int testedTime { get; set; } = 0;
+
+        public int examType { get; set; }
     }
 }

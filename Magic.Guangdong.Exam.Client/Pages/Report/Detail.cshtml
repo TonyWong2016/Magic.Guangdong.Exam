@@ -21,6 +21,7 @@
         <h6>审核状态：<font id="checkStatus"></font></h6>        
         <h6 class="unpass" style="display:none">审核意见：<font id="checkRemark"></font></h6>
         <footer class="pass" style="display:none">
+            <a role="button" id="practice" href="javascript:;" class="outline" style="border-color:#E8AE01;color:#E8AE01;display:none">去刷题</a>
             <a role="button" id="exam" href="javascript:;" class="outline pass" style="border-color:#D9269D;color:#D9269D">去考试</a>
             <a role="button" id="pay" href="javascript:;" style="display:none" class="pass">去付款</a>
         </footer>
@@ -43,6 +44,10 @@
         url = '/report/GetReportDetailByOutTradeNoForClient';
         requestParma = { outTradeNo: outTradeNo };
     }
+    let practiceDto = {
+        reportId:reportId,
+        examId:''
+    }
 
     axios.get(url, {
         params: requestParma
@@ -58,14 +63,17 @@
     function renderPage(data) {
         let reportItem = data.reportInfo;
         let lastCheckHistory = data.lastCheckHistory;
+
         if (reportItem.reportStatus == 1) {
             $('#success').remove();
             $('#error').show();
             jHtmlSet('errorInfo', '您的报名记录已失效');
             return;
         }
+        practiceDto.examId=reportItem.examId;
+
         jHtmlSet('reportNumber', reportItem.reportNumber);
-        jHtmlSet('subject', `${reportItem.title}(${reportItem.associationTitle})`);
+        //jHtmlSet('subject', `${reportItem.title}(${reportItem.associationTitle})`);
         jHtmlSet('startTime', convertDateFormat(reportItem.startTime, 'yyyy/MM/dd HH:mm:ss'));
         jHtmlSet('createdAt', convertDateFormat(reportItem.reportTime, 'yyyy/MM/dd HH:mm:ss'));
         jHtmlSet('examAddress', reportItem.examAddress ? reportItem.examAddress : '等候通知')
@@ -108,9 +116,32 @@
             $('.pass').remove();
             $('#checkStep').html('未交费').addClass('pico-color-red-500')
         }
+        if(reportItem.examType==1){
+            //jHtmlSet('subject', `${reportItem.title}(${reportItem.associationTitle})`);
+            $('#subject').html(`${reportItem.title}(${reportItem.associationTitle}，练习模式)`).addClass('pico-color-amber-200')
+            $('#exam').hide();
+            $('#practice').show();
+        } else {
+            $('#subject').html(`${reportItem.title}(${reportItem.associationTitle}，正式考试)`).addClass('pico-color-fuchsia-500')
+        }
     }
 
-    function getCheckRemark() {
+    $('#practice').click(async ()=>{
+        $('#practice').attr('aria-busy', true);
+        let formData = objectToFormData(practiceDto);
+        let ret = await request('POST', '/examclient/ConfirmMyPracticePaper', formData, CT);
+        $('#practice').attr('aria-busy', false);
+        let json = ret.data;
+        sessionStorage.clear();
+        if (json.code == 1 && json.data) {
+            //TT.warning(json.msg);
+            json.data.complated == 1 ? location.href = `/exam/result?urid=${json.data.id}` : location.href = `/exam/practice?urid=${json.data.id}&pid=${json.data.paperId}`;
+            return;
+        }
+        if (json.code == 0) {
+            location.href = `/exam/practice?urid=${json.data.id}&pid=${json.data.paperId}`
+            return;
+        }
 
-    }
+    })
 </script>

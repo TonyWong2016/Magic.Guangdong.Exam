@@ -108,15 +108,20 @@ namespace Magic.Guangdong.Exam.Filters
         private void RequestLog(ActionExecutingContext context)
         {
             string ip = "";
-            if (context.HttpContext.Request.Headers["x-Forwarded-For"].Any())
+            var headers = context.HttpContext.Request.Headers;
+            if (!headers.Any())
+            {
+                ip = "未知";
+            }
+            else if (headers.ContainsKey("x-Forwarded-For"))
             {
                 ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
             }
-            else if (context.HttpContext.Request.Headers["X-Real-IP"].Any())
+            else if (headers.ContainsKey("X-Real-IP"))
             {
                 ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
             }
-            else if (context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].Any())
+            else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
             {
                 ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
             }
@@ -159,15 +164,20 @@ namespace Magic.Guangdong.Exam.Filters
         {
             
             string ip = "";
-            if (context.HttpContext.Request.Headers["x-Forwarded-For"].Any())
+            var headers = context.HttpContext.Request.Headers;
+            if (!headers.Any())
+            {
+                ip = "未知";
+            }
+            else if (headers.ContainsKey("x-Forwarded-For"))
             {
                 ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
             }
-            else if (context.HttpContext.Request.Headers["X-Real-IP"].Any())
+            else if (headers.ContainsKey("X-Real-IP"))
             {
                 ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
             }
-            else if (context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].Any())
+            else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
             {
                 ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
             }

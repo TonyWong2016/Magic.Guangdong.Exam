@@ -230,6 +230,15 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.UsedTime = Math.Floor((DateTime.Now - record.CreatedAt).TotalSeconds);
                 record.SubmitAnswer = string.IsNullOrWhiteSpace(dto.submitAnswerStr) ? "" : dto.submitAnswerStr;
                 await userAnswerRecordRepo.InsertOrUpdateAsync(record);
+                if (dto.complatedMode != (int)ExamComplatedMode.Auto)
+                {
+                    var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    long _reportId = Convert.ToInt64(dto.reportId);
+                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
+                    process.TestedTime += 1;
+                    process.UpdatedAt = DateTime.Now;
+                    await reportProcessRepo.UpdateAsync(process);
+                }
                 await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
                 return new { code = 1, msg = "success", data = record };
             }

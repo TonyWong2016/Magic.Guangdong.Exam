@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,14 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<dynamic> ConfirmMyPaper(ConfirmPaperDto dto)
         {
+            var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+            var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
+
+            if (exam.ExamType == ExamType.Practice)
+            {
+                return ConfirmMyPracticePaper(dto);
+            }
+
             var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
             if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
             {
@@ -103,9 +112,6 @@ namespace Magic.Guangdong.DbServices.Methods
                 var record = await userAnswerRecordQuery.ToOneAsync();
                 return new { code = 1, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
             }
-
-            var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-            var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
 
             var papers = await paperRepo
                 .Where(u => u.ExamId == dto.examId)
@@ -143,6 +149,80 @@ namespace Magic.Guangdong.DbServices.Methods
             }) ;
 
             await RedisHelper.HSetAsync("GDExamLog", dto.reportId.ToString(), reportInfo.ReportNumber);
+            return new { code = 0, msg = "success", data = finalRecord };
+        }
+
+        /// <summary>
+        /// 抽练习题
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<dynamic> ConfirmMyPracticePaper(ConfirmPaperDto dto)
+        {
+
+            var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+            var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
+            if (exam.ExamType == ExamType.Examination)
+            {
+                //这个就不跳了，肯定是业务出问题了
+                return new { code = -1, msg = "非练习模式，不可以抽题" };
+            }
+
+            var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+            if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
+            {
+                return new { code = -1, msg = "当前活动尚未创建任何有效试卷，暂时无法答题" };
+            }
+            var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+            var userAnswerRecordQuery = userAnswerRecordRepo
+                .Where(u => u.ReportId == dto.reportId.ToString() &&
+                u.ExamId == dto.examId &&
+                u.Complated == ExamComplated.No && //注意这里的条件是检查没交的
+                u.IsDeleted == 0);
+
+            if (await userAnswerRecordQuery.AnyAsync())
+            {
+                var record = await userAnswerRecordQuery.ToOneAsync();
+                return new { code = 1, msg = "存在尚未提交的练习，请先提交后在重新刷题", data = record };
+            }
+
+           
+            var papers = await paperRepo
+                .Where(u => u.ExamId == dto.examId)
+                .Where(u => u.Status == ExamStatus.Enabled)
+                .Where(u => u.IsDeleted == 0)
+                .ToListAsync(u => new
+                {
+                    u.Id,
+                    u.Title,
+                    u.Score,
+                    u.Duration
+                });
+            int rd = new Random().Next(papers.Count);
+            var myPaper = papers[rd];
+
+
+            var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+            var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
+            DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
+
+            var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
+            {
+                Id = YitIdHelper.NextId(),
+                IdNumber = reportInfo.ReportNumber,
+                ReportId = dto.reportId.ToString(),
+                AccountId = reportInfo.AccountId,
+                UserName = reportInfo.Name,
+                ExamId = dto.examId,
+                Remark = $"初始化刷题，刷题人证件号[{reportInfo.IdCard}]；",
+                CreatedBy = reportInfo.AccountId,
+                CreatedAt = DateTimeOffset.UtcNow.LocalDateTime,
+                LimitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime,
+                PaperId = myPaper.Id,
+                Stage = 1//刷题模式，这个要给
+            });
+
+            //await RedisHelper.HSetAsync("GDPracticeLog", dto.reportId.ToString(), reportInfo.ReportNumber);
             return new { code = 0, msg = "success", data = finalRecord };
         }
 
@@ -236,7 +316,101 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
         /// <summary>
+        /// 获取用户答案
+        /// </summary>
+        /// <param name="urid"></param>
+        /// <returns></returns>
+        public async Task<dynamic> GetUserAnswer(long urid)
+        {
+            var recordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecordView>();
+            var record = await recordRepo.Where(u => u.Id == urid).ToOneAsync();
+            List<AnswerDto> ret = new List<AnswerDto>();
+            if (!string.IsNullOrEmpty(record.SubmitAnswer))
+            {
+                List<AnswerDto> answerList = JsonHelper.JsonDeserialize<List<AnswerDto>>(record.SubmitAnswer);
+                var questionRepo = fsql.Get(conn_str).GetRepository<QuestionView>();
+                var itemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                var questionIds = answerList.Select(u => u.questionId);
+                var userSubmitQuestions = await questionRepo.Where(u => questionIds.Contains(u.Id)).ToListAsync();
+                List<string> listAnswer = new List<string>();
+                foreach (var userQuestion in userSubmitQuestions)
+                {
+                    var userAnswer = answerList.Where(u => u.questionId == userQuestion.Id).First();
+                    //如果是客观题，直接返回选项代码
+                    if (userQuestion.Objective == 1)
+                    {
+                        var userItems = await itemRepo
+                            .Where(u => userAnswer.userAnswer.Contains(u.Id.ToString()))
+                            .ToListAsync(u => u.Code);
+                        ret.Add(new AnswerDto()
+                        {
+                            questionId = userQuestion.Id,
+                            userAnswer = userItems.ToArray()
+                        });
+                    }
+                    //如果是主观题，直接返回用户填写的答案
+                    else
+                    {
+                        ret.Add(userAnswer);
+                    }
+                }
+            }
+
+
+            return new
+            {
+                userName = record.Name,
+                record.IdNumber,
+                record.Score,
+                record.ReportId,
+                record.UpdatedAt,
+                record.LimitedTime,
+                record.UpdatedBy,
+                record.ComplatedMode,
+                record.CreatedAt,
+                complated = record.Complated == 1 ? "已交卷" : "未交卷",
+                marked = record.Marked == 1 ? "已出成绩" : "未出成绩",
+                answers = ret
+            };
+        }
+
+        /// <summary>
         /// 获取我的答题记录
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public async Task<List<ExamRecordDto>> GetMyReportExamRecords(string reportId)
+        {
+            return await fsql.Get(conn_str).Select<UserAnswerRecordView>()
+                .Where(u => u.ReportId == reportId)
+                .OrderBy(u => u.IsDeleted)
+                .OrderBy(u => u.Complated)
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync(u => new ExamRecordDto()
+                {
+                    recordId = u.Id,
+                    score = u.Score,
+                    isComplated = u.Complated,
+                    accountName = u.Name,
+                    examId = u.ExamId,
+                    paperId = u.PaperId,
+                    examTitle = u.ExamTitle,
+                    paperTitle = u.PaperTitle,
+                    idNumber = u.IdNumber,
+                    CreatedAt = u.CreatedAt,
+                    LimitedAt = u.LimitedTime,
+                    submitAnswer = u.SubmitAnswer,
+                    associationId = u.AssociationId,
+                    openResult = Convert.ToInt32( u.OpenResult),
+                    isDeleted = u.IsDeleted,
+                    isStrict = Convert.ToInt32(u.IsStrict),
+                    testedTime = u.Stage,
+                    examType = u.ExamType
+                });
+        }
+
+        /// <summary>
+        /// 获取我的账号答题记录
         /// </summary>
         /// <param name="accountId"></param>
         /// <returns></returns>
@@ -262,12 +436,13 @@ namespace Magic.Guangdong.DbServices.Methods
                     LimitedAt = u.LimitedTime,
                     submitAnswer = u.SubmitAnswer,
                     associationId = u.AssociationId,
-                    openResult = Convert.ToInt32( u.OpenResult),
+                    openResult = Convert.ToInt32(u.OpenResult),
                     isDeleted = u.IsDeleted,
-                    isStrict = Convert.ToInt32(u.IsStrict)
+                    isStrict = Convert.ToInt32(u.IsStrict),
+                    testedTime = u.Stage,
+                    examType = u.ExamType
                 });
         }
-
         /// <summary>
         /// 交卷（这是提交一整张试卷）
         /// </summary>
@@ -333,8 +508,17 @@ namespace Magic.Guangdong.DbServices.Methods
                     ComplatedMode = dto.complatedMode,
                     SubmitAnswer = dto.submitAnswerStr,//记录表里就如实记录提交的内容
                 });
-
                 await userAnswerRecordRepo.InsertOrUpdateAsync(record);
+
+                if (dto.complatedMode != (int)ExamComplatedMode.Auto)
+                {
+                    var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    long _reportId = Convert.ToInt64(dto.reportId);
+                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
+                    process.TestedTime += 1;
+                    process.UpdatedAt = DateTime.Now;
+                    await reportProcessRepo.UpdateAsync(process);
+                }
 
                 //await RedisHelper.HDelAsync("UserExamLog", dto.applyId);
                 return new { code = 1, msg = "success", data = record };
@@ -507,13 +691,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
         }
 
-        public async Task<int> ClearTestData()
-        {
-            return await fsql.Get(conn_str).Select<UserAnswerRecord>()
-                .Where(u => u.UserName == "压测数据")
-                .ToDelete()
-                .ExecuteAffrowsAsync();
-        }
+        
     }
 
     public class SelectExaminationsDto

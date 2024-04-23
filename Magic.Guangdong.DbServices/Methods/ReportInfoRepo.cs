@@ -93,9 +93,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         order.Status = OrderStatus.Paid;//考试不需要交费的话，报名的同时就将缴费状态设置为已缴费
                         reportProcessModel.Step = ReportStep.Paied;
+                        order.PayType = PayType.None;
                     }
-                    await orderRepo.InsertAsync(order);
-                   
                     //如果考试本身设定了不需要审核
                     if (exam.Audit == ExamAudit.No)
                     {
@@ -108,9 +107,10 @@ namespace Magic.Guangdong.DbServices.Methods
                             CheckStatus = CheckStatus.Passed,
                             ReportId = reportModel.Id,
                             CreatedAt = DateTime.Now
-                        });                       
+                        });
+                        
                     }
-                    
+                    await orderRepo.InsertAsync(order);
                     await reportProcessRepo.InsertAsync(reportProcessModel);
                     uow.Commit();
                     return true;

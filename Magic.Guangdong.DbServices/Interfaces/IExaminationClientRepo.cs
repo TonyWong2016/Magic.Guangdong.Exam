@@ -14,5 +14,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         Task<List<ReportExamView>> GetReportExamsForClient(ReportExamDto dto);
 
         Task<string> InfoVerificationAuto(ReportExamDto dto);
+
+        Task<ReportExamView> GetReportExamView(long reportId);
     }
 }

@@ -84,27 +84,34 @@ namespace Magic.Guangdong.Exam.Filters
             }
 
             //用户权限验证
-            string router = $"/{area}/{controller}/{action}";
-            if(string.IsNullOrEmpty(area))
-                router = $"/{controller}/{action}";
-            string permissionCheckResult = await PermissionCheck(adminId.ToString(), router);
-            if (permissionCheckResult != "success")
+            if(descriptor!=null && descriptor.MethodInfo.CustomAttributes.Where(c => c.AttributeType.Name.Contains("RouteMark")).Any())
             {
-                //var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
-                var item = new RedirectResult("/error?msg="+ permissionCheckResult);
-                context.Result = item;
-                Assistant.Logger.Error("权限异常");
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                string router = $"/{area}/{controller}/{action}";
+                if (string.IsNullOrEmpty(area))
+                    router = $"/{controller}/{action}";
+                string permissionCheckResult = await PermissionCheck(adminId.ToString(), router);
+                if (permissionCheckResult != "success")
                 {
-                    AdminId = adminId,
-                    Action = "权限认证失败",
-                    Description = permissionCheckResult,
-                    Router = $"{area}/{controller}/{action}",
-                    CreatedAt = DateTime.Now,
-                    Type = 1
-                });
-                return;
+                    //var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
+                    //var item = new RedirectResult("/error?msg="+ permissionCheckResult);
+                    var item = new ContentResult();
+                    item.Content = permissionCheckResult + "," + router;
+                    context.Result = item;
+                    Assistant.Logger.Error("权限异常");
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                    {
+                        AdminId = adminId,
+                        Action = "权限认证失败",
+                        Description = permissionCheckResult,
+                        Router = $"{area}/{controller}/{action}",
+                        CreatedAt = DateTime.Now,
+                        Type = 1
+                    });
+                    return;
+                }
+
             }
+            
 
             //string header = context.HttpContext.Request.Headers["Authorization"];
             Assistant.Logger.Info("area:" + area + " controller:" + controller + " action:" + action);

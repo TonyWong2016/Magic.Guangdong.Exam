@@ -1,5 +1,191 @@
 ﻿@page
-@model Magic.Guangdong.Exam.Client.Pages.Exam.detailModel
+@using System.Text.RegularExpressions
+@model Magic.Guangdong.Exam.Client.Pages.Exam.DetailModel
 @{
 }
-<h1>123</h1>
+
+<style>
+    kbd {
+        background-color: #16b777
+    }
+</style>
+
+<main class="container">
+    <p>
+        <a href="/exam/history?reportId=@Model.record.ReportId">
+            <svg t="1713870927961" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9962" width="16" height="16"><path d="M927.2 610.5c0 143-116.3 259.4-259.3 259.4H196.1c-12.9 0-23.4-10.4-23.4-23.4 0-12.9 10.4-23.4 23.4-23.4h471.7c117.2 0 212.6-95.4 212.6-212.6S785 397.8 667.8 397.8h-458l199.6 199.6c9.1 9.1 9.1 23.9 0 33-4.6 4.6-10.5 6.8-16.5 6.8s-11.9-2.3-16.5-6.8L137 391.1c-9.1-9.1-9.1-23.9 0-33l239.6-239.5c9.1-9.1 23.9-9.1 33 0s9.1 23.9 0 33L210 351.2h457.9c143 0 259.3 116.3 259.3 259.3z" p-id="9963" fill="#524ED2"></path></svg>
+            返回
+        </a>
+    </p>
+    <article>
+        <header>基本信息</header>
+        <form id="baseInfoForm">
+            <fieldset class="grid">
+                <input value="姓名：@Model.record.Name" readonly />
+                <input value="邮箱：@Model.record.Email" readonly />
+                <input value="电话：@Model.record.Mobile" readonly />
+            </fieldset>
+            <fieldset class="grid">
+                <input value="证件号：@Model.record.IdCard" readonly />
+                <input value="准考证：@Model.record.ReportNumber" readonly />
+                <input value="练习次数：@(Model.record.Stage+1)" readonly />
+            </fieldset>
+        </form>
+    </article>
+
+    <article>
+        <header>考试信息</header>
+        <form id="examInfoForm">
+            <fieldset class="grid">
+                <input value="活动：@Model.record.AssociationTitle" readonly />
+                <input value="考试：@Model.record.ExamTitle" readonly />
+                <input value="试卷：@Model.record.PaperTitle" readonly />
+            </fieldset>
+            <fieldset class="grid">
+                <input value="考试成绩：@Model.record.Score" readonly />
+                <input value="卷面总分：@Model.record.PaperScore" readonly />
+                <input value="正确率：@(Math.Round(Model.record.Score/Model.record.PaperScore*100,2)) %" readonly />
+            </fieldset>
+            <fieldset class="grid">
+                <input value="开始时间：@Model.record.CreatedAt" readonly />
+                <input value="考试时长：@Model.record.PaperDuration" readonly />
+                <input value="考试用时：@(Math.Floor(Model.record.UsedTime/60))分钟" readonly />
+            </fieldset>
+        </form>
+    </article>
+
+    <article>
+        <header>答题情况</header>
+        <form>
+            @{
+                int index = 1;
+
+                foreach (var item in Model.paperDto.Questions)
+                {
+                    string noHtml = Regex.Replace(item.Title, @"<[^>]+>", string.Empty);
+                    string cleaned = Regex.Replace(noHtml, @"^\d+\u3001", string.Empty);
+                    string title = $"<p>{index++}、{cleaned} <b style=\"margin-left:10px;color:#524ED2\"> ({item.ItemScore} 分)</u></b>";
+
+                    @Html.Raw(title)
+                    ;
+                    <fieldset>
+
+                        @{
+                            if (item.IsObjective == 1 && item.SingleAnswer == 1)
+                            {
+                                string answerCode = "";
+                                foreach (var subItem in item.Items)
+                                {
+                                    if (item.TypeName.Contains("判断"))
+                                    {
+                                        <label>
+                                            <input type="radio" name="@item.Id" value="@subItem.Id" />
+                                            @subItem.Code
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label>
+                                            <input type="radio" name="@item.Id" value="@subItem.Id" />
+                                            @subItem.Code、@subItem.DescriptionTxt
+                                        </label>
+                                    }
+
+                                    if (subItem.IsAnswer == 1)
+                                    {
+                                        answerCode = subItem.Code;
+
+                                    }
+                                }
+                                <blockquote>
+                                    <p style="color:#5FB878">
+                                        正确答案：<span id="correctAnswer_@item.Id">@answerCode</span>
+                                    </p>
+                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                    <p>题目解析：@item.AnalysisTxt</p>
+                                </blockquote>
+                            }
+
+                            else if (item.IsObjective == 1 && item.SingleAnswer == 0)
+                            {
+                                string answerCode = "";
+                                foreach (var subItem in item.Items)
+                                {
+                                    <label>
+                                        <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id">
+                                        @subItem.Code、@subItem.DescriptionTxt
+                                    </label>
+                                    @if (subItem.IsAnswer == 1)
+                                    {
+                                        answerCode += subItem.Code + "、";
+                                    }
+                                }
+                                answerCode = answerCode.TrimEnd('、');
+                                <blockquote style="margin-top:5px">
+                                    <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerCode</span></p>
+                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                    <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                </blockquote>
+                                <input type="hidden" name="@item.Id" id="@item.Id" value="" />
+                            }
+
+                            else
+                            {
+                                string answerContent = "";
+                                foreach (var subItem in item.Items)
+                                {
+                                    // <textarea style="margin-top:10px" name="@item.Id" placeholder="请输入正确答案"></textarea>
+                                    @if (subItem.IsAnswer == 1)
+                                    {
+                                        answerContent += subItem.Code + "," + subItem.DescriptionTxt;
+                                    }
+                                }
+                                <blockquote style="margin-top:5px">
+                                    <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
+                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                    <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                </blockquote>
+                            }
+                        }
+                    </fieldset>
+
+                }
+            }
+        </form>
+    </article>
+</main>
+
+<script>
+    let urid = getUrlQueryParams('urid');
+    getUserAnswer()
+    function getUserAnswer() {
+        layer.load()
+        //layer.load(2, { time: 10 * 1000 })
+        axios.get('/examclient/GetMyAnswer', {
+            params: {
+                'urid': urid
+            }
+        }).then(v => {
+            //console.log(v);
+            layer.closeAll('loading');
+            let json = v.data;
+            if (json.code == 0) {
+                //renderTpl('recordTpl', 'recordView', json.data, false);
+                let answers = json.data.answers;
+
+                for (let answer of answers) {
+                    //let userAnswer = JSON.stringify(answer.userAnswer);
+
+                    $('.p_userAnswer').show();
+                    let finalAnswer = answer.userAnswer.join('、');
+                    $('#userAnswer_' + answer.questionId).html(finalAnswer)
+                    if ($('#userAnswer_' + answer.questionId) && $('#correctAnswer_' + answer.questionId) && $('#userAnswer_' + answer.questionId).html() == $('#correctAnswer_' + answer.questionId).html()) {
+                        $('#userAnswer_' + answer.questionId).html(finalAnswer + ' <kbd>答对</kbd>');
+                    }
+                }
+
+            }
+        })
+    }
+
+</script>

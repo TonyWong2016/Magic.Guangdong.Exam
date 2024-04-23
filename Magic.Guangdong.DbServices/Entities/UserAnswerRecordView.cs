@@ -55,7 +55,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string ExamTitle { get; set; }
 
 		[JsonProperty]
-		public int? ExamType { get; set; }
+		public int ExamType { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string GroupCode { get; set; }
@@ -123,7 +123,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public double Score { get; set; }
 
-		[JsonProperty]
+        [JsonProperty]
+        public double PaperScore { get; set; }
+
+        [JsonProperty]
 		public int Stage { get; set; }
 
 		[JsonProperty]

@@ -177,6 +177,11 @@ namespace Magic.Guangdong.DbServices.Methods
             return await userRepo.UpdateAsync(record) == 1;
         }
 
+        /// <summary>
+        /// 强制交卷
+        /// </summary>
+        /// <param name="urid"></param>
+        /// <returns></returns>
         public async Task<UserAnswerRecordView> ForceMarking(long urid)
         {
             //第一步：把提交的答案取出来
@@ -271,14 +276,21 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                 }
             }
-            record.Complated = 1;
-            record.ComplatedMode = 4;
+            record.Complated = (int)ExamComplated.Yes;
+            record.ComplatedMode = (int)ExamComplatedMode.Force;
             record.Remark += $"客观题成绩为{userScore}分(后台强制)";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked(manager force)";
             record.Score = userScore;
-            record.Marked = 1;
+            record.Marked = (int)ExamMarked.Part;
             await userAnswerRecordRepo.UpdateAsync(record);
+            //增加一次答题记录
+            var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+            long _reportId = Convert.ToInt64(record.ReportId);
+            var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
+            process.TestedTime += 1;
+            process.UpdatedAt = DateTime.Now;
+            await reportProcessRepo.UpdateAsync(process);
             return record;
 
         }

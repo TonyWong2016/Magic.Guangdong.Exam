@@ -12,6 +12,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using OfficeOpenXml.FormulaParsing.Utilities;
+using System;
 using System.Drawing.Printing;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
@@ -70,6 +71,16 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> ConfirmMyPaper(ConfirmPaperDto dto)
         {
             return Json(_resp.success(await _userAnswerRecordClientRepo.ConfirmMyPaper(dto)));
+        }
+
+        /// <summary>
+        /// 抽练习题
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ConfirmMyPracticePaper(ConfirmPaperDto dto)
+        {
+            return Json(_resp.success(await _userAnswerRecordClientRepo.ConfirmMyPracticePaper(dto)));
         }
 
         /// <summary>
@@ -144,6 +155,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             Console.WriteLine($"{DateTime.Now}:消费事务---提交答案");
             await _userAnswerRecordClientRepo.SubmitMyPaper(dto);
+        }
+
+        public async Task<IActionResult> GetMyAnswer(long urid)
+        {
+            return Json(_resp.success(await _userAnswerRecordClientRepo.GetUserAnswer(urid)));
         }
     }
 }

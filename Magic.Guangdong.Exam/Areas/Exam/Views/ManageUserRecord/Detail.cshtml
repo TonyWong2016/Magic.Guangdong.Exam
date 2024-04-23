@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = "~/Views/Shared/_LayoutContent.cshtml";
+    Layout = "../Shared/_LayoutContent.cshtml";
 }
 @model Magic.Guangdong.DbServices.Dtos.Exam.Papers.FinalPaperDto
 <div class="layui-row" style="padding:15px">
@@ -59,7 +59,7 @@
                             <input class="layui-input" disabled asp-for="@Model.PaperScore" />
                         </div>
                     </div>
-                    
+
 
                 </div>
                 <div class="layui-form-item">
@@ -115,24 +115,24 @@
                         {
                             title += "（如果有多个空需要填写，请使用分隔符|分割不同答案）";
                         }
-                                            <div class="layui-form-item question">
+                        <div class="layui-form-item question">
 
-                                                @Html.Raw(title)
-                                                @{
+                            @Html.Raw(title)
+                            @{
                                 if (item.IsObjective == 1 && item.SingleAnswer == 1)
                                 {
-                                                                            <div class="layui-input-block" style="margin-left:5px">
-                                                                                @{
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
                                             string answerCode = "";
                                             foreach (var subItem in item.Items)
                                             {
                                                 if (item.TypeName.Contains("判断"))
                                                 {
-                                                                                                                <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code">
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code">
                                                 }
                                                 else
                                                 {
-                                                                                                                <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
                                                 }
 
 
@@ -142,65 +142,65 @@
 
                                                 }
                                             }
-                                                                                                        <blockquote class="layui-elem-quote answer" style="margin-top:5px">
-                                                                                                            <p style="color:#5FB878">
-                                                                                                                正确答案：<span id="correctAnswer_@item.Id">@answerCode</span>
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">
+                                                    正确答案：<span id="correctAnswer_@item.Id">@answerCode</span>
 
-                                                                                                            </p>
-                                                                                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                                                                                            <p>题目解析：@item.AnalysisTxt</p>
-                                                                                                        </blockquote>
-                                                                                }
-                                                                            </div>
+                                                </p>
+                                                <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                                <p>题目解析：@item.AnalysisTxt</p>
+                                            </blockquote>
+                                        }
+                                    </div>
                                 }
                                 else if (item.IsObjective == 1 && item.SingleAnswer == 0)
                                 {
-                                                                            <div class="layui-input-block" style="margin-left:5px">
-                                                                                @{
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
                                             string answerCode = "";
                                             foreach (var subItem in item.Items)
                                             {
-                                                                                                            <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+                                                <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
 
-                                                                                                            @if (subItem.IsAnswer == 1)
+                                                @if (subItem.IsAnswer == 1)
                                                 {
                                                     answerCode += subItem.Code + "、";
                                                 }
                                             }
                                             answerCode = answerCode.TrimEnd('、');
-                                                                                                        <blockquote class="layui-elem-quote answer" style="margin-top:5px">
-                                                                                                            <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerCode</span></p>
-                                                                                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                                                                                            <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
-                                                                                                        </blockquote>
-                                                                                                        <input type="hidden" name="@item.Id" id="@item.Id" value="" />
-                                                                                }
-                                                                            </div>
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerCode</span></p>
+                                                <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                            </blockquote>
+                                            <input type="hidden" name="@item.Id" id="@item.Id" value="" />
+                                        }
+                                    </div>
                                 }
                                 else
                                 {
-                                                                            <div class="layui-input-block" style="margin-left:5px">
-                                                                                @{
+                                    <div class="layui-input-block" style="margin-left:5px">
+                                        @{
 
                                             string answerContent = "";
                                             foreach (var subItem in item.Items)
                                             {
-                                                                                                            <textarea style="margin-top:10px" class="layui-textarea" name="@item.Id" placeholder="请输入正确答案"></textarea>
-                                                                                                            @if (subItem.IsAnswer == 1)
+                                                <textarea style="margin-top:10px" class="layui-textarea" name="@item.Id" placeholder="请输入正确答案"></textarea>
+                                                @if (subItem.IsAnswer == 1)
                                                 {
                                                     answerContent += subItem.Code + "," + subItem.DescriptionTxt;
                                                 }
                                             }
-                                                                                                        <blockquote class="layui-elem-quote answer" style="margin-top:5px">
-                                                                                                            <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
-                                                                                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                                                                                            <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
-                                                                                                        </blockquote>
-                                                                                }
-                                                                            </div>
+                                            <blockquote class="layui-elem-quote answer" style="margin-top:5px">
+                                                <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
+                                                <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                            </blockquote>
+                                        }
+                                    </div>
                                 }
-                                                }
-                                            </div>
+                            }
+                        </div>
                         index++;
                     }
                 }
@@ -280,15 +280,15 @@
     </div>
 
     <div class="layui-form-item">
-        <div class="layui-inline">
+        @* <div class="layui-inline">
            <label class="layui-form-label">关联活动</label>
            <div class="layui-input-inline">
                 <a href="/MatchCheck/Detail/{{d.applyId}}?levelType=1&checkPage=1" target="_blank" class="layui-btn layui-btn-normal"><i class="layui-icon layui-icon-search"></i>查看</a>
            </div>
-        </div>
+        </div> *@
 
-        {{# if(d.complatedMode==0){ }}
-        <div class="layui-inline" style="float:right">
+        {{# if(d.complatedMode==4){ }}
+        <div class="layui-inline" >
             @*<label class="layui-form-label">后台交卷</label>*@
             <div class="layui-input-inline">
                 <a href="javascript:;" onclick="forceSubmit()"  class="layui-btn layui-btn-danger">强制后台交卷</a>
@@ -310,8 +310,8 @@
     form.render('radio');
     form.render('checkbox')
     form.render('select');
-    $('#btnBack').attr('href", `@Url.Action("Index")?examId=@Model.ExamId&associationId=@Model.AssociationId`)
-    let urid = getQueryString('urid');
+    $('#btnBack').attr('href', `@Url.Action("Index")?examId=@Model.ExamId&associationId=@Model.AssociationId`)
+    let urid = getUrlQueryParams('urid');
     getUserAnswer()
     function getUserAnswer() {
         layer.load()
@@ -324,14 +324,14 @@
             //console.log(v);
             layer.closeAll('loading');
             let json = v.data;
-            if (json.code == 1) {
-                chargeTpl('recordTpl', 'recordView', json.data, false);
+            if (json.code == 0) {
+                renderTpl('recordTpl', 'recordView', json.data, false);
                 let answers = json.data.answers;
 
                 for (let answer of answers) {
                     //let userAnswer = JSON.stringify(answer.userAnswer);
-                    
-                    $('.p_userAnswer').show()
+
+                    $('.p_userAnswer').show();
                     let finalAnswer = answer.userAnswer.join('、');
                     $('#userAnswer_' + answer.questionId).html(finalAnswer)
                     if ($('#userAnswer_' + answer.questionId) && $('#correctAnswer_' + answer.questionId) && $('#userAnswer_' + answer.questionId).html() == $('#correctAnswer_' + answer.questionId).html()) {
@@ -340,21 +340,21 @@
                     }
                 }
                 let questionCnt = $('.question').length;
-                if ((correctPercent * 100 / questionCnt).toFixed(2)>100){
+                if ((correctPercent * 100 / questionCnt).toFixed(2) > 100) {
                     jValSet('correctPercent', '统计异常，请以最终得分为准');
                 } else
-                jValSet('correctPercent', (correctPercent * 100 / questionCnt).toFixed(2) + `%（答对${correctPercent}道题）`)
+                    jValSet('correctPercent', (correctPercent * 100 / questionCnt).toFixed(2) + `%（答对${correctPercent}道题）`)
             }
         })
     }
 
-    setTimeout(function(){
+    setTimeout(function () {
         layer.closeAll('loading');
-    },2000);
+    }, 2000);
 
-    function forceSubmit(){
-        layer.confirm('确定要强制交卷吗？',{icon:0},async function(index){
-            
+    function forceSubmit() {
+        layer.confirm('确定要强制交卷吗？', { icon: 0 }, async function (index) {
+
 
             let formData = new FormData();
             formData.append('__RequestVerificationToken', requestToken);

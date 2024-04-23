@@ -1,7 +1,5 @@
 ﻿@page
-@model Magic.Guangdong.Exam.Client.Pages.Exam.PaperModel
-@{
-}
+@model Magic.Guangdong.Exam.Client.Pages.Exam.PracticeModel
 <style>
     .parent {
         display: grid;
@@ -49,7 +47,7 @@
             <article id="backup" class="contentDiv" style="display:none">
                 <header id="errMsg"></header>
                 <h1 aria-busy="true"></h1>
-                
+
                 <footer style="text-align:center">
                     <a href="/exam/paper?urid=@Model.urid&pid=@Model.PaperId" role="button" class="contrast outline">刷新重试</a>
                 </footer>
@@ -136,9 +134,6 @@
 </main>
 
 <script src="~/web/exam/paper.js"></script>
-@* <script src="~/plugins/tinymce/tinymce.min.js"></script>
-<script src="~/plugins/mytinymce.js"></script> *@
-
 <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
     {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
@@ -242,12 +237,12 @@
     let editorManager;//代码编辑器
     let typeNames = [];
 
-    if (jVal('lastAnswer')) 
+    if (jVal('lastAnswer'))
         answerArr = JSON.parse(jVal('lastAnswer'));
-    
+
     if (sessionStorage.getItem("answerArr"))
         answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
-    
+
 
     executeFunctions([generationPaper, renderPaper]);
 
@@ -279,7 +274,8 @@
             countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
             renderQuestion(0);
             renderAnswerSheet();
-            stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
+            //练习模式不保存草稿
+            //stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
         }
     }
 
@@ -309,7 +305,7 @@
         makeOption(currQuestion.SingleAnswer);
 
         if (currQuestion.IsObjective == 0) {
-            
+
             listenSubjectiveInput(currQuestion.Id)
         }
         if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
@@ -400,7 +396,7 @@
     function listenSubjectiveInput(questionId) {
         let elemId = 'content_' + questionId;
         let answerArrItem = {};
-        if (answerArr.filter(u => u.questionId == questionId).length > 0) { 
+        if (answerArr.filter(u => u.questionId == questionId).length > 0) {
             jValSet(elemId, answerArr.filter(u => u.questionId == questionId)[0].userAnswer)
         }
         monitorAswer(elemId, () => {
@@ -427,8 +423,8 @@
         let lastCode = sessionStorage.getItem('currCode_' + currQuestion.Id);
 
         //如果缓存里没有代码记录，且已提交的答案里包含了编程题答案，更新代码缓存
-        if (!lastCode && 
-            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 && 
+        if (!lastCode &&
+            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 &&
             answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer
         ) {
             sessionStorage.setItem('currCode_' + currQuestion.Id, answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer[0])
@@ -453,8 +449,8 @@
         }, 50)
     }
 
-    
-    
+
+
     //错误提示
     function toggleError(show, msg = '') {
         jHtmlSet("errMsg", msg);
@@ -467,10 +463,13 @@
         }
     }
 
-    
+
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
         console.log('Countdown has ended!');
+        setTimeout(async () => {
+            SubmitMyPaper(1)
+        })
     }
 
     async function SubmitMyPaper(complatedMode) {
