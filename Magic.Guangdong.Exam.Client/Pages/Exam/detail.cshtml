@@ -12,11 +12,33 @@
 
 <main class="container">
     <p>
-        <a href="/exam/history?reportId=@Model.record.ReportId">
+        <a id="btnBack" href="javascript:;" data-href="/exam/history?reportId=@Model.record.ReportId">
             <svg t="1713870927961" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9962" width="16" height="16"><path d="M927.2 610.5c0 143-116.3 259.4-259.3 259.4H196.1c-12.9 0-23.4-10.4-23.4-23.4 0-12.9 10.4-23.4 23.4-23.4h471.7c117.2 0 212.6-95.4 212.6-212.6S785 397.8 667.8 397.8h-458l199.6 199.6c9.1 9.1 9.1 23.9 0 33-4.6 4.6-10.5 6.8-16.5 6.8s-11.9-2.3-16.5-6.8L137 391.1c-9.1-9.1-9.1-23.9 0-33l239.6-239.5c9.1-9.1 23.9-9.1 33 0s9.1 23.9 0 33L210 351.2h457.9c143 0 259.3 116.3 259.3 259.3z" p-id="9963" fill="#524ED2"></path></svg>
             返回
         </a>
     </p>
+
+    @{
+        if(Model.record.OpenResult==0)
+        {
+                <article style="min-height:768px;text-align:center">
+                    <h4 style="margin-top:15vh;" class="pico-color-red-500">本次测评不允许查看作答详情</h4>
+                    
+                    <svg style="margin-top:5vh" t="1713938056793" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5527" width="300" height="300"><path d="M512 512m-448 0a448 448 0 1 0 896 0 448 448 0 1 0-896 0Z" fill="#FA5151" p-id="5528"></path><path d="M704 560H320c-26.5 0-48-21.5-48-48s21.5-48 48-48h384c26.5 0 48 21.5 48 48s-21.5 48-48 48z" fill="#FFFFFF" p-id="5529"></path></svg>
+                </article>
+
+                <script>
+                    $('#btnBack').click(() => {
+                    if (document.referrer && document.referrer!=location.href)
+                            location.href = document.referrer;
+                        else
+                            location.href = $('#btnBack').data('href');
+                    })
+                </script>
+            return;
+        }
+    }
+
     <article>
         <header>基本信息</header>
         <form id="baseInfoForm">
@@ -28,7 +50,7 @@
             <fieldset class="grid">
                 <input value="证件号：@Model.record.IdCard" readonly />
                 <input value="准考证：@Model.record.ReportNumber" readonly />
-                <input value="练习次数：@(Model.record.Stage+1)" readonly />
+                <input value="练习次数：@Model.record.Stage" readonly />
             </fieldset>
         </form>
     </article>
@@ -66,11 +88,11 @@
                     string cleaned = Regex.Replace(noHtml, @"^\d+\u3001", string.Empty);
                     string title = $"<p>{index++}、{cleaned} <b style=\"margin-left:10px;color:#524ED2\"> ({item.ItemScore} 分)</u></b>";
 
-                    @Html.Raw(title)
+                        @Html.Raw(title)
                     ;
-                    <fieldset>
+                        <fieldset>
 
-                        @{
+                            @{
                             if (item.IsObjective == 1 && item.SingleAnswer == 1)
                             {
                                 string answerCode = "";
@@ -78,17 +100,17 @@
                                 {
                                     if (item.TypeName.Contains("判断"))
                                     {
-                                        <label>
-                                            <input type="radio" name="@item.Id" value="@subItem.Id" />
-                                            @subItem.Code
-                                        </label>
+                                                <label>
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" />
+                                                    @subItem.Code
+                                                </label>
                                     }
                                     else
                                     {
-                                        <label>
-                                            <input type="radio" name="@item.Id" value="@subItem.Id" />
-                                            @subItem.Code、@subItem.DescriptionTxt
-                                        </label>
+                                                <label>
+                                                    <input type="radio" name="@item.Id" value="@subItem.Id" />
+                                                    @subItem.Code、@subItem.DescriptionTxt
+                                                </label>
                                     }
 
                                     if (subItem.IsAnswer == 1)
@@ -97,13 +119,13 @@
 
                                     }
                                 }
-                                <blockquote>
-                                    <p style="color:#5FB878">
-                                        正确答案：<span id="correctAnswer_@item.Id">@answerCode</span>
-                                    </p>
-                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                    <p>题目解析：@item.AnalysisTxt</p>
-                                </blockquote>
+                                        <blockquote>
+                                            <p style="color:#5FB878">
+                                                正确答案：<span id="correctAnswer_@item.Id">@answerCode</span>
+                                            </p>
+                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                            <p>题目解析：@item.AnalysisTxt</p>
+                                        </blockquote>
                             }
 
                             else if (item.IsObjective == 1 && item.SingleAnswer == 0)
@@ -111,22 +133,22 @@
                                 string answerCode = "";
                                 foreach (var subItem in item.Items)
                                 {
-                                    <label>
-                                        <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id">
-                                        @subItem.Code、@subItem.DescriptionTxt
-                                    </label>
-                                    @if (subItem.IsAnswer == 1)
+                                            <label>
+                                                <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id">
+                                                @subItem.Code、@subItem.DescriptionTxt
+                                            </label>
+                                            @if (subItem.IsAnswer == 1)
                                     {
                                         answerCode += subItem.Code + "、";
                                     }
                                 }
                                 answerCode = answerCode.TrimEnd('、');
-                                <blockquote style="margin-top:5px">
-                                    <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerCode</span></p>
-                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                    <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
-                                </blockquote>
-                                <input type="hidden" name="@item.Id" id="@item.Id" value="" />
+                                        <blockquote style="margin-top:5px">
+                                            <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerCode</span></p>
+                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                            <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                        </blockquote>
+                                        <input type="hidden" name="@item.Id" id="@item.Id" value="" />
                             }
 
                             else
@@ -135,24 +157,26 @@
                                 foreach (var subItem in item.Items)
                                 {
                                     // <textarea style="margin-top:10px" name="@item.Id" placeholder="请输入正确答案"></textarea>
-                                    @if (subItem.IsAnswer == 1)
+                                            @if (subItem.IsAnswer == 1)
                                     {
                                         answerContent += subItem.Code + "," + subItem.DescriptionTxt;
                                     }
                                 }
-                                <blockquote style="margin-top:5px">
-                                    <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
-                                    <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                    <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
-                                </blockquote>
+                                        <blockquote style="margin-top:5px">
+                                            <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
+                                            <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
+                                            <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
+                                        </blockquote>
                             }
-                        }
-                    </fieldset>
+                            }
+                        </fieldset>
 
                 }
             }
         </form>
     </article>
+
+
 </main>
 
 <script>
@@ -188,4 +212,10 @@
         })
     }
 
+    $('#btnBack').click(() => {
+        if (document.referrer && document.referrer != location.href)
+            location.href = document.referrer;
+        else
+            location.href = $('#btnBack').data('href');
+    })
 </script>

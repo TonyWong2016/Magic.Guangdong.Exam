@@ -108,8 +108,10 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         {
             var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
             await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
-            int applyId = 0;
-
+            await _provider.KeyDelAsync("userRecord_" + record.Id);
+            await _provider.KeyDelAsync("myReportExamHistories_" + record.ReportId);
+            await _provider.KeyDelAsync("myAccountExamHistories_" + record.AccountId);
+            await _provider.KeyDelAsync("userPaper_" + record.Id);
             return Json(_resp.success(record));
         }
 

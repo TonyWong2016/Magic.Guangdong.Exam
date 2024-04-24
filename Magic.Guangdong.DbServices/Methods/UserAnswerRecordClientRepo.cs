@@ -131,8 +131,8 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
             var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
             DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
-            Logger.Debug("试卷时间：" + myPaper.Duration);
-            Logger.Debug("限定时间：" + limitedTime);
+            //Logger.Debug("试卷时间：" + myPaper.Duration);
+            //Logger.Debug("限定时间：" + limitedTime);
             var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
             {
                 Id=YitIdHelper.NextId(),   
@@ -149,6 +149,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }) ;
 
             await RedisHelper.HSetAsync("GDExamLog", dto.reportId.ToString(), reportInfo.ReportNumber);
+            await RedisHelper.ExpireAsync("GDExamLog",Convert.ToInt32(myPaper.Duration) * 60);
             return new { code = 0, msg = "success", data = finalRecord };
         }
 
@@ -177,12 +178,11 @@ namespace Magic.Guangdong.DbServices.Methods
             var userAnswerRecordQuery = userAnswerRecordRepo
                 .Where(u => u.ReportId == dto.reportId.ToString() &&
                 u.ExamId == dto.examId &&
-                u.Complated == ExamComplated.No && //注意这里的条件是检查没交的
                 u.IsDeleted == 0);
 
-            if (await userAnswerRecordQuery.AnyAsync())
+            if (await userAnswerRecordQuery.Where(u=>u.Complated == ExamComplated.No).AnyAsync())
             {
-                var record = await userAnswerRecordQuery.ToOneAsync();
+                var record = await userAnswerRecordQuery.Where(u => u.Complated == ExamComplated.No).ToOneAsync();
                 return new { code = 1, msg = "存在尚未提交的练习，请先提交后在重新刷题", data = record };
             }
 
@@ -205,7 +205,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
             var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
             DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
-
+            int stage = Convert.ToInt32(await userAnswerRecordQuery.CountAsync());
             var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
             {
                 Id = YitIdHelper.NextId(),
@@ -219,7 +219,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 CreatedAt = DateTimeOffset.UtcNow.LocalDateTime,
                 LimitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime,
                 PaperId = myPaper.Id,
-                Stage = 1//刷题模式，这个要给
+                Stage = stage//刷题模式，这个要给
             });
 
             //await RedisHelper.HSetAsync("GDPracticeLog", dto.reportId.ToString(), reportInfo.ReportNumber);
@@ -508,20 +508,24 @@ namespace Magic.Guangdong.DbServices.Methods
                     ComplatedMode = dto.complatedMode,
                     SubmitAnswer = dto.submitAnswerStr,//记录表里就如实记录提交的内容
                 });
-                await userAnswerRecordRepo.InsertOrUpdateAsync(record);
 
+                
                 if (dto.complatedMode != (int)ExamComplatedMode.Auto)
                 {
+                    int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ReportId == record.ReportId && u.IsDeleted == 0).CountAsync());
+                    record.Stage = stage;
+
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
                     long _reportId = Convert.ToInt64(dto.reportId);
                     var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
-                    process.TestedTime += 1;
+                    process.TestedTime = stage;
                     process.UpdatedAt = DateTime.Now;
                     await reportProcessRepo.UpdateAsync(process);
                 }
 
+                await userAnswerRecordRepo.InsertOrUpdateAsync(record);
                 //await RedisHelper.HDelAsync("UserExamLog", dto.applyId);
-                return new { code = 1, msg = "success", data = record };
+                return new { code = 0, msg = "success", data = record };
             }
             catch
             {

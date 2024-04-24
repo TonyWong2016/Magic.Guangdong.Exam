@@ -4,6 +4,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NPOI.HSSF.Record.Chart;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace Magic.Guangdong.Exam.Client.Pages.Exam
 {
@@ -82,9 +83,13 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             Score = record.Score;
             OpenResult = (PaperOpenResult)record.OpenResult;
             Marked = (ExamMarked)record.Marked;
-            this.ExamType = (ExamType)record.ExamType;
+            ExamType = (ExamType)record.ExamType;
             Complated = (ExamComplated)record.Complated;
             await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
+            await _redisCachingProvider.KeyDelAsync("userRecord_" + record.Id);
+            await _redisCachingProvider.KeyDelAsync("myReportExamHistories_" + record.ReportId);
+            await _redisCachingProvider.KeyDelAsync("myAccountExamHistories_" + record.AccountId);
+            await _redisCachingProvider.KeyDelAsync("userPaper_" + record.Id);
             return Page();
         }
     }

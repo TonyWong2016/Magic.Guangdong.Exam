@@ -62,13 +62,13 @@
             <header>
                 <button id="submitPaper"
                         style="cursor:pointer;border-color:white;"
-                        class="pico-background-red-500 container-fluid"
+                        class="pico-background-red-500 container-fluid submitEnabled"
                         data-target="modal-submit"
                         onClick="toggleModal(event)">
                     交卷
                 </button>
                 <button id="submitPaperDisabled"
-                        class="pico-background-grey-300 container-fluid"
+                        class="pico-background-grey-300 container-fluid submitDisabled"
                         style="display:none;border-color:white;">
                     已交卷
                 </button>
@@ -120,6 +120,7 @@
                    id="btnSubmit"
                    style="background-color:#1e88e5;border-color:#1e88e5"
                    data-target="modal-submit"
+                   class="submitEnabled"
                    onClick="SubmitMyPaper(0)">
                     确定
                 </a>
@@ -127,6 +128,7 @@
                    role="button"
                    id="btnSubmit2"
                    style="background-color:#43a047;border-color:#43a047;display:none"
+                   class="submitDisabled"
                    data-target="modal-submit">
                     确定
                 </a>
@@ -486,14 +488,18 @@
         params.append("__RequestVerificationToken", requestToken);
         if (complatedMode != 4) {
             sessionStorage.clear();
+            $('.submitEnabled').hide();
+            $('.submitDisabled').show();
         }
 
-        let ret = await request('POST', '/examclient/SubmitMyPaper', params, CT);
-        let json = ret.data;
+        let json = await request('POST', '/examclient/SubmitMyPaper', params, CT);
+
         //console.log(json);
         if (json.code == 0 && complatedMode != 4) {
             TT.success('交卷成功', () => {
                 location.href = '/exam/result?urid=' + urid;
+                $('.submitEnabled').show();
+                $('.submitDisabled').hide();
             })
         }
     }

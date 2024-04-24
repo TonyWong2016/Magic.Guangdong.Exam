@@ -28,6 +28,26 @@
       "provider": "cdnjs",
       "library": "echarts@5.5.0",
       "destination": "wwwroot/plugins/echarts/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "microsoft-signalr@8.0.0",
+      "destination": "wwwroot/plugins/microsoft-signalr/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "msgpack5@6.0.2",
+      "destination": "wwwroot/plugins/msgpack5/"
+    },
+    {
+      "library": "@microsoft/signalr-protocol-msgpack@8.0.0",
+      "destination": "wwwroot/plugins/microsoft/signalr-protocol-msgpack/",
+      "files": [
+        "dist/browser/signalr-protocol-msgpack.js",
+        "dist/browser/signalr-protocol-msgpack.js.map",
+        "dist/browser/signalr-protocol-msgpack.min.js",
+        "dist/browser/signalr-protocol-msgpack.min.js.map"
+      ]
     }
   ]
 }

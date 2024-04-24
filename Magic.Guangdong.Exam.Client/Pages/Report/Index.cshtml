@@ -41,7 +41,7 @@
     let queryDto = {
         AccountId: accountId,
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 1000//先一把梭，时间富裕了再加上滚动加载
     }
     axios.get('/report/GetReportOrderList', {params:queryDto})
         .then(data => {

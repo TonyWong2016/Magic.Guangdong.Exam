@@ -19,6 +19,20 @@
     <script src="~/web/requestapi.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/web/layextend.js"></script>
+    <style>
+        .page-footer {
+            display: flex;
+            flex-direction: column;
+            min-height: 560px; /* 或者使用具体的 height 或 max-height 值 */
+            overflow-y: auto; /* 使内容区可滚动，避免底部元素遮挡内容 */
+        }
+
+        /* .content 内的其他元素样式，确保它们在内容区内正常显示，不被底部元素遮挡 */
+
+        .bottom-element {
+            margin-top: auto; /* 使底部元素自动推到底部 */
+        }
+    </style>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
         let accountId = getCookie('accountId');
@@ -62,7 +76,10 @@
 
     @RenderBody()
     <footer class="page-footer" style="padding: 0;">
-        <img src="~/img/footer-ht-high.jpg" />
+        <div class="bottom-element">
+            <img src="~/img/footer-bg.jpg" />
+        </div>
+        
     </footer>
 
     <script>
