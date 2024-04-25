@@ -4,76 +4,108 @@
 @model Magic.Guangdong.DbServices.Dtos.Cert.TemplateDto
 
 <style>
-    #canvas-context-menu {
-        position: absolute;
-        display: none;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 5px 0;
-        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-        z-index: 999;
+    /* 容器，相对定位 */
+    .box {
+        position: relative;
     }
 
-        #canvas-context-menu ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
+    /* 画布，给个边框 */
+    #canvas {
+        border: 1px solid #ccc;
+    }
+
+    /* 菜单 */
+    .menu-x {
+        visibility: hidden; /* 隐藏菜单 */
+        z-index: -100;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+        background-color: #fff;
+    }
+
+    /* 菜单每个选项 */
+    .menu-li {
+        box-sizing: border-box;
+        padding: 4px 8px;
+        border-bottom: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+        /* 鼠标经过的选项，更改背景色 */
+        .menu-li:hover {
+            background-color: antiquewhite;
         }
 
-        #canvas-context-menu li {
-            cursor: pointer;
-            padding: 5px 10px;
+        /* 第一个选项，顶部两角是圆角 */
+        .menu-li:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
         }
 
-            #canvas-context-menu li:hover {
-                background-color: #f0f0f0;
-            }
+        /* 最后一个选项，底部两角是圆角，底部不需要边框 */
+        .menu-li:last-child {
+            border-bottom: none;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
 </style>
 
 <div class="layui-row">
 
     <fieldset class="layui-elem-field" style="margin:15px">
         <legend>预览证书</legend>
-        <div class="layui-field-box img-box" id="fabricDiv">
+        <div class="layui-field-box box" id="fabricDiv">
             <canvas id="c" style="border: 1px solid #ccc;"></canvas>
             <img id="template" src="@Model.Url" alt="templateModel" style="display:none"/>
         </div>
     </fieldset>
 
-    <div id="canvas-context-menu" class="hidden">
-        <ul>
-            <li data-action="add-geometry">增加几何图形</li>
-            <li data-action="add-text">增加文字</li>
-            <li data-action="preview">预览</li>
-            <li data-action="save">保存</li>
-        </ul>
+    <div id="menu" class="menu-x">
+        <div class="menu-li" onclick="addGeometry()">创建图形</div>
+        <div class="menu-li" onclick="addText()">创建文字</div>
+        <div class="menu-li" onclick="">预览</div>
+        <div class="menu-li" onclick="">保存</div>
+        <div class="menu-li" onclick="delEl()">删除</div>
     </div>
 </div>
 <script src="~/plugins/fabric.js/fabric.min.js"></script>
 <script>
-
-    let canvas = new fabric.Canvas('c');
-
-    const contextMenu = document.getElementById('canvas-context-menu');
-    canvas.on('contextmenu', function (event) {
-        event.preventDefault(); // 阻止浏览器默认的右键菜单出现
-        // 获取鼠标相对于画布的位置
-        var pointer = canvas.getPointer(event.e);
-
-        console.log('右键点击事件发生，位置：', {
-            x: pointer.x,
-            y: pointer.y
-        });
-    })
-    var fabricDiv = $('<div class="new-element">Hello, World!</div>');
+    let number = 1;
     let path = getUrlQueryParams('path');
-    let imgObj = {};
-    if (path) {
-        path = atob(decodeURIComponent(path))
-        $('#template').attr('src', path);
-        
-        loadImg()
-            
+    // 当前鼠标位置
+    let pointX = 0;
+    let pointY = 0;
+    let canvas = new fabric.Canvas('c', {
+        fireRightClick: true, // 启用右键，button的数字为3
+        stopContextMenu: true, // 禁止默认右键菜单
+        preserveObjectStacking: true // 元素保持原有层级
+    });
+
+    // 文档加载后执行
+    window.onload = function () {
+
+        let imgObj = {};
+        if (path) {
+            path = atob(decodeURIComponent(path))
+            $('#template').attr('src', path);
+            loadImg();
+        }
+        // 输出当前 fabric 版本
+        console.log(`Facrib.js版本：${fabric.version}`)
+
+        // 按下鼠标
+        canvas.on('mouse:down', canvasOnMouseDown)
+
+        canvas.on('object:moving', handleObjectMoving);
+
+        // 禁止在菜单上的默认右键事件
+        menu.oncontextmenu = function (e) {
+            e.preventDefault()
+        }
     }
 
     function loadImg() {
@@ -82,8 +114,7 @@
             //$('#fabricDiv').append(`<canvas width="${data.width + 100}" height="${data.height + 100}" id="c" style="border: 1px solid #ccc;"></canvas>`)
             canvas.setWidth(data.width + 100)
             canvas.setHeight(data.height + 100)
-        }).then(data2 => {
-            
+        }).then(data2 => {            
             fabric.Image.fromURL(
                 path, // 参数1：图片路径
                 img => { // 参数2：图片加载完成后的回调函数
@@ -91,19 +122,121 @@
                     // 设置图片在画布中的位置
                     img.top = 50
                     img.left = 50
-
+                    img.setControlsVisibility({
+                        mt: false,
+                        mb: false,
+                        ml: false,
+                        mr: false,
+                        bl: false,
+                        br: false,
+                        tl: false,
+                        tr: false,
+                        //mtr: false,
+                    });//隐藏多个拖拽点，禁止拖拽，因为要固定1080p
+                    img.lockMovementX = true; //不许左右移动
+                    img.lockMovementY = true; //不许上下移动
                     // 将图片添加到画布中
                     canvas.add(img)
-                
                 
             });
         })
             
+    }  
+
+    // 鼠标在画布上的点击事件
+    function canvasOnMouseDown(opt) {
+        // 判断：右键，且在元素上右键
+        // opt.button: 1-左键；2-中键；3-右键
+        // 在画布上点击：opt.target 为 null
+        if (opt.button === 3 && opt.target) {
+            // 获取当前元素
+            activeEl = opt.target
+
+            menu.domReady = function () {
+                console.log(123)
+            }
+
+            // 显示菜单，设置右键菜单位置
+            // 获取菜单组件的宽高
+            const menuWidth = menu.offsetWidth
+            const menuHeight = menu.offsetHeight
+
+            // 当前鼠标位置
+            pointX = opt.pointer.x
+            pointY = opt.pointer.y
+
+            // 计算菜单出现的位置
+            // 如果鼠标靠近画布右侧，菜单就出现在鼠标指针左侧
+            if (canvas.width - pointX <= menuWidth) {
+                pointX -= menuWidth
+            }
+            // 如果鼠标靠近画布底部，菜单就出现在鼠标指针上方
+            if (canvas.height - pointY <= menuHeight) {
+                pointY -= menuHeight
+            }
+
+            // 将菜单展示出来
+            menu.style = `
+              visibility: visible;
+              left: ${pointX}px;
+              top: ${pointY}px;
+              z-index: 100;
+            `
+        } else {
+            hiddenMenu()
+        }
     }
 
+    function handleObjectMoving(event) {
+        const object = event.target;
+        const canvas = object.canvas;
+
+        // 获取画布边界
+        const canvasWidth = canvas.getWidth();
+        const canvasHeight = canvas.getHeight();
+
+        // 获取对象边界及其左上角坐标
+        const objectBoundingRect = object.getBoundingRect();
+        const objectLeft = object.left;
+        const objectTop = object.top;
+
+        // 检查对象右边界和下边界是否超出画布
+        const maxX = canvasWidth - objectBoundingRect.width;
+        const maxY = canvasHeight - objectBoundingRect.height;
+
+        // 如果超出边界，则将对象位置限定在最大允许值内
+        object.set({
+            left: Math.min(Math.max(objectLeft, 0), maxX),
+            top: Math.min(Math.max(objectTop, 0), maxY),
+        });
+
+        // 阻止事件冒泡，防止默认行为（即移动到画布外）
+        event.e.stopPropagation();
+    }
+
+    // 隐藏菜单
+    function hiddenMenu() {
+        menu.style = `
+            visibility: hidden;
+            left: 0;
+            top: 0;
+            z-index: -100;
+          `
+        activeEl = null
+    }
+
+    // 删除元素
+    function delEl() {
+        if (activeEl._element && activeEl._element.tagName === 'IMG') {
+            warnMsg('画布不可以删除')
+            return;
+        }
+        canvas.remove(activeEl)
+        hiddenMenu()
+        number--;
+    }
     
-
-
+    //获取图片尺寸
     function getImageSize(imgElement) {
         return new Promise((resolve, reject) => {
             if (imgElement.complete) {
@@ -118,38 +251,18 @@
     }
 
     
-
-    document.querySelectorAll('#canvas-context-menu li').forEach(item => {
-        item.addEventListener('click', function () {
-            switch (this.dataset.action) {
-                case 'add-geometry':
-                    addGeometry();
-                    break;
-                case 'add-text':
-                    addText();
-                    break;
-                case 'preview':
-                    preview();
-                    break;
-                case 'save':
-                    saveCanvas();
-                    break;
-            }
-
-            contextMenu.classList.add('hidden'); // 点击后隐藏右键菜单
-        });
-    });
-
     function addGeometry() {
         // 这里使用Fabric.js创建并添加一个几何图形，例如矩形：
-        const rect = new fabric.Rect({ width: 100, height: 100, fill: '#ff0000' });
+        const rect = new fabric.Rect({ left:pointX,top:pointY, width: 100, height: 100, fill: getRandomHexColor() });
         canvas.add(rect);
+        hiddenMenu();
     }
 
     function addText() {
         // 这里使用Fabric.js创建并添加文字：
-        const text = new fabric.Text('Hello, Fabric!', { left: 50, top: 50, fontSize: 36 });
+        const text = new fabric.Text('占位文字' + (number++), { left: pointX, top: pointY, fontSize: 36, fill: getRandomHexColor() });
         canvas.add(text);
+        hiddenMenu();
     }
 
     function preview() {
@@ -158,5 +271,12 @@
 
     function saveCanvas() {
         // 实现保存功能，如导出SVG、PNG等格式
+    }
+
+    function getRandomHexColor() {
+        const r = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+        const g = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+        const b = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+        return `#${r}${g}${b}`;
     }
 </script>
