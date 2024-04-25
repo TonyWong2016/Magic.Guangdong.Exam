@@ -1,4 +1,6 @@
-﻿using Magic.Guangdong.Assistant;
+﻿using DotNetCore.CAP;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -13,17 +15,19 @@ namespace Magic.Guangdong.Exam.Controllers
     {
         private IWebHostEnvironment en;
         private IFileRepo _fileRepo;
+        private readonly ICapPublisher _capPublisher;
         private readonly IResponseHelper resp;
         /// <summary>
         /// 文件存放的根路径
         /// </summary>
         private readonly string _baseUploadDir;
 
-        public FileController(IWebHostEnvironment en, IFileRepo fileRepo, IResponseHelper resp)
+        public FileController(IWebHostEnvironment en,ICapPublisher capPublisher, IFileRepo fileRepo, IResponseHelper resp)
         {
             this.en = en;
             _fileRepo = fileRepo;
             this.resp = resp;
+            _capPublisher = capPublisher;
         }
 
         /// <summary>
@@ -344,7 +348,8 @@ namespace Magic.Guangdong.Exam.Controllers
         {
             string uploadFileName = file.FileName.Replace(".", $"-{DateTime.Now.ToString("yyyyMMddHHmmss")}.");//a.jpg-->a-20220216161309.jpg
             string basepath = en.WebRootPath;
-            string path_server = basepath + "\\upfile\\" + DateTime.Now.ToString("yyyyMM") + "\\";
+            //string path_server = basepath + "\\upfile\\" + DateTime.Now.ToString("yyyyMM") + "\\"+Utils.GetCurrentWeekOfMonth(DateTime.Now) + "\\";
+            string path_server =$"{basepath}\\upfile\\{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}\\";
             if (!Directory.Exists(path_server))
                 Directory.CreateDirectory(path_server);
             string save_file = path_server + uploadFileName;
@@ -359,6 +364,7 @@ namespace Magic.Guangdong.Exam.Controllers
                 
             }
             FileInfo fi = new FileInfo(save_file);
+            string fileMd5 = await Security.GetFileMD5(save_file);
             string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
             await _fileRepo.addItemAsync(new DbServices.Entities.File()
             {
@@ -367,7 +373,8 @@ namespace Magic.Guangdong.Exam.Controllers
                 Path = fi.FullName,
                 Size = fi.Length,
                 Ext = fi.Extension,
-                Name = fi.Name
+                Name = fi.Name,
+                Md5 = fileMd5
             });
             
             return returnPath;
@@ -395,8 +402,8 @@ namespace Magic.Guangdong.Exam.Controllers
                 string path = Security.GetMD5HashFromStream(file.OpenReadStream()) + fileExtention;
                 string basepath = en.WebRootPath;
                 //en.WebRootPath-》wwwroot的目录; .ContentRootPath到达WebApplication的项目目录
-                string path_server = basepath + "\\upfile\\" + DateTime.Now.ToString("yyyyMM") + "\\";
-
+                //string path_server = basepath + "\\upfile\\" + DateTime.Now.ToString("yyyyMM") + "\\";
+                string path_server = $"{basepath}\\upfile\\{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}\\";
                 //if (isLessonResource)//这里可以结合具体的业务
                 //{
                 //    var attach = AddAttach(filename, $"/{DateTime.Now.ToString("yyyyMM")}/" + path, Path.GetExtension(filename));
@@ -415,6 +422,7 @@ namespace Magic.Guangdong.Exam.Controllers
                 }
                 string returnPath = await FileHelper.SyncFile(save_file, path, true);
                 FileInfo fileInfo = new FileInfo(save_file);
+                string fileMd5 = await Security.GetFileMD5(save_file);
                 attachMains.Add(new DbServices.Entities.File()
                 {
                     AccountId = userId,
@@ -423,7 +431,7 @@ namespace Magic.Guangdong.Exam.Controllers
                     Size = fileInfo.Length,
                     Ext = fileInfo.Extension,
                     Name = fileInfo.Name,
-
+                    Md5 = fileMd5,
                 });
                 //await CopyFileAsync(save_file, path);
                 
@@ -468,7 +476,7 @@ namespace Magic.Guangdong.Exam.Controllers
                 }
                 Directory.Delete(temporary);//删除文件夹                
                 ok = true;
-
+                string fileMd5 = await Security.GetFileMD5(finalPath);
                 //复制到附件服务器
                 await CopyFileAsync(finalPath, lastModified + "\\" + fileName, true);
                 Directory.Delete(Path.GetDirectoryName(finalPath));
@@ -483,7 +491,8 @@ namespace Magic.Guangdong.Exam.Controllers
                     Size = fileSize,
                     Path = path,
                     AccountId = adminId,
-                    ConnId = connId
+                    ConnId = connId,
+                    Md5 = fileMd5
                 };
                 await _fileRepo.addItemAsync(file);
                 #endregion
@@ -558,6 +567,31 @@ namespace Magic.Guangdong.Exam.Controllers
             memoryStream.Position = 0;
 
             return File(memoryStream, "text/plain", Path.GetFileName(encodeUri));
+        }
+
+        public async Task<IActionResult> BuildConnWithFile(long fileId,string connId,string connName)
+        {
+            if(!await _fileRepo.getAnyAsync(u => u.Id == fileId))
+            {
+                return Json(resp.error("文件不存在"));
+            }
+            var file = await _fileRepo.getOneAsync(u => u.Id == fileId);
+            file.ConnId = connId;
+            file.ConnName = connName;
+            await _capPublisher.PublishAsync("InsertOrUpdateFileModel", file);
+            return Json(resp.success("修改请求提交成功"));
+        }
+
+        /// <summary>
+        /// 修改文件
+        /// </summary>
+        /// <param name="paperIds"></param>
+        /// <returns></returns>
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "InsertOrUpdateFileModel")]
+        public async Task InsertOrUpdateFileModel(DbServices.Entities.File dto)
+        {
+            await _fileRepo.insertOrUpdateAsync(dto);
         }
 
     }

@@ -176,7 +176,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 var record = await _userAnswerRecordViewRepo.getOneAsync(u => u.Id == urId);
                 Logger.Warning($"{DateTime.Now},开始移除用户【{record.Name}】的答题记录");
-                int applyId = 0;
+                //int applyId = 0;
                
                 var userInfo = await _userRepo.getOneAsync(u => u.AccountId == record.AccountId);
                 if (userInfo == null)

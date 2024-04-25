@@ -48,6 +48,11 @@
         "dist/browser/signalr-protocol-msgpack.min.js",
         "dist/browser/signalr-protocol-msgpack.min.js.map"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "fabric.js@5.3.1",
+      "destination": "wwwroot/plugins/fabric.js/"
     }
   ]
 }

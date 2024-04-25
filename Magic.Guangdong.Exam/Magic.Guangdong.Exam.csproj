@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Cert\Views\" />
     <Folder Include="Areas\Exam\Models\" />
     <Folder Include="Areas\Exam\Views\Examination\" />
     <Folder Include="Areas\Report\Models\" />

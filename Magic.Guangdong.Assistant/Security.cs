@@ -156,5 +156,22 @@ namespace Magic.Guangdong.Assistant
                 throw new Exception("GetMD5HashFromStream() fail, error:" + ex.Message);
             }
         }
+
+        public static async Task<string> GetFileMD5(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The specified file does not exist.", filePath);
+            }
+
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    byte[] hashBytes =await md5.ComputeHashAsync(stream);
+                    return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,162 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Cert.TemplateDto
+
+<style>
+    #canvas-context-menu {
+        position: absolute;
+        display: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 5px 0;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+    }
+
+        #canvas-context-menu ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas-context-menu li {
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+            #canvas-context-menu li:hover {
+                background-color: #f0f0f0;
+            }
+</style>
+
+<div class="layui-row">
+
+    <fieldset class="layui-elem-field" style="margin:15px">
+        <legend>预览证书</legend>
+        <div class="layui-field-box img-box" id="fabricDiv">
+            <canvas id="c" style="border: 1px solid #ccc;"></canvas>
+            <img id="template" src="@Model.Url" alt="templateModel" style="display:none"/>
+        </div>
+    </fieldset>
+
+    <div id="canvas-context-menu" class="hidden">
+        <ul>
+            <li data-action="add-geometry">增加几何图形</li>
+            <li data-action="add-text">增加文字</li>
+            <li data-action="preview">预览</li>
+            <li data-action="save">保存</li>
+        </ul>
+    </div>
+</div>
+<script src="~/plugins/fabric.js/fabric.min.js"></script>
+<script>
+
+    let canvas = new fabric.Canvas('c');
+
+    const contextMenu = document.getElementById('canvas-context-menu');
+    canvas.on('contextmenu', function (event) {
+        event.preventDefault(); // 阻止浏览器默认的右键菜单出现
+        // 获取鼠标相对于画布的位置
+        var pointer = canvas.getPointer(event.e);
+
+        console.log('右键点击事件发生，位置：', {
+            x: pointer.x,
+            y: pointer.y
+        });
+    })
+    var fabricDiv = $('<div class="new-element">Hello, World!</div>');
+    let path = getUrlQueryParams('path');
+    let imgObj = {};
+    if (path) {
+        path = atob(decodeURIComponent(path))
+        $('#template').attr('src', path);
+        
+        loadImg()
+            
+    }
+
+    function loadImg() {
+        getImageSize(document.getElementById('template')).then(data => {
+            console.log(data)
+            //$('#fabricDiv').append(`<canvas width="${data.width + 100}" height="${data.height + 100}" id="c" style="border: 1px solid #ccc;"></canvas>`)
+            canvas.setWidth(data.width + 100)
+            canvas.setHeight(data.height + 100)
+        }).then(data2 => {
+            
+            fabric.Image.fromURL(
+                path, // 参数1：图片路径
+                img => { // 参数2：图片加载完成后的回调函数
+
+                    // 设置图片在画布中的位置
+                    img.top = 50
+                    img.left = 50
+
+                    // 将图片添加到画布中
+                    canvas.add(img)
+                
+                
+            });
+        })
+            
+    }
+
+    
+
+
+    function getImageSize(imgElement) {
+        return new Promise((resolve, reject) => {
+            if (imgElement.complete) {
+                resolve({ width: imgElement.naturalWidth, height: imgElement.naturalHeight });
+            } else {
+                imgElement.addEventListener('load', () => {
+                    resolve({ width: imgElement.naturalWidth, height: imgElement.naturalHeight });
+                });
+                imgElement.addEventListener('error', reject);
+            }
+        });
+    }
+
+    
+
+    document.querySelectorAll('#canvas-context-menu li').forEach(item => {
+        item.addEventListener('click', function () {
+            switch (this.dataset.action) {
+                case 'add-geometry':
+                    addGeometry();
+                    break;
+                case 'add-text':
+                    addText();
+                    break;
+                case 'preview':
+                    preview();
+                    break;
+                case 'save':
+                    saveCanvas();
+                    break;
+            }
+
+            contextMenu.classList.add('hidden'); // 点击后隐藏右键菜单
+        });
+    });
+
+    function addGeometry() {
+        // 这里使用Fabric.js创建并添加一个几何图形，例如矩形：
+        const rect = new fabric.Rect({ width: 100, height: 100, fill: '#ff0000' });
+        canvas.add(rect);
+    }
+
+    function addText() {
+        // 这里使用Fabric.js创建并添加文字：
+        const text = new fabric.Text('Hello, Fabric!', { left: 50, top: 50, fontSize: 36 });
+        canvas.add(text);
+    }
+
+    function preview() {
+        // 实现预览功能，如全屏显示或在新窗口打开
+    }
+
+    function saveCanvas() {
+        // 实现保存功能，如导出SVG、PNG等格式
+    }
+</script>

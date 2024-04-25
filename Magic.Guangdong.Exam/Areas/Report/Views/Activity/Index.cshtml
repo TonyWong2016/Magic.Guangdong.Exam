@@ -17,7 +17,7 @@
                 <div class="layui-col-md3">
                     <div class="layui-input-wrap">
                         <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-note"></i>
+                            <i class="layui-icon layui-icon-tips"></i>
                         </div>
                         <select id="status" lay-filter="status">
                             <option value="">状态</option>
@@ -101,22 +101,16 @@
         };
         if ($('#status').val()) {
             whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'status',
-                    'Operator': 'Equal',
-                    'Value': $('#status').val()
-                }]
+                'Field': 'status',
+                'Operator': 'Equal',
+                'Value': $('#status').val()
             });
         }
         if ($("#keyword").val()) {
             whereJsonStr.Filters.push({
-                'Logic': 'And',
-                'Filters': [{
-                    'Field': 'title',
-                    'Operator': 'Contains',
-                    'Value': $('#keyword').val()
-                }]
+                'Field': 'title',
+                'Operator': 'Contains',
+                'Value': $('#keyword').val()
             });
         }
 

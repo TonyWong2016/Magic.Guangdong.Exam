@@ -36,7 +36,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		/// 0-没有被锁定，可以修改内容，1-被锁定，不可以修改，颁发证书后自动锁定
 		/// </summary>
 		[JsonProperty]
-		public int IsLock { get; set; } = 0;
+		public CertTemplateLockStatus IsLock { get; set; } = CertTemplateLockStatus.Unlock;
 
 		[JsonProperty, Column(DbType = "varchar(500)")]
 		public string Remark { get; set; }
@@ -59,7 +59,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = 1000)]
 		public string Url { get; set; }
 
-	}
+        [JsonProperty]
+        public long ActivityId { get; set; } = 0;
+
+    }
 
 	public enum CertTemplateType
 	{
@@ -72,5 +75,11 @@ namespace Magic.Guangdong.DbServices.Entities {
 	{
 		Enable,
 		Disable,
+	}
+
+	public enum CertTemplateLockStatus
+	{
+		Unlock,
+		Lock
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -240,6 +241,35 @@ namespace Magic.Guangdong.Assistant
                 return ToBase64Str(HttpUtility.UrlEncode(msg, Encoding.UTF8));
             }
             return HttpUtility.UrlEncode(msg, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 获取当前日期是本年度的第几周
+        /// </summary>
+        /// <returns></returns>
+        public static int GetCurrentWeekOfYear()
+        {
+            // 获取当前日期
+            DateTime today = DateTime.Today;
+
+            // 使用指定的文化信息（如 ISO 8601 标准）来计算周数
+            Calendar calendar = CultureInfo.InvariantCulture.Calendar;
+            return calendar.GetWeekOfYear(today, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        }
+
+        public static int GetCurrentWeekOfMonth(DateTime currentDate)
+        {
+            // 获取当前日期所在月份的第一天
+            DateTime firstDayOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+
+            // 计算当前日期与该月第一天之间的天数差
+            int daysSinceFirstDay = (currentDate - firstDayOfMonth).Days;
+
+            // 计算已过的完整周数（向下取整，因为剩余不足一周的部分不算作一周）
+            int weekNumber = (int)Math.Floor((double)daysSinceFirstDay / 7);
+
+            // 返回结果，加上1是因为计数从0开始，我们需要从第1周开始计数
+            return weekNumber + 1;
         }
     }
 }
