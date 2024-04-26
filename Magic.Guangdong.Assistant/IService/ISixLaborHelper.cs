@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.Assistant.IService
 {
+
     public interface ISixLaborHelper
     {
         Task<string> MakeCertPic(string savePath, CertTemplateDto model, string filename);
