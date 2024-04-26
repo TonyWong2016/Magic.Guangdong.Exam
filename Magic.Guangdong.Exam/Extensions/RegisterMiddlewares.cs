@@ -1,5 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using SixLabors.ImageSharp.Web.DependencyInjection;
 
 namespace Magic.Guangdong.Exam.Extensions
 {
@@ -15,6 +16,7 @@ namespace Magic.Guangdong.Exam.Extensions
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+            app.UseImageSharp();
             app.UseStaticFiles();
             app.UseRouting();
             //app.UseSession();
@@ -25,11 +27,12 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseCors("any");
             //app.UseCors();           
             app.UseCookiePolicy();
-
+            
             app.UseResponseCompression();
             app.UseDefaultFiles();
             app.UseResponseCaching();
             app.MapRazorPages();
+           
             app.MapControllerRoute(
                name: "area",
                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"

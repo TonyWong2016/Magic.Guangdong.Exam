@@ -4,9 +4,13 @@ using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Exam.Filters;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Web.Caching;
+using SixLabors.ImageSharp.Web.Commands;
+using SixLabors.ImageSharp.Web.DependencyInjection;
+using SixLabors.ImageSharp.Web.Providers;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Extensions
@@ -39,7 +43,7 @@ namespace Magic.Guangdong.Exam.Extensions
             // 在 appsettings.json(开发环境：appsettings.Development.json) 中 配置选项
             builder.Services.Configure<AlipayOptions>(_configuration.GetSection("Alipay"));
             builder.Services.Configure<WeChatPayOptions>(_configuration.GetSection("WeChatPay"));
-
+            builder.Services.ConfigureImageSharp(_configuration);
             return builder;
         }
 
@@ -256,6 +260,27 @@ namespace Magic.Guangdong.Exam.Extensions
             
             services.AddScheduler();
 
+        }
+
+        private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Add the default service and custom options.
+            services.AddImageSharp(
+                options =>
+                {
+                    // You only need to set the options you want to change here
+                    // All properties have been listed for demonstration purposes
+                    // only.
+                    options.Configuration = Configuration.Default;
+                    options.MemoryStreamManager = new RecyclableMemoryStreamManager();
+                    options.BrowserMaxAge = TimeSpan.FromDays(7);
+                    options.CacheMaxAge = TimeSpan.FromDays(365);
+                    options.CacheHashLength = 8;
+                    options.OnParseCommandsAsync = _ => Task.CompletedTask;
+                    options.OnBeforeSaveAsync = _ => Task.CompletedTask;
+                    options.OnProcessedAsync = _ => Task.CompletedTask;
+                    options.OnPrepareResponseAsync = _ => Task.CompletedTask;
+                });
         }
     }
 }

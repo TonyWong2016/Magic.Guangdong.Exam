@@ -14,7 +14,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
 	public partial class CertTemplate {
 
-		[JsonProperty, Column(IsPrimary = true, IsIdentity = true)]
+		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(StringLength = -2)]
@@ -61,6 +61,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
         [JsonProperty]
         public long ActivityId { get; set; } = 0;
+
+		[JsonProperty]
+		public string CanvasJson { get; set; }
 
     }
 

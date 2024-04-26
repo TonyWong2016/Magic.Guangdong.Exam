@@ -10,9 +10,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
 {
     public class TemplateDto
     {
-        public long Id { get; set; } = YitIdHelper.NextId();
+        public long? Id { get; set; } = YitIdHelper.NextId();
 
         public string ConfigJsonStrForImg { get; set; }
+
+        public string CanvasJson { get; set; }
 
         public string ConfigJsonStrForPdf { get; set; }
 
@@ -24,7 +26,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
 
         public string Title { get; set; }
 
-        public string Url { get; set; } = "";
+        public string? Url { get; set; } = "";
 
         public CertTemplateType Type { get; set; }
 

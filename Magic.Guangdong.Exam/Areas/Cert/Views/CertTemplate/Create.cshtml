@@ -18,6 +18,15 @@
             </div>
 
             <div class="layui-form-item">
+                <label class="layui-form-label">所属活动</label>
+                <div class="layui-input-block">
+                    <select asp-for="ActivityId">
+                        <option >请选择关联活动</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
                 <label class="layui-form-label">模板类型</label>
                 <div class="layui-input-block">
                     <select asp-for="Type" lay-filter="Type" lay-search>
@@ -40,9 +49,11 @@
             <div class="layui-form-item imageTemplate">
                 <label class="layui-form-label">模板图片</label>
                 <a href="javascript:;" class="layui-btn layui-btn-primary" id="btnUpload"><i class="layui-icon layui-icon-upload-circle"></i>上传</a>
-                <a href="javascript:;" class="layui-btn layui-btn-primary layui-border-blue" onclick="editTemplate()"><i class="layui-icon layui-icon-edit"></i>编辑模板</a>
+                @* <a href="javascript:;" class="layui-btn layui-btn-primary layui-border-blue" onclick="editTemplate()"><i class="layui-icon layui-icon-edit"></i>编辑模板</a> *@
                 <img id="tmpPreview" style="display:none" alt="预览图" />
             </div>
+
+
             <input type="hidden" asp-for="Id"/>
             <input type="hidden" asp-for="Url"/>
             <div class="layui-form-item" style="margin-left:110px">
@@ -51,12 +62,16 @@
 
                 <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
             </div>
+            <blockquote class="layui-elem-quote">注意：创建模板之后，要到编辑页面对证书模板进行配置</blockquote>
+
             @Html.AntiForgeryToken()
         </form>
     </div>
 </div>
 <script src="~/web/myfcup.js"></script>
 <script>
+
+    let form = layui.form;
     
     let fileUpObj = {
         elemId: 'btnUpload',
@@ -68,12 +83,31 @@
     }
     initUploadFilePro(fileUpObj);
 
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
+        .then(v => {
+            //associationId = selectRet[0].value
+            form.render('select')
+
+        })
+
+    form.on("submit(save)", async function (data) {
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '/cert/certtemplate/create', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('创建成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            });
+            return;
+        }
+        errorMsg('创建失败')
+    })
+
     function editTemplate() {
         if (!$('#Url').val()) {
             errorMsg('请先上传模板图片');
             return;
         }
         let path = encodeURIComponent(btoa($('#Url').val()))
-        location.href = `make?path=${path}`;
+        location.href = `make?path=${path}&from=create`;
     }
 </script>

@@ -1,5 +1,7 @@
 ﻿using EasyCaching.Core;
 using Essensoft.Paylink.Alipay.Domain;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Cert;
@@ -9,6 +11,8 @@ using Magic.Guangdong.Exam.Extensions;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using System.Transactions;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 {
@@ -19,8 +23,10 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         private readonly IResponseHelper _resp;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISixLaborHelper _sixLaborHelper;
+        private readonly IWebHostEnvironment _en;
         private string adminId = "";
-        public CertTemplateController(ICertTemplateRepo certTemplateRepo, IResponseHelper resp, IRedisCachingProvider redisCachingProvider,IHttpContextAccessor httpContextAccessor)
+        public CertTemplateController(ICertTemplateRepo certTemplateRepo, IResponseHelper resp, IRedisCachingProvider redisCachingProvider,IHttpContextAccessor httpContextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en)
         {
             _certTemplateRepo = certTemplateRepo;
             _resp = resp;
@@ -30,6 +36,8 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 adminId = cookieValue;
             }
+            _sixLaborHelper = sixLaborHelper;
+            _en = en;
         }
 
         [RouteMark("证书模板")]
@@ -88,8 +96,12 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 return Json(_resp.error("模板名称已存在"));
             }
+            
+            var model = dto.Adapt<CertTemplate>();
+            model.Id = YitIdHelper.NextId();
+            model.CreatedBy = adminId;
             return Json(_resp.success(await
-                _certTemplateRepo.addItemAsync(dto.Adapt<CertTemplate>())
+                _certTemplateRepo.addItemAsync(model)
                 ));
         }
 
@@ -125,6 +137,10 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             if (!await _certTemplateRepo.getAnyAsync(u => u.Id == id))
                 return Json(_resp.error("模板不存在"));
             var template = await _certTemplateRepo.getOneAsync(u => u.Id == id);
+            if (template.IsLock == CertTemplateLockStatus.Lock)
+            {
+                return Json(_resp.error("已有使用该模板下发的证书，导致模板被锁定，不能删除"));
+            }
             template.UpdatedAt = DateTime.Now;
             template.IsDeleted = 1;
             template.Remark += "管理员删除："+adminId;
@@ -139,6 +155,21 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 return View(template.Adapt<TemplateDto>());
             }
             return View(new TemplateDto());
+        }
+
+        /// <summary>
+        /// 生成单张证书
+        /// </summary>
+        /// <param name="config_str"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Preview(string config_str, string filename = "")
+        {
+            var config = JsonHelper.JsonDeserialize<CertTemplateDto>(config_str);
+            if (string.IsNullOrEmpty(filename))
+                filename = config.GetHashCode().ToString();
+            return Json(_resp.success(await _sixLaborHelper.MakeCertPic(_en.WebRootPath, config, filename)));
         }
     }
 }

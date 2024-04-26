@@ -62,6 +62,15 @@ function removeObjectFromArray(array, key, value) {
         }
     }
 }
+
+function removeElementFromArrayByValue(array, value) {
+    if (!Array.isArray(array)) {
+        throw new Error('Invalid input: Ensure you provide a valid array.');
+    }
+
+    const filteredArray = array.filter((item) => item !== value);
+    return filteredArray;
+}
 //生成指定长度的随机字符
 function generateRandomString(length) {
     let possibleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

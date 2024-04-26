@@ -27,62 +27,101 @@
         background-color: #fff;
     }
 
-    /* 菜单每个选项 */
-    .menu-li {
-        box-sizing: border-box;
-        padding: 4px 8px;
-        border-bottom: 1px solid #ccc;
-        cursor: pointer;
-    }
-
-        /* 鼠标经过的选项，更改背景色 */
-        .menu-li:hover {
-            background-color: antiquewhite;
-        }
-
-        /* 第一个选项，顶部两角是圆角 */
-        .menu-li:first-child {
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-
-        /* 最后一个选项，底部两角是圆角，底部不需要边框 */
-        .menu-li:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
 </style>
 
 <div class="layui-row">
+    <a class="layui-btn layui-btn-primary" id="btnBack" href="javascript:;" style="margin:15px">返回</a>
+    <fieldset class="layui-elem-field" style="margin:15px">
+        <legend>预设参数</legend>
+        <div class="layui-field-box box">
+            <form class="layui-form layui-row layui-col-space16">
+                <div class="layui-col-sm2">
+                    <input class="text layui-input" type="number" step="1" min="0" id="fontSize" placeholder="字体大小">
+
+                </div>
+                <div class="layui-col-sm2">
+                    <input class="text layui-input" type="number" step="1" min="0" id="row_maxwords" placeholder="每行字数（合成时生效）">
+                </div>
+                <div class="layui-col-sm2">
+                    <input class="text layui-input" type="number" step="1" min="0" id="row_spacing" placeholder="行间距（合生成时生效）">
+                </div>
+                <div class="layui-col-sm2">
+                    <select id="specialHandle" lay-filter="specialHandle">
+                        <option value="0">无特殊处理</option>
+                        <option value="1">双内容折行(遇到2个对应属性的数据则自动这行)</option>
+                        <option value="2" disabled>按需增加(滚雪球，建议不要增加过多特殊情况)</option>
+                    </select>
+                </div>
+
+                <div class="layui-col-sm3">
+                    <div class="layui-input-inline">
+                        <input type="text" name="color" value=""  placeholder="请选择文字颜色" class="layui-input" id="fontColor">
+                    </div>
+                    <div class="layui-inline" style="left: -5px;">
+                        <div id="colorpicker"></div>
+                    </div>
+
+                    <a class="layui-btn layui-btn-danger" href="javascript:;" onclick="clearAll()">清空所有元素</a>
+                </div>
+            </form>
+        </div>
+    </fieldset>
 
     <fieldset class="layui-elem-field" style="margin:15px">
         <legend>预览证书</legend>
         <div class="layui-field-box box" id="fabricDiv">
+            <blockquote class="layui-elem-quote">注意：为了避免图片缩放导致证书合成时出现的偏移量问题，这里画布展示的是原图尺寸的证书模板，注意通过调整滚动条来定位证书合成元素的位置。</blockquote>
             <canvas id="c" style="border: 1px solid #ccc;"></canvas>
-            <img id="template" src="@Model.Url" alt="templateModel" style="display:none"/>
+            <img id="template" src="@Model.Url" alt="templateModel" style="display:none" />
         </div>
     </fieldset>
 
     <div id="menu" class="menu-x">
-        <div class="menu-li" onclick="addGeometry()">创建图形</div>
-        <div class="menu-li" onclick="addText()">创建文字</div>
-        <div class="menu-li" onclick="">预览</div>
-        <div class="menu-li" onclick="">保存</div>
-        <div class="menu-li" onclick="delEl()">删除</div>
+        <ul class="layui-menu">
+            <li class="layui-menu-item-parent" lay-options="{type: 'parent'}">
+                <div class="layui-menu-body-title">
+                    创建文字
+                    <i class="layui-icon layui-icon-right"></i>
+                </div>
+                <div class="layui-panel layui-menu-body-panel">
+                    <ul>
+                        <li onclick="addTextStep1('获奖者姓名')"><div class="layui-menu-body-title">获奖者名称</div></li>
+                        <li onclick="addTextStep1('证书编号')"><div class="layui-menu-body-title">证书编号</div></li>
+                        <li onclick="addTextStep1()"><div class="layui-menu-body-title">自定义内容(可多次创建)</div></li>
+                    </ul>
+                </div>
+            </li>
+            <li onclick="addGeometry('qrcode')"><div class="layui-menu-body-title">创建二维码</div></li>
+            <li onclick="previewCert()"><div class="layui-menu-body-title">预览</div></li>
+            <li onclick="saveCanvas()"><div class="layui-menu-body-title">保存</div></li>
+            <li onclick="delEl()"><div class="layui-menu-body-title">删除当前元素</div></li>
+            <li onclick="clearAll()"><div class="layui-menu-body-title">清理画布</div></li>
+        </ul>
     </div>
 </div>
 <script src="~/plugins/fabric.js/fabric.min.js"></script>
+<script src="~/web/cert/template.js"></script>
 <script>
     let number = 1;
+    let valueArr = [];
     let path = getUrlQueryParams('path');
+    let from = getUrlQueryParams('from');
     // 当前鼠标位置
     let pointX = 0;
     let pointY = 0;
+    let padding = 50;
+    let certParam = {
+        certTempUrl: '',
+        certTempData: '',
+        contentList: [],
+        imgList:[]
+    };
+
     let canvas = new fabric.Canvas('c', {
-        fireRightClick: true, // 启用右键，button的数字为3
-        stopContextMenu: true, // 禁止默认右键菜单
-        preserveObjectStacking: true // 元素保持原有层级
+        fireRightClick: true // 启用右键，button的数字为3
+        , stopContextMenu: true // 禁止默认右键菜单
+        , preserveObjectStacking: true // 元素保持原有层级
+        , backgroundColor: '#fafafa' // 将背景色设置为亮粉色
     });
 
     // 文档加载后执行
@@ -94,6 +133,11 @@
             $('#template').attr('src', path);
             loadImg();
         }
+
+        if (from)
+            $('#btnBack').attr('href', atob(decodeURIComponent(from)));
+        else
+            $('#btnBack').attr('href', '/cert/certtemplate/index');
         // 输出当前 fabric 版本
         console.log(`Facrib.js版本：${fabric.version}`)
 
@@ -106,177 +150,148 @@
         menu.oncontextmenu = function (e) {
             e.preventDefault()
         }
+        setTimeout(() => {
+            number = canvas.getObjects().length
+        }, 500)
     }
 
-    function loadImg() {
-        getImageSize(document.getElementById('template')).then(data => {
-            console.log(data)
-            //$('#fabricDiv').append(`<canvas width="${data.width + 100}" height="${data.height + 100}" id="c" style="border: 1px solid #ccc;"></canvas>`)
-            canvas.setWidth(data.width + 100)
-            canvas.setHeight(data.height + 100)
-        }).then(data2 => {            
-            fabric.Image.fromURL(
-                path, // 参数1：图片路径
-                img => { // 参数2：图片加载完成后的回调函数
-
-                    // 设置图片在画布中的位置
-                    img.top = 50
-                    img.left = 50
-                    img.setControlsVisibility({
-                        mt: false,
-                        mb: false,
-                        ml: false,
-                        mr: false,
-                        bl: false,
-                        br: false,
-                        tl: false,
-                        tr: false,
-                        //mtr: false,
-                    });//隐藏多个拖拽点，禁止拖拽，因为要固定1080p
-                    img.lockMovementX = true; //不许左右移动
-                    img.lockMovementY = true; //不许上下移动
-                    // 将图片添加到画布中
-                    canvas.add(img)
-                
-            });
-        })
-            
-    }  
-
-    // 鼠标在画布上的点击事件
-    function canvasOnMouseDown(opt) {
-        // 判断：右键，且在元素上右键
-        // opt.button: 1-左键；2-中键；3-右键
-        // 在画布上点击：opt.target 为 null
-        if (opt.button === 3 && opt.target) {
-            // 获取当前元素
-            activeEl = opt.target
-
-            menu.domReady = function () {
-                console.log(123)
-            }
-
-            // 显示菜单，设置右键菜单位置
-            // 获取菜单组件的宽高
-            const menuWidth = menu.offsetWidth
-            const menuHeight = menu.offsetHeight
-
-            // 当前鼠标位置
-            pointX = opt.pointer.x
-            pointY = opt.pointer.y
-
-            // 计算菜单出现的位置
-            // 如果鼠标靠近画布右侧，菜单就出现在鼠标指针左侧
-            if (canvas.width - pointX <= menuWidth) {
-                pointX -= menuWidth
-            }
-            // 如果鼠标靠近画布底部，菜单就出现在鼠标指针上方
-            if (canvas.height - pointY <= menuHeight) {
-                pointY -= menuHeight
-            }
-
-            // 将菜单展示出来
-            menu.style = `
-              visibility: visible;
-              left: ${pointX}px;
-              top: ${pointY}px;
-              z-index: 100;
-            `
-        } else {
-            hiddenMenu()
-        }
+    function clearAll() {
+        canvas.clear()
+        localStorage.removeItem('canvasJson')
+        localStorage.removeItem('templateJson')
+        $('#template').attr('src', path);
+        loadImg();
+        valueArr = [];
+        hiddenMenu();
     }
 
-    function handleObjectMoving(event) {
-        const object = event.target;
-        const canvas = object.canvas;
 
-        // 获取画布边界
-        const canvasWidth = canvas.getWidth();
-        const canvasHeight = canvas.getHeight();
-
-        // 获取对象边界及其左上角坐标
-        const objectBoundingRect = object.getBoundingRect();
-        const objectLeft = object.left;
-        const objectTop = object.top;
-
-        // 检查对象右边界和下边界是否超出画布
-        const maxX = canvasWidth - objectBoundingRect.width;
-        const maxY = canvasHeight - objectBoundingRect.height;
-
-        // 如果超出边界，则将对象位置限定在最大允许值内
-        object.set({
-            left: Math.min(Math.max(objectLeft, 0), maxX),
-            top: Math.min(Math.max(objectTop, 0), maxY),
-        });
-
-        // 阻止事件冒泡，防止默认行为（即移动到画布外）
-        event.e.stopPropagation();
-    }
-
-    // 隐藏菜单
-    function hiddenMenu() {
-        menu.style = `
-            visibility: hidden;
-            left: 0;
-            top: 0;
-            z-index: -100;
-          `
-        activeEl = null
-    }
-
-    // 删除元素
-    function delEl() {
-        if (activeEl._element && activeEl._element.tagName === 'IMG') {
-            warnMsg('画布不可以删除')
+    function addTextStep1(value) {
+        if (!value) {
+            layer.prompt({ title: '输入占位文字', formType: 2 }, (text, index) => {
+                layer.close(index)
+                addTextStep2(text)
+            })
             return;
         }
-        canvas.remove(activeEl)
-        hiddenMenu()
-        number--;
-    }
-    
-    //获取图片尺寸
-    function getImageSize(imgElement) {
-        return new Promise((resolve, reject) => {
-            if (imgElement.complete) {
-                resolve({ width: imgElement.naturalWidth, height: imgElement.naturalHeight });
-            } else {
-                imgElement.addEventListener('load', () => {
-                    resolve({ width: imgElement.naturalWidth, height: imgElement.naturalHeight });
-                });
-                imgElement.addEventListener('error', reject);
-            }
-        });
+        addTextStep2(value)
     }
 
-    
-    function addGeometry() {
+    function addTextStep2(value) {
+        // if (valueArr.includes(value)) {
+        //     errorMsg('该属性已添加');
+        //     return;
+        // }
+        let fontObj = {
+            left: pointX, 
+            top: pointY, 
+            fontSize: 36, 
+            fill: '#000000',
+            width: 100,
+            fontFamily: 'Arial',
+            //fill: getRandomHexColor()
+        }
+        if (jVal('fontSize'))
+            fontObj.fontSize = parseInt(jVal('fontSize'))
+       
+        if(jVal('fontColor'))
+            fontObj.fill = jVal('fontColor')
+       
+        let content = `[${(number++)}.${value}]`;
+        //valueArr.push(content);
+        let text = new fabric.Textbox(content, fontObj);
+        text.set('customData', {
+            id: 'text_' + (number-1),
+            content: value
+        });
+        canvas.add(text);
+        //canvas.add(new fabric.Textbox(`Lorum ipsum dolor sit amet`, fontObj));
+        hiddenMenu();
+    }
+
+    function addGeometry(key) {
+        if (valueArr.includes(key)) {
+            errorMsg('目前只支持放置一张二维码占位图')
+            return;
+        }
+        valueArr.push(key)
         // 这里使用Fabric.js创建并添加一个几何图形，例如矩形：
-        const rect = new fabric.Rect({ left:pointX,top:pointY, width: 100, height: 100, fill: getRandomHexColor() });
+        const rect = new fabric.Rect({ left: pointX, top: pointY, width: 140, height: 140, fill: getRandomHexColor() });
+        rect.set('customData', {
+            id: key,
+            content: '图片元素'
+        });
         canvas.add(rect);
         hiddenMenu();
     }
 
-    function addText() {
-        // 这里使用Fabric.js创建并添加文字：
-        const text = new fabric.Text('占位文字' + (number++), { left: pointX, top: pointY, fontSize: 36, fill: getRandomHexColor() });
-        canvas.add(text);
+
+    function buildParam() {   
+        
+        if (canvas._objects && canvas._objects.length > 1) {
+            certParam.contentList = [];
+            certParam.imgList = [];
+            let row_maxwords = jVal('row_maxwords') ? parseInt(jVal('row_maxwords')) : 0;
+            let row_spacing = jVal('row_spacing') ? parseInt(jVal('row_spacing')) : 0;
+            if (row_maxwords > 0 && row_spacing == 0) {
+                row_spacing = 100;
+            }
+          
+            for (let i = 1; i < canvas._objects.length; i++) {
+                let item = canvas._objects[i];
+                if (item.text) {
+                    certParam.contentList.push({
+                        content: item.text,
+                        location_x: item.left-padding,
+                        location_y: item.top - padding,
+                        fontSize: item.fontSize * item.zoomX * item.zoomY,
+                        orderIndex: i,
+                        fontColor: item.fill,
+                        row_maxwords: row_maxwords,
+                        row_spacing: row_spacing,
+                        key: item.text.match(/[\u4e00-\u9fa5]+/g)[0]
+                    })
+                } else {
+                    certParam.imgList.push({
+                        imgUrl: '',
+                        imgData:null,
+                        location_x: item.left - padding,
+                        location_y: item.top - padding,
+                        orderIndex: i,
+                        width: item.width,
+                        height: item.heigth,
+                        imgType:0,
+                        key: 'qrcode'
+                    })
+                }
+
+            }
+        }
+    }
+
+    //预览结果
+    async function previewCert() {
+        buildParam()
+        layer.load();
+        let formData = new FormData();
+        formData.append('config_str', JSON.stringify(certParam));
+        formData.append('filename', 'test');
+        formData.append('__RequestVerificationToken', requestToken);
+
+        let ret = await request('POST', '/cert/certtemplate/Preview', formData,CT)
+       
+        let baseUrl = `${location.protocol}//${location.host}`;
+        layer.closeAll('loading');
+        window.open(baseUrl + ret.data);
         hiddenMenu();
     }
 
-    function preview() {
-        // 实现预览功能，如全屏显示或在新窗口打开
-    }
-
     function saveCanvas() {
-        // 实现保存功能，如导出SVG、PNG等格式
-    }
-
-    function getRandomHexColor() {
-        const r = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
-        const g = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
-        const b = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
-        return `#${r}${g}${b}`;
+        buildParam()
+        localStorage.setItem('templateJson', JSON.stringify(certParam));
+        localStorage.setItem('canvasJson', JSON.stringify(canvas.toJSON()));
+        //console.log(certParam) // 在控制台输出结果
+        hiddenMenu();
+        successMsg('保存成功')
     }
 </script>

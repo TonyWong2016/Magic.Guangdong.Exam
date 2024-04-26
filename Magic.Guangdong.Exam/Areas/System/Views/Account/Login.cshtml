@@ -66,7 +66,9 @@
                 <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
             </div>
             <div class="layui-form-item">
-                <a class="layui-btn layui-btn-fluid" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
+                <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
+                <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
+
             </div>
             @* <div class="layui-form-item exam-login-other">
                 <label>社交账号登录</label>
@@ -115,7 +117,7 @@
             form.on('submit(exam-login)', async function (data) {
                 
                 var field = data.field; // 获取表单字段值
-                console.log(JSON.stringify(field))
+               // console.log(JSON.stringify(field))
                 if (parseInt(field.captcha) != captchaRet) {
                     layer.alert('验证码错误', { icon: 2 })
                     generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
