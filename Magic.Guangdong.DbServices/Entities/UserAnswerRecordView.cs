@@ -144,6 +144,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public double UsedTime { get; set; }
 
+		[JsonProperty]
+		public Guid AttachmentId { get; set; }
+
 	}
 
 }
