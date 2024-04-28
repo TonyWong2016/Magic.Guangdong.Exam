@@ -151,12 +151,11 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveRecord(long urid, int notice)
         {
-            adminId = HttpContext.User.Claims.First().Value;
             isnotice = notice;
             bool ret = await _userAnswerRecordViewRepo.RemoveUserRecord(urid, adminId);
             if (ret)
             {
-                _capBus.Publish(CapConsts.PREFIX + "RemoveUserRecord", urid, adminId);
+                _capBus.Publish(CapConsts.PREFIX + "RemoveUserRecord", urid);
                 return Json(_resp.success(1, "移除成功"));
             }
             else
@@ -188,8 +187,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                     $"<p>答题人证件号码：{record.IdNumber}</p>" +
                     $"<p>原答题分数：{record.Score}</p>" +
                     $"<p>创建答题时间：{record.CreatedAt}</p>" +
-                    $"<p>删除时间：{record.UpdatedAt}</p>" +
-                    $"<br /><image src='https://manage.declare.htgjjl.com/images/emaillogo.png' />";
+                    $"<p>删除时间：{record.UpdatedAt}</p>" ;
 
                 string[] emailBCcs = new string[] { "wangteng@xxt.org.cn" };
                 if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("mailBcc")))

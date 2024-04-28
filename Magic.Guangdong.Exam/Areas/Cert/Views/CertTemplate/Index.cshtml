@@ -50,6 +50,8 @@
 </div>
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/cert/certtemplate/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-orange" href="javascript:;" onclick="CloneTemplate({{d.id}})"><i class="layui-icon layui-icon-template-1"></i>克隆</a>
+
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/cert/certtemplate/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getTemplateTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 
 </script>
@@ -81,7 +83,10 @@
 
 <script>
     let form = layui.form;
-
+    let table = layui.table;
+    let pageElem = $(".layui-laypage-skip input");
+    let currPage = 0;
+    
     form.on('select(status)', (data) => {
         getTemplateTable()
     })
@@ -114,7 +119,7 @@
             cols: [ //表头
                 { title: '序号', templet: '#indexTpl', width: 120 }
                 //{ field: 'id', title: '角色id', type: 'checkbox' }
-                , { field: 'title', title: '模板名称', width: 500 }
+                , { field: 'title', title: '模板名称（可编辑）', width: 400, edit: 'text' }
 
                 , { templet: '#typeTpl', title: '类型', width: 150 }
                 , { templet: '#lockTpl', title: '锁定状态', width: 150 }
@@ -122,8 +127,33 @@
                 , { field: 'createdAt', title: '创建时间', width: 300 }
                 , { title: '操作', templet: '#operationTpl' }
             ],
-            height: 630
+            height: 630,
+            callback: function () {
+                if (currPage > 0) {
+                    pageElem.val(currPage);
+                    $(".layui-laypage-btn").click()
+                }
+            }
         }
+
+        table.on('edit(table)', async (obj) => {
+            // var field = obj.field; // 得到修改的字段
+            // var value = obj.value; // 得到修改后的值
+            // var oldValue = obj.oldValue; // 得到修改前的值 -- v2.8.0 新增
+            // var data = obj.data; // 得到所在行所有键值
+            // var col = obj.getCol(); // 得到当前列的表头配置属性 -- v2.8.0 新增
+            let data = obj.data;
+            data.__RequestVerificationToken = requestToken;
+            let ret = await request('POST', '@Url.Action("Edit")', objectToFormData(data), CT);
+            if (ret.code === 0) {
+                successMsg('更新成功', () => {
+                    refreshRandomInt()
+                })
+                return;
+            }
+            errorMsg('更新失败' + ret.msg);
+
+        });
         getTable(params);
     }
 
@@ -168,5 +198,21 @@
         }
 
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+
+    async function CloneTemplate(id) {
+        let formData = new FormData();
+        formData.append('id', id);
+        formData.append(csrfTokenKey, requestToken);
+        let ret = await request('POST', '@Url.Action("CloneTemplate")', formData, CT);
+        if(ret.code==0){
+           
+            successMsg('操作成功',()=>{
+                if (pageElem && pageElem.length > 0)
+                    currPage = pageElem.get(0).value;
+                refreshRandomInt();
+                getTemplateTable();
+            })
+        }
     }
 </script>

@@ -128,7 +128,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
             if (dto.complatedMode != (int)ExamComplatedMode.Auto)
             {
-                await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { dto.reportId });
+                await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { dto.reportId.ToString() });
                 await _redisCachingProvider.KeyDelAsync("userRecord_" + dto.recordId);
                 await _redisCachingProvider.KeyDelAsync("myReportExamHistories_" + dto.reportId);
                 await _redisCachingProvider.KeyDelAsync("myAccountExamHistories_" + dto.userId);

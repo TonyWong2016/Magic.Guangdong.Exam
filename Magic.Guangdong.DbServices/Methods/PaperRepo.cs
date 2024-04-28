@@ -264,7 +264,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<dynamic> SubmitPaper(SubmitPaperDto dto)
         {
-            if (await RedisHelper.HGetAsync("UserExamLog", dto.reportId) != dto.idNumber)
+            if (await RedisHelper.HGetAsync("UserExamLog", dto.reportId.ToString()) != dto.idNumber)
             {
                 return -1;//当前赛队提交答卷的人和初始化答题的人不是一个，正常情况不会出现，这里就时以防万一
             }
@@ -320,7 +320,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     record.Complated = (ExamComplated)(dto.complatedMode == 0 ? 0 : 1);
                     record.SubmitAnswer = JsonHelper.JsonSerialize(dto.Answers);
                     await userAnswerRecordRepo.InsertOrUpdateAsync(record);
-                    await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
+                    await RedisHelper.HDelAsync("UserExamLog", dto.reportId.ToString());
                     uow.Commit();
                     return 1;
                 }

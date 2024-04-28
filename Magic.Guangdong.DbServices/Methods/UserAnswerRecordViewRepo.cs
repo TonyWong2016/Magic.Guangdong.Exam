@@ -169,7 +169,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToOneAsync();
             record.IsDeleted = 1;
             record.IdNumber += "(被移除)";
-            record.ReportId += "(被移除)";
+            //record.ReportId += "(被移除)";
             record.Remark += $"|被{adminId}移除记录";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = $"{adminId}移除";

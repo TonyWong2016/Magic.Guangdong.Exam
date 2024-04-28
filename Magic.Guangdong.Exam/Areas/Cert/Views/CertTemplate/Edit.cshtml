@@ -128,11 +128,12 @@
             errorMsg('请先上传模板图片');
             return;
         }
+
         let path = encodeURIComponent(btoa($('#Url').val()))
         let from = encodeURIComponent(btoa(location.href))
         localStorage.setItem('templateJson', jVal('ConfigJsonStrForImg'));
         localStorage.setItem('canvasJson', jVal('CanvasJson'));
 
-        location.href = `make?path=${path}&from=${from}`;
+        location.href = `make?path=${path}&from=${from}&id=@Model.Id`;
     }
 </script>

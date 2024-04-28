@@ -233,7 +233,7 @@ namespace Magic.Guangdong.Assistant
             return ret;
         }
 
-
+        
 
         /// <summary>
         /// 放大缩小图片

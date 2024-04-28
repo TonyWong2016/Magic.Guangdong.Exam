@@ -79,7 +79,7 @@ namespace Magic.Guangdong.Assistant
         /// <returns></returns>
         public static async Task<string> GenerateTemplate(string templateName)
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "upfile", DateTime.Now.ToString("yyyyMM"));
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "upfile", DateTime.Now.ToString("yyyyMM"), Utils.GetCurrentWeekOfMonth(DateTime.Now).ToString());
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
             filePath = Path.Combine(filePath, $"{templateName}.xlsx");

@@ -18,7 +18,7 @@
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
         const CT = { 'Content-Type': 'multipart/form-data' };
-
+        let csrfTokenKey = '__RequestVerificationToken';
     </script>
     <script type="text/html" id="selectTpl">
         <option value="0">请选择</option>

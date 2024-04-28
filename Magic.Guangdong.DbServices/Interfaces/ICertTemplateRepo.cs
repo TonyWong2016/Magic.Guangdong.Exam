@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface ICertTemplateRepo : IExaminationRepository<CertTemplate>
     {
+        Task<bool> CloneTemplate(long templateId, string adminId);
     }
 }

@@ -29,7 +29,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         /// <summary>
         /// 申报id
         /// </summary>
-        public string reportId { get; set; }
+        public long reportId { get; set; }
 
         /// <summary>
         /// 考试id
@@ -98,7 +98,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
     {
         public long recordId { get; set; }
 
-        public string reportId { get; set; }
+        public long reportId { get; set; }
 
         public string submitAnswerStr { get; set; } = "";
 

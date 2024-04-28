@@ -5,6 +5,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
 
 namespace Magic.Guangdong.Exam.Client.Pages.Exam
@@ -13,8 +14,10 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
     {
         private readonly IResponseHelper _resp;
         //private readonly IExaminationClientRepo _examRepo;
-        public string _examId { get; set; } = "";
-        public string _groupCode { get; set; } = "";
+        public string examId { get; set; } = "";
+        public string groupCode { get; set; } = "";
+
+        public long reportId { get; set; }
 
         public string reportNumber { get; set; }
         public IndexModel(IResponseHelper responseHelper)
@@ -23,17 +26,17 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             //_examRepo = examRepo;
         }
 
-        public IActionResult OnGet(string examId,string groupCode)
+        public IActionResult OnGet(string examId,string groupCode,long? reportId)
         {
-            if(string.IsNullOrEmpty(examId) && string.IsNullOrEmpty(groupCode))           
+            if(string.IsNullOrEmpty(examId) && reportId==null)
             {
                 Assistant.Logger.Error("非法请求");
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
 
             }
-            _examId = examId;
-            _groupCode = groupCode;
-            
+            this.examId = examId;
+            this.groupCode = groupCode;
+            this.reportId = (long)reportId;
             
             return Page();
         }

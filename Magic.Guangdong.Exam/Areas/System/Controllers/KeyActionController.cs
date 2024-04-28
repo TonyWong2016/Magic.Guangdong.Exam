@@ -27,7 +27,14 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [CapSubscribe(CapConsts.PREFIX + "AddKeyAction")]
         public async Task AddKeyAction(KeyAction keyAction)
         {
-            await _keyActionRepo.addItemAsync(keyAction);
+            try
+            {
+                await _keyActionRepo.addItemAsync(keyAction);
+            }
+            catch (Exception ex)
+            {
+                Assistant.Logger.Error("记录关键动作失败"+ex.Message);
+            }
         }
 
         [ResponseCache(Duration = 60)]

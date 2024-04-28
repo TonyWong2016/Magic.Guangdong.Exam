@@ -257,7 +257,7 @@ function removeItem(obj) {
 }
 
 //渲染table
-function getTable(params, callBack = '') {
+function getTable(params) {
     if (!params.height)
         params.height = 860;
     if (!params.method)
@@ -338,7 +338,7 @@ function getTable(params, callBack = '') {
                 sessionStorage.setItem(params.specialStorage, JSON.stringify(res.data));
             }
 
-            if (typeof (callBack) == 'function') {
+            if (typeof (params.callBack) == 'function') {
                 callBack(res);
             }
         }

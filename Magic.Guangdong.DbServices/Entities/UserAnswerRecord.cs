@@ -11,8 +11,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
-		public string ReportId { get; set; } = "";
+		[JsonProperty]
+		public long ReportId { get; set; } = 0;
 
 		/// <summary>
 		/// 作弊次数

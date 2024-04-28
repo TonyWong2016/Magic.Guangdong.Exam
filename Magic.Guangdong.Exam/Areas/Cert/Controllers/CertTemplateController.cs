@@ -117,12 +117,18 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TemplateDto dto)
         {
+            if(await _certTemplateRepo.getAnyAsync(u=>u.Title==dto.Title && u.Id!=dto.Id))
+            {
+                return Json(_resp.error("模板名称已存在"));
+            }
             var template = await _certTemplateRepo.getOneAsync(u => u.Id == dto.Id);
 
             if (template.IsLock == CertTemplateLockStatus.Lock)
             {
                 return Json(_resp.error("该模板已锁定，不能编辑"));
             }
+
+            
 
             template = dto.Adapt<CertTemplate>();
             template.UpdatedAt = DateTime.Now;
@@ -170,6 +176,38 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             if (string.IsNullOrEmpty(filename))
                 filename = config.GetHashCode().ToString();
             return Json(_resp.success(await _sixLaborHelper.MakeCertPic(_en.WebRootPath, config, filename)));
+        }
+
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveTemplate(long id,string templateJson,string canvasJson)
+        {
+            if(!await _certTemplateRepo.getAnyAsync(u=>u.Id==id))
+            {
+                return Json(_resp.error("模板不存在"));
+            }
+            var template = await _certTemplateRepo.getOneAsync(u => u.Id == id);
+            template.CanvasJson = canvasJson;
+            template.ConfigJsonStrForImg = templateJson;
+            template.CreatedBy = adminId;
+            template.Remark += $"{adminId}修改模板";
+            template.UpdatedAt= DateTime.Now;
+            return Json(_resp.success(await _certTemplateRepo.updateItemAsync(template)));
+        }
+
+        /// <summary>
+        /// 克隆模板
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [RouteMark("克隆模板")]
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloneTemplate(long id)
+        {
+            if(await _certTemplateRepo.CloneTemplate(id, adminId))
+            {
+                return Json(_resp.success("克隆成功"));
+            }
+            return Json(_resp.error("克隆失败"));
         }
     }
 }

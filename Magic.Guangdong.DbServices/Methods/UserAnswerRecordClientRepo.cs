@@ -102,7 +102,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
             var userAnswerRecordQuery = userAnswerRecordRepo
-                .Where(u => u.ReportId == dto.reportId.ToString() &&
+                .Where(u => u.ReportId == dto.reportId &&
                 u.ExamId == dto.examId &&
                 u.Complated !=ExamComplated.Cancle &&
                 u.IsDeleted == 0);
@@ -137,7 +137,7 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 Id=YitIdHelper.NextId(),   
                 IdNumber = reportInfo.ReportNumber,
-                ReportId = dto.reportId.ToString(),
+                ReportId = dto.reportId,
                 AccountId = reportInfo.AccountId,
                 UserName = reportInfo.Name,
                 ExamId = dto.examId,
@@ -176,7 +176,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
             var userAnswerRecordQuery = userAnswerRecordRepo
-                .Where(u => u.ReportId == dto.reportId.ToString() &&
+                .Where(u => u.ReportId == dto.reportId &&
                 u.ExamId == dto.examId &&
                 u.IsDeleted == 0);
 
@@ -210,7 +210,7 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 Id = YitIdHelper.NextId(),
                 IdNumber = reportInfo.ReportNumber,
-                ReportId = dto.reportId.ToString(),
+                ReportId = dto.reportId,
                 AccountId = reportInfo.AccountId,
                 UserName = reportInfo.Name,
                 ExamId = dto.examId,
@@ -486,7 +486,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     record.UpdatedBy = dto.userId.ToString();
                     record.Remark += $"交卷,答题人识别码[{dto.idNumber}]";
-                    await RedisHelper.HDelAsync("GDExamLog", dto.reportId);
+                    await RedisHelper.HDelAsync("GDExamLog", dto.reportId.ToString());
 
                 }
 

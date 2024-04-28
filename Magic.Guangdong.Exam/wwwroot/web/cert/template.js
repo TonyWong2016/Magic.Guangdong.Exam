@@ -2,7 +2,7 @@
 //渲染
 colorpicker.render({
     elem: '#colorpicker'  //绑定元素
-    , color: '#000000' // 设置默认色
+    , color: '#1e9fff' // 设置默认色
     , change: function (color) {
         console.log(color)
     }
@@ -67,7 +67,7 @@ function canvasOnMouseDown(opt) {
         activeEl = opt.target
 
         menu.domReady = function () {
-            console.log(123)
+            //console.log(123)
         }
 
         // 显示菜单，设置右键菜单位置

@@ -33,7 +33,7 @@
             }
             if (json.data && json.data.trade_status == 'TRADE_SUCCESS') {
                 $('#success').show();
-                location.href = '/report/detail?id=' + orderObj.outTradeNo
+                location.href = '/report/detail?outTradeNo=' + orderObj.outTradeNo
                 return
             }
             $('#error').show()

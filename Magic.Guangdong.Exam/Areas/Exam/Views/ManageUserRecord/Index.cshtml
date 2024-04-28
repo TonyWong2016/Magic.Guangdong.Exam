@@ -341,25 +341,27 @@
 
     function RemoveUserRecord(urid) {
         layer.confirm("<b style='color:red'>执行该操作会强制将用户答题记录作废，若此时用户正在作答，将会造成不可预知的错误！请确认要删除的记录所对应的答题人已经退出答题窗口。<br />执行成功后，将会向答题人所用账号对应的邮箱发送一封邮件通知，若该账号未绑定邮箱，通知将发送失败，请确保答题人知晓自己原有的答题记录已被清理。</b><br>确定继续执行删除操作吗？"
-            , { icon: 0, btn: ['确定', '确定并邮件通知用户', '取消'] }, function (index1) {
-                DoRemove(urid, 0)
+            , { icon: 0, btn: ['确定', '确定并邮件通知用户', '取消'] }, async function (index1) {
+                await DoRemove(urid, 0)
                 layer.close(index1);
-            }, function (index2) {
-                DoRemove(urid, 1)
+            },async function (index2) {
+                await DoRemove(urid, 1)
                 layer.close(index2);
             })
     }
 
-    function DoRemove(urid, notice) {
-        $.post('@Url.Action("RemoveRecord")', { '__RequestVerificationToken': token, 'urid': urid, 'notice': notice }, function (json) {
-            if (json.code == 1) {
-                sussessMsg('操作成功');
-                getUserRecord();
-            } else {
-                sussessMsg(json.msg)
-            }
-
-        })
+    async function DoRemove(urid, notice) {
+        let formData = new FormData();
+        formData.append(csrfTokenKey, requestToken);
+        formData.append('urid', urid);
+        formData.append('notice', notice)
+        let json = await request('POST', '@Url.Action("RemoveRecord")', formData, CT);
+        if (json.code == 1) {
+            successMsg('操作成功');
+            getUserRecord();
+        } else {
+            successMsg(json.msg)
+        }
     }
 
     function SyncOnlineScoreToApplyMain(stage) {
@@ -389,7 +391,7 @@
         return;
         $.post('@Url.Action("SyncOnlineScoreToApplyMain")', { 'associationId': associationId, 'stage': stage, 'isForce': isForce, '__RequestVerificationToken': token }, v => {
             if (v.code == 1) {
-                sussessMsg('同步成功')
+                successMsg('同步成功')
                 return;
             }
             errorMsg('同步失败');
@@ -418,7 +420,7 @@
                 var ret =  request('POST', '@Url.Action("ForceMarkingAll")', formData, { 'Content-Type': 'multipart/form-data' });
                 if (ret.code == 0) {
                     cnt++;
-                    sussessMsg('第' + cnt + '场考试提交成功');
+                    successMsg('第' + cnt + '场考试提交成功');
                 } else {
                     errorMsg(ret.msg);
                 }

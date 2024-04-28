@@ -66,7 +66,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="associationId"></param>
         /// <returns></returns>
         //[ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "idNumber", "associationId", "rd" })]
-        public async Task<IActionResult> InfoVerification(string idNumber, string reportId)
+        public async Task<IActionResult> InfoVerification(string idNumber, long reportId=0)
         {
             if (!await _userBaseRepo.getAnyAsync(u=>u.IdCard==idNumber))
             {
@@ -78,7 +78,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.error("用户没有报名当前活动"));
             }
             //预防答题中多人进入
-            if (await _provider.HExistsAsync("UserExamLog", reportId) && await _provider.HGetAsync("UserExamLog", reportId) != idNumber)
+            if (await _provider.HExistsAsync("UserExamLog", reportId.ToString()) && await _provider.HGetAsync("UserExamLog", reportId.ToString()) != idNumber)
             {
                 return Json(_resp.ret(-1, "当前赛队信息已被锁定，目前正有其他成员正代表该赛队答题。"));
             }
@@ -137,13 +137,13 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             {
                 return Redirect($"/examination/Result?urid={record.Id}&force=1");
             }
-            if (record == null || string.IsNullOrEmpty(record.ReportId) || string.IsNullOrEmpty(record.IdNumber))
+            if (record == null || string.IsNullOrEmpty(record.ReportId.ToString()) || string.IsNullOrEmpty(record.IdNumber))
             {
                 return Content("试题尚未初始化，或者进行了非规范答题，请联系管理人员");
             }
-            if (!await _provider.HExistsAsync("UserExamLog", record.ReportId))
+            if (!await _provider.HExistsAsync("UserExamLog", record.ReportId.ToString()))
             {
-                await _provider.HSetAsync("UserExamLog", record.ReportId, record.IdNumber);
+                await _provider.HSetAsync("UserExamLog", record.ReportId.ToString(), record.IdNumber);
             }
             return View();
         }
@@ -210,7 +210,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 //删除提交的答案记录
                 await _provider.KeyDelAsync(record.Id.ToString());
                 //删除锁定的答题记录
-                if (await _provider.HExistsAsync("UserExamLog", record.ReportId))
+                if (await _provider.HExistsAsync("UserExamLog", record.ReportId.ToString()))
                 {
                     await _provider.HDelAsync("UserExamLog"
                         , new List<string>() {

@@ -113,7 +113,7 @@
         }
         else if (reportItem.reportStep == 1) {
             $('#checkStep').html('已交费').addClass('pico-color-jade-350');
-            $('#exam').attr('href', '/exam/index?examId=' + reportItem.examId);            
+            $('#exam').attr('href', `/exam/index?examId=${reportItem.examId}&reportId=${reportItem.reportId}`);
             $('#pay').remove();
         }
         else {

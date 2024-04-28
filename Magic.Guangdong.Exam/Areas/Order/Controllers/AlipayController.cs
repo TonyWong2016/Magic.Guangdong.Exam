@@ -156,7 +156,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
                 if (order == null)
                     return Json(_resp.error("订单无法退款"));
 
-                if (await _userAnswerRecordRepo.getAnyAsync(u => u.ReportId == order.ReportId.ToString()))
+                if (await _userAnswerRecordRepo.getAnyAsync(u => u.ReportId == order.ReportId))
                     return Json(_resp.error("该考生已参与考试，无法退款"));
 
                 var model = new AlipayTradeRefundModel

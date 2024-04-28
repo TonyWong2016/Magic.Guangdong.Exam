@@ -23,7 +23,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public int complatedMode { get; set; } = 0;
 
-        public string reportId { get; set; }
+        public long reportId { get; set; }
 
         // public double itemScore { get; set; }
         public List<SubmitAnswerDto> Answers { get; set; }

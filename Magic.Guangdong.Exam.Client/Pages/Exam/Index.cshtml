@@ -108,10 +108,9 @@
 </main>
 
 <script type="text/html" id="examTpl">
-    @* <option value="">请选择要参与的考试</option> *@
     {{# layui.each(d,function(index,item){ }}
         {{# if(item.status==0){ }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.title}}</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.associationTitle}}-{{item.title}}</option>
         {{# } else { }}
             <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}
@@ -122,32 +121,33 @@
 @* <script src="~/web/exam/Index.js"></script> *@
 <script>
     //测试用
-    setTimeout(() => {
-        jValSet('idNumber', '456817132301152DAAI6')
-        getReportInfo()
-    },200)
+    // setTimeout(() => {
+    //     jValSet('idNumber', '456817132301152DAAI6')
+    //     getReportInfo()
+    // },200)
 
     $('#AnswerCard').show();
 
-    let examId = '@Model._examId';
-    let groupCode = '@Model._groupCode';
+    let examId = '@Model.examId';
+    let groupCode = '@Model.groupCode';//这个没用了
 
-    let reportId = 0;
+    let reportId = '@Model.reportId';
     let idNumber = '';
     let queryModel = {};
 
     function getMyExams() {
         axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', { params: {
                 examId: examId,
-                groupCode: groupCode,
-                accountId: accountId
+                //groupCode: groupCode,
+                accountId: accountId,
+                reportId: reportId
         }})
             .then(data => {
                 let json = data.data;
                 if(json.data && json.data.length>0){
                     renderTpl("examTpl", "exam", json.data, examId == '');
                     jValSet("info", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
-                    reportId = json.data[0].reportId
+                    //reportId = json.data[0].reportId
                 }else{
                     TT.error('无可选的考试');
                 }
@@ -166,7 +166,7 @@
         var span = $("#exam").find('option:selected').data('span')
         jValSet("info", span);
         examId = $("#exam").val();
-        reportId = $("#exam").find('option:selected').data('reportid')
+        //reportId = $("#exam").find('option:selected').data('reportid')
         if (span && jVal('idNumber')) {
             getReportInfo()
         }

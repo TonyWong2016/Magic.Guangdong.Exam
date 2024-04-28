@@ -98,7 +98,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 CreatedAt = DateTime.Now
             });
             //初始化后，只要没有交卷，这里就会被锁定，防止被其他赛队成员抢答
-            await RedisHelper.HSetAsync("UserExamLog", dto.reportId, dto.idNumber);
+            await RedisHelper.HSetAsync("UserExamLog", dto.reportId.ToString(), dto.idNumber);
 
             return new { code = 1, msg = "success", data = finalRecord };
         }
@@ -239,7 +239,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     process.UpdatedAt = DateTime.Now;
                     await reportProcessRepo.UpdateAsync(process);
                 }
-                await RedisHelper.HDelAsync("UserExamLog", dto.reportId);
+                await RedisHelper.HDelAsync("UserExamLog", dto.reportId.ToString());
                 return new { code = 1, msg = "success", data = record };
             }
             catch
