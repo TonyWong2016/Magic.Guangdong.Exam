@@ -68,7 +68,7 @@
     function renderPage(data) {
         let reportItem = data.reportInfo;
         let lastCheckHistory = data.lastCheckHistory;
-
+        let attachmentInfo = data.attachmentInfo;
         if (reportItem.reportStatus == 1) {
             $('#success').remove();
             $('#error').show();
@@ -115,6 +115,7 @@
             $('#checkStep').html('已交费').addClass('pico-color-jade-350');
             $('#exam').attr('href', `/exam/index?examId=${reportItem.examId}&reportId=${reportItem.reportId}`);
             $('#pay').remove();
+            
         }
         else {
             $('.unpass').show();
@@ -128,6 +129,10 @@
             $('#practice').show();
         } else {
             $('#subject').html(`${reportItem.title}(${reportItem.associationTitle}，正式考试)`).addClass('pico-color-fuchsia-500')
+        }
+
+        if (reportItem.reportStep == 1 && attachmentInfo != null) {
+            $('#practice').show();
         }
     }
 

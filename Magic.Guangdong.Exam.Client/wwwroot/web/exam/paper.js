@@ -216,6 +216,8 @@ function confirmAnswerArr() {
         if (key.startsWith("currCode_")) {
             const value = sessionStorage.getItem(key);
             const questionId = key.replace("currCode_", "");
+            if (tmpCurrAnswerArr.filter(u => u.questionId == parseFloat(questionId)).length > 0)
+                continue;
             tmpCurrAnswerArr.push({ questionId: parseFloat(questionId), userAnswer: [value] })
             
         }

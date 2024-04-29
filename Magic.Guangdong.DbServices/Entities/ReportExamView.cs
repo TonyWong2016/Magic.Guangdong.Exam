@@ -118,6 +118,9 @@ namespace Magic.Guangdong.DbServices.Entities {
         /// </summary>
         [JsonProperty]
         public int TestedTime { get; set; }
+
+		//[JsonProperty]
+		//public Guid AttachmentId { get; set; }
     }
 
 }

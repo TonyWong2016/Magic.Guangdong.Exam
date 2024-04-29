@@ -53,8 +53,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return Json(_resp.error(result));
         }
 
+
         public async Task<IActionResult> GetReportExamsForClient(ReportExamDto dto)
-        {
+        {            
             var items = await _examRepo.GetReportExamsForClient(dto);
             if (items.Count == 0)
             {

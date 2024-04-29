@@ -11,7 +11,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface IExaminationRepo : IExaminationRepository<Examination>
     {
-        Task<dynamic> GetExamMini(string id, int type);
+        Task<dynamic> GetExamMini(string id, int type, int examType = -1);
 
         dynamic GetExamList(PageDto dto, out long total);
 

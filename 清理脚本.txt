@@ -1,0 +1,4 @@
+  delete from [ReportInfo] where id=541595064160645
+  delete from ReportProcess where ReportId=541595064160645
+  delete from [Magic.Guangdong.Exam].[dbo].[Order] where  ReportId=541595064160645
+  delete from ReportCheckHistory where ReportId=541595064160645  

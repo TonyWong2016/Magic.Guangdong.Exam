@@ -26,7 +26,7 @@
             {{# }}}
         </h6>
         <footer>
-            <a class="outline" role="button" href="/report/detail?id={{item.reportId}}">查看</a>
+            <a class="outline" role="button" href="/report/detail?id={{item.reportId}}&examId={{item.examId}}">查看</a>
             {{# if(item.reportStatus==0 && item.step==0){ }}
                 <a class="pico-background-azure-450" style="border-color:aliceblue" role="button" href="/order/detail?id={{ btoa(encodeURIComponent(item.orderId)) }}">去支付</a>
             {{# } }}
@@ -43,7 +43,7 @@
         pageIndex: 1,
         pageSize: 1000//先一把梭，时间富裕了再加上滚动加载
     }
-    axios.get('/report/GetReportOrderList', {params:queryDto})
+    axios.get('/report/GetReportOrderListClient', { params: queryDto })
         .then(data => {
             let json = data.data;
             if (json.code == 0) {

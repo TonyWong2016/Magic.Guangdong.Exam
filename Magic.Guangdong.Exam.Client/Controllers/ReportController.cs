@@ -5,8 +5,10 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.DbServices.Methods;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
@@ -16,11 +18,12 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IResponseHelper _resp;
         private readonly IReportInfoRepo _reportInfoRepo;
         private readonly IUserBaseRepo _userBaseRepo;
+        private readonly IExaminationClientRepo _examinationClientRepo;
         private readonly IActivityRepo _activityRepo;
         private readonly ICapPublisher _capPublisher;
         private readonly IRedisCachingProvider _redisProvider;
         private readonly IUnitInfoRepo _unitInfoRepo;
-        public ReportController(IResponseHelper resp, IReportInfoRepo reportInfoRepo,IUserBaseRepo userBaseRepo, IActivityRepo activityRepo, ICapPublisher capPublisher, IRedisCachingProvider redisProvider, IUnitInfoRepo unitInfoRepo)
+        public ReportController(IResponseHelper resp,IExaminationClientRepo examinationClientRepo, IReportInfoRepo reportInfoRepo,IUserBaseRepo userBaseRepo, IActivityRepo activityRepo, ICapPublisher capPublisher, IRedisCachingProvider redisProvider, IUnitInfoRepo unitInfoRepo)
         {
             _resp = resp;
             _reportInfoRepo = reportInfoRepo;
@@ -29,6 +32,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             _capPublisher = capPublisher;
             _redisProvider = redisProvider;
             _unitInfoRepo = unitInfoRepo;
+            _examinationClientRepo = examinationClientRepo;
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -85,9 +89,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return Json(_resp.success(await _unitInfoRepo.GetUnitDropsAsync(keyword,unitType, provinceId, cityId,  districtId, 500)));
         }
 
-        public async Task<IActionResult> GetReportOrderList(GetReportListDto dto)
-        {            
-            return Json(_resp.success(await _reportInfoRepo.GetReportOrderListClient(dto)));
+        public async Task<IActionResult> GetReportOrderListClient(GetReportListDto dto)
+        {
+            var ret = await _reportInfoRepo.GetReportOrderListClient(dto);
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncExamReportInfoToPractice", ret);
+            return Json(_resp.success(ret));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "outTradeNo", "rd" })]
@@ -100,6 +106,61 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> GetReportDetailForClient(long reportId)
         {
             return Json(_resp.success(await _reportInfoRepo.GetReportDetailForClient(reportId)));
+        }
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX+ "SyncExamReportInfoToPractice")]
+        public async Task SyncExamReportInfoToPractice(ReportOrderList list)
+        {
+            if(!list.items.Where(u=>u.ReportStatus==0 && u.Step == 1).Any())
+            {
+                return;
+            }            
+            var examIds = list.items.Where(u => u.ReportStatus == 0 && u.Step == 1).Select(u => u.ExamId).ToList();
+            Expression<Func<Examination, bool>> filter = u => examIds.Contains(u.AttachmentId)
+            && u.Status == ExamStatus.Enabled
+            && u.IsDeleted == 0
+            && u.ExamType == ExamType.Practice;
+            
+
+            if (!await _examinationClientRepo.getAnyAsync(filter))
+            {
+                return;//没有符合条件的练习
+            }
+            //这是找出来的，所有当前账号报过名的考试，下属的练习
+            //也就是，用户报名了考试，但这个考试有一个对应的练习，需要用户无需再次填写报名信息，直接就可以参加            
+            var practices = await _examinationClientRepo.getListAsync(filter);
+            foreach (var practice in practices)
+            {
+                if(!list.items.Where(u=>u.ExamId==practice.AttachmentId).Any())
+                {
+                    continue;
+                }
+                var item = list.items.Where(u => u.ExamId == practice.AttachmentId).FirstOrDefault();
+                var reportInfo = await _reportInfoRepo.getOneAsync(u => u.Id == item.ReportId);
+                ReportInfoDto dto = new ReportInfoDto()
+                {
+                    Id = YitIdHelper.NextId(),
+                    IdCard = reportInfo.IdCard,
+                    AccountId = reportInfo.AccountId,
+                    ActivityId = reportInfo.ActivityId,
+                    Address = reportInfo.Address,
+                    CardType = reportInfo.CardType,
+                    CityId = reportInfo.CityId,
+                    ConnAvailable = (int)reportInfo.ConnAvailable,
+                    DistrictId = reportInfo.DistrictId,
+                    Email = reportInfo.Email,
+                    ExamId = practice.Id,//注意这个
+                    Job = reportInfo.Job,
+                    Mobile = reportInfo.Mobile,
+                    Name = reportInfo.Name,
+                    OrderTradeNumber = $"{practice.Id.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}",
+                    OtherInfo = reportInfo.OtherInfo + "同步报名信息到其练习模式",
+                    ProvinceId = reportInfo.ProvinceId,
+                    UnitId = reportInfo.UnitId,
+                };
+                await _reportInfoRepo.ReportActivity(dto);
+            }
         }
     }
 }

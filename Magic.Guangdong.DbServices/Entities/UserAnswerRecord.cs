@@ -90,8 +90,7 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "varchar(150)")]
 		public string UserName { get; set; }
 
-		[JsonProperty]
-		public Guid AttachmentId { get; set; } = Guid.Empty;
+		
 
     }
 

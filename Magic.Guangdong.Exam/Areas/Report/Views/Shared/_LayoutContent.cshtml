@@ -19,16 +19,6 @@
         let requestToken = $('@Html.AntiForgeryToken()').val();
         const CT = { 'Content-Type': 'multipart/form-data' };
     </script>
-</head>
-<body>
-    <div class="layui-row">
-        <div style="padding:15px">
-            <span style="margin-bottom:10px" class="layui-breadcrumb" lay-filter="breadcrumb" id="breadcrumb"></span>
-            <hr />
-            <!-- 内容主体区域 -->
-            @RenderBody()
-        </div>
-    </div>
     <script type="text/html" id="selectTpl">
         <option value="0">请选择</option>
         {{# layui.each(d,function(index,item){}}
@@ -39,6 +29,17 @@
         {{ d.LAY_INDEX+1 }}
         @*{{d.LAY_NUM}}*@
     </script>
+</head>
+<body>
+    <div class="layui-row">
+        <div style="padding:15px">
+            <span style="margin-bottom:10px" class="layui-breadcrumb" lay-filter="breadcrumb" id="breadcrumb"></span>
+            <hr />
+            <!-- 内容主体区域 -->
+            @RenderBody()
+        </div>
+    </div>
+    
     <script>
         layer.closeAll('loading');
         setBreadCrumb();

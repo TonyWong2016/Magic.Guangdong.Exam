@@ -152,7 +152,7 @@
     let form = layui.form;
 
     let token = $('@Html.AntiForgeryToken()').val();
-    let whereJsonStr = ''
+    
     let associationId = '0';
     let status = '0';
     let examType = '';
@@ -238,11 +238,10 @@
         //     errorMsg('请选择关联活动');
         //     return;
         // }
-        makeWhereJson();
         let params = {
             url: '@Url.Action("GetExamList")',
             elem: '#table',
-            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            where: makeWhereJson(),
             size: 'lg',
             page: true,
             cols: [ //表头
@@ -281,7 +280,7 @@
     }
 
     function makeWhereJson() {
-        whereJsonStr = {
+        let whereJsonStr = {
             'Logic': 'And',
             'Filters': [{
                 'Field': 'IsDeleted',
@@ -328,7 +327,9 @@
                 }]
             });
         }
-        return whereJsonStr;
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'isAsc': false, 'rd': randomInt };
+
+        //return whereJsonStr;
     }
 
     function makeQrcode(associationId, examId, title,groupCode) {

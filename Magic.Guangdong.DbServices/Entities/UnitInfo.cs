@@ -126,6 +126,12 @@ namespace Magic.Guangdong.DbServices.Entities {
         [JsonProperty, Column(StringLength = 50)]
         public string LegalPerson { get; set; } = "";
 
+        /// <summary>
+        /// 同步参数，指代system库中[Unit_Infomation]表的主键编号
+        /// </summary>
+        [JsonProperty]
+        public long OriginNo { get; set; }
+
     }
 
     /// <summary>

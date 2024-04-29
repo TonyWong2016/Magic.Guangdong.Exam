@@ -273,7 +273,7 @@
                 if (refundResp.alipay_trade_refund_response.fund_change == 'Y') {
                     successMsg('支付宝退款成功,账单同步中...', async () => {
                         refreshRandomInt();
-                        await syncRefundOrderInfo(outTradeNo)
+                        await syncRefundOrderInfo(refundResp.alipay_trade_refund_response.out_trade_no)
 
                     })
                 } else {

@@ -1,11 +1,14 @@
 ﻿using DotNetCore.CAP;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Order;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit;
 
 namespace Magic.Guangdong.Exam.Areas.Order.Controllers
 {
@@ -47,8 +50,35 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
         public async Task<IActionResult> SyncRefundOrderInfo(string outTradeNo)
         {
             if (await _orderRepo.SyncRefundOrderInfo(outTradeNo))
+            {
+                await _capPublisher.PublishDelayAsync(DateTime.Now.AddSeconds(5) - DateTime.Now, CapConsts.PREFIX + "NoticeUserRefund", outTradeNo);
                 return Json(_resp.success("同步成功"));
+            }
             return Json(_resp.error("同步失败"));
+        }
+
+        /// <summary>
+        /// 合成试卷的事件
+        /// </summary>
+        /// <param name="paperIds"></param>
+        /// <returns></returns>
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "NoticeUserRefund")]
+        public async Task NoticeUserRefund(string outTradeNo)
+        {
+            Assistant.Logger.Warning($"{DateTime.Now},发送通知邮件");
+            var reportOrder = await _orderRepo.getOneAsync(u=>u.OutTradeNo==outTradeNo);
+            var reportInfo = await _reportInfoRepo.getOneAsync(u => u.Id == reportOrder.ReportId);
+            if (reportInfo.ConnAvailable == ConnAvailable.Email)
+            {
+
+                List<MailboxAddress> noticeTo = new List<MailboxAddress>()
+                {
+                     new MailboxAddress(reportInfo.Name, reportInfo.Email)
+                };
+                await EmailKitHelper.SendEMailAsync("退单通知", $"您在广东教育协会提交的申报信息已退单，订单号【{outTradeNo}】，退单号【{reportOrder.RefundNo}】,款项会原路退回到您的支付账号下，感谢您的参与。",
+                    noticeTo);
+            }
         }
     }
 }

@@ -88,11 +88,24 @@
         <div class="layui-form-item">
             <label class="layui-form-label">考试类型</label>
             <div class="layui-input-block">
-                <select asp-for="ExamType">
+                <select asp-for="ExamType" lay-filter="ExamType">
                     <option value=0 selected>考试</option>
                     <option value=1>练习</option>
                 </select>
             </div>
+        </div>
+
+        <div class="layui-form-item" style="display:none" id="divPractice">
+            <label class="layui-form-label">依附考试</label>
+            <div class="layui-input-block">
+                <select asp-for="AttachmentId">
+                    <option>请选择要依附的考试</option>
+                </select>
+            </div>
+            <br />
+            <blockquote class="layui-input-block layui-elem-quote">
+                练习模式下，可以选择依附一场正式考试，依附之后，用户进行练习报名时，可一键带入其在考试模式下填写的信息。
+            </blockquote>
         </div>
 
         <div class="layui-form-item">
@@ -130,13 +143,7 @@
                 <br />否-超时后也会给予相应的成绩
             </blockquote>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-input-block">依附于</label>
-            <div class="layui-input-block">
-
-            </div>
-        </div>
-        <div class="layui-form-item">
+        <div class="layui-form-item" style="display:none">
             <label class="layui-form-label">答题条件（双击）</label>
             <div class="layui-input-block">
                 <textarea class="layui-textarea" readonly ondblclick="setValidate()" placeholder="双击设定允许参与本场考试的答题条件，会关联报名信息" asp-for="@Model.ExtraInfo"></textarea>
@@ -182,39 +189,48 @@
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();    
     let laydate = layui.laydate;
-    let base_ajax_url = "";
+    let base_ajax_url = '';
     
-    InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+    InitTinymce('Description', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
   
     
     let objType = {
-        "url": "/report/activity/getactivitydrops"
-        , "param": { "rd": randomInt }
-        , "elem": "AssociationIdSelect"
-        , "radio": true
-        , "tips": "请选择活动"
-        , "prop": { name: "text", value: "value" }
-        , "initValue": []
-        , "tool": false
-        , "result": ""
-        , "func": function (data) {
+        'url': '/report/activity/getactivitydrops'
+        , 'param': { 'rd': randomInt }
+        , 'elem': 'AssociationIdSelect'
+        , 'radio': true
+        , 'tips': '请选择活动'
+        , 'prop': { name: 'text', value: 'value' }
+        , 'initValue': []
+        , 'tool': false
+        , 'result': ''
+        , 'func': function (data) {
             console.log(data);
-            $("#AssociationTitle").val(data.arr[0].text);
-            $("#AssociationId").val(data.arr[0].value);
-            // jValSet("AssociationId", data.arr[0].value);
+            if (data.isAdd) {
+                $('#AssociationTitle').val(data.arr[0].text);
+                $('#AssociationId').val(data.arr[0].value);
+                getExamMini();
+            } else {
+                $('#AssociationTitle').val('');
+                $('#AssociationId').val('');
+                $('#AttachmentId').val('').html('');
+                form.render('select')
+            }
+            
+            // jValSet('AssociationId', data.arr[0].value);
         }
     }
     makeXmSelect(objType);
-    form.render("select");
+    form.render('select');
     laydate.render({
         elem: '#ExamDuration' //指定元素
         , type: 'datetime'
         , range: true
         , format: 'yyyy/MM/dd HH:mm:ss'
         , done: function (value, date, endDate) {
-            let parts = value.split(" - ");
-            $("#StartTime").val(parts[0]);
-            $("#EndTime").val(parts[1]);
+            let parts = value.split(' - ');
+            $('#StartTime').val(parts[0]);
+            $('#EndTime').val(parts[1]);
         }
     });
 
@@ -230,6 +246,27 @@
         errorMsg('创建失败')
     })
 
+    form.on('select(ExamType)', (data) => {
+        console.log(data.value)
+        if (data.value == 1) {
+            $('#divPractice').show();
+            getExamMini();
+        } else {
+            $('#divPractice').hide();
+            $('#AttachmentId').val('');
+        }
+    })
+
+    
+
+    function getExamMini() {
+        let activityId = $('#AssociationId').val();
+        if (!activityId) {
+            errorMsg('请先选择关联活动');
+            return;
+        }
+        getSelectItems('@Url.Action("GetExamMini")', { id: activityId, type: 0, examType: 0 }, 'selectTpl', 'AttachmentId', false);
+    }
 
     function setValidate(){
         warnMsg('暂不支持')

@@ -108,6 +108,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public ExamAudit Audit { get; set; } = ExamAudit.Yes;
 
+		/// <summary>
+		/// 依附的考试id
+		/// 只有当考试类型为练习时，该值可以不为空，
+		/// 不为空时表示当前练习依附的正式考试id，用户报名时，报名信息可一键带入
+		/// </summary>
+		[JsonProperty]
+		public Guid AttachmentId { get; set; } = Guid.Empty;
+
     }
 
 	public enum ExamStatus

@@ -201,12 +201,10 @@ namespace Magic.Guangdong.Assistant
                     if (!resourceHost.Contains("upfile"))
                         resourceHost = resourceHost + "upfile";
                     string imgUrl = $"{resourceHost}/{DateTime.Now.ToString("yyyyMM")}/{Utils.GetCurrentWeekOfMonth(DateTime.Now)}/{filename}.jpg";
-                    // item.imgUrl = QrcodeHelper.MakeQrcode(imgUrl, 0, filename, 10, savePath);
-                    // tmpQrcodeUrl = savePath + item.imgUrl;//二维码赋给临时值
-                    // Logger.Debug($"生成二维码：{tmpQrcodeUrl}");
-                    // ResizeImg(tmpQrcodeUrl, (int)item.width, (int)item.height);
-
+                    
                     tmpQrcodeUrl = savePath + $"\\upfile\\{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}\\qrcode_{filename}.png";
+                    if (!Directory.Exists(Path.GetDirectoryName(tmpQrcodeUrl)))
+                        Directory.CreateDirectory(Path.GetDirectoryName(tmpQrcodeUrl));
                     item.imgData = QrcodeHelper.MakeQrcodeByte(imgUrl, 10);
                     ResizeImg(item.imgData, tmpQrcodeUrl, (int)item.width, (int)item.height);
                     // Logger.Debug($"重置二维码尺寸：ok");
@@ -228,6 +226,10 @@ namespace Magic.Guangdong.Assistant
             string uploadPath = @$"{savePath}\upfile\{DateTime.Now.ToString("yyyyMM")}\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}\{filename}.jpg";
             if (File.Exists(uploadPath))
                 File.Delete(uploadPath);
+            if (!Directory.Exists(Path.GetDirectoryName(uploadPath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(uploadPath));
+            
+
             await image.SaveAsJpegAsync(uploadPath);
             string ret = await FileHelper.SyncFile(uploadPath, filename);
             return ret;

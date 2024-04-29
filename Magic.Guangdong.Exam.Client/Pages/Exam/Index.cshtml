@@ -45,7 +45,7 @@
                     onClick="toggleModal(event)">
                 验证通过，开始答题
             </button>
-            <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;">刷脸登录(beta)</a>
+            <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;display:none">刷脸登录(beta)</a>
 
             <a id="btnLogout" onclick="Logout()" href="javascript:;" role="button" style="width:100%;margin-top:12px;margin-bottom:12px;background-color:#e53935;border-color:#e53935;display:none">退出登录</a>
 
@@ -136,12 +136,15 @@
     let queryModel = {};
 
     function getMyExams() {
-        axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', { params: {
+        axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
+            params: {
                 examId: examId,
                 //groupCode: groupCode,
                 accountId: accountId,
-                reportId: reportId
-        }})
+                reportId: reportId,
+                examType: 0
+            }
+        })
             .then(data => {
                 let json = data.data;
                 if(json.data && json.data.length>0){

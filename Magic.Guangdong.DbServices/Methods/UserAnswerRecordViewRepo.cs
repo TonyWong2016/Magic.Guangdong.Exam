@@ -47,6 +47,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.Score,
                     u.UsedTime,
                     u.PaperDegree,
+                    u.ExamType,
                     u.IsDeleted
                 });
             }
@@ -71,6 +72,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.PaperId,
                     u.UsedTime,
                     u.PaperDegree,
+                    u.ExamType,
                     u.IsDeleted
                 });
         }

@@ -27,18 +27,19 @@ namespace Magic.Guangdong.DbServices.Methods
         }
         /// <summary>
         /// 获取考试下拉列表，
-        /// type=0时，id代表活动id
-        /// type=1时，id代表考试id
+        /// idType=0时，id代表活动id
+        /// idType=1时，id代表考试id
         /// </summary>
         /// <param name="id"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public async Task<dynamic> GetExamMini(string id, int type)
+        public async Task<dynamic> GetExamMini(string id, int idType,int examType=-1)
         {
             return await fsql.Get(conn_str).Select<Examination>()
                 .Where(u => u.IsDeleted == 0)
-                .WhereIf(type == 0 && !string.IsNullOrEmpty(id), u => u.AssociationId == id)
-                .WhereIf(type == 1 && !string.IsNullOrEmpty(id), u => u.Id == Guid.Parse(id))
+                .WhereIf(idType == 0 && !string.IsNullOrEmpty(id), u => u.AssociationId == id)
+                .WhereIf(idType == 1 && !string.IsNullOrEmpty(id), u => u.Id == Guid.Parse(id))
+                .WhereIf(examType >= 0,u=>u.ExamType==(ExamType)examType)
                 .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync(u => new
                 {

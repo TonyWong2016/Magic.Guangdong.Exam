@@ -339,21 +339,21 @@
         }
         if (provinceId > 0) {
             whereJsonStr.Filters.push({
-                'Field': 'b.ProvinceId',
+                'Field': 'a.ProvinceId',
                 'Operator': 'Equal',
                 'Value': provinceId
             });
         }
         if (cityId > 0) {
             whereJsonStr.Filters.push({
-                'Field': 'b.CityId',
+                'Field': 'a.CityId',
                 'Operator': 'Equal',
                 'Value': cityId
             });
         }
         if (districtId > 0) {
             whereJsonStr.Filters.push({
-                'Field': 'b.DistrictId',
+                'Field': 'a.DistrictId',
                 'Operator': 'Equal',
                 'Value': districtId
             });
@@ -362,28 +362,28 @@
         let stringType = identifyStringType(keyword);
         if (stringType == 'idCard') {
             whereJsonStr.Filters.push({
-                'Field': 'b.IdCard',
+                'Field': 'a.IdCard',
                 'Operator': 'Equal',
                 'Value': keyword
             });
         }
         else if (stringType == 'email') {
             whereJsonStr.Filters.push({
-                'Field': 'b.Email',
+                'Field': 'a.Email',
                 'Operator': 'Equal',
                 'Value': keyword
             });
         }
         else if (stringType == 'phone') {
             whereJsonStr.Filters.push({
-                'Field': 'b.Mobile',
+                'Field': 'a.Mobile',
                 'Operator': 'Equal',
                 'Value': keyword
             });
         }
         else if (stringType == 'pureChinese') {
             whereJsonStr.Filters.push({
-                'Field': 'b.Name',
+                'Field': 'a.Name',
                 'Operator': 'Equal',
                 'Value': keyword
             });
@@ -396,7 +396,7 @@
                     'Operator': 'Contains',
                     'Value': keyword
                 }, {
-                    'Field': 'b.IdCard',
+                    'Field': 'a.IdCard',
                     'Operator': 'Contains',
                     'Value': keyword
                 }]

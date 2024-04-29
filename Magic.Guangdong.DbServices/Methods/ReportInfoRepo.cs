@@ -123,6 +123,16 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
+        /// <summary>
+        /// 克隆一份报名信息，主要作用是
+        /// 当用户报名了某一场考试活动后，如果该厂考试下面包含对应的练习模式
+        /// 则克隆考试的报名信息，对应到练习上面
+        /// </summary>
+        /// <returns></returns>
+        //public async Task<bool> CloneReportInfo(long reportId)
+        //{
+        //    return false;
+        //}
         public dynamic GetReportInfos(PageDto pageDto, out long total)
         {
             var query = fsql.Get(conn_str).Select<ReportInfoView, Order, UserBase>()
@@ -306,6 +316,18 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportInfo = await fsql.Get(conn_str).Select<ReportExamView>()
                 .Where(a => a.ReportId == reportId)
                 .ToOneAsync();
+
+            var attachmentInfo = await fsql.Get(conn_str).Select<Examination>()
+                .Where(a => a.AttachmentId == reportInfo.ExamId)
+                .ToOneAsync(
+                u => new
+                {
+                    u.Title,
+                    practiceId = u.Id,
+                    practiceTitle = u.Title,
+                    
+                });
+
             var lastCheckHistory = await fsql.Get(conn_str).Select<ReportCheckHistory>()
                 .Where(a => a.ReportId == reportId)
                 .OrderByDescending(a => a.Id)                
@@ -321,7 +343,8 @@ namespace Magic.Guangdong.DbServices.Methods
             return new
             {
                 reportInfo,
-                lastCheckHistory
+                lastCheckHistory,
+                attachmentInfo
             };
 
         }

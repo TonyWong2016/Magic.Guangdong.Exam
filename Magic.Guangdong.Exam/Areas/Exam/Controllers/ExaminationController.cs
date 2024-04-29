@@ -19,14 +19,14 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
     public class ExaminationController : Controller
     {
         private readonly IExaminationRepo _examinationRepo;
-        private readonly IUserAnswerRecordRepo _userAnswerRecordRepo;
+        private readonly IReportInfoRepo _reportInfoRepo;
         private readonly ICapPublisher _capBus;
         private readonly IResponseHelper _resp;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        public ExaminationController(IExaminationRepo examinationRepo, IUserAnswerRecordRepo userAnswerRecordRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider)
+        public ExaminationController(IExaminationRepo examinationRepo, IReportInfoRepo reportInfoRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider)
         {
             _examinationRepo = examinationRepo;
-            _userAnswerRecordRepo = userAnswerRecordRepo;
+            _reportInfoRepo = reportInfoRepo;
             _capBus = capBus;
             _resp = resp;
             _redisCachingProvider = redisCachingProvider;
@@ -72,10 +72,10 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="id"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id", "type","rd" })]
-        public async Task<IActionResult> GetExamMini(string id, int type = 0)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "id", "type", "examType", "rd" })]
+        public async Task<IActionResult> GetExamMini(string id, int type = 0, int examType=-1)
         {
-            return Json(_resp.success(await _examinationRepo.GetExamMini(id, type)));
+            return Json(_resp.success(await _examinationRepo.GetExamMini(id, type, examType)));
         }
 
         /// <summary>
@@ -129,18 +129,24 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Examination model)
         {
+            if (await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id))
+            {
+                return Json(_resp.error("该考试下已经产生了用户报名记录，不可再进行修改"));
+            }
             model.UpdatedAt = DateTime.Now;
             //return Json(_resp.success(await _examinationRepo.updateItemAsync(model)));
             return Json(_resp.success(await _examinationRepo.UpdateExamInfo(model)));
         }
 
+        
+
         [RouteMark("移除考试")]
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromServices] IUserAnswerRecordRepo recordRepo, Guid id)
+        public async Task<IActionResult> Remove(Guid id)
         {
-            if (await recordRepo.getAnyAsync(u => u.ExamId == id))
+            if (await _reportInfoRepo.getAnyAsync(u => u.ExamId == id))
             {
-                return Json(_resp.error("该考试下已经产生了用户答题记录，不可直接删除，如果要避免考试生效，请将其状态调为禁用"));
+                return Json(_resp.error("该考试下已经产生了用户报名记录，不可直接删除，如果要避免考试生效，请将其状态调为禁用"));
             }
             var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
             exam.IsDeleted = 1;
