@@ -124,83 +124,48 @@ function removeListen(elementId, onChangeCallback) {
     }
 }
 
-function startCountdown(seconds, countdownElementId, onCountdownEnd) {
-    let remainingTime = seconds;
-    let lastTimestamp = null;
 
-    function updateCountdown(timestamp) {
-        if (lastTimestamp !== null) {
-            const deltaTime = (timestamp - lastTimestamp) / 1000;
-            remainingTime -= deltaTime;
-        }
+//倒计时
+//参数elementId，用于指定要显示倒计时的HTML元素ID。
+//获取该元素，并在开始前检查其是否存在，若不存在则抛出错误。
+//定义一个新的内部函数updateElementContent，它接受剩余时间作为参数，根据元素类型（input或非input）更新其内容。对于input元素，设置其value属性；对于其他元素，更新其textContent属性。
+//在countdown函数中，调用updateElementContent来实时更新元素内容。
+//在开始倒计时前，先将初始倒计时数值（完整秒数）显示在目标元素上。
+//现在，您可以传入一个元素ID，当该元素是button、a（链接）、span等非input元素时，倒计时进度会显示在其textContent中；如果是input元素，则显示在value属性中。
+function accurateCountdown(seconds, elementId, callback) {
+    const startTimestamp = Date.now();
+    const targetElement = document.getElementById(elementId);
 
-        const hours = Math.floor(remainingTime / 3600);
-        const minutes = Math.floor((remainingTime % 3600) / 60);
-        const remainingSeconds = Math.floor(remainingTime % 60);
+    if (!targetElement) {
+        throw new Error(`Element with ID "${elementId}" not found.`);
+    }
 
-        function formatTime(num) {
-            return num.toString().padStart(2, '0');
-        }
+    function updateElementContent(remainingTime) {
+        const isInput = targetElement.tagName.toLowerCase() === 'input';
 
-        const countdownElement = document.getElementById(countdownElementId);
-        countdownElement.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(remainingSeconds)}`;
-
-        if (remainingTime > 0) {
-            lastTimestamp = timestamp;
-            requestAnimationFrame(updateCountdown);
+        if (isInput) {
+            targetElement.value = remainingTime;
         } else {
-            if (typeof onCountdownEnd === 'function') {
-                onCountdownEnd();
-            }
+            targetElement.textContent = remainingTime;
         }
     }
 
-    requestAnimationFrame(updateCountdown);
-
-    // 返回一个函数，用于获取剩余时间
-    return {
-        getRemainingTime: function () {
-            return Math.floor(remainingTime);
-        }
-    };
-}
-
-// 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
-//function countdownEnded() {
-//    console.log('Countdown has ended!');
-//}
-
-//// 调用startCountdown函数，获取返回的getRemainingTime函数
-//const countdown = startCountdown(3900, 'countdownTimer', countdownEnded);
-
-//// 在函数外部获取剩余时间
-//console.log('Initial remaining time:', countdown.getRemainingTime());
-
-//// ...其他操作...
-
-//// 在任意时刻获取剩余时间
-//console.log('Current remaining time:', countdown.getRemainingTime());
-
-function accurateCountdown(seconds, buttonElement, callback) {
-    let countdown = seconds;
-    buttonElement.disabled = true; // 禁用按钮
-    buttonElement.value = `${countdown} 秒后重新发送`; // 更新按钮文本
-
-    const intervalId = setInterval(() => {
-        countdown--;
-        buttonElement.value = `(${countdown})`;
-
-        if (countdown <= 0) {
-            clearInterval(intervalId); // 停止倒计时
-            buttonElement.value = '发送验证码';
-            buttonElement.disabled = false; // 重新启用按钮
-
-            // 如果提供了回调函数，则在倒计时结束后调用
+    function countdown() {
+        const remainingSeconds = Math.max(0, seconds - Math.floor((Date.now() - startTimestamp) / 1000));
+        if (remainingSeconds === 0) {
             if (typeof callback === 'function') {
                 callback();
             }
+            return;
         }
-    }, 1000); // 每1000毫秒（1秒）执行一次
+
+        updateElementContent(`${remainingSeconds} 秒`);
+
+        requestAnimationFrame(countdown);
+    }
+
+    updateElementContent(`${seconds} 秒`);
+    countdown();
 }
 
 function buildFormData(...args) {
