@@ -124,7 +124,84 @@ function removeListen(elementId, onChangeCallback) {
     }
 }
 
+function startCountdown(seconds, countdownElementId, onCountdownEnd) {
+    let remainingTime = seconds;
+    let lastTimestamp = null;
 
+    function updateCountdown(timestamp) {
+        if (lastTimestamp !== null) {
+            const deltaTime = (timestamp - lastTimestamp) / 1000;
+            remainingTime -= deltaTime;
+        }
+
+        const hours = Math.floor(remainingTime / 3600);
+        const minutes = Math.floor((remainingTime % 3600) / 60);
+        const remainingSeconds = Math.floor(remainingTime % 60);
+
+        function formatTime(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        const countdownElement = document.getElementById(countdownElementId);
+        countdownElement.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(remainingSeconds)}`;
+
+        if (remainingTime > 0) {
+            lastTimestamp = timestamp;
+            requestAnimationFrame(updateCountdown);
+        } else {
+            if (typeof onCountdownEnd === 'function') {
+                onCountdownEnd();
+            }
+        }
+    }
+
+    requestAnimationFrame(updateCountdown);
+
+    // 返回一个函数，用于获取剩余时间
+    return {
+        getRemainingTime: function () {
+            return Math.floor(remainingTime);
+        }
+    };
+}
+
+// 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
+//function countdownEnded() {
+//    console.log('Countdown has ended!');
+//}
+
+//// 调用startCountdown函数，获取返回的getRemainingTime函数
+//const countdown = startCountdown(3900, 'countdownTimer', countdownEnded);
+
+//// 在函数外部获取剩余时间
+//console.log('Initial remaining time:', countdown.getRemainingTime());
+
+//// ...其他操作...
+
+//// 在任意时刻获取剩余时间
+//console.log('Current remaining time:', countdown.getRemainingTime());
+
+function accurateCountdown(seconds, buttonElement, callback) {
+    let countdown = seconds;
+    buttonElement.disabled = true; // 禁用按钮
+    buttonElement.value = `${countdown} 秒后重新发送`; // 更新按钮文本
+
+    const intervalId = setInterval(() => {
+        countdown--;
+        buttonElement.value = `(${countdown})`;
+
+        if (countdown <= 0) {
+            clearInterval(intervalId); // 停止倒计时
+            buttonElement.value = '发送验证码';
+            buttonElement.disabled = false; // 重新启用按钮
+
+            // 如果提供了回调函数，则在倒计时结束后调用
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    }, 1000); // 每1000毫秒（1秒）执行一次
+}
 
 function buildFormData(...args) {
     const formData = new FormData();

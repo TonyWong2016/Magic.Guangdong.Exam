@@ -140,7 +140,12 @@
         <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick='cloneExam("{{d.id}}")'><i class='layui-icon layui-icon-template-1'></i>克隆</a>
         {{# if(d.status==0) { }}
         <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷详情</a>
-        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a>
+        @* <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a> *@
+        <a class='layui-btn layui-btn-sm  layui-btn-primary layui-border-orange' href='javascript:;' onclick="setExamStatus('{{d.id}}')"><i class='layui-icon layui-icon-lock'></i>禁用</a>
+
+        {{# } else{ }}
+         <a class='layui-btn layui-btn-sm  layui-btn-primary layui-border-orange' href='javascript:;' onclick="setExamStatus('{{d.id}}')"><i class='layui-icon layui-icon-lock'></i>启用</a>
+
         {{# } }}
         <a class='layui-btn layui-btn-sm  layui-btn-primary layui-border-red' href='javascript:;' onclick="removeItem({router:'/exam/examination/remove',msg:'<b style=\'color:red\'>若当前考试已经创建试卷，则删除操作会将归属当前考试的试卷一并删除！<br />若当前考试下已经产生用户答题记录，则考试将无法删除！</b><br />为避免发生不可预知的错误，若要废弃当前考试，建议编辑考试状态为【关闭】,关闭后用户无法再抽取当前考试下的试题，已经提交的答题记录不受影响。<br />确定继续删除吗？',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getExamList();} })"><i class='layui-icon layui-icon-delete'></i>删除</a>
 
@@ -234,10 +239,6 @@
     })
 
     function getExamList() {
-        // if (associationId == '0') {
-        //     errorMsg('请选择关联活动');
-        //     return;
-        // }
         let params = {
             url: '@Url.Action("GetExamList")',
             elem: '#table',
@@ -382,6 +383,18 @@
         }
     }
 
+    async function setExamStatus(examId){
+        let formData = new FormData();
+        formData.append(csrfTokenKey,requestToken);
+        formData.append('id',examId);
+        let ret = await request('POST','@Url.Action("SetExamStatus")',formData,CT);
+        if(ret.code==0){
+            successMsg('操作成功')
+        } else{
+            errorMsg('操作失败，'+ret.msg);
+        }
+        getExamList()
+    }
     
 
     function cloneExam(id) {

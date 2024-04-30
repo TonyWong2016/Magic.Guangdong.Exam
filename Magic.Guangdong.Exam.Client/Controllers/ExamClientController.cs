@@ -81,7 +81,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         /// <returns></returns>
         public async Task<IActionResult> ConfirmMyPracticePaper(ConfirmPaperDto dto)
         {
-            return Json(_resp.success(await _userAnswerRecordClientRepo.ConfirmMyPracticePaper(dto)));
+            return Json(await _userAnswerRecordClientRepo.ConfirmMyPracticePaper(dto));
         }
 
         /// <summary>

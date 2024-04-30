@@ -230,10 +230,13 @@
     </article>
 </dialog>
 
+@* 这里注意，只有考试类型和没有挂载考试的练习需要报名，其余不需要 *@
 <script type="text/html" id="selectExamTpl">
     <option value="0">请选择</option>
-    {{# layui.each(d,function(index,item){}}
-    <option value="{{ item.examId }}" data-money="{{item.amount}}">{{item.examTitle}}</option>
+    {{# layui.each(d,function(index,item){}}        
+        {{# if(!item.attachmentId){ }}
+        <option value="{{ item.examId }}" data-money="{{item.amount}}">{{item.examTitle}}</option>
+        {{# } }}
     {{# }) }}
 </script>
 <script type="text/html" id="unitDropTpl">
@@ -360,7 +363,7 @@
     //获取验证码
     async function GetVerifyCode() {
         $('#verifyEmail').hide();
-        $('#verifyEmailWait').attr('aria-busy', true).show();
+        $('#verifyEmailWait').show();
         let email = jVal('Email');
         let formData = new FormData();
         formData.append('to', email);
@@ -370,7 +373,7 @@
         if (ret.code == 0) {
             TT.success('我们向您输入的邮箱发送了一封邮件，请查收并输入邮件中的验证码，以完成邮箱有效性验证。');
             $('#verifyEmailWait').attr('aria-busy', false)
-            accurateCountdown('60', 'verifyEmailWait', () => {
+            accurateCountdown(60, 'verifyEmailWait', () => {
                 $('#verifyEmail').show();
                 $('#verifyEmailWait').hide();
             })

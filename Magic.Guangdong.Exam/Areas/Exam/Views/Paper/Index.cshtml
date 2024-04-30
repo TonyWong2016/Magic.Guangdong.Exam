@@ -151,11 +151,11 @@
 
             var ret = await request('POST', '@Url.Action("Remove")', formData, { 'Content-Type': 'multipart/form-data' });
             layer.close(index);
-            if (json.code == 1) {
+            if (ret.code == 0) {
                 successMsg('删除成功');
 
             } else {
-                errorMsg(json.msg);
+                errorMsg(ret.msg);
             }
             getPaperList();
         })

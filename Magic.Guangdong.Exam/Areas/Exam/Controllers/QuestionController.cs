@@ -77,6 +77,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         {
             if (string.IsNullOrEmpty(dto.question.CreatedBy))
                 dto.question.CreatedBy = adminId;
+            
             dto.question.UpdatedBy = adminId;
             return Json(_resp.success(await _questionRepo.AddOrUpdateSingleQuestion(dto.question, dto.items)));
         }

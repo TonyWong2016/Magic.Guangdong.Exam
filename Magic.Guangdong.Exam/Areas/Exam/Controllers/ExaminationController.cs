@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
@@ -23,13 +24,20 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly ICapPublisher _capBus;
         private readonly IResponseHelper _resp;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        public ExaminationController(IExaminationRepo examinationRepo, IReportInfoRepo reportInfoRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider)
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        private string adminId = "system";
+        public ExaminationController(IExaminationRepo examinationRepo, IReportInfoRepo reportInfoRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider,IHttpContextAccessor httpContextAccessor)
         {
             _examinationRepo = examinationRepo;
             _reportInfoRepo = reportInfoRepo;
             _capBus = capBus;
             _resp = resp;
             _redisCachingProvider = redisCachingProvider;
+            _contextAccessor = httpContextAccessor;
+            adminId = (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
+               Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
+
         }
         [RouteMark("考试管理")]
         public async Task<IActionResult> Index()
@@ -138,6 +146,23 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             return Json(_resp.success(await _examinationRepo.UpdateExamInfo(model)));
         }
 
+        /// <summary>
+        /// 设定考试状态
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetExamStatus(Guid id)
+        {
+            var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
+            if(exam.Status==ExamStatus.Disabled)
+                exam.Status = ExamStatus.Enabled;
+            else
+                exam.Status = ExamStatus.Disabled;
+            exam.UpdatedAt = DateTime.Now;
+            exam.UpdatedBy = adminId;
+            return Json(_resp.success(await _examinationRepo.updateItemAsync(exam)));
+        }
         
 
         [RouteMark("移除考试")]

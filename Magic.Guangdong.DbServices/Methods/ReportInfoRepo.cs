@@ -279,7 +279,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 .WhereIf(!string.IsNullOrEmpty(dto.AccountId), u => u.AccountId == dto.AccountId)
                 .WhereIf(dto.ActivityId > 0, u => u.ActivityId == dto.ActivityId)
                 .WhereIf(dto.ExamId != null, u => u.ExamId == dto.ExamId)
-                .WhereIf(dto.OrderId != null, u => u.OrderId == dto.OrderId);
+                .WhereIf(dto.OrderId != null, u => u.OrderId == dto.OrderId)
+                .Where(u => u.ExamType == (int)ExamType.Examination);
             reportOrderList.total = await query.CountAsync();
             if (reportOrderList.total > 0)
             {

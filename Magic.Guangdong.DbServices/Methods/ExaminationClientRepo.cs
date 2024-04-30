@@ -34,7 +34,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return null;
             var examReportView = fsql.Get(conn_str).GetRepository<ReportExamView>();
             var query = examReportView
-                .Where(u => u.ReportStatus == 0 && u.ReportStep == 1 && u.ExamType == (int)ExamType.Examination)
+                .Where(u => u.ReportStatus == 0 && u.ReportStep == 1 && u.ExamType == (int)ExamType.Examination && u.Status==0)
                 .WhereIf(dto.examId != null, u => u.ExamId == dto.examId)
                 .WhereIf(dto.reportId != null, u => u.ReportId == dto.reportId)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)

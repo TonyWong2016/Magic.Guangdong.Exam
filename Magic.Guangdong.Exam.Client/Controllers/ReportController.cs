@@ -92,6 +92,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> GetReportOrderListClient(GetReportListDto dto)
         {
             var ret = await _reportInfoRepo.GetReportOrderListClient(dto);
+            
             await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncExamReportInfoToPractice", ret);
             return Json(_resp.success(ret));
         }
@@ -112,11 +113,19 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [CapSubscribe(CapConsts.PREFIX+ "SyncExamReportInfoToPractice")]
         public async Task SyncExamReportInfoToPractice(ReportOrderList list)
         {
-            if(!list.items.Where(u=>u.ReportStatus==0 && u.Step == 1).Any())
+            //5分钟内只能操作一次
+            if (list.total==0 || await _redisProvider.KeyExistsAsync("SyncExamReportInfoToPractice_" + list.items[0].AccountId))
             {
                 return;
-            }            
-            var examIds = list.items.Where(u => u.ReportStatus == 0 && u.Step == 1).Select(u => u.ExamId).ToList();
+            }
+            if (!list.items.Where(u=>u.ReportStatus==0 && u.Step == 1).Any())
+            {
+                return;
+            }
+            
+            var examIds = list.items.Where(u => u.ReportStatus == 0 && u.Step == 1)
+                .Select(u => u.ExamId)
+                .ToList();
             Expression<Func<Examination, bool>> filter = u => examIds.Contains(u.AttachmentId)
             && u.Status == ExamStatus.Enabled
             && u.IsDeleted == 0
@@ -137,7 +146,10 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     continue;
                 }
                 var item = list.items.Where(u => u.ExamId == practice.AttachmentId).FirstOrDefault();
-                var reportInfo = await _reportInfoRepo.getOneAsync(u => u.Id == item.ReportId);
+                Expression<Func<ReportInfo, bool>> filterReport = u => u.Id == item.ReportId && u.ExamId == practice.AttachmentId;
+                if (await _reportInfoRepo.getAnyAsync(filterReport))
+                    continue;
+                var reportInfo = await _reportInfoRepo.getOneAsync(filterReport);
                 ReportInfoDto dto = new ReportInfoDto()
                 {
                     Id = YitIdHelper.NextId(),
@@ -161,6 +173,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 };
                 await _reportInfoRepo.ReportActivity(dto);
             }
+            await _redisProvider.StringSetAsync("SyncExamReportInfoToPractice_" + list.items[0].AccountId, "done", DateTime.Now.AddMinutes(5) - DateTime.Now);
         }
     }
 }

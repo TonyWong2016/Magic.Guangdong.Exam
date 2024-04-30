@@ -10,22 +10,16 @@ using FreeSql.DataAnnotations;
 namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class ReportOrderView {
+	public partial class ReportOrderView_old {
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+        [JsonProperty]
+        public long Id { get; set; }
+
+        [JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string AccountId { get; set; }
-
-		[JsonProperty, Column(DbType = "varchar(100)", IsNullable = false)]
-		public string AcitivityTitle { get; set; }
 
 		[JsonProperty]
 		public long ActivityId { get; set; }
-
-		//[JsonProperty]
-		//public Guid? AttachmentId { get; set; }
-
-		[JsonProperty]
-		public int Audit { get; set; }
 
 		[JsonProperty]
 		public DateTime CreatedAt { get; set; }
@@ -33,20 +27,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public Guid? ExamId { get; set; }
 
-		[JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
-		public string ExamTitle { get; set; }
-
-		[JsonProperty]
-		public int ExamType { get; set; }
-
 		[JsonProperty, Column(DbType = "money")]
 		public decimal Expenses { get; set; }
 
-		[JsonProperty]
-		public DateTime? ExpiredTime { get; set; }
-
-		[JsonProperty]
-		public long Id { get; set; }
+		
 
 		[JsonProperty]
 		public long InvoiceId { get; set; }
@@ -82,11 +66,18 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public string Subject { get; set; }
 
 		[JsonProperty]
-		public int TestedTime { get; set; }
-
-		[JsonProperty]
 		public DateTime UpdatedAt { get; set; }
 
-	}
+        [JsonProperty]
+        public DateTime ExpiredTime { get; set; }
+        /// <summary>
+        /// 参与测试的次数
+        /// 0-没参加
+        /// 1-参加了一次考试/测试，考试一般只有1次
+        /// >1-参加了多次考试/测试，测试一般有多次
+        /// </summary>
+        [JsonProperty]
+        public int TestedTime { get; set; }
+    }
 
 }

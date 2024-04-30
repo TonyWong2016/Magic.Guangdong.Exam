@@ -40,6 +40,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     EndTime = u.EndTime,
                     Expenses = u.Expenses,
                     Quota = u.Quota,
+                    AttachmentId = u.AttachmentId,
+                    examType = u.ExamType,
                 });
             return new ActivityReportDto()
             {

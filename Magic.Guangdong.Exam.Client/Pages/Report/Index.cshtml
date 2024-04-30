@@ -12,7 +12,9 @@
     {{# layui.each(d,function(index, item){ }}
     <article id="reportItem{{ index }}">
        
-        <h6>参与考试：{{item.subject}}</h6>
+        @* <h6>参与考试：{{item.subject}}</h6> *@
+        <h6>参与活动：{{item.acitivityTitle}}</h6>
+        <h6>参与考试：{{item.examTitle}}</h6>
         <h6>订单编号：{{item.outTradeNo}}</h6>
         <h6>参与状态：
             {{# if(item.reportStatus==0){ }}

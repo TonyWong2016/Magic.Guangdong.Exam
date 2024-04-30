@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magic.Guangdong.DbServices.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,6 +54,10 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
         public int Quota { get; set; }
 
         public decimal Expenses { get; set; }
+
+        public ExamType examType { get; set; }
+
+        public Guid? AttachmentId { get; set; }
 
         public string Amount {
             get

@@ -115,7 +115,8 @@
             var layer = layui.layer;
             // 提交事件
             form.on('submit(exam-login)', async function (data) {
-                
+                $('.save').hide();
+                $('.disabledsave').show();
                 var field = data.field; // 获取表单字段值
                // console.log(JSON.stringify(field))
                 if (parseInt(field.captcha) != captchaRet) {
@@ -138,6 +139,9 @@
 
                 } else {
                     errorMsg(result.msg);
+                    $('.disabledsave').hide();
+
+                    $('.save').show();
                 }
                 generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split("")); // 生成验证码图片
 

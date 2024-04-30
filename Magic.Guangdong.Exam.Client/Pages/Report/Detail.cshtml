@@ -132,16 +132,18 @@
         }
 
         if (reportItem.reportStep == 1 && attachmentInfo != null) {
+            practiceDto.examId = attachmentInfo.practiceId;
             $('#practice').show();
+
         }
     }
 
     $('#practice').click(async ()=>{
         $('#practice').attr('aria-busy', true);
         let formData = objectToFormData(practiceDto);
-        let ret = await request('POST', '/examclient/ConfirmMyPracticePaper', formData, CT);
+        let json = await request('POST', '/examclient/ConfirmMyPracticePaper', formData, CT);
         $('#practice').attr('aria-busy', false);
-        let json = ret.data;
+        
         sessionStorage.clear();
         if (json.code == 1 && json.data) {
             //TT.warning(json.msg);
@@ -152,6 +154,7 @@
             location.href = `/exam/practice?urid=${json.data.id}&pid=${json.data.paperId}`
             return;
         }
+        TT.error(json.msg);
 
     })
 </script>
