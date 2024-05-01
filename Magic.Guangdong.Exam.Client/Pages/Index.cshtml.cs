@@ -1,10 +1,12 @@
 using Magic.Guangdong.Assistant.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Magic.Guangdong.Exam.Client.Pages
 {
+    //[Authorize]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;

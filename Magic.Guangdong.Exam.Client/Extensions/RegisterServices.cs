@@ -3,10 +3,15 @@ using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.JwtExtensions;
+using System.IdentityModel.Tokens.Jwt;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -33,6 +38,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePlug(_configuration);
             builder.Services.ConfigureAuthing();
+           // builder.Services.ConfigureSelfAuthing(_configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // 添加Paylink依赖注入
@@ -107,6 +113,52 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                o.IncludeErrorDetails = true;
                o.SetJwksOptions(new JwkOptions(jwtSettings.JwksUri, jwtSettings.Issuer, new TimeSpan(TimeSpan.TicksPerDay)));
            });
+        }
+
+        private static void ConfigureSelfAuthing(this IServiceCollection services, IConfiguration configuration)
+        {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+                .AddCookie("Cookies", options =>
+                {
+                    options.AccessDeniedPath = new PathString("/Error?msg=" + Assistant.Utils.EncodeUrlParam("未登录"));
+                })
+                .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+                {
+                    options.Authority = ConfigurationHelper.GetSectionValue("authHost");
+                    //samesite 设置
+                    CookieBuilder cb = new CookieBuilder();
+                    cb.Name = OpenIdConnectDefaults.CookieNoncePrefix;
+                    cb.SameSite = SameSiteMode.Unspecified;
+                    cb.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                    cb.HttpOnly = true;
+                    cb.IsEssential = true;
+                    options.NonceCookie = cb;
+                    options.CorrelationCookie = cb;
+                    options.RequireHttpsMetadata = false;
+
+
+                    options.ClientId = "checkinsystem2021";
+                    options.ResponseType = "code id_token";
+                    options.Scope.Clear();
+                    options.Scope.Add("api1");
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.SaveTokens = true;
+                    options.ClientSecret = "checkinsystem2021";
+                    options.GetClaimsFromUserInfoEndpoint = true;
+                    //options.ClaimActions.MapUniqueJsonKey("role", "role");
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = "given_name",
+                        RoleClaimType = "role"
+                    };
+                });
         }
 
         static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));

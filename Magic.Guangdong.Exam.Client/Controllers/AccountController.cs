@@ -17,6 +17,7 @@ using System.Text;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
+    
     public class AccountController : Controller
     {
         private readonly AuthenticationClient _authenticationClient;

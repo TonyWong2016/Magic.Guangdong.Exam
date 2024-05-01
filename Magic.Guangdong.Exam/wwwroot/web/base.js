@@ -300,6 +300,7 @@ function autoCheckLoginStatus() {
     if (isCookieExpired('userId') || !getCookie('userId')) {
         clearLoginInfo();
     }
+    
 }
 
 function isCookieExpired(name) {
