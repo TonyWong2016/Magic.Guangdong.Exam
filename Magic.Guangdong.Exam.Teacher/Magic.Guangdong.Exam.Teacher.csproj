@@ -1,0 +1,1585 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\web\base.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\axios.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\axios.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\axios.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\axios.min.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\browser\axios.cjs.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\esm\axios.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\esm\axios.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\esm\axios.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\esm\axios.min.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\axios\node\axios.cjs.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\aes.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\blowfish.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\bower.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\cipher-core.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\CONTRIBUTING.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\core.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\crypto-js.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\docs\QuickStartGuide.wiki" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-base64.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-base64url.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-hex.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-latin1.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-utf16.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\enc-utf8.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\evpkdf.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\format-hex.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\format-openssl.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-md5.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-ripemd160.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha1.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha224.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha256.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha3.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha384.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac-sha512.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\hmac.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\index.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\lib-typedarrays.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\LICENSE" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\md5.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\mode-cfb.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\mode-ctr-gladman.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\mode-ctr.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\mode-ecb.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\mode-ofb.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\package.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-ansix923.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-iso10126.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-iso97971.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-nopadding.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-pkcs7.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pad-zeropadding.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\pbkdf2.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\rabbit-legacy.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\rabbit.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\rc4.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\README.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\ripemd160.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha1.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha224.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha256.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha3.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha384.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\sha512.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\tripledes.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\crypto-js\x64-core.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.common.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.common.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.common.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.esm.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.esm.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.esm.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.simple.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.simple.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\echarts.simple.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\bmap.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\bmap.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\bmap.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\dataTool.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\dataTool.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\extension\dataTool.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langAR-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langAR-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langAR.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langAR.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langCS-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langCS-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langCS.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langCS.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langDE-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langDE-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langDE.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langDE.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langEN-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langEN-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langEN.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langEN.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langES-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langES-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langES.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langES.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFI-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFI-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFI.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFI.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFR-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFR-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFR.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langFR.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langHU-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langHU-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langHU.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langHU.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langIT-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langIT-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langIT.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langIT.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langJA-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langJA-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langJA.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langJA.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langKO-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langKO-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langKO.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langKO.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langNL-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langNL-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langNL.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langNL.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPL-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPL-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPL.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPL.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPT-br-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPT-br-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPT-br.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langPT-br.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRO-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRO-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRO.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRO.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRU-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRU-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRU.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langRU.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langSI-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langSI-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langSI.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langSI.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTH-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTH-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTH.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTH.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTR-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTR-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTR.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langTR.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langUK-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langUK-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langUK.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langUK.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langVI-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langVI-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langVI.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langVI.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langZH-obj.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langZH-obj.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langZH.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\i18n\langZH.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\ssr\client\dist\index.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\ssr\client\dist\index.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\ssr\client\dist\index.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\azul.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\azul.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\bee-inspired.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\bee-inspired.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\blue.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\blue.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\caravan.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\caravan.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\carp.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\carp.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\cool.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\cool.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-blue.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-blue.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-bold.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-bold.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-digerati.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-digerati.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-fresh-cut.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-fresh-cut.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-mushroom.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark-mushroom.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\dark.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\eduardo.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\eduardo.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\forest.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\forest.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\fresh-cut.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\fresh-cut.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\fruit.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\fruit.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\gray.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\gray.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\green.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\green.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\helianthus.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\helianthus.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\infographic.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\infographic.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\inspired.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\inspired.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\jazz.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\jazz.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\london.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\london.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\macarons.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\macarons.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\macarons2.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\macarons2.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\mint.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\mint.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\red-velvet.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\red-velvet.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\red.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\red.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\roma.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\roma.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\royal.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\royal.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\sakura.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\sakura.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\shine.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\shine.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\tech-blue.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\tech-blue.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\vintage.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\echarts\theme\vintage.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fabric.js\fabric.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fabric.js\fabric.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fcup2\fcup-bak.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fcup2\fcup-bak.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fcup2\fcup.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\fcup2\fcup.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\build\md5.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\CHANGELOG.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\index.d.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\LICENSE.txt" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\package.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\README.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\js-md5\src\md5.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft-signalr\signalr.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft-signalr\signalr.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\microsoft\signalr-protocol-msgpack\dist\browser\signalr-protocol-msgpack.min.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\msgpack5\msgpack5.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\msgpack5\msgpack5.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\myTinymce.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.sandbox.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.sandbox.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.worker.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\build\pdf.worker.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78ms-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\78ms-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\83pv-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90ms-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90ms-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90msp-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90msp-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90pv-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\90pv-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Add-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Add-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Add-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Add-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-0.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-1.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-3.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-4.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-5.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-6.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-CNS1-UCS2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-0.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-1.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-3.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-4.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-5.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-GB1-UCS2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-0.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-1.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-3.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-4.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-5.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-6.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Japan1-UCS2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Korea1-0.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Korea1-1.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Korea1-2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Adobe-Korea1-UCS2.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\B5pc-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\B5pc-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS1-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS1-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS2-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\CNS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETen-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETen-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETenms-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETenms-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETHK-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\ETHK-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Ext-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Ext-RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Ext-RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Ext-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GB-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GB-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GB-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GB-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBK-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBK-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBK2K-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBK2K-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBKp-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBKp-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBpc-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBpc-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBT-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBT-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBT-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBT-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBTpc-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\GBTpc-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Hankaku.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Hiragana.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKdla-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKdla-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKdlb-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKdlb-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKgccs-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKgccs-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKm314-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKm314-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKm471-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKm471-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKscs-B5-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\HKscs-B5-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Katakana.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-Johab-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-Johab-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCms-UHC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCms-UHC-HW-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCms-UHC-HW-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCms-UHC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCpc-EUC-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\KSCpc-EUC-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\LICENSE" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\NWP-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\NWP-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\RKSJ-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\RKSJ-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\Roman.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UCS2-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UCS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF16-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF16-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF8-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniCNS-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UCS2-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UCS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF16-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF16-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF8-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniGB-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UCS2-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UCS2-HW-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UCS2-HW-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UCS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF16-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF16-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF8-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF16-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF16-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF8-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJIS2004-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISPro-UCS2-HW-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISPro-UCS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISPro-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISX0213-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISX0213-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISX02132004-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniJISX02132004-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UCS2-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UCS2-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF16-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF16-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF32-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF32-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF8-H.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\UniKS-UTF8-V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\V.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\cmaps\WP-Symbol.bcmap" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\compressed.tracemonkey-pldi-09.pdf" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\debugger.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-check.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-comment.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-help.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-insert.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-key.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-newparagraph.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-noicon.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-note.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\annotation-paragraph.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\findbarButton-next.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\findbarButton-previous.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\grab.cur" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\grabbing.cur" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\loading-dark.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\loading-icon.gif" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\loading.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-documentProperties.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-firstPage.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-handTool.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-lastPage.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-rotateCcw.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-rotateCw.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-scrollHorizontal.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-scrollVertical.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-scrollWrapped.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-selectTool.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-spreadEven.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-spreadNone.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\secondaryToolbarButton-spreadOdd.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\shadow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-bookmark.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-currentOutlineItem.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-download.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-menuArrow.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-openFile.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-pageDown.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-pageUp.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-presentationMode.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-print.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-search.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-secondaryToolbarToggle.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-sidebarToggle.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-viewAttachments.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-viewLayers.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-viewOutline.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-viewThumbnail.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-zoomIn.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\toolbarButton-zoomOut.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\treeitem-collapsed.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\images\treeitem-expanded.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ach\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\af\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\an\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ar\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ast\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\az\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\be\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\bg\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\bn\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\bo\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\brx\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\br\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\bs\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\cak\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ca\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ckb\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\cs\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\cy\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\da\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\de\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\dsb\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\el\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\en-CA\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\en-GB\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\en-US\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\eo\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\es-AR\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\es-CL\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\es-ES\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\es-MX\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\et\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\eu\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\fa\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ff\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\fi\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\fr\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\fy-NL\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ga-IE\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\gd\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\gl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\gn\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\gu-IN\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\he\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hi-IN\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hr\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hsb\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hu\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hy-AM\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\hye\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ia\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\id\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\is\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\it\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ja\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\kab\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ka\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\kk\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\km\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\kn\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ko\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\lij\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\locale.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\lo\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ltg\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\lt\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\lv\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\meh\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\mk\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\mr\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ms\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\my\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\nb-NO\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ne-NP\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\nl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\nn-NO\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\oc\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\pa-IN\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\pl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\pt-BR\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\pt-PT\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\rm\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ro\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ru\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\scn\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\si\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\sk\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\sl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\son\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\sq\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\sr\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\sv-SE\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\szl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ta\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\te\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\th\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\tl\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\trs\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\tr\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\uk\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\ur\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\uz\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\vi\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\wo\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\xh\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\zh-CN\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\locale\zh-TW\viewer.properties" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\viewer.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\viewer.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\viewer.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\pdf\web\viewer.js.map" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\qrcodejs.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\qrcodejs\qrcode.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\qrcodejs\qrcode.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\changelog.txt" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\icons\default\icons.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\jquery.tinymce.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\langs\readme.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\langs\zh_CN.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\license.txt" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\advlist\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\anchor\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\autolink\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\autoresize\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\autosave\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\axupimgs\loading.gif" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\axupimgs\plugin.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\axupimgs\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\axupimgs\upfiles.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\bbcode\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\charmap\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\codesample\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\code\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\colorpicker\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\contextmenu\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\directionality\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\emoticons\js\emojiimages.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\emoticons\js\emojiimages.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\emoticons\js\emojis.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\emoticons\js\emojis.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\emoticons\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\fullpage\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\fullscreen\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\help\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\hr\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\imagetools\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\image\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\importcss\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\insertdatetime\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\icon.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityFormula.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\bar-bg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\bar.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\bg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\bottom.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\btn.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\down.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\top.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\custom\up.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\bar-bg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\bar-left.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\bar-right.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\thumb-bg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\thumb-left.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\scrollbar\edit\thumb-right.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\aleph.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\bbbk.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\beth.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\circleds.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\complement.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\daleth.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\ell.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\eth.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\finv.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\game.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\gimel.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\hbar.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\hslash.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\im.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\mho.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\partial.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\re.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\alphabetic\wp.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\circlearrowleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\circlearrowright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\curvearrowleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\curvearrowright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\downarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\downdownarrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\downharpoonleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\downharpoonright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\gets.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftarrowtail.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftharpoondown.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftharpoonup.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftleftarrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftrightarrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftrightharpoons.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\leftrightsquigarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\longleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\longleftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\longrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\looparrowleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\looparrowright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\multimap.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\nearrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\nleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\nrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\nwarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightarrowtail.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightharpoondown.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightharpoonup.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightleftarrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightleftharpoons.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightrightarrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\rightsquigarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\searrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\swarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\to.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\twoheadleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\twoheadrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-downarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-leftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-leftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-lftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-lleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-longleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-longleftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-longrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-lsh.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-nleftarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-nleftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-nrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-rightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-rrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-rsh.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-uparrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\u-updownarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\uparrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\updownarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\upharpoonleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\upharpoonright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\arrow\upuparrows.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\brackets\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\brackets\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\brackets\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\brackets\4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\btn.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\brackets.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\down.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\frac.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\fx.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\int.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\lim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\open.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\script.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\sin.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\sqrt.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\sum.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\tick.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\button\up.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\a.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\b.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\c.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\d.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\e.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\f.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\g.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\h.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\i.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\j.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\k.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\l.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\m.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\n.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\o.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\p.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\q.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\r.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\s.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\t.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\u.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\v.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\w.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\x.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\y.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\bb\z.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\a.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\b.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\c.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\d.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\e.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\f.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\g.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\h.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\i.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\j.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\k.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\l.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\m.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\n.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\o.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\p.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\q.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\r.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\s.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\t.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\u.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\v.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\w.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\x.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\y.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\cal\z.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\a.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\b.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\c.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\d.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\e.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\f.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\g.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\h.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\i.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\j.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\k.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\l.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\m.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\n.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\o.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\p.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\q.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\r.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\s.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\t.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\u.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ua.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ub.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uc.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ud.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ue.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uf.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ug.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uh.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ui.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uj.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uk.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ul.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\um.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\un.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uo.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\up.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ur.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\us.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ut.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uv.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uw.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\ux.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uy.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\uz.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\v.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\w.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\x.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\y.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\frak\z.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\alpha.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\beta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\chi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\delta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\epsilon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\eta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\gamma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\iota.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\kappa.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\lambda.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\mu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\nu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\omega.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\omicron.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\phi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\pi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\psi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\rho.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\sigma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\tau.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\theta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\upsilon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\xi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\lower\zeta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\digamma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varepsilon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varkappa.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varphi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varpi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varrho.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\varsigma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\misc\vartheta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\alpha.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\beta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\chi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\delta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\epsilon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\eta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\gamma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\iota.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\kappa.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\lambda.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\mu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\nu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\omega.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\omicron.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\phi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\pi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\psi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\rho.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\sigma.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\tau.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\theta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\upsilon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\xi.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\greek\upper\zeta.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\aleph.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\approx.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\ast.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\baifenhao.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\because.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\beth.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\blacksquare.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\cap.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\cdot.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\circ.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\cong.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\cup.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\ddots.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\div.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\downarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\eq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\equiv.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\exists.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\forall.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\geq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\gets.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\gg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\gt.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\in.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\infty.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\leftrightarrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\leq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\ll.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\lt.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\minus.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\mp.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\neg.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\nexists.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\ni.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\partial.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\plus.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\pm.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\propto.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\sim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\simeq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\surd.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\tanhao.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\therefore.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\times.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\to.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\uparrow.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\varnothing.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\math\vdots.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\gneqq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\gnsim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\lneqq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\lnsim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nbdash-1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ncong.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\neq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nequiv.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nexists.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ngeq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ngtr.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nleq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nless.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nmid.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\notin.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nparallel.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nprec.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nsim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nsubseteq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nsucc.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nsupseteq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ntriangleleft.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ntrianglelefteq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ntriangleright.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\ntrianglerighteq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nvdash-1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nvdash-2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nvdash-3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\nvdash.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\precnsim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\subsetneq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\succnsim.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\not\supsetneq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\a.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\b.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\c.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\d.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\e.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\f.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\g.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\h.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\i.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\j.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\k.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\l.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\m.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\n.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\o.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\p.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\q.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\r.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\s.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\t.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\u.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ua.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ub.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uc.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ud.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ue.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uf.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ug.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uh.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ui.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uj.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uk.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ul.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\um.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\un.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uo.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\up.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uq.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ur.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\us.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ut.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uu.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uv.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uw.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\ux.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uy.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\uz.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\v.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\w.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\x.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\y.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\char\rm\z.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\c1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\c2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\c4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\frac\c5.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\5.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\6.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\c1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\c2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\func\c3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\5.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\int\6.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\large\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\large\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\large\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\other.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\c1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\c2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\script\c3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\4.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\c1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\sqrt\c2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\ys\1.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\ys\2.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\images\toolbar\ys\3.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\styles\base.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\styles\page.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\styles\scrollbar.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\styles\ui.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\fui.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\fui.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\images\close.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\images\down.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\images\open.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\assets\theme\default\images\up.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\js\jquery-3.6.0.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\js\kity-formula-parser.all.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\js\kity-formula-render.all.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\js\kityformula-editor.all.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\js\kitygraph.all.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\loading.gif" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\resource\KF_AMS_BB.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\resource\KF_AMS_CAL.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\resource\KF_AMS_FRAK.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\resource\KF_AMS_MAIN.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\kityformula\resource\KF_AMS_ROMAN.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\plugin.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\kityformula-editor\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\legacyoutput\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\link\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\lists\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\media\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\nonbreaking\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\noneditable\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\pagebreak\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\paste\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\preview\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\print\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\quickbars\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\save\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\searchreplace\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\spellchecker\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\tabfocus\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\table\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\template\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\textcolor\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\textpattern\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\toc\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\visualblocks\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\visualchars\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\plugins\wordcount\plugin.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\content\dark\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\content\default\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\content\document\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\content\writer\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\content.inline.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\content.mobile.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\skin.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\skin.mobile.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide-dark\skin.shadowdom.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\content.inline.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\content.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\content.mobile.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\skin.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\skin.mobile.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\skins\ui\oxide\skin.shadowdom.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\themes\mobile\theme.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\themes\silver\theme.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\tinymce.d.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\tinymce\tinymce.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\plugins\xm-select.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\web\base.js" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.0.1" />
+		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.0.1" />
+		<PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.3" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.0" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Magic.Guangdong.Assistant\Magic.Guangdong.Assistant.csproj" />
+    <ProjectReference Include="..\Magic.Guangdong.DbServices\Magic.Guangdong.DbServices.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\css\site.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\avatar.jpg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\avatar.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\cover.jpg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\Excel.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\guangdong_logo-32.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\guangdong_logo-72.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\guangdong_logo.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\Word.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\js\site.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\bootstrap\LICENSE">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\additional-methods.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\additional-methods.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\jquery.validate.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\LICENSE.md">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.min.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\LICENSE.txt">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\css\layui-theme-dark.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\css\layui.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\css\layui.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\font\iconfont.eot">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\font\iconfont.svg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\font\iconfont.ttf">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\font\iconfont.woff">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\font\iconfont.woff2">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\dist\layui.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\font\iconfont.eot">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\font\iconfont.svg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\font\iconfont.ttf">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\font\iconfont.woff">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\font\iconfont.woff2">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\layui.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\LICENSE">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\package-lock.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\package.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\layui\README.md">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\emailcode.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\emailnotice.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\error.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\file.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\httprequest.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\layextend.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\myFcup.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\myXselect.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\requestapi.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\web\test.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\tamplate\" />
+  </ItemGroup>
+
+</Project>

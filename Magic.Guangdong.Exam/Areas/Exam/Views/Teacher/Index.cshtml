@@ -1,0 +1,97 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row layui-col-space16">
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-search"></i>
+                    </div>
+                    <input type="text" id="keyword" placeholder="关键字" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <a href="@Url.Action("create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新建</a>
+                </div>
+            </div>
+        </div>       
+    </form>
+    <table id="table" class="layui-table" lay-filter="table"></table>
+</div>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/exam/teacher/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/exam/teacher/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getTeacherTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+
+</script>
+
+<script>
+    let form = layui.form;
+    autoSearch('keyword', function (value) {
+        getTeacherTable()
+    })
+
+    getTeacherTable()
+    function getTeacherTable() {
+        var params = {
+            url: '@Url.Action("GetTeachers")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: 120 }
+                //{ field: 'id', title: '角色id', type: 'checkbox' }
+                , { field: 'name', title: '教师名称' }
+                , { field: 'email', title: '邮箱' }
+                , { field: 'mobile', title: '电话' }
+                , { field: 'teachNo', title: '编号' }
+                , { field: 'createdAt', title: '创建时间' }
+                , { title: '操作', templet: '#operationTpl', width: 300 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if ($("#keyword").val()) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Name',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }, {
+                    'Field': 'Email',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }, {
+                    'Field': 'TeachNo',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }, {
+                    'Field': 'Mobile',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>
+
+

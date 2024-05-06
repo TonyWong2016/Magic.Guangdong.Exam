@@ -549,6 +549,7 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
 
+
         /// <summary>
         /// 打分
         /// </summary>
@@ -568,7 +569,6 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 return record;//没交卷，答题也还没结束
             }
-            //record.Stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ApplyId == record.ApplyId && u.IsDeleted == 0).CountAsync());
             //严格模式下，要判定是否超时，允许2分钟以内的误差交卷时间
             if (record.IsStrict == 1 && record.LimitedTime.AddMinutes(2) < DateTime.Now)
             {
@@ -601,12 +601,12 @@ namespace Magic.Guangdong.DbServices.Methods
                 else
                     record.SubmitAnswer = "[]";//的确交了白卷
             }
+            
             //这里的判定条件也要留着，因为经过上面的处理，并不一定能保证一定有答题记录，有可能就是没有提交任何记录。
             if (record.SubmitAnswer.Contains("userAnswer"))
             {
                 List<SubmitAnswerDto> Answers = JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(record.SubmitAnswer);
-                //第二步，把试卷的题目和分数取出来
-                //var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
+                //第二步，把试卷的题目和分数取出来，注意这里有一个取分表数据的策略
                 var relations = await fsql.Get(conn_str).Select<Relation, QuestionView>()
                    .AsTable((type, oldname) =>
                    {
@@ -623,7 +623,6 @@ namespace Magic.Guangdong.DbServices.Methods
                         b.Objective,
                         b.SingleAnswer
                     });
-                //double paperScore = relations.Sum(u => u.ItemScore);
 
                 //第三步，把用户提交的题目的正确答案都取出来
                 var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
@@ -640,21 +639,32 @@ namespace Magic.Guangdong.DbServices.Methods
                         u.QuestionId
                     });
                 //string lastQuestionId = "";
-
+                var userSubmitAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserSubmitAnswerRecord>();
+                List<UserSubmitAnswerRecord> userSubmitAnswerRecords = new List<UserSubmitAnswerRecord>();
                 //第四步，开始判分，客观题直接给，主观题撂着...
                 foreach (var answer in Answers)
-                {
+                {                   
                     if (!relations.Where(u => u.QuestionId == answer.questionId).Any())
                     {
                         continue;
                     }
                     var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
-
-                    //if (answer.userAnswer.Length==1 && answer.userAnswer[0]==)
+                    
+                    //把答题记录存到单独的表里
+                    var submitAnswerRecord = new UserSubmitAnswerRecord();
+                    submitAnswerRecord.QuestionId = answer.questionId;
+                    submitAnswerRecord.RecordId = record.Id;
                     if (relation.Objective != 1)
                     {
+                        submitAnswerRecord.IsObjective = 1;
+                        submitAnswerRecord.ObjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
+                        submitAnswerRecord.Remark = "主观题";
+                        userSubmitAnswerRecords.Add(submitAnswerRecord);
                         continue;//主观题，跳过
                     }
+                    submitAnswerRecord.SubjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
+                    submitAnswerRecord.Remark = "客观题";
+                    userSubmitAnswerRecords.Add(submitAnswerRecord);
                     //如果是单选或者判断题
                     if (relation.SingleAnswer == 1)
                     {
@@ -690,6 +700,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         }
                     }
                 }
+                await userSubmitAnswerRecordRepo.InsertAsync(userSubmitAnswerRecords);
             }
            
 
@@ -704,13 +715,10 @@ namespace Magic.Guangdong.DbServices.Methods
             record.UpdatedBy = "systemmarked";
             record.Score = userScore;
             record.Marked = (int)ExamMarked.Part;
-
+            
             await userAnswerRecordRepo.UpdateAsync(record);
             return record;
-
         }
-
-        
     }
 
     public class SelectExaminationsDto

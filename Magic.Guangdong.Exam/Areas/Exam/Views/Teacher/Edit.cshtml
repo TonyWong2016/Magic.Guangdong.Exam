@@ -1,0 +1,121 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Exam.Teachers.TeacherDto
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <input type="hidden" asp-for="Id" />
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师姓名</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Name" placeholder="教师姓名" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师邮箱</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Email" placeholder="教师邮箱" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师电话</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Mobile" placeholder="教师电话" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师介绍</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" asp-for="Intro" placeholder="教师简介" autocomplete="off" lay-affix="clear" lay-verify="required" required>
+                    </textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-col-space16">
+
+            <div class="layui-col-md9">
+                <label class="layui-form-label">登录令牌</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="password" asp-for="AuthToken" value="*********" placeholder="登录令牌" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+
+                </div>
+            </div>
+
+            <div class="layui-col-md3">
+                <a href="javascript:;" onclick="resetAuthToken()" class="layui-btn layui-btn-primary layui-border-purple">重置</a>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="padding-left:30px">
+            <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack">返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+<script>
+    let form = layui.form;
+    form.on("submit(save)", async function (data) {
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('创建成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            });
+            return;
+        }
+        errorMsg('创建失败' + ret.msg);
+    })
+
+    function resetAuthToken() {
+        layer.prompt({ title: '请输入新密令(至少8位)', formType: 1 }, function (value, index, elem) {
+            if (value.length < 6) {
+                errorMsg('密码位数至少为8位');
+                //layer.close(index);
+                return elem.focus();
+            }
+
+            layer.alert(`您新设定的密令为${value}，此密码只显示1次，请确认是否正确`,
+                {
+                    icon: 0,
+                    btn: ['确认', '确认并将新密码发送至教师邮箱', '取消'],
+                    btnAlign: 'c',
+                    btn1: async function () {
+                        await doResetToken(value, 0)
+                    },
+                    btn2: async function () {
+                        await doResetToken(value, 1)
+                    },
+                    btn3: function () {
+                        layer.closeAll();
+                    },
+                })
+        })
+    }
+
+    async function doResetToken(authToken, notice) {
+       
+        let formData = new FormData();
+        formData.append('Id', jVal('Id'))
+        formData.append(csrfTokenKey, requestToken)
+        formData.append('AuthToken', authToken)
+        formData.append('Notice', notice)
+        let json = await request('POST', '@Url.Action("ResetTeacherPwd")', formData, CT);
+        if (json.code == 0) {
+            successMsg('重置成功');
+
+        } else {
+            errorMsg('重置失败：' + json.msg);
+        }
+        layer.closeAll();
+
+    }
+</script>
+
+

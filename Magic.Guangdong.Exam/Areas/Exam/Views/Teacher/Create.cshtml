@@ -1,0 +1,69 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Exam.Teachers.TeacherDto
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师姓名</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Name" placeholder="教师姓名" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师邮箱</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Email" placeholder="教师邮箱" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师电话</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Mobile" placeholder="教师电话" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">教师介绍</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" asp-for="Intro" placeholder="教师简介" autocomplete="off" lay-affix="clear" lay-verify="required" required>
+                </textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">登录令牌</label>
+            <div class="layui-input-block">
+                <input class="layui-input" type="password" asp-for="AuthToken" placeholder="登录令牌" autocomplete="off" lay-affix="clear" lay-verify="required" required />
+
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="padding-left:30px">
+            <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save">保存</a>
+            <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack">返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+<script>
+    let form = layui.form;
+    form.on("submit(save)", async function (data) {
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Create")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('创建成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            });
+            return;
+        }
+        errorMsg('创建失败' + ret.msg);
+    })
+</script>
+
+

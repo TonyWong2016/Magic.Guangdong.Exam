@@ -46,32 +46,6 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         //public string examKeyword { get; set; }
     }
 
-    public class MemberInfoDto
-    {
-        public string applyId { get; set; }
-
-        public string email { get; set; }
-
-        public string memberId { get; set; }
-
-        public string memberName { get; set; }
-
-        public string mobile { get; set; }
-
-        public string photo { get; set; }
-
-        public string school { get; set; }
-
-        public string sex { get; set; }
-
-        public string projectNo { get; set; }
-
-        public string programType { get; set; }
-
-        public string areaName { get; set; }
-
-        public int? provinceCheck { get; set; } = 0;
-    }
 
     public class UserAnswerDto
     {

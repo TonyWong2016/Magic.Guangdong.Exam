@@ -155,7 +155,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             bool ret = await _userAnswerRecordViewRepo.RemoveUserRecord(urid, adminId);
             if (ret)
             {
-                _capBus.Publish(CapConsts.PREFIX + "RemoveUserRecord", urid);
+                await _capBus.PublishAsync(CapConsts.PREFIX + "RemoveUserRecord", urid);
                 return Json(_resp.success(1, "移除成功"));
             }
             else
