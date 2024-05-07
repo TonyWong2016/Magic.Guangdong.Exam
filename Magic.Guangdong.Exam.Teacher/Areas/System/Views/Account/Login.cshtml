@@ -32,7 +32,7 @@
                     <div class="layui-input-prefix">
                         <i class="layui-icon layui-icon-username"></i>
                     </div>
-                    <input type="text" name="account" value="" lay-verify="required" placeholder="用户名" lay-reqtext="请填写用户名" autocomplete="off" class="layui-input" lay-affix="clear">
+                    <input type="text" name="account" value="" lay-verify="required" placeholder="教师编号/邮箱/电话" lay-reqtext="请填写登录账号" autocomplete="off" class="layui-input" lay-affix="clear">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -62,11 +62,11 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <input type="checkbox" name="remember" lay-skin="primary" title="记住密码">
+                @* <input type="checkbox" name="remember" lay-skin="primary" title="记住密码"> *@
                 <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
             </div>
             <div class="layui-form-item">
-                <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
+                <a class="layui-btn layui-btn-fluid layui-bg-purple save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
                 <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
 
             </div>
@@ -84,7 +84,7 @@
     </form>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/lib/axios/axios.min.js"></script>
-    <script src="~/web/base.js"></script>
+    <script src="~/web/teacherBase.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
@@ -136,7 +136,7 @@
                 let result = await request('POST', '/system/account/login', data.field, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {                    
                     setLoginInfo(result.data.access_token);
-                    window.location.href = "/system/manage";
+                    window.location.href = "/system/paper/index";
                     successMsg('登录成功');
                     $('.disabledsave').show();
                     $('.save').hide();
@@ -202,7 +202,7 @@
             // 验证码字体样式
             ctx.font = `${fontSize}px sans-serif`;
             ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#16baaa';
+            ctx.fillStyle = '#a233c6';
 
             // 随机偏移量和旋转角度
             charsToDraw.forEach((char, index) => {

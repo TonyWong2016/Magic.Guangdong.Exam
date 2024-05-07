@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
-    internal class UserSubmitAnswerRecordRepo:ExaminationRepository<UserSubmitAnswerRecord>,IUserSubmitAnswerRecordRepo
+    internal class UserAnswerSubmitRecordRepo : ExaminationRepository<UserAnswerSubmitRecord>, IUserAnswerSubmitRecordRepo
     {
         private IdleBus<IFreeSql> fsql;
         const string conn_str = "db_exam";
-        public UserSubmitAnswerRecordRepo(IdleBus<IFreeSql> fsql)
+        public UserAnswerSubmitRecordRepo(IdleBus<IFreeSql> fsql)
             : base(fsql)
         {
             this.fsql = fsql;

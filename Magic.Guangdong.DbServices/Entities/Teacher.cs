@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 using Yitter.IdGenerator;
+using MassTransit;
 
 namespace Magic.Guangdong.DbServices.Entities {
 
@@ -15,7 +16,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 	public partial class Teacher {
 
 		[JsonProperty, Column(IsPrimary = true)]
-		public long Id { get; set; } = YitIdHelper.NextId();
+		public Guid Id { get; set; } = NewId.NextGuid();
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -54,6 +55,8 @@ namespace Magic.Guangdong.DbServices.Entities {
         public string KeyId { get; set; } = Assistant.Utils.GenerateRandomCodePro(16);
 
 
+        [JsonProperty]
+        public string Version { get; set; }
     }
 
 }

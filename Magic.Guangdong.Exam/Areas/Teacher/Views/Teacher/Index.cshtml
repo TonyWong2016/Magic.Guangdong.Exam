@@ -24,7 +24,9 @@
 </div>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="/exam/teacher/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/teacher/teacher/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    @* <a class="layui-btn layui-btn-primary layui-border-orange" onclick="AssignExam('{{d.id}}')" href="javascript:;"><i class="layui-icon layui-icon-release"></i>分配考试</a> *@
+
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/exam/teacher/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getTeacherTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 
 </script>
@@ -51,7 +53,7 @@
                 , { field: 'mobile', title: '电话' }
                 , { field: 'teachNo', title: '编号' }
                 , { field: 'createdAt', title: '创建时间' }
-                , { title: '操作', templet: '#operationTpl', width: 300 }
+                , { title: '操作', templet: '#operationTpl', width: 400 }
             ],
             height: 630
         }
@@ -67,25 +69,26 @@
                 'Value': 0
             }]
         };
-        if ($("#keyword").val()) {
+        let keyword = $("#keyword").val()
+        if (keyword) {
             whereJsonStr.Filters.push({
                 'Logic': 'Or',
                 'Filters': [{
                     'Field': 'Name',
-                    'Operator': 'Equal',
-                    'Value': jVal('keyword')
+                    'Operator': 'Contains',
+                    'Value': keyword
                 }, {
                     'Field': 'Email',
                     'Operator': 'Equal',
-                    'Value': jVal('keyword')
+                    'Value': keyword
                 }, {
                     'Field': 'TeachNo',
                     'Operator': 'Equal',
-                    'Value': jVal('keyword')
+                    'Value': keyword
                 }, {
                     'Field': 'Mobile',
                     'Operator': 'Equal',
-                    'Value': jVal('keyword')
+                    'Value': keyword
                 }]
             });
         }

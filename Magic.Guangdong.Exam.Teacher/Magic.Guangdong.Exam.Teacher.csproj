@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\web\base.js" />
+    <Content Remove="wwwroot\web\teacherBase.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -1172,7 +1172,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\web\base.js" />
+    <None Include="wwwroot\web\teacherBase.js" />
   </ItemGroup>
 
 	<ItemGroup>

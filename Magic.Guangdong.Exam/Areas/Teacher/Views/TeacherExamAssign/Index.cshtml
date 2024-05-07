@@ -1,0 +1,326 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row layui-col-space16">
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-search"></i>
+                    </div>
+                    <input type="text" id="keyword" placeholder="关键字" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-col-md2">
+                <select id="associationIdView" lay-filter="associationId" lay-search>
+                </select>
+            </div>
+
+            <div class="layui-col-md2">
+                <select id="examType" lay-filter="examType" name="examType" class="layui-select">
+                    <option value="">考试类型</option>
+                    <option value="0" selected>考试</option>
+                    <option value="1" disabled>练习(暂时不需要把练习模式的试卷分配给老师)</option>
+                </select>
+            </div>
+
+            <div class="layui-col-md2">
+                <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
+                    <option value="-1">请选择考试</option>
+                </select>
+            </div>
+
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <a href="javascript:;" onclick="openDiv('分配教师', 'divAssign', '60%', '70%', false);" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新建</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <table id="table" class="layui-table" lay-filter="table"></table>
+</div>
+
+<div class="layui-layer-notice" style="display:none;padding:15px" id="divAssign">
+    <div class="layui-row">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">老师</label>
+                <div class="layui-input-block">
+                    <div id="teacherView">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">考试</label>
+                <div class="layui-input-block">
+                    <div id="examView">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn" href="javascript:;" id="formSubmit" onclick="SubmitAssign()">保存分配关系</a>
+                </div>
+            </div>
+            <blockquote class="layui-elem-quote">
+                注意：分配教师对应的考试时，允许多个老师对应多个考试同时添加，但不建议这样操作，并不是系统不支持该操作
+                而是如此操作时，管理人员可能会把逻辑关系弄混。<br />
+                建议的操作方式是，选择一个老师，然后把该老师负责的考试批量分配过去，或者反过来，选择一个考试，然后把负责该场考试的老师批量分配过来，如此逐一添加。
+                </blockquote>
+        </form>
+    </div>
+</div>
+
+<script src="/plugins/xm-select.js"></script>
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick=""><i class="layui-icon layui-icon-form"></i>考卷详情</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/teacher/TeacherExamAssign/remove',removeId:'{{d.id}}',refresh:false,callback:()=>{refreshRandomInt();getTeacherExamAssignTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+
+<script type="text/html" id="activityTpl">
+    <option>请选择活动</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="examStatusTpl">
+    {{# if(d.examStatus==0){ }}
+    <span class="layui-badge layui-bg-green">正常</span>
+    {{# } else { }}
+    <span class="layui-badge layui-bg-gray">禁用</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="examTypeTpl">
+    {{# if(d.examType==0){ }}
+    <span style="color:#1e9fff">考试</span>
+    {{# } else { }}
+    <span style="color:#FF5722">练习</span>
+    {{# } }}
+</script>
+
+<script>
+    let form = layui.form;
+    let associationId;
+    let examType = '0';
+    let examId = '0';
+    autoSearch('keyword', function (value) {
+        getTeacherExamAssignTable()
+    })
+
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'activityTpl', 'associationIdView', false)
+        .then(v => {
+            getTeacherExamAssignTable()
+        })
+    form.on('select(associationId)', data => {
+        associationId = data.value;
+        layer.load();
+        getExamDrops();
+        getTeacherExamAssignTable()
+    })
+
+    form.on('select(examType)', data => {
+        //console.log(data)
+        if(!data.value){
+            return;
+        }
+        getExamDrops();
+        examType = data.value;
+        getTeacherExamAssignTable()
+    })
+    
+    form.on('select(examId)', data => {
+        examId = data.value;
+        getTeacherExamAssignTable();
+    })
+
+    function getExamDrops() {
+        examId = '';
+        let queryModel = { 'id': associationId, 'type': 0 };
+        if (jVal('examType'))
+            queryModel.examType = jVal('examType');
+        getSelectItems('/exam/Examination/GetExamMini', queryModel, 'selectTpl', 'examId', false);
+        layer.closeAll('loading');
+    }
+
+    function getTeacherExamAssignTable() {
+        var params = {
+            url: '@Url.Action("GetAssignList")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: 120 }
+                //{ field: 'id', title: '角色id', type: 'checkbox' }
+                , { field: 'teacherName', title: '教师名称' }
+                , { field: 'examTitle', title: '分管考试' }
+                , { field: 'email', title: '邮箱' }
+                , { field: 'mobile', title: '电话' }
+                , { field: 'teachNo', title: '教师编号' }
+                , { templet: '#examTypeTpl', title: '考试类型', width: 150 }
+                , { templet: '#examStatusTpl', title: '考试状态', width: 150 }
+                , { title: '操作', templet: '#operationTpl', width: 300 }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }   
+    
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+
+        if (associationId && isNumeric(associationId)) {
+            whereJsonStr.Filters.push({
+                'Field': 'AssociationId',
+                'Operator': 'Equal',
+                'Value': associationId
+            });
+        }
+
+        if (examType && examType != '-1') {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamType',
+                'Operator': 'Equal',
+                'Value': examType
+            });
+        }
+
+        if (examId && examId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            });
+        }
+
+        let keyword = $("#keyword").val();
+        if (keyword) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'TeacherName',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }, {
+                    'Field': 'ExamTitle',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }, {
+                    'Field': 'Email',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'TeachNo',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'Mobile',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+</script>
+
+<script>
+    let teachers;
+    let exams;
+
+    Assign()
+    function Assign() {
+        //渲染老师选项
+        axios.get('/teacher/teacher/GetTeacherDrops', {
+            params: {
+                rd: 0
+            }
+        }).then(json => {
+            //console.log(json)
+            teachers = xmSelect.render({
+                el: "#teacherView",
+                filterable: true,
+                tips: '请选择教师',
+                toolbar: { show: true },
+                theme: {
+                    color: '#6739b6',
+                },
+                direction: 'down',
+                prop: {
+                    name: 'text',
+                    value: 'value'
+                },
+                data: json.data.data,
+                on: function (data) {
+                    //console.log(data);
+                }
+            })
+        })
+
+        //渲染考试
+        axios.get('/exam/Examination/GetExamMini', {
+            params: {
+                'id': '',
+                'type': 0,
+                'examType':0
+            }
+        }).then(json => {
+            //console.log(json)
+            exams = xmSelect.render({
+                el: "#examView",
+                filterable: true,
+                tips: '请选择考试',
+                toolbar: { show: true },
+                theme: {
+                    color: '#6739b6',
+                },
+                direction: 'down',
+                prop: {
+                    name: 'text',
+                    value: 'value'
+                },
+                data: json.data.data,
+                on: function (data) {
+                    //console.log(data);
+                }
+            })
+        })
+    }
+
+    //提交
+    async function SubmitAssign() {
+        let teacherIds = teachers.getValue('value');
+        let examIds = exams.getValue('value');
+        if (teacherIds.length == 0 || examIds.length==0) {
+            errorMsg("老师和教师在进行分配时均不可为空");
+            return;
+        }
+        console.log(teacherIds);
+        console.log(examIds);
+        let formData = new FormData();
+        formData.append('teacherIds', teacherIds);
+        formData.append('examIds', examIds);
+        formData.append(csrfTokenKey, requestToken);
+        let json = await request('POST', '@Url.Action("AssignExamsToTeachers")', formData, CT);
+        if (json.code == 0) {
+            refreshRandomInt();
+            successMsg('操作成功', () => {
+                getTeacherExamAssignTable()
+                layer.closeAll();
+            })
+        }
+    }
+</script>

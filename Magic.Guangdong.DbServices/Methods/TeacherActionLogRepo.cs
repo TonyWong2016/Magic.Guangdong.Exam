@@ -19,7 +19,7 @@ namespace Magic.Guangdong.DbServices.Methods
             this.fsql = fsql;
         }
 
-        public async Task<int> InsertTeacherLoginLog(long teacherId,string jwt,string exp)
+        public async Task<int> InsertTeacherLoginLog(Guid teacherId,string jwt,string exp)
         {
             using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {
@@ -31,13 +31,18 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         return -1;
                     }
-                    await teacherLoginLogRepo.InsertAsync(new TeacherLoginLog() { TeacherId = teacherId, TokenVersion = exp, TokenHash = tokenHash });
+                    await teacherLoginLogRepo.InsertAsync(new TeacherLoginLog()
+                    {
+                        TeacherId = teacherId,
+                        TokenVersion = exp,
+                        TokenHash = tokenHash,
+                        LoginTime = DateTime.Now
+                    });
                     var teacherRepo = fsql.Get(conn_str).GetRepository<Teacher>();
                    
                     var teacher = await teacherRepo.Where(a => a.Id == teacherId).FirstAsync();
-                    //var claims = JwtService.ValidateJwt(jwt);
                     teacher.UpdatedAt= DateTime.Now;
-                    //teacher = exp;
+                    teacher.Version = exp;
                     await teacherRepo.UpdateAsync(teacher);
                     uow.Commit();
                     return 1;

@@ -22,23 +22,19 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         private readonly IResponseHelper _resp;
         private readonly ITeacherRepo _teacherRepo;
         private readonly IJwtService _jwtService;
-        private readonly IAdminRoleRepo _adminRoleRepo;
+        private readonly ITeacherLoginLogRepo _teacherLoginLogRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICapPublisher _capPublisher;
-        private readonly IAdminLoginLogRepo _adminLoginLogRepo;
-        private readonly IRoleRepo _roleRepo;
-        public AccountController(IResponseHelper resp, ITeacherRepo teacherRepo, IJwtService jwtService, IAdminRoleRepo adminRoleRepo, IRedisCachingProvider redisCachingProvider, IWebHostEnvironment webHostEnvironment, ICapPublisher capPublisher, IAdminLoginLogRepo adminLoginLogRepo,IRoleRepo roleRepo)
+        public AccountController(IResponseHelper resp, ITeacherRepo teacherRepo, IJwtService jwtService, ITeacherLoginLogRepo teacherLoginLogRepo, IRedisCachingProvider redisCachingProvider, IWebHostEnvironment webHostEnvironment, ICapPublisher capPublisher)
         {
             _resp = resp;
             _teacherRepo = teacherRepo;
+            _teacherLoginLogRepo = teacherLoginLogRepo;
             _jwtService = jwtService;
-            _adminRoleRepo = adminRoleRepo;
             _redisCachingProvider = redisCachingProvider;
             _webHostEnvironment = webHostEnvironment;
             _capPublisher = capPublisher;
-            _adminLoginLogRepo = adminLoginLogRepo;
-            _roleRepo = roleRepo;
         }
         public IActionResult Index()
         {
@@ -111,29 +107,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         {
             Console.WriteLine($"{DateTime.Now}:消费事务---记录登录日志");
             string[] parts = jwtIdExp.Split('|');
-            await _adminLoginLogRepo.InsertLoginLog(Guid.Parse(parts[0]), parts[1], parts[2]);
+            await _teacherLoginLogRepo.InsertTeacherLoginLog(Guid.Parse(parts[0]), parts[1], parts[2]);
         }
 
-        //[NonAction]
-        //[CapSubscribe(CapConsts.PREFIX + "CacheMyPermission")]
-        public async Task CacheMyPermission(AfterLoginDto dto)
-        {
-            await _redisCachingProvider.KeyDelAsync("GD.Exam.Permissions_" + dto.adminId.ToString());
-            var myPermissions = await _adminRoleRepo.GetMyPermission(dto.adminId);
-            var superRoles = await _roleRepo.getListAsync(u => u.IsDeleted == 0 && u.Type == 1);
-            List<long> superRoleIds = new List<long>();
-            if (superRoles.Any())
-                superRoleIds = superRoles.Select(u => u.Id).ToList();
-            if(superRoleIds.Any() && myPermissions.Where(u=>superRoleIds.Contains(u.RoleId)).Any())            
-                await _redisCachingProvider.HSetAsync("GD.Exam.Permissions_" + dto.adminId.ToString(), "super", "super");
-            
-            //await _redisCachingProvider.ZAddAsync(adminId.ToString(), myPermissions, Utils.TimeStampToDateTime(exp) - DateTime.Now);
-            foreach (var myPermission in myPermissions)
-            {
-                await _redisCachingProvider.HSetAsync("GD.Exam.Permissions_" + dto.adminId.ToString(), myPermission.router, JsonHelper.JsonSerialize(myPermission));
-            }
-            await _redisCachingProvider.KeyExpireAsync("GD.Exam.Permissions_" + dto.adminId.ToString(), Convert.ToInt32((dto.exp - DateTime.Now).TotalSeconds));
-        }
 
         [AllowAnonymous]
         [HttpPost, ValidateAntiForgeryToken]

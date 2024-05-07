@@ -176,25 +176,25 @@ function setLoginInfo(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     let item = JSON.parse(window.atob(base64));
-    let userId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
+    let teacherId = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid'];
     let nameidentifier = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-    let userName = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('userName', userName);
-    localStorage.setItem('accessToken', window.btoa(nameidentifier + '|' + item.exp));
+    let teacherName = item['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    localStorage.setItem('teacherId', teacherId);
+    localStorage.setItem('teacherName', teacherName);
+    localStorage.setItem('teacherAccessToken', window.btoa(nameidentifier + '|' + item.exp));
     let expDays = (item.exp - (Math.round(new Date() / 1000))) / 86400;
-    setCookie('userId', userId, expDays)
-    setCookie('examToken', jwt, expDays);
+    setCookie('teacherId', teacherId, expDays)
+    setCookie('teacherToken', jwt, expDays);
 }
 
 
 
 function clearLoginInfo() {
-    deleteCookie('userId');
-    deleteCookie('examToken');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('userName');
+    deleteCookie('teacherId');
+    deleteCookie('teacherToken');
+    localStorage.removeItem('teacherId');
+    localStorage.removeItem('teacherAccessToken');
+    localStorage.removeItem('teacherName');
     if (parent.location) {
         parent.location.href = "/home/index"
     }
@@ -297,7 +297,7 @@ function deleteCookie(name) {
 }
 
 function autoCheckLoginStatus() {
-    if (isCookieExpired('userId') || !getCookie('userId')) {
+    if (isCookieExpired('teacherId') || !getCookie('teacherId')) {
         clearLoginInfo();
     }
     

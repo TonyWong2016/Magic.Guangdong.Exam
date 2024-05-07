@@ -14,6 +14,7 @@ namespace Magic.Guangdong.Exam.Pages
         public void OnGet()
         {
             Console.WriteLine(1234);
+            Redirect("/system/manage");
         }
     }
 }

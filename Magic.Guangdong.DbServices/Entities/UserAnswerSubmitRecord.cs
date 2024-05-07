@@ -12,7 +12,8 @@ using Yitter.IdGenerator;
 namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class UserSubmitAnswerRecord {
+	public partial class UserAnswerSubmitRecord
+    {
 
 		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();

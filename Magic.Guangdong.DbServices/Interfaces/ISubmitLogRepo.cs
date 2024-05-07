@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Interfaces
 {
-    public interface ISubmitLogRepo : IExaminationRepository<SubmitLog>    
+    public interface IUserAnswerSubmitLogRepo : IExaminationRepository<UserAnswerSubmitLog>    
     {
     }
 }

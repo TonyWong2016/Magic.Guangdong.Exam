@@ -9,6 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface ITeacherLoginLogRepo:IExaminationRepository<TeacherLoginLog>
     {
-        Task<int> InsertTeacherLoginLog(long teacherId, string jwt, string exp);
+        Task<int> InsertTeacherLoginLog(Guid teacherId, string jwt, string exp);
     }
 }

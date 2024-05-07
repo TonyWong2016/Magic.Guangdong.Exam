@@ -3,18 +3,19 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
-using Magic.Guangdong.DbServices.Dtos.Exam.Teachers;
+using Magic.Guangdong.DbServices.Dtos.Teacher;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
+using System.Linq.Expressions;
 using System.Text;
 
-namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
+namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
 {
-    [Area("Exam")]
+    [Area("Teacher")]
     public class TeacherController : Controller
     {
         private readonly IResponseHelper _resp;
@@ -22,14 +23,14 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ICapPublisher _capPublisher;
         private string adminId = "system";
-        public TeacherController(IResponseHelper resp, ITeacherRepo teacherRepo, IHttpContextAccessor contextAccessor,ICapPublisher capPublisher)
+        public TeacherController(IResponseHelper resp, ITeacherRepo teacherRepo, IHttpContextAccessor contextAccessor, ICapPublisher capPublisher)
         {
             _resp = resp;
             _teacherRepo = teacherRepo;
             _contextAccessor = contextAccessor;
             _capPublisher = capPublisher;
-            adminId = (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
-               Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
+            adminId = _contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any() ?
+               Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
 
         }
 
@@ -39,11 +40,29 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 60,VaryByQueryKeys =new string[] { "whereJsonStr","pageIndex","pageSize", "orderby", "isAsc" })]
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "whereJsonStr", "pageIndex", "pageSize", "orderby", "isAsc" })]
         public IActionResult GetTeachers(PageDto dto)
         {
-            long total; 
+            long total;
             return Json(_resp.success(new { items = _teacherRepo.getList(dto, out total), total }));
+        }
+
+        [ResponseCache(Duration = 60,VaryByQueryKeys =new string[] {"keyword","rd"})]
+        public async Task<IActionResult> GetTeacherDrops(string keyword)
+        {
+            Expression<Func<DbServices.Entities.Teacher, bool>> where = p => p.IsDeleted == 0;
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                where = where.And(p => p.Name.Contains(keyword)||p.TeachNo.Contains(keyword));
+            }
+            var teachers = await _teacherRepo.getListAsync(where);
+            return Json(_resp.success(
+               teachers.Select(u => new
+               {
+                   value = u.Id,
+                   text = $"{u.Name}({u.TeachNo})"
+               })
+           ));
         }
 
 
@@ -53,46 +72,46 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             return View();
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TeacherDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return Json(_resp.error("姓名，邮箱，电话为必填"));
             }
-            if( await _teacherRepo.getAnyAsync(u=>u.Email==dto.Email || u.Mobile == dto.Mobile))
+            if (await _teacherRepo.getAnyAsync(u => u.Email == dto.Email || u.Mobile == dto.Mobile))
             {
                 return Json(_resp.error("邮箱或电话已存在"));
             }
-            var item = dto.Adapt<Teacher>();
+            var item = dto.Adapt<DbServices.Entities.Teacher>();
 
-            var tCnt = await _teacherRepo.getCountAsync(u => u.Id > 0);
+            var tCnt = await _teacherRepo.getCountAsync(u => u.TeachNo != string.Empty);
             //教师编号，1位随机固定大写字母，2位随机字符（字母或数字），5位顺序编号，如：A1A00001
-            item.TeachNo = $"{Assistant.Utils.GenerateRandomCodePro(1,1)}{Assistant.Utils.GenerateRandomCodePro(2)}{tCnt.ToString().PadLeft(5, '0')}" ;
-            item.KeyId = Assistant.Utils.GenerateRandomCodePro(16);
-            item.KeySecret = Assistant.Utils.GenerateRandomCodePro(16);
-           
+            item.TeachNo = $"{Utils.GenerateRandomCodePro(1, 1)}{Utils.GenerateRandomCodePro(2)}{tCnt.ToString().PadLeft(5, '0')}";
+            item.KeyId = Utils.GenerateRandomCodePro(16);
+            item.KeySecret = Utils.GenerateRandomCodePro(16);
+
             if (string.IsNullOrEmpty(dto.AuthToken))
                 dto.AuthToken = item.TeachNo;
 
-            item.Password = Assistant.Security.Encrypt(dto.AuthToken, Encoding.UTF8.GetBytes(item.KeyId), Encoding.UTF8.GetBytes(item.KeySecret));
+            item.Password = Security.Encrypt(dto.AuthToken, Encoding.UTF8.GetBytes(item.KeyId), Encoding.UTF8.GetBytes(item.KeySecret));
             item.CreatedBy = adminId;
             return Json(_resp.success(await _teacherRepo.addItemAsync(item)));
         }
 
         [RouteMark("编辑教师")]
-        public async Task<IActionResult> Edit(long id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            if(!await _teacherRepo.getAnyAsync(u=>u.Id==id))
+            if (!await _teacherRepo.getAnyAsync(u => u.Id == id))
             {
                 return Json(_resp.error("教师不存在"));
             }
-            var item = await _teacherRepo.getOneAsync(u=>u.Id==id);
+            var item = await _teacherRepo.getOneAsync(u => u.Id == id);
 
             return View(item.Adapt<TeacherDto>());
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TeacherDto dto)
         {
             var item = await _teacherRepo.getOneAsync(u => u.Id == dto.Id);
@@ -105,7 +124,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         }
 
         [RouteMark("修改教师登录密码")]
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetTeacherPwd(TeacherPwdChangedDto dto)
         {
             var item = await _teacherRepo.getOneAsync(u => u.Id == dto.Id);
@@ -114,7 +133,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 return Json(_resp.error("教师不存在"));
             }
 
-            item.Password = Assistant.Security.Encrypt(dto.AuthToken, Encoding.UTF8.GetBytes(item.KeyId), Encoding.UTF8.GetBytes(item.KeySecret));
+            item.Password = Security.Encrypt(dto.AuthToken, Encoding.UTF8.GetBytes(item.KeyId), Encoding.UTF8.GetBytes(item.KeySecret));
             item.UpdatedAt = DateTime.Now;
             if (dto.Notice == 1)
             {
@@ -139,8 +158,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         }
 
         [RouteMark("删除教师")]
-        [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove(long id)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(Guid id)
         {
             var item = await _teacherRepo.getOneAsync(u => u.Id == id);
             item.IsDeleted = 1;

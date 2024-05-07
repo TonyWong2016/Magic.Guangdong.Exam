@@ -27,7 +27,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public long RecordId { get; set; }
 
 		[JsonProperty]
-		public long TeacherId { get; set; }
+		public Guid TeacherId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; }

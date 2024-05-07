@@ -516,8 +516,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     record.SubmitAnswer = dto.submitAnswerStr;
                 }
                 //插入答题提交记录
-                var submitLogRepo = fsql.Get(conn_str).GetRepository<SubmitLog>();
-                await submitLogRepo.InsertAsync(new SubmitLog()
+                var submitLogRepo = fsql.Get(conn_str).GetRepository<UserAnswerSubmitLog>();
+                await submitLogRepo.InsertAsync(new UserAnswerSubmitLog()
                 {
                     Urid = record.Id,
                     ComplatedMode = dto.complatedMode,
@@ -588,7 +588,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //如果是答卷空的，看一下提交记录里有没有答案记录，如果没有那就确定是没提交，给0分,否则开始计算得分
             if (string.IsNullOrEmpty(record.SubmitAnswer))
             {
-                var submitLogRepo = fsql.Get(conn_str).GetRepository<SubmitLog>();
+                var submitLogRepo = fsql.Get(conn_str).GetRepository<UserAnswerSubmitLog>();
                 if (await submitLogRepo.Where(u => u.Urid == record.Id && u.SubmitAnswer.Contains("userAnswer")).AnyAsync())
                 {
                     var submitLog = await submitLogRepo
@@ -639,8 +639,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         u.QuestionId
                     });
                 //string lastQuestionId = "";
-                var userSubmitAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserSubmitAnswerRecord>();
-                List<UserSubmitAnswerRecord> userSubmitAnswerRecords = new List<UserSubmitAnswerRecord>();
+                var userSubmitAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerSubmitRecord>();
+                List<UserAnswerSubmitRecord> userSubmitAnswerRecords = new List<UserAnswerSubmitRecord>();
                 //第四步，开始判分，客观题直接给，主观题撂着...
                 foreach (var answer in Answers)
                 {                   
@@ -651,7 +651,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
                     
                     //把答题记录存到单独的表里
-                    var submitAnswerRecord = new UserSubmitAnswerRecord();
+                    var submitAnswerRecord = new UserAnswerSubmitRecord();
                     submitAnswerRecord.QuestionId = answer.questionId;
                     submitAnswerRecord.RecordId = record.Id;
                     if (relation.Objective != 1)

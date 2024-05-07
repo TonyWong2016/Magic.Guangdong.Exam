@@ -8,34 +8,30 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FreeSql.DataAnnotations;
 using Yitter.IdGenerator;
-using MassTransit;
 
 namespace Magic.Guangdong.DbServices.Entities {
 
 	[JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class TeacherLoginLog {
+	public partial class TeacherExamAssign {
 
 		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        [JsonProperty]
-		public DateTime LoginTime { get; set; }=DateTime.Now;
+		public DateTime CreatedAt { get; set; }
 
 		[JsonProperty]
-        public Guid TeacherId { get; set; }
+		public Guid ExamId { get; set; }
 
-        [JsonProperty, Column(DbType = "varchar(50)")]
-		public string TokenHash { get; set; }
+		[JsonProperty]
+		public int IsDeleted { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(20)", IsNullable = false)]
-		public string TokenVersion { get; set; }
+		[JsonProperty]
+		public Guid TeacherId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime UpdatedAt { get; set; } = DateTime.Now;
+		public DateTime UpdatedAt { get; set; }
 
-    }
+	}
 
 }

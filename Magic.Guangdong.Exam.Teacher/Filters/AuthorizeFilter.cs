@@ -158,7 +158,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
         {
             adminId = Guid.Empty;
             var cookies = context.HttpContext.Request.Cookies;
-            if (!cookies.Where(u => u.Key == "teacherId").Any() || !cookies.Where(u => u.Key == "examToken").Any())
+            if (!cookies.Where(u => u.Key == "teacherId").Any() || !cookies.Where(u => u.Key == "teacherToken").Any())
             {
                 var item = new RedirectResult("/system/account/login?msg=notauth");
                 context.Result = item;
@@ -169,15 +169,15 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
                 Assistant.Utils.FromBase64Str(
                     cookies.Where(u => u.Key == "teacherId").First().Value
                     ));
-            var examToken = cookies.Where(u => u.Key == "examToken").FirstOrDefault().Value;
-            //if (!await Assistant.JwtService.ValidateFilter(examToken))
+            var teacherToken = cookies.Where(u => u.Key == "teacherToken").FirstOrDefault().Value;
+            //if (!await Assistant.JwtService.ValidateFilter(teacherToken))
             //{
             //    var item = new RedirectResult("/system/account/login?msg=invalidtoken");
             //    context.Result = item;
             //    Assistant.Logger.Error("token错辣！走你~");
             //    return false;
             //}
-            var claim = Assistant.JwtService.ValidateJwt(examToken);
+            var claim = Assistant.JwtService.ValidateJwt(teacherToken);
             if (claim == null)
             {
                 var item = new RedirectResult("/system/account/login?msg=invalidtoken");

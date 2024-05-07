@@ -36,10 +36,10 @@ namespace Magic.Guangdong.DbServices.Methods
         public async Task<dynamic> GetExamMini(string id, int idType,int examType=-1)
         {
             return await fsql.Get(conn_str).Select<Examination>()
-                .Where(u => u.IsDeleted == 0)
+                .Where(u => u.IsDeleted == 0 && u.Status == ExamStatus.Enabled)
                 .WhereIf(idType == 0 && !string.IsNullOrEmpty(id), u => u.AssociationId == id)
                 .WhereIf(idType == 1 && !string.IsNullOrEmpty(id), u => u.Id == Guid.Parse(id))
-                .WhereIf(examType >= 0,u=>u.ExamType==(ExamType)examType)
+                .WhereIf(examType >= 0, u => u.ExamType == (ExamType)examType)
                 .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync(u => new
                 {

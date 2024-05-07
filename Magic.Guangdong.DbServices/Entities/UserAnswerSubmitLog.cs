@@ -6,7 +6,7 @@ namespace Magic.Guangdong.DbServices.Entities
 {
 
     [JsonObject(MemberSerialization.OptIn), Table(DisableSyncStructure = true)]
-	public partial class SubmitLog {
+	public partial class UserAnswerSubmitLog {
 
 		[JsonProperty, Column(IsPrimary = true)]
 		public long Id { get; set; } = YitIdHelper.NextId();

@@ -129,14 +129,11 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
             {
                 ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
             }
-            string user = Guid.Empty.ToString();
-            //if (context.HttpContext.User.Claims.Any())
-            //{
-            //    user = context.HttpContext.User.Claims.First().Value;
-            //}
+            string Teacher = Guid.Empty.ToString();
+         
             if(context.HttpContext.Request.Cookies.Where(u=>u.Key=="teacherId").Any())
             {
-                user = Utils.FromBase64Str(context.HttpContext.Request.Cookies["teacherId"]);
+                Teacher = Utils.FromBase64Str(context.HttpContext.Request.Cookies["teacherId"]);
             }
             string method = context.HttpContext.Request.Method;
             string url = context.HttpContext.Request.Path.Value;
@@ -152,10 +149,10 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
                 brower = "Safari";
             string logMode = ConfigurationHelper.GetSectionValue("LogMode");
             if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
             else
             {
-                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
+                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
                 Logger.Verbose(msg);
             }
         }
@@ -185,14 +182,11 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
             {
                 ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
             }
-            string user = "freeViewer";
-            //if (context.HttpContext.User.Claims.Any())
-            //{
-            //    user = context.HttpContext.User.Claims.First().Value;
-            //}
+            string Teacher = "freeViewer";
+      
             if (context.HttpContext.Request.Cookies.Where(u => u.Key == "teacherId").Any())
             {
-                user = context.HttpContext.Request.Cookies["teacherId"];
+                Teacher = context.HttpContext.Request.Cookies["teacherId"];
             }
             string method = context.HttpContext.Request.Method;
             string url = context.HttpContext.Request.Path.Value;
@@ -212,10 +206,10 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
             string brower = "Response";
             string logMode = ConfigurationHelper.GetSectionValue("LogMode");
             if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
             else
             {
-                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
+                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
                 Logger.Verbose(msg);
             }
         }

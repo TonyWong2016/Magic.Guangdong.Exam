@@ -2,3 +2,13 @@
   delete from ReportProcess where ReportId=541595064160645
   delete from [Magic.Guangdong.Exam].[dbo].[Order] where  ReportId=541595064160645
   delete from ReportCheckHistory where ReportId=541595064160645  
+  
+  
+  
+delete from [ReportInfo]
+delete from ReportProcess
+delete from [Magic.Guangdong.Exam].[dbo].[Order] 
+delete from ReportCheckHistory
+delete from UserAnswerRecord
+delete from UserSubmitAnswerRecord
+delete from submitlog

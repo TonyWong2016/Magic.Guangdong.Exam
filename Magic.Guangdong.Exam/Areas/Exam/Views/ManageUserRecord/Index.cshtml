@@ -17,12 +17,7 @@
                 </select>
             </div>
 
-
-
             <div class="layui-col-md2">
-                @* <div id="exams">
-                </div> *@
-
                 <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
                     <option value="-1">请选择考试</option>
                 </select>
@@ -154,26 +149,6 @@
         examValues = JSON.parse(sessionStorage.getItem('lastExamValues'))
 
     form.render('checkbox');
-    form.on('checkbox(showDeleted)', (data) => {
-        data.elem.checked ? showDeleted = 1 : showDeleted = 0;
-        getUserRecord()
-    })
-
-    form.on('select(examType)', data => {
-        getExams();
-        examType = data.value;
-        getUserRecord()
-    })
-
-    function getExams() {
-        let queryModel = { 'id': associationId, 'type': 0 };
-        if (jVal('examType'))
-            queryModel.examType = jVal('examType');
-        getSelectItems('/exam/Examination/GetExamMini', queryModel, 'selectTpl', 'examId', false);
-        //getUserRecord()
-        layer.closeAll('loading');
-    }
-
 
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'activityTpl', 'associationIdView', false)
         .then(v => {
@@ -182,12 +157,34 @@
 
         })
 
-    form.on('select(associationId)', function (data) {
+    form.on('select(associationId)', function (data) {        
         associationId = data.value;
         layer.load();
         getExams();
         getUserRecord()
     })
+
+    form.on('checkbox(showDeleted)', (data) => {
+        data.elem.checked ? showDeleted = 1 : showDeleted = 0;
+        getUserRecord()
+    })
+
+    form.on('select(examType)', data => {        
+        getExams();
+        examType = data.value;
+        getUserRecord()
+    })
+
+
+    function getExams() {
+        examId = '0';
+        let queryModel = { 'id': associationId, 'type': 0 };
+        if (jVal('examType'))
+            queryModel.examType = jVal('examType');
+        getSelectItems('/exam/Examination/GetExamMini', queryModel, 'selectTpl', 'examId', false);
+        //getUserRecord()
+        layer.closeAll('loading');
+    }
 
     form.on('select(examId)', v => {
         examId = v.value;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.DbServices.Interfaces
 {
-    public interface IUserSubmitAnswerRecordRepo : IExaminationRepository<UserSubmitAnswerRecord>
+    public interface IUserAnswerSubmitRecordRepo : IExaminationRepository<UserAnswerSubmitRecord>
     {
     }
 }
