@@ -3,7 +3,9 @@ using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Teacher;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
 {
@@ -106,11 +108,15 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
 
         public async Task<IActionResult> GetTeacherPaper(Guid paperId,long recordId)
         {
-            if (await _paperRepo.getAnyAsync(u => u.Id == paperId))
+            if (!await _paperRepo.getAnyAsync(u => u.Id == paperId))
             {
-                return View(await _paperRepo.PreviewPaper(paperId));
+                return Content("试卷不存在");
             }
-            return Content("看啥呢");
+            TeacherSubjectiveMarkDto dto = new TeacherSubjectiveMarkDto();
+            dto.MarkPaper = (await _paperRepo.PreviewPaper(paperId)).Adapt<MarkPaperDto>();
+            //dto.UserAnswer = await _userAnswerRecordViewRepo.GetUserRecord(recordId);
+            return View(await _paperRepo.PreviewPaper(paperId));
+            
         }
     }
 }

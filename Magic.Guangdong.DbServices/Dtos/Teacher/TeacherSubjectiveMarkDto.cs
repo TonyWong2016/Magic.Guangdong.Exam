@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
     {
         public MarkPaperDto MarkPaper { get; set; }
 
-        public 
+        public UserAnswerRecordView PaperAnswer { get; set; }
+
+        public List<UserAnswerSubmitRecord> ItemAnswer { get; set; }
     }
 
     public class MarkPaperDto
