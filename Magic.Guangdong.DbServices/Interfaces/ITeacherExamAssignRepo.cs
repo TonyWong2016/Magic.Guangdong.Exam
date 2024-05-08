@@ -12,7 +12,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface ITeacherExamAssignRepo : IExaminationRepository<TeacherExamAssign>
     {
-        List<TeacherExamAssignView> GetTeacherExamAssigns(PageDto pageDto, out long total);
+        //List<TeacherExamAssignView> GetTeacherExamAssigns(PageDto pageDto, out long total);
         /// <summary>
         /// 0
         /// </summary>

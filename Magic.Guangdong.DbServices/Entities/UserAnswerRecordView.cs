@@ -124,6 +124,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public double Score { get; set; }
 
         [JsonProperty]
+        public double ObjectiveScore { get; set; } = 0d;
+
+        [JsonProperty]
         public double PaperScore { get; set; }
 
         [JsonProperty]

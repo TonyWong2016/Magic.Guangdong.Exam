@@ -125,6 +125,7 @@
         </article>
 
         <button id="submitInfo" type="submit" class="container-fluid">提交报名信息</button>
+        <button id="submitInfoWait" aria-busy="true" style="display:none" class="container-fluid">提交中...</button>
         <button id="submitInfoDisabled" style="display:none" disabled class="container-fluid secondary">已报名</button>
         <input type="hidden" name="UnitId" id="UnitId" value="0" />
         <input type="hidden" name="AccountId" id="AccountId" />
@@ -401,9 +402,12 @@
         formData.ActivityId = activityId;
         //formData.__RequestVerificationToken = requestToken;
         console.log(JSON.stringify(formData));
+        $('#submitInfo').hide();
+        $('#submitInfoWait').show();
 
         let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
         if (ret.code == 0) {
+            $('#submitInfoWait').html('报名成功').attr('aria-busy',false)
             //examModel.orderTradeNumber = ret.data.GetReportDetail;
             TT.success('报名成功',()=>{
                 location.href = `/report/detail?id=${ret.data.reportId}`;
@@ -411,15 +415,10 @@
             
         } else {
             TT.error('报名失败:' + ret.msg);
+            $('#submitInfoWait').hide();
+            $('#submitInfo').show();
         }
 
-        // if (ret.code == 0 && isAmount(examModel.expenses) && parseFloat(examModel.expenses) > 0) {
-        //     TT.info('即将跳转到付款页面...', 3000);
-        //     setTimeout(() => {
-        //         let sub = btoa(encodeURIComponent(JSON.stringify(examModel)));
-        //         location.href = `/order/detail?sub=${sub}`;
-        //     }, 2000)
-        // }
     })
 
     function getProvinceDrops(elemId) {

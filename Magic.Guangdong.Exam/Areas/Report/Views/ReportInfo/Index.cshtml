@@ -428,7 +428,7 @@
     let currTableIndex = -1;
     let selectReportObj = {};
     form.on('radio(checkStatus)', data => {
-        if (selectReportObj.reportStatus != 2 && data.value != selectReportObj.reportStatus) {
+        if (selectReportObj.reportStatus != 3 && data.value != selectReportObj.reportStatus) {
             $('#reportResultSubmit').show();
             $('#reportResultSubmitDisabled').hide();
         } else {
@@ -436,6 +436,11 @@
             $('#reportResultSubmitDisabled').show();
         }
         checkStatus = data.value;
+        if(data.value=='0'){
+            jHtmlSet('checkRemark', '审核通过');
+        } else if(data.value=='1'){
+            jHtmlSet('checkRemark', '审核不通过');
+        }
     })
 
     function checkReport(objStr, index) {

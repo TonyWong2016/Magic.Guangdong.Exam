@@ -10,5 +10,5 @@ delete from ReportProcess
 delete from [Magic.Guangdong.Exam].[dbo].[Order] 
 delete from ReportCheckHistory
 delete from UserAnswerRecord
-delete from UserSubmitAnswerRecord
-delete from submitlog
+delete from [UserAnswerSubmitRecord]
+delete from [UserAnswerSubmitLog]

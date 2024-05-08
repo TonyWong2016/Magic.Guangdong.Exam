@@ -1,9 +1,11 @@
 ﻿using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord;
 using Magic.Guangdong.DbServices.Dtos.Teacher;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
 using MathNet.Numerics.Distributions;
 using Newtonsoft.Json;
 using System;
@@ -25,27 +27,8 @@ namespace Magic.Guangdong.DbServices.Methods
             this.fsql = fsql;
         }
 
-        /// <summary>
-        /// 获取分配列表
-        /// </summary>
-        /// <param name="pageDto"></param>
-        /// <param name="total"></param>
-        /// <returns></returns>
-        public List<TeacherExamAssignView> GetTeacherExamAssigns(PageDto pageDto, out long total)
-        {
-            if (string.IsNullOrWhiteSpace(pageDto.whereJsonStr))
-                return fsql.Get(conn_str).Select<TeacherExamAssignView>().Count(out total).Page(pageDto.pageindex, pageDto.pagesize).ToList();
+        
 
-            DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
-            //string sql = fsql.Get(conn_str).Select<T>().WhereDynamicFilter(dyfilter).Count(out total).Page(pageDto.pageindex, pageDto.pagesize).ToSql();
-            //Console.Write(sql);
-            return fsql.Get(conn_str)
-            .Select<TeacherExamAssignView>()
-            .WhereDynamicFilter(dyfilter)
-            .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
-            .Count(out total)
-            .Page(pageDto.pageindex, pageDto.pagesize).ToList();
-        }
 
         /// <summary>
         /// 给一个老师分配多门考试

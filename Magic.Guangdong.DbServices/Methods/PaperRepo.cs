@@ -283,7 +283,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         u.IdNumber,
                         u.ReportId,
-                        u.Score
+                        u.Score,
+                        u.ObjectiveScore
                     });
 
                     var record = new UserAnswerRecord();
@@ -442,7 +443,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //string lastQuestionId = "";
 
             //第四步，开始判分，客观题直接给，主观题撂着...
-            double userScore = 0;
+            double userObjectScore = 0;
             foreach (var answer in Answers)
             {
                 var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
@@ -459,7 +460,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     //且答案正确
                     if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                     {
-                        userScore += relation.ItemScore;//得分
+                        userObjectScore += relation.ItemScore;//得分
                     }
                 }
                 //如果是多选
@@ -483,16 +484,18 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                     if (correctCnt == currItems.Count)
                     {
-                        userScore += relation.ItemScore;
+                        userObjectScore += relation.ItemScore;
                     }
                 }
             }
 
-            record.Remark += $"客观题成绩为{userScore}分,打分人{adminId}";
+            record.Remark += $"客观题成绩为{userObjectScore}分,打分人{adminId}";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = adminId;
-            record.Score = userScore;
-
+            record.ObjectiveScore = userObjectScore;
+            if (record.Marked == ExamMarked.No)
+                record.Score = userObjectScore;//此时总分数就是客观题分数
+            record.Marked = ExamMarked.Part;
             return await userAnswerRecordRepo.UpdateAsync(record); ;
 
         }

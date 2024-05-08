@@ -234,8 +234,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
                     long _reportId = Convert.ToInt64(dto.reportId);
-                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
-                    process.TestedTime += 1;
+                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId && u.ExamId==record.ExamId).ToOneAsync();
+                    process.TestedTime = record.Stage;
                     process.UpdatedAt = DateTime.Now;
                     await reportProcessRepo.UpdateAsync(process);
                 }
@@ -301,7 +301,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //string lastQuestionId = "";
 
             //第四步，开始判分，客观题直接给，主观题撂着...
-            double userScore = 0;
+            double userObjectiveScore = 0;
             foreach (var answer in Answers)
             {
                 var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
@@ -318,7 +318,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     //且答案正确
                     if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                     {
-                        userScore += relation.ItemScore;//得分
+                        userObjectiveScore += relation.ItemScore;//得分
                     }
                 }
                 //如果是多选
@@ -342,7 +342,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                     if (correctCnt == currItems.Count)
                     {
-                        userScore += relation.ItemScore;
+                        userObjectiveScore += relation.ItemScore;
                     }
                 }
             }
@@ -351,11 +351,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.Complated = ExamComplated.Yes;
                 record.ComplatedMode = ExamComplatedMode.Force;
             }
-            record.Remark += $"客观题成绩为{userScore}分";
+            record.Remark += $"客观题成绩为{userObjectiveScore}分";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked";
             record.Marked = ExamMarked.Part;
-            record.Score = userScore;
+            record.ObjectiveScore = userObjectiveScore;
             await userAnswerRecordRepo.UpdateAsync(record);
             return record;
 

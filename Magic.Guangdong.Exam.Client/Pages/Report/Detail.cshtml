@@ -92,10 +92,12 @@
             
             $('#checkStatus').html('审核通过').addClass('pico-color-jade-350');
             $('#audit').show()
-        } else if (reportItem.reportStatus == 1) {
-            $('#checkStatus').html('待审核').addClass('pico-color-amber-200')
         } else if (reportItem.reportStatus == 2) {
+            $('#checkStatus').html('待审核').addClass('pico-color-amber-200')
+            $('#pay').attr('disabled',true)
+        } else if (reportItem.reportStatus == 3) {
             $('#checkStatus').html('已退款').addClass('pico-color-sand-450')
+            $('.pass').remove();
         } else {
             $('#checkStatus').html('不通过').addClass('pico-color-red-500')
             $('#checkRemark').html(lastCheckHistory.checkRemark).addClass('pico-color-red-500');

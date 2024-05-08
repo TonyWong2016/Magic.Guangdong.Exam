@@ -1,0 +1,164 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row  layui-col-space16">
+            <div class="layui-col-md2">
+                <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
+                    <option value="-1">请选择考试</option>
+                </select>
+            </div>
+            <div class="layui-col-md2">
+                <select id="paperId" lay-filter="paperId" name="paperId" class="layui-select">
+                    <option value="-1">请选择试卷</option>
+                </select>
+            </div>
+        </div>
+    </form>
+    <table class="layui-table" id="table" lay-filter="table"></table>
+</div>
+
+<script type="text/html" id="examTplInit">
+    <option value="0">请选择考试</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="paperTplInit">
+    <option value="0">请选择试卷</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="markedTpl">
+    {{# if(d.marked==2){ }}
+         <span style="color:#00B050">已判分</span>
+    {{#} else { }}
+        <span style="color:#a233c6">未判分</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?paperId={{d.paperId}}&urid={{d.id}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
+
+</script>
+
+<script>
+    let form = layui.form;
+    let examId = '0';
+    let paperId = '0';
+    let isComplated = -1
+    let whereJsonStr = '';
+    let teacherId = getUrlQueryParams('teacherId');
+    getSelectItems('@Url.Action("GetTeacherExamDrops")', { teacherId: teacherId, rd: randomInt }, 'examTplInit', 'examId', false)
+
+    form.on('select(examId)', v => {
+        examId = v.value;
+        if (examId == '0')
+            getSelectItems('/exam/Paper/GetPaperMini', {}, 'paperTplInit', 'paperId', false);
+        else {
+            getSelectItems('/exam/Paper/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
+        }
+        getUserRecord();
+    })
+
+    function getUserRecord() {
+        layer.load();
+        let params = {
+            url: '@Url.Action("GetTeacherPapers")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'examTitle', title: '考试' }
+                , { field: 'paperTitle', title: '试卷' }
+                , { field: 'objectiveScore', title: '客观题得分', width: '15%' }
+                , { field: 'score', title: '当前总分', width: '15%' }
+                , { templet: '#markedTpl', title: '主观题判分情况', width: '15%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+
+
+        if (examId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            });
+        }
+
+        if (paperId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'PaperId',
+                'Operator': 'Equal',
+                'Value': paperId
+            });
+        }
+        if (isComplated > -1) {
+            whereJsonStr.Filters.push({
+                'Field': 'Complated',
+                'Operator': 'Equal',
+                'Value': isComplated
+            });
+        }
+
+        let _keyword = jVal('keyword');
+
+        if (TestNonNegativeInteger(_keyword)) {
+            whereJsonStr.Filters.push({
+                'Field': 'Score',
+                'Operator': 'Equal',
+                'Value': _keyword
+            });
+        } else if (_keyword) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'UserName',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }, {
+                    'Field': 'IdNumber',
+                    'Operator': 'Equal',
+                    'Value': jVal('keyword')
+                }]
+            });
+        }
+        //return whereJsonStr;
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+
+    function TestNonNegativeInteger(str) {
+        if (isChineseIDCard(str))
+            return false;
+        var num = Number(str);
+        return isNaN(num) ? false : parseInt(str, 10) >= 0;
+    }
+
+    function isChineseIDCard(id) {
+        var reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+        return reg.test(id);
+    }
+</script>

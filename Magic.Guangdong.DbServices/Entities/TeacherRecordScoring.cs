@@ -44,6 +44,11 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = -2)]
 		public string UserSubjectiveAnswer { get; set; }
 
+		[JsonProperty]
+		public long RecordId { get; set; }
+
+		[JsonProperty]
+		public long SubmitRecordId { get; set; }
 	}
 
 }

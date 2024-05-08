@@ -2,8 +2,10 @@
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
 using Newtonsoft.Json;
 
 namespace Magic.Guangdong.DbServices.Methods
@@ -24,7 +26,25 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <param name="dto"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public dynamic GetUserRecord(PageDto dto, out long total)
+        public List<UserAnswerSubmitRecordDto> GetUserRecord(PageDto dto, out long total)
+        {
+            var items = GetUserAnswerRecords(dto, out total);
+            return items.Adapt<List<UserAnswerSubmitRecordDto>>();
+        }
+
+        /// <summary>
+        /// 获取教师试卷列表
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="total"></param>
+        /// <returns></returns>
+        public List<TeacherPapersDto> GetTeacherPapers(PageDto dto, out long total)
+        {
+            var items = GetUserAnswerRecords(dto, out total);
+            return items.Adapt<List<TeacherPapersDto>>();
+        }
+
+        private List<UserAnswerRecordView> GetUserAnswerRecords(PageDto dto, out long total)
         {
             if (string.IsNullOrEmpty(dto.whereJsonStr))
             {
@@ -34,22 +54,24 @@ namespace Magic.Guangdong.DbServices.Methods
                 .OrderByDescending(u => u.Id)
                 .Count(out total)
                 .Page(dto.pageindex, dto.pagesize)
-                .ToList(u => new
-                {
-                    u.Id,
-                    userName= u.Name,
-                    u.IdNumber,
-                    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
-                    u.PaperTitle,
-                    u.ExamTitle,
-                    u.AssociationTitle,
-                    u.PaperId,
-                    u.Score,
-                    u.UsedTime,
-                    u.PaperDegree,
-                    u.ExamType,
-                    u.IsDeleted
-                });
+                .ToList();
+                //.ToList(u => new
+                //{
+                //    u.Id,
+                //    userName= u.Name,
+                //    u.IdNumber,
+                //    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
+                //    u.PaperTitle,
+                //    u.ExamTitle,
+                //    u.AssociationTitle,
+                //    u.PaperId,
+                //    u.Score,
+                //    u.UsedTime,
+                //    u.PaperDegree,
+                //    u.ExamType,
+                //    u.ObjectiveScore,
+                //    u.IsDeleted
+                //});
             }
 
             DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(dto.whereJsonStr);
@@ -59,22 +81,25 @@ namespace Magic.Guangdong.DbServices.Methods
                 .OrderByDescending(u => u.Id)
                 .Count(out total)
                 .Page(dto.pageindex, dto.pagesize)
-                .ToList(u => new
-                {
-                    u.Id,
-                    userName = u.Name,
-                    u.IdNumber,
-                    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
-                    u.PaperTitle,
-                    u.ExamTitle,
-                    u.AssociationTitle,
-                    u.Score,
-                    u.PaperId,
-                    u.UsedTime,
-                    u.PaperDegree,
-                    u.ExamType,
-                    u.IsDeleted
-                });
+                .ToList();
+
+            //.ToList(u => new
+            //{
+            //    u.Id,
+            //    userName = u.Name,
+            //    u.IdNumber,
+            //    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
+            //    u.PaperTitle,
+            //    u.ExamTitle,
+            //    u.AssociationTitle,
+            //    u.Score,
+            //    u.ObjectiveScore,
+            //    u.PaperId,
+            //    u.UsedTime,
+            //    u.PaperDegree,
+            //    u.ExamType,
+            //    u.IsDeleted
+            //});
         }
 
         public async Task<List<UserAnswerRecordDto>> GetUserRecordForExport(string whereJsonStr)
@@ -93,6 +118,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     examTitle = u.ExamTitle,
                     paperTitle = u.PaperTitle,
                     score = u.Score.ToString(),
+                    objectScore=u.ObjectiveScore.ToString(),
                     complated = u.Complated == 0 ? "未交卷" : "已交卷"
                 });
         }
@@ -144,6 +170,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 userName = record.Name,
                 record.IdNumber,
                 record.Score,
+                record.ObjectiveScore,
                 record.ReportId,
                 record.UpdatedAt,
                 record.LimitedTime,
@@ -190,7 +217,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecordView>();
             var record = await userAnswerRecordRepo.Where(u => u.Id == urid).ToOneAsync();
 
-            double userScore = 0;
+            double userObjectiveScore = 0;
             //如果是答卷空的，直接给0分,否则开始计算得分
             if (!string.IsNullOrEmpty(record.SubmitAnswer) && record.SubmitAnswer.Length > 2)
             {
@@ -249,7 +276,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         //且答案正确
                         if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                         {
-                            userScore += relation.ItemScore;//得分
+                            userObjectiveScore += relation.ItemScore;//得分
                         }
                     }
                     //如果是多选
@@ -273,24 +300,26 @@ namespace Magic.Guangdong.DbServices.Methods
                         }
                         if (correctCnt == currItems.Count)
                         {
-                            userScore += relation.ItemScore;
+                            userObjectiveScore += relation.ItemScore;
                         }
                     }
                 }
             }
             record.Complated = (int)ExamComplated.Yes;
             record.ComplatedMode = (int)ExamComplatedMode.Force;
-            record.Remark += $"客观题成绩为{userScore}分(后台强制)";
+            record.Remark += $"客观题成绩为{userObjectiveScore}分(后台强制)";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked(manager force)";
-            record.Score = userScore;
+            record.ObjectiveScore = userObjectiveScore;
+            if (record.Marked == (int)ExamMarked.No)
+                record.Score = userObjectiveScore;
             record.Marked = (int)ExamMarked.Part;
             await userAnswerRecordRepo.UpdateAsync(record);
             //增加一次答题记录
             var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
             long _reportId = Convert.ToInt64(record.ReportId);
             var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
-            process.TestedTime += 1;
+            process.TestedTime = record.Stage;
             process.UpdatedAt = DateTime.Now;
             await reportProcessRepo.UpdateAsync(process);
             return record;

@@ -20,6 +20,12 @@ function startCountdown(seconds, countdownElementId, onCountdownEnd) {
         const countdownElement = document.getElementById(countdownElementId);
         countdownElement.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(remainingSeconds)}`;
 
+        if (remainingTime > 60 && remainingTime < 300) {
+            countdownElement.style.color = 'pico-color-amber-200';
+        } else if (remainingTime > 0 && remainingTime < 60) {
+            countdownElement.style.color = 'pico-color-red-500';
+        }  
+
         if (remainingTime > 0) {
             lastTimestamp = timestamp;
             requestAnimationFrame(updateCountdown);

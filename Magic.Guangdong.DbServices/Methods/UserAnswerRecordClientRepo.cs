@@ -220,7 +220,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
             var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
             DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
-            int stage = Convert.ToInt32(await userAnswerRecordQuery.CountAsync());
+            int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId).CountAsync());
             var finalRecord = await userAnswerRecordRepo.InsertAsync(new UserAnswerRecord()
             {
                 Id = YitIdHelper.NextId(),
@@ -377,6 +377,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 userName = record.Name,
                 record.IdNumber,
                 record.Score,
+                record.ObjectiveScore,
                 record.ReportId,
                 record.UpdatedAt,
                 record.LimitedTime,
@@ -405,6 +406,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     recordId = u.Id,
                     score = u.Score,
+                    
                     isComplated = u.Complated,
                     accountName = u.Name,
                     examId = u.ExamId,
@@ -527,13 +529,13 @@ namespace Magic.Guangdong.DbServices.Methods
                 
                 if (dto.complatedMode != (int)ExamComplatedMode.Auto)
                 {
-                    int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ReportId == record.ReportId && u.IsDeleted == 0).CountAsync());
-                    record.Stage = stage;
+                    //int stage = Convert.ToInt32(await userAnswerRecordRepo.Where(u => u.ReportId == record.ReportId && u.IsDeleted == 0).CountAsync());
+                    //record.Stage = stage + 1;
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
                     long _reportId = Convert.ToInt64(dto.reportId);
-                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId).ToOneAsync();
-                    process.TestedTime = stage;
+                    var process = await reportProcessRepo.Where(u => u.ReportId == _reportId && u.ExamId==record.ExamId).ToOneAsync();
+                    process.TestedTime = record.Stage;
                     process.UpdatedAt = DateTime.Now;
                     await reportProcessRepo.UpdateAsync(process);
                 }
@@ -583,7 +585,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 await userAnswerRecordRepo.UpdateAsync(record);
                 return record;
             }
-            double userScore = 0;
+            double userObjectiveScore = 0;
 
             //如果是答卷空的，看一下提交记录里有没有答案记录，如果没有那就确定是没提交，给0分,否则开始计算得分
             if (string.IsNullOrEmpty(record.SubmitAnswer))
@@ -672,7 +674,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         //且答案正确
                         if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                         {
-                            userScore += relation.ItemScore;//得分
+                            userObjectiveScore += relation.ItemScore;//得分
                         }
                     }
                     //如果是多选
@@ -696,7 +698,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         }
                         if (correctCnt == currItems.Count)
                         {
-                            userScore += relation.ItemScore;
+                            userObjectiveScore += relation.ItemScore;
                         }
                     }
                 }
@@ -710,10 +712,13 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.ComplatedMode = submit ? (int)ExamComplatedMode.Force : (int)ExamComplatedMode.Timeup;
                 record.Remark += "强制交卷;";
             }
-            record.Remark += $"客观题成绩为{userScore}分";
+            record.Remark += $"客观题成绩为{userObjectiveScore}分";
             record.UpdatedAt = DateTime.Now;
             record.UpdatedBy = "systemmarked";
-            record.Score = userScore;
+            
+            record.ObjectiveScore = userObjectiveScore;
+            if (record.Marked == (int)ExamMarked.No)
+                record.Score = userObjectiveScore;
             record.Marked = (int)ExamMarked.Part;
             
             await userAnswerRecordRepo.UpdateAsync(record);

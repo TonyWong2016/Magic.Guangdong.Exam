@@ -123,8 +123,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         [Description("试卷标题")]
         public string paperTitle { get; set; }
-        [Description("分数")]
+        [Description("总分数")]
         public string score { get; set; }
+
+        [Description("客观题分数")]
+        public string objectScore { get; set; }
 
         [Description("完成情况")]
         public string complated { get; set; }

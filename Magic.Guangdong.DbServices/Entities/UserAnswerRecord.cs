@@ -61,12 +61,15 @@ namespace Magic.Guangdong.DbServices.Entities
 		public string Remark { get; set; }
 
 		[JsonProperty]
-		public double Score { get; set; } = 0d;
+		public double ObjectiveScore { get; set; } = 0d;
 
-		/// <summary>
-		/// 第几次参加（一般在练习模式生效）
-		/// </summary>
-		[JsonProperty]
+        [JsonProperty]
+        public double Score { get; set; } = 0d;
+
+        /// <summary>
+        /// 第几次参加（一般在练习模式会有多次，考试模式只有一次）
+        /// </summary>
+        [JsonProperty]
 		public int Stage { get; set; } = 0;
 
 		[JsonProperty, Column(DbType = "varchar(MAX)", IsNullable = false)]

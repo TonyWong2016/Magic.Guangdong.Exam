@@ -12,15 +12,21 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
     {
         private readonly IResponseHelper _resp;
         private readonly ITeacherExamAssignRepo _teacherExamAssignRepo;
+        private readonly ITeacherExamAssignViewRepo _teacherExamAssignViewRepo;
         private readonly ITeacherRecordScoringRepo _teacherRecordScoringRepo;
+        private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
+        private readonly IPaperRepo _paperRepo;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo,ITeacherRecordScoringRepo teacherRecordScoringRepo, IHttpContextAccessor contextAccessor)
+        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo,ITeacherRecordScoringRepo teacherRecordScoringRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IPaperRepo paperRepo)
         {
             _resp = resp;
             _teacherExamAssignRepo = teacherExamAssignRepo;
             _teacherRecordScoringRepo = teacherRecordScoringRepo;
             _contextAccessor = contextAccessor;
+            _teacherExamAssignViewRepo = teacherExamAssignViewRepo;
+            _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
+            _paperRepo = paperRepo;
         }
 
         [RouteMark("教师分配")]
@@ -33,7 +39,7 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         public IActionResult GetAssignList(PageDto dto)
         {
             long total;
-            return Json(_resp.success(new { items = _teacherExamAssignRepo.GetTeacherExamAssigns(dto, out total), total }));
+            return Json(_resp.success(new { items = _teacherExamAssignViewRepo.getList(dto, out total), total }));
         }
                         
 
@@ -65,6 +71,46 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             assign.UpdatedAt = DateTime.Now;
             await _teacherExamAssignRepo.updateItemAsync(assign);
             return Json(_resp.success("removed successfully"));
+        }
+
+        [ResponseCache(Duration = 60,VaryByQueryKeys =new string[] { "teacherId","rd" })]
+        public async Task<IActionResult> GetTeacherExamDrops(Guid teacherId)
+        {
+            var assigns = await _teacherExamAssignViewRepo.getListAsync(u => u.TeacherId == teacherId);
+            return Json(_resp.success(assigns.Select(u => new
+            {
+                value = u.ExamId,
+                text = u.ExamTitle
+            })));
+        }
+
+        [RouteMark("判卷列表")]
+        public async Task<IActionResult> Papers(Guid teacherId)
+        {
+            if (!await _teacherExamAssignRepo.getAnyAsync(u => u.TeacherId == teacherId))
+                return Content("该老师尚未分配考试，无法查看试卷");
+            return View();
+        }
+
+        /// <summary>
+        /// 获取试卷列表
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "whereJsonStr", "pageIndex", "pageSize", "orderBy", "isAsc", "rd" })]
+        public IActionResult GetTeacherPapers(PageDto dto)
+        {
+            long total;
+            return Json(_resp.success(new { items = _userAnswerRecordViewRepo.GetTeacherPapers(dto, out total), total }));
+        }
+
+        public async Task<IActionResult> GetTeacherPaper(Guid paperId,long recordId)
+        {
+            if (await _paperRepo.getAnyAsync(u => u.Id == paperId))
+            {
+                return View(await _paperRepo.PreviewPaper(paperId));
+            }
+            return Content("看啥呢");
         }
     }
 }

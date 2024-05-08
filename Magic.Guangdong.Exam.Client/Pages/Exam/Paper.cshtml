@@ -190,7 +190,7 @@
                 <option value="python">python</option>
                 <option value="sql">sql（数据库编程题请选择此项）</option>
             </select>
-            <div id="code_{{d.Id}}" style="height: 50vh; border: 1px solid #ccc;"></div>
+            <div id="code_{{d.Id}}" style="height:700px; border: 1px solid #ccc;"></div>
             <small style="margin-top:0.4vh">在上述为代码编辑器中编写程序</small>
         </div>
     {{#} else { }}
@@ -276,6 +276,7 @@
     //渲染基本信息
     function renderPaper() {
         toggleError(false);
+
         if (paperDetail && paperDetail.Questions) {
             questionObj.total = paperDetail.Questions.length;
             countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
@@ -314,8 +315,9 @@
             
             listenSubjectiveInput(currQuestion.Id)
         }
+        $('.contentDiv article').css('min-height', '768px')
         if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
-
+            $('.contentDiv article').css('min-height','1100px')
             renderCodeQuestion()
         }
 
@@ -472,6 +474,9 @@
     
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
+        setTimeout(async () => {
+            SubmitMyPaper(1)
+        })
         console.log('Countdown has ended!');
     }
 
