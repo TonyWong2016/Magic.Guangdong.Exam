@@ -36,14 +36,14 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = 500)]
 		public string Remark { get; set; }
 
-		[JsonProperty, Column(StringLength = -2)]
+		[JsonProperty]
 		public string SubjectiveAnswer { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; }
 
 		[JsonProperty]
-		public int IsObjective { get; set; } = 0;
+		public int IsSubjective { get; set; } = 0;
 	}
 
 }

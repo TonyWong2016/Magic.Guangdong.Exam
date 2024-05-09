@@ -10,56 +10,28 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
 {
     public class TeacherSubjectiveMarkDto
     {
-        public MarkPaperDto MarkPaper { get; set; }
+        public ExamInfoDto examInfoDto;
 
-        public UserAnswerRecordView PaperAnswer { get; set; }
+        public List<SubjectiveQuestionAndAnswersDto> subjectiveQuestionAndAnswers;
+    }
+     
+    public class SubjectiveQuestionAndAnswersDto
+    {
+        
+        public QuestionView question { get; set; }
 
-        public List<UserAnswerSubmitRecord> ItemAnswer { get; set; }
+        //public List<QuestionItem> questionItems { get; set; }
+
+        public UserAnswerSubmitRecord? userAnswer { get; set; }
+
     }
 
-    public class MarkPaperDto
+    public class ExamInfoDto
     {
-        public Guid PaperId { get; set; }
-
-        public Guid ExamId { get; set; }
-        public string ExamTitle { get; set; }
-
-        public DateTime StartTime { get; set; }
-
-        public DateTime EndTime { get; set; }
+        public string IdNumber { get; set; }
 
         public string PaperTitle { get; set; }
 
-        public string AssociationId { get; set; }
-
-        public string AssociationTitle { get; set; }
-
-        public double PaperScore { get; set; }
-
-        public double Duration { get; set; }
-
-        public int PaperType { get; set; }
-
-        public string PaperTypeStr
-        {
-            get
-            {
-                if (PaperType == 0) return "机器组卷";
-                if (PaperType == 1) return "人工组卷";
-                if (PaperType == 2) return "随机抽题";
-                return "";
-            }
-        }
-
-        public int Status { get; set; }
-
-
-        public int OpenResult { get; set; }
-
-
-        public List<PaperQuestionDto> Questions { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
+        public string ExamTitle { get; set; }
     }
 }

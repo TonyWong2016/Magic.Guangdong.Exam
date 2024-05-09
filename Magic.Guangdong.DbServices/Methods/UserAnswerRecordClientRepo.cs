@@ -658,13 +658,13 @@ namespace Magic.Guangdong.DbServices.Methods
                     submitAnswerRecord.RecordId = record.Id;
                     if (relation.Objective != 1)
                     {
-                        submitAnswerRecord.IsObjective = 1;
-                        submitAnswerRecord.ObjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
+                        submitAnswerRecord.IsSubjective = 1;
+                        submitAnswerRecord.SubjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
                         submitAnswerRecord.Remark = "主观题";
                         userSubmitAnswerRecords.Add(submitAnswerRecord);
                         continue;//主观题，跳过
                     }
-                    submitAnswerRecord.SubjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
+                    submitAnswerRecord.ObjectiveAnswer = JsonHelper.JsonSerialize(answer.userAnswer);
                     submitAnswerRecord.Remark = "客观题";
                     userSubmitAnswerRecords.Add(submitAnswerRecord);
                     //如果是单选或者判断题

@@ -106,17 +106,23 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             return Json(_resp.success(new { items = _userAnswerRecordViewRepo.GetTeacherPapers(dto, out total), total }));
         }
 
-        public async Task<IActionResult> GetTeacherPaper(Guid paperId,long recordId)
+        /// <summary>
+        /// 获取教师负责的考卷
+        /// </summary>
+        /// <param name="recordId"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> GetSubjectiveQuestionAndAnswers(long recordId)
         {
-            if (!await _paperRepo.getAnyAsync(u => u.Id == paperId))
-            {
-                return Content("试卷不存在");
-            }
-            TeacherSubjectiveMarkDto dto = new TeacherSubjectiveMarkDto();
-            dto.MarkPaper = (await _paperRepo.PreviewPaper(paperId)).Adapt<MarkPaperDto>();
-            //dto.UserAnswer = await _userAnswerRecordViewRepo.GetUserRecord(recordId);
-            return View(await _paperRepo.PreviewPaper(paperId));
-            
+
+            return Json(_resp.success(await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId)));
+        }
+
+        public async Task<IActionResult> Detail(long recordId)
+        {
+            var result = await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId);
+            if (result == null)
+                return Content("没有试卷信息");
+            return View(result);
         }
     }
 }
