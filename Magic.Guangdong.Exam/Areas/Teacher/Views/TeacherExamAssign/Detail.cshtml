@@ -13,7 +13,7 @@
                     <input class="layui-input" value="归属考试： @Model.examInfoDto.ExamTitle" disabled />
                 </div>
                 <div class="layui-col-md4">
-                    <input class="layui-input" value="考卷信息：@Model.examInfoDto.ExamTitle" disabled />
+                    <input class="layui-input" value="考卷信息：@Model.examInfoDto.PaperTitle" disabled />
                 </div>
                 <div class="layui-col-md4">
                     <input class="layui-input" value="考号：@Model.examInfoDto.IdNumber" disabled />
@@ -23,7 +23,7 @@
     </fieldset>
 </div>
 <div class="layui-row" style="margin-top:20px">
-    <form class="layui-form">
+    <form class="layui-form" lay-filter="subjectiveForm">
         <fieldset class="layui-elem-field">
             <legend>主观题部分</legend>
             <div class="layui-field-box">
@@ -43,9 +43,9 @@
                         }
                         else
                         {
-                            //string[] answerContent = JsonConvert.DeserializeObject<string[]>(item.userAnswer.SubjectiveAnswer);
+                        //string[] answerContent = JsonConvert.DeserializeObject<string[]>(item.userAnswer.SubjectiveAnswer);
                             <p style="margin-top:10px"></p>
-                            <div class="userAnswerContentDiv" id="@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
+                            <div class="userAnswerContentDiv" id="content_@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
                             </div>
                         }
                         <br />
@@ -59,12 +59,14 @@
                                     <div class="layui-input-block">
                                         <div class="sliderScore" style="margin-top:20px;padding-top:15px" data-score="@item.question.Score" id="sliderScore_@item.userAnswer.Id"></div>
                                     </div>
-
+                                    <input type="hidden" name="QuestionId[]" value="@item.question.Id" />
+                                    <input type="hidden" name="SubmitRecordId[]" value="@item.userAnswer.Id" />
+                                    <input type="hidden" name="SubjectiveItemScore[]" id="subjectiveItemScore_@item.userAnswer.Id" />
                                 </div>
                                 <div class="layui-form-item">
                                     <label class="layui-form-label">教师评语：</label>
                                     <div class="layui-input-block">
-                                        <textarea placeholder="请输入内容" class="layui-textarea"></textarea>
+                                        <textarea placeholder="非必填" class="layui-textarea"></textarea>
                                     </div>
                                 </div>
 
@@ -77,7 +79,7 @@
         </fieldset>
         <a href="javascript:;" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
 
-        <a href="javascript:;" class="layui-btn"><i class="layui-icon layui-icon-release"></i>提交评分</a>
+        <a href="javascript:;" lay-filter="save" lay-submit class="layui-btn"><i class="layui-icon layui-icon-release"></i>提交评分</a>
         <input type="checkbox" title="提交后自动加载下一套试卷" lay-filter="auto" />
     </form>
 </div>
@@ -88,13 +90,74 @@
 <script>
     let slider = layui.slider;
     let base_ajax_url = '';
-    renderCodeEditor()
-    renderTinymce()
-    renderSilderSocre()
+    let form = layui.form;
+    renderCodeEditor();
+    renderTinymce();
+    renderSilderSocre();
+    form.on('submit(save)', async (data) => {
+        let params = {
+            assignId: getUrlQueryParams('assignId'),
+            recordId: '@Model.examInfoDto.RecordId',
+            itemScoreStr: ''
+        }
+        let obj = form.val('subjectiveForm');
+        params.itemScoreStr = JSON.stringify(processingData(obj));
+
+        console.log(params)
+        let formData = objectToFormData(params);
+        formData.append(csrfTokenKey, requestToken);
+        let json = await request('POST', '@Url.Action("SaveSubjectiveScore")', formData, CT);
+
+        return false;
+    })
+
+    function processingData(obj) {
+        console.log(obj);
+        let delKey = '';
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key) && key.indexOf('_') > -1) { // 确保只遍历对象自身的属性，不包括原型链上的
+                console.log(key);
+                delKey = key;
+                continue;
+            }
+        }
+        if (delKey)
+            delete obj[delKey];
+        return convertToObjectArray(obj);
+        // let outputArray = convertToObjectArray(obj);
+        // //console.log(outputArray);
+        // return outputArray;
+    }
+
+    function convertToObjectArray(obj) {
+        let result = [];
+        let keys = Object.keys(obj);
+
+        // 假设SubmitRecordId和SubjectiveItemScore总是成对出现
+        for (let i = 0; i < keys.length / 2; i++) {
+            let recordIdKey = 'SubmitRecordId[' + i + ']';
+            let scoreKey = 'SubjectiveItemScore[' + i + ']';
+            let questionKey = 'questionId[' + i + ']';
+
+            if (keys.includes(recordIdKey) && keys.includes(scoreKey)) {
+                let item = {
+                    SubmitRecordId: parseInt(obj[recordIdKey], 10),
+                    QuestionId: parseInt(obj[questionKey], 10)
+                    // 添加对SubjectiveItemScore为空或非数字值的处理
+                    Score: isNaN(parseInt(obj[scoreKey], 10)) ? 0 : parseInt(obj[scoreKey], 10)
+                };
+                result.push(item);
+            }
+        }
+
+        return result;
+    }
+
     //渲染打分组件
     function renderSilderSocre() {
         let sliders = document.getElementsByClassName('sliderScore');
         for (let i = 0; i < sliders.length; i++) {
+
             slider.render({
                 elem: '#' + sliders[i].id,
                 min: 0,
@@ -103,6 +166,10 @@
                 tipsAlways: false, // 开启始终显示提示文本
                 input: true, // 输入框
                 //type: 'vertical' // 垂直滑块
+                change: (value) => {
+                    let scoreId = sliders[i].id.replace('sliderScore_', 'subjectiveItemScore_');
+                    jValSet(scoreId, value);
+                }
             });
         }
     }

@@ -60,6 +60,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string TeachNo { get; set; }
 
-	}
+        [JsonProperty]
+        public int MarkStatus { get; set; }
+
+    }
 
 }

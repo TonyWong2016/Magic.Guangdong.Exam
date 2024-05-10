@@ -28,6 +28,10 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
 
     public class ExamInfoDto
     {
+        public long RecordId { get; set; }
+
+        public long AssignId { get; set; }
+
         public string IdNumber { get; set; }
 
         public string PaperTitle { get; set; }

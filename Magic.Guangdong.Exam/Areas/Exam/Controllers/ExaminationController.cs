@@ -163,7 +163,21 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             exam.UpdatedBy = adminId;
             return Json(_resp.success(await _examinationRepo.updateItemAsync(exam)));
         }
-        
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetExamMarkStatus(Guid id,int status)
+        {
+            if (status > 1 || status < 0)
+            {
+                return Json(_resp.error("非法参数"));
+            }
+            var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
+            exam.MarkStatus = (ExamMarkStatus)status;
+            exam.UpdatedAt = DateTime.Now;
+            exam.UpdatedBy = adminId;
+            return Json(_resp.success(await _examinationRepo.updateItemAsync(exam)));
+        }
+
 
         [RouteMark("移除考试")]
         [HttpPost,ValidateAntiForgeryToken]

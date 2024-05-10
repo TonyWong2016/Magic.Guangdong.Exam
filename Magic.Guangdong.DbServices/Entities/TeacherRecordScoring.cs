@@ -26,8 +26,6 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public int IsDeleted { get; set; } = 0;
 
-		[JsonProperty]
-		public double ObjectiveItemScore { get; set; }
 
 		[JsonProperty]
 		public long QuestionId { get; set; }
@@ -41,8 +39,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime UpdatedAt { get; set; }
 
-		[JsonProperty, Column(StringLength = -2)]
-		public string UserSubjectiveAnswer { get; set; }
+		[JsonProperty]
+		public string UserSubjectiveAnswer { get; set; } = "";
 
 		[JsonProperty]
 		public long RecordId { get; set; }

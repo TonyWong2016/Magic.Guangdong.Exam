@@ -1,4 +1,6 @@
-﻿using Magic.Guangdong.Assistant.IService;
+﻿using EasyCaching.Core;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Teacher;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -17,10 +19,10 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         private readonly ITeacherExamAssignViewRepo _teacherExamAssignViewRepo;
         private readonly ITeacherRecordScoringRepo _teacherRecordScoringRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
-        private readonly IPaperRepo _paperRepo;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRedisCachingProvider _redisCachingProvider;
 
-        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo,ITeacherRecordScoringRepo teacherRecordScoringRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IPaperRepo paperRepo)
+        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo,ITeacherRecordScoringRepo teacherRecordScoringRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IRedisCachingProvider redisCachingProvider)
         {
             _resp = resp;
             _teacherExamAssignRepo = teacherExamAssignRepo;
@@ -28,7 +30,7 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             _contextAccessor = contextAccessor;
             _teacherExamAssignViewRepo = teacherExamAssignViewRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
-            _paperRepo = paperRepo;
+            _redisCachingProvider = redisCachingProvider;
         }
 
         [RouteMark("教师分配")]
@@ -106,23 +108,33 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             return Json(_resp.success(new { items = _userAnswerRecordViewRepo.GetTeacherPapers(dto, out total), total }));
         }
 
-        /// <summary>
-        /// 获取教师负责的考卷
-        /// </summary>
-        /// <param name="recordId"></param>
-        /// <returns></returns>
-        public async Task<IActionResult> GetSubjectiveQuestionAndAnswers(long recordId)
-        {
 
-            return Json(_resp.success(await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId)));
+        public async Task<IActionResult> Detail(long assignId,long recordId)
+        {
+            if(!await _teacherExamAssignRepo.getAnyAsync(u => u.Id == assignId))
+            {
+                return Content("没有分配信息");
+            }
+            if (!await _redisCachingProvider.KeyExistsAsync($"subjective_{assignId}_{recordId}"))
+            {
+                var result = await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId);
+                if (result == null)
+                    return Content("没有试卷信息");
+                result.examInfoDto.AssignId = assignId;
+                await _redisCachingProvider.StringSetAsync($"subjective_{assignId}_{recordId}", JsonHelper.JsonSerialize(result), DateTime.Now.AddMinutes(5) - DateTime.Now);
+                return View(result);
+            }
+            return View(JsonHelper.JsonDeserialize<TeacherSubjectiveMarkDto>(await _redisCachingProvider.StringGetAsync($"subjective_{assignId}_{recordId}")));
         }
 
-        public async Task<IActionResult> Detail(long recordId)
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveSubjectiveScore(SaveSubjectiveScoreDto dto)
         {
-            var result = await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId);
-            if (result == null)
-                return Content("没有试卷信息");
-            return View(result);
+            Console.WriteLine(JsonHelper.JsonSerialize(dto));
+            return Json(_resp.success(1));
         }
     }
+    
+    
 }

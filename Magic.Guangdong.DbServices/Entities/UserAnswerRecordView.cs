@@ -150,6 +150,8 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty]
 		public Guid AttachmentId { get; set; }
 
-	}
+        [JsonProperty]
+        public int MarkStatus { get; set; }
+    }
 
 }

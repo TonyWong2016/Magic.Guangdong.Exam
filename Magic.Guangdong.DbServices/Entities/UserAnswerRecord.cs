@@ -54,7 +54,9 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public ExamMarked Marked { get; set; } = ExamMarked.No;
 
-		[JsonProperty]
+        
+
+        [JsonProperty]
 		public Guid PaperId { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(1000)")]
@@ -116,10 +118,12 @@ namespace Magic.Guangdong.DbServices.Entities
 	{
 		No,
 		Part,//判分了，但不代表结束了，因为客观题是自动判，主观题是人工判
-		All//都判完了
+		All,//都判完了
 	}
 
-	public enum IdType
+    
+
+    public enum IdType
 	{
 		IdCard,
 		ReportNumber,

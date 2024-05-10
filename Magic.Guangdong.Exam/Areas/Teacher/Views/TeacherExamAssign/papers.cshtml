@@ -43,7 +43,7 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}&assignId={{assignId}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
 
 </script>
 
@@ -54,6 +54,7 @@
     let isComplated = -1
     let whereJsonStr = '';
     let teacherId = getUrlQueryParams('teacherId');
+    let assignId = getUrlQueryParams('assignId');
     getSelectItems('@Url.Action("GetTeacherExamDrops")', { teacherId: teacherId, rd: randomInt }, 'examTplInit', 'examId', false)
 
     form.on('select(examId)', v => {

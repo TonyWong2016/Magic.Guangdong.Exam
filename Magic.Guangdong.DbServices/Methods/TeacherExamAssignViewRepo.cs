@@ -36,11 +36,13 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             //稍后把这个转化成存储过程调用，减少和数据库的通信次数
             try
-            {                
+            {
                 var userAnswerRecordViewRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecordView>();
                 var userAnswerRecord = await userAnswerRecordViewRepo.Where(u => u.Id == recordId).ToOneAsync();
                 var examInfoDto = userAnswerRecord.Adapt<ExamInfoDto>();
                 examInfoDto.IdNumber = $"{userAnswerRecord.IdNumber.Substring(0, 2)}************{userAnswerRecord.IdNumber.Substring(userAnswerRecord.IdNumber.Length - 2, 2)}";
+                examInfoDto.RecordId = userAnswerRecord.Id;
+                //examInfoDto.AssignId = assignId;
 
                 var userAnswerSubmitRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerSubmitRecord>();
                 var userAnswerSubmitRecords = await userAnswerSubmitRecordRepo
@@ -78,6 +80,70 @@ namespace Magic.Guangdong.DbServices.Methods
                 Assistant.Logger.Error(ex.Message);
                 return null;
             }            
+        }
+    
+    
+        /// <summary>
+        /// 保存主观题批改记录
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<bool> SaveSubjectiveScore(SaveSubjectiveScoreDto dto)
+        {
+            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            {
+                try
+                {
+                    var teacherExamAssignViewRepo = fsql.Get(conn_str).GetRepository<TeacherExamAssignView>();
+                    if(!await teacherExamAssignViewRepo.Where(u => u.Id == dto.assignId && u.IsDeleted==0).AnyAsync())
+                    {
+                        return false;//没分配这个教师，或者分配已经被删掉了
+                    }
+                    var teacherExamAssignView = await teacherExamAssignViewRepo.Where(u => u.Id == dto.assignId).ToOneAsync();
+                    if (teacherExamAssignView.MarkStatus == (int)ExamMarkStatus.Closed || teacherExamAssignView.ExamStatus==(int)ExamStatus.Disabled)
+                    {
+                        return false;//通道关闭
+                    }
+
+
+                    var teacherRecordScoringRepo = fsql.Get(conn_str).GetRepository<TeacherRecordScoring>();
+                    List<TeacherRecordScoring> teacherRecordScorings = new List<TeacherRecordScoring>();
+                    foreach(var item in dto.itemScores)
+                    {                        
+                        teacherRecordScorings.Add(new TeacherRecordScoring()
+                        {
+                            RecordId = dto.recordId,
+                            AssignId = dto.assignId,
+                            QuestionId = item.QuestionId,
+                            SubmitRecordId = item.SubmitRecordId,
+                            SubjectiveItemScore = item.Score,
+                            Remark = $"{teacherExamAssignView.TeacherName}(${teacherExamAssignView.Email},{teacherExamAssignView.Mobile})"
+                            //UserSubjectiveAnswer = userSubjectiveAnswer
+                        });
+                    }
+                    await teacherRecordScoringRepo.InsertAsync(teacherRecordScorings);
+                    
+                    double subjectiveTotalScore = teacherRecordScorings.Sum(u => u.SubjectiveItemScore);
+                    
+                    var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                    var userAnswerRecord = await userAnswerRecordRepo.Where(u => u.Id == dto.recordId).ToOneAsync();
+                    userAnswerRecord.Score = userAnswerRecord.ObjectiveScore + subjectiveTotalScore;
+                    userAnswerRecord.Remark += $";主观题得分{subjectiveTotalScore}";
+                    userAnswerRecord.UpdatedAt = DateTime.Now;
+                    userAnswerRecord.Marked = ExamMarked.All;
+                    await userAnswerRecordRepo.UpdateAsync(userAnswerRecord);
+                    uow.Commit();
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    Logger.Error(ex.Message);
+                    uow.Rollback();
+                    return false;
+                }
+
+            }
+
         }
     }
 }

@@ -16,5 +16,12 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="recordId"></param>
         /// <returns></returns>
         Task<TeacherSubjectiveMarkDto> GetSubjectiveQuestionAndAnswers(long recordId);
+
+        /// <summary>
+        /// 提交判分
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        Task<bool> SaveSubjectiveScore(SaveSubjectiveScoreDto dto);
     }
 }

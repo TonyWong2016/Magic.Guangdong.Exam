@@ -116,6 +116,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public Guid AttachmentId { get; set; } = Guid.Empty;
 
+		/// <summary>
+		/// 是否允许判分
+		/// 关闭后，教师的判分通道也会随之关闭
+		/// </summary>
+        [JsonProperty]
+        public ExamMarkStatus MarkStatus { get; set; } = ExamMarkStatus.Open;
     }
 
 	public enum ExamStatus
@@ -134,5 +140,11 @@ namespace Magic.Guangdong.DbServices.Entities
 		Examination,
 		Practice
 	}
+
+    public enum ExamMarkStatus
+    {
+        Open,
+        Closed
+    }
 
 }
