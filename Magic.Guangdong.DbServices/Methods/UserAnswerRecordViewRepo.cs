@@ -41,7 +41,11 @@ namespace Magic.Guangdong.DbServices.Methods
         public List<TeacherPapersDto> GetTeacherPapers(PageDto dto, out long total)
         {
             var items = GetUserAnswerRecords(dto, out total);
-            return items.Adapt<List<TeacherPapersDto>>();
+            var config = new TypeAdapterConfig();
+            config.ForType<UserAnswerRecordView, TeacherPapersDto>()
+                .Map(dest=>dest.IdNumber,src=>$"{src.IdNumber.Substring(0, 4)}**********{src.IdNumber.Substring(src.IdNumber.Length-2),2}");
+           return items.Adapt<List<TeacherPapersDto>>(config);
+
         }
 
         private List<UserAnswerRecordView> GetUserAnswerRecords(PageDto dto, out long total)
@@ -55,23 +59,6 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Count(out total)
                 .Page(dto.pageindex, dto.pagesize)
                 .ToList();
-                //.ToList(u => new
-                //{
-                //    u.Id,
-                //    userName= u.Name,
-                //    u.IdNumber,
-                //    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
-                //    u.PaperTitle,
-                //    u.ExamTitle,
-                //    u.AssociationTitle,
-                //    u.PaperId,
-                //    u.Score,
-                //    u.UsedTime,
-                //    u.PaperDegree,
-                //    u.ExamType,
-                //    u.ObjectiveScore,
-                //    u.IsDeleted
-                //});
             }
 
             DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(dto.whereJsonStr);
@@ -82,24 +69,6 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Count(out total)
                 .Page(dto.pageindex, dto.pagesize)
                 .ToList();
-
-            //.ToList(u => new
-            //{
-            //    u.Id,
-            //    userName = u.Name,
-            //    u.IdNumber,
-            //    u.ReportId,//前台页面可以根据这个id再加一层二级页去查询他相关的信息，如申报的赛项，赛队等信息
-            //    u.PaperTitle,
-            //    u.ExamTitle,
-            //    u.AssociationTitle,
-            //    u.Score,
-            //    u.ObjectiveScore,
-            //    u.PaperId,
-            //    u.UsedTime,
-            //    u.PaperDegree,
-            //    u.ExamType,
-            //    u.IsDeleted
-            //});
         }
 
         public async Task<List<UserAnswerRecordDto>> GetUserRecordForExport(string whereJsonStr)

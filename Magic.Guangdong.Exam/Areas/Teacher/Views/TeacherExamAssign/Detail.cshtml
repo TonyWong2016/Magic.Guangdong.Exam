@@ -34,52 +34,55 @@
                         string noHtml = Regex.Replace(item.question.TitleText, @"<[^>]+>", string.Empty);
                         string cleaned = Regex.Replace(noHtml, @"^\d+\u3001", string.Empty);
                         string title = $"<p style='font-size:large;'>{index++}、{cleaned} <b style=\"margin-left:10px;color:#524ED2\"> ({item.question.Score} 分)</u></b>";
-                        @Html.Raw(title)
+                                @Html.Raw(title)
 
                         if (item.question.TypeName == "编程题")
                         {
-                            <div class="codeDiv" id="code_@item.userAnswer.Id" style="height:500px;margin-top:10px" data-score="@item.question.Score" data-code="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']').TrimStart('"').TrimEnd('"')">
-                            </div>
+                                    <div class="codeDiv" id="code_@item.userAnswer.Id" style="height:500px;margin-top:10px" data-score="@item.question.Score" data-code="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']').TrimStart('"').TrimEnd('"')">
+                                    </div>
                         }
                         else
                         {
                         //string[] answerContent = JsonConvert.DeserializeObject<string[]>(item.userAnswer.SubjectiveAnswer);
-                            <p style="margin-top:10px"></p>
-                            <div class="userAnswerContentDiv" id="content_@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
-                            </div>
+                                    <p style="margin-top:10px"></p>
+                                    <div class="userAnswerContentDiv" id="content_@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
+                                    </div>
                         }
-                        <br />
 
-                        <div class="layui-card">
-                            <div class="layui-card-header"><h3>教师评分</h3></div>
-                            <div class="layui-card-body">
+                                <br />
+                                <blockquote class="layui-elem-quote">题目解析：<br />@Html.Raw(item.question.Analysis)</blockquote>
+                                <div class="layui-card">
+                                    <div class="layui-card-header"><h3>教师评分</h3></div>
+                                    <div class="layui-card-body">
 
-                                <div class="layui-form-item">
-                                    <label class="layui-form-label">得分情况：</label>
-                                    <div class="layui-input-block">
-                                        <div class="sliderScore" style="margin-top:20px;padding-top:15px" data-score="@item.question.Score" id="sliderScore_@item.userAnswer.Id"></div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">得分情况：</label>
+                                            <div class="layui-input-block">
+                                                <div class="sliderScore" style="margin-top:20px;padding-top:15px" data-score="@item.question.Score" id="sliderScore_@item.userAnswer.Id"></div>
+                                            </div>
+                                            <input type="hidden" name="QuestionId[]" value="@item.question.Id" />
+                                            <input type="hidden" name="SubmitRecordId[]" value="@item.userAnswer.Id" />
+                                            <input type="hidden" name="SubjectiveItemScore[]" id="subjectiveItemScore_@item.userAnswer.Id" />
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">教师评语：</label>
+                                            <div class="layui-input-block">
+                                                <textarea placeholder="非必填" name="Remark[]" class="layui-textarea"></textarea>
+                                            </div>
+                                        </div>
+
+
                                     </div>
-                                    <input type="hidden" name="QuestionId[]" value="@item.question.Id" />
-                                    <input type="hidden" name="SubmitRecordId[]" value="@item.userAnswer.Id" />
-                                    <input type="hidden" name="SubjectiveItemScore[]" id="subjectiveItemScore_@item.userAnswer.Id" />
                                 </div>
-                                <div class="layui-form-item">
-                                    <label class="layui-form-label">教师评语：</label>
-                                    <div class="layui-input-block">
-                                        <textarea placeholder="非必填" class="layui-textarea"></textarea>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
                     }
                 }
             </div>
         </fieldset>
         <a href="javascript:;" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
 
-        <a href="javascript:;" lay-filter="save" lay-submit class="layui-btn"><i class="layui-icon layui-icon-release"></i>提交评分</a>
+        <a href="javascript:;" lay-filter="save" lay-submit class="layui-btn save"><i class="layui-icon layui-icon-release"></i>提交评分</a>
+        <a href="javascript:;" class="layui-btn layui-btn-disabled disabledsave" style="display:none"><i class="layui-icon layui-icon-release"></i>提交中</a>
+
         <input type="checkbox" title="提交后自动加载下一套试卷" lay-filter="auto" />
     </form>
 </div>
@@ -91,13 +94,37 @@
     let slider = layui.slider;
     let base_ajax_url = '';
     let form = layui.form;
+    let nextRecordId = '';
+    let recordId = '@Model.examInfoDto.RecordId';
+    let teacherId = getUrlQueryParams('teacherId');
+    let examId = getUrlQueryParams('examId');
+
     renderCodeEditor();
     renderTinymce();
     renderSilderSocre();
+
+    form.on('checkbox(auto)', data => {
+        if (data.value) {
+            axios.get('@Url.Action("AutoGetNextRecord")', {
+                params: {
+                    recordId: recordId
+                }
+            }).then(data => {
+                let json = data.data;
+                if (json.code == 0) {
+                    nextRecordId = json.data;
+                } else
+                    errorMsg("当前试卷为本次考试的最后一套试卷");
+            });
+            return;
+        }
+        nextRecordId = '';
+    })
+
     form.on('submit(save)', async (data) => {
         let params = {
-            assignId: getUrlQueryParams('assignId'),
-            recordId: '@Model.examInfoDto.RecordId',
+            teacherId: teacherId,
+            recordId: recordId,
             itemScoreStr: ''
         }
         let obj = form.val('subjectiveForm');
@@ -106,8 +133,21 @@
         console.log(params)
         let formData = objectToFormData(params);
         formData.append(csrfTokenKey, requestToken);
+        layer.load();
+        $('.save').hide();
+        $('.disabledsave').show();
         let json = await request('POST', '@Url.Action("SaveSubjectiveScore")', formData, CT);
-
+        if (json.code == 0) {
+            if (nextRecordId) {
+                successMsg('提交成功，即将跳转到下一套试卷', () => {
+                    location.href = `/Teacher/TeacherExamAssign/Detail?recordId=${nextRecordId}&teacherId=${teacherId}`
+                });
+                return;
+            }
+            successMsg('提交成功', () => {
+                location.href = `/Teacher/TeacherExamAssign/Papers?teacherId=${teacherId}&examId=${examId}`
+            });
+        }
         return false;
     })
 
@@ -124,9 +164,6 @@
         if (delKey)
             delete obj[delKey];
         return convertToObjectArray(obj);
-        // let outputArray = convertToObjectArray(obj);
-        // //console.log(outputArray);
-        // return outputArray;
     }
 
     function convertToObjectArray(obj) {
@@ -137,14 +174,16 @@
         for (let i = 0; i < keys.length / 2; i++) {
             let recordIdKey = 'SubmitRecordId[' + i + ']';
             let scoreKey = 'SubjectiveItemScore[' + i + ']';
-            let questionKey = 'questionId[' + i + ']';
+            let questionKey = 'QuestionId[' + i + ']';
+            let remarkKey = 'Remark[' + i + ']';
 
             if (keys.includes(recordIdKey) && keys.includes(scoreKey)) {
                 let item = {
                     SubmitRecordId: parseInt(obj[recordIdKey], 10),
-                    QuestionId: parseInt(obj[questionKey], 10)
+                    QuestionId: parseInt(obj[questionKey], 10),
                     // 添加对SubjectiveItemScore为空或非数字值的处理
-                    Score: isNaN(parseInt(obj[scoreKey], 10)) ? 0 : parseInt(obj[scoreKey], 10)
+                    Score: isNaN(parseInt(obj[scoreKey], 10)) ? 0 : parseInt(obj[scoreKey], 10),
+                    Remark: obj[remarkKey]
                 };
                 result.push(item);
             }

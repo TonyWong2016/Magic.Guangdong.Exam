@@ -83,6 +83,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                    paperRepo.UnitOfWork = uow;
                     if (await paperRepo.Where(u => u.ExamId == exam.Id).AnyAsync())
                     {
                         var papers = await paperRepo.Where(u => u.ExamId == exam.Id).ToListAsync();
@@ -96,6 +97,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         await paperRepo.UpdateAsync(papers);
                     }
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    examRepo.UnitOfWork = uow;
                     var oldExam = await examRepo.Where(u => u.Id == exam.Id).ToOneAsync();
                     exam.Expenses=oldExam.Expenses;//费用不可以改
                     if (exam.Quota < oldExam.Quota)//名额可以变大，不能变小
@@ -134,6 +136,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    examRepo.UnitOfWork = uow;
                     var orginExam = await examRepo.Where(u => u.Id == examId).ToOneAsync();
                     var cloneExam = new Examination()
                     {
@@ -162,6 +165,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     await examRepo.InsertAsync(cloneExam);
 
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                    paperRepo.UnitOfWork = uow;
                     var orginPapers = await paperRepo.Where(u => u.ExamId == examId).ToListAsync();
                     List<Paper> papers = new List<Paper>();
 

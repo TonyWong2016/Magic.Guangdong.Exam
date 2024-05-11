@@ -124,10 +124,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
-                    
+                    questionRepo.UnitOfWork = uow;
                     await questionRepo.InsertOrUpdateAsync(question);
 
                     var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                    questionItemRepo.UnitOfWork = uow;
                     if (questionItemRepo.Where(u => u.QuestionId == question.Id).Any())
                     {
                         var existItems = questionItemRepo.Where(u => u.QuestionId == question.Id).ToList();
@@ -175,6 +176,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
                     var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                    questionRepo.UnitOfWork = uow;
+                    questionItemRepo.UnitOfWork = uow;
 
                     List<Question> listQuestion = new List<Question>();
                     List<QuestionItem> questionItems = new List<QuestionItem>();
@@ -309,6 +312,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
                     var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                    questionRepo.UnitOfWork = uow;
+                    questionItemRepo.UnitOfWork = uow;
                     //await questionRepo.InsertOrUpdateAsync(question);
                     List<Question> listQuestion = new List<Question>();
                     foreach (var item in Items)

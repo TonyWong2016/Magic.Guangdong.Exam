@@ -6,7 +6,7 @@
     <form class="layui-form">
         <div class="layui-form-item layui-row  layui-col-space16">
             <div class="layui-col-md2">
-                <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
+                <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search disabled>
                     <option value="-1">请选择考试</option>
                 </select>
             </div>
@@ -19,6 +19,20 @@
     </form>
     <table class="layui-table" id="table" lay-filter="table"></table>
 </div>
+
+<div class="layui-layer-notice" id='divScoreLog' style='display:none;'>
+    
+</div>
+
+<script type="text/html" id="logTpl">
+    {{# layui.each(d,function(index,item){}}
+        <div class="layui-panel">
+            <div style="padding: 32px;">
+               教师【{{item.teacherName}}】于【{{item.scoreTime}}】给出了【{{item.subjectiveScore}}】分的主观题总得分；
+            </div>
+        </div>
+    {{# }) }}
+</script>
 
 <script type="text/html" id="examTplInit">
     <option value="0">请选择考试</option>
@@ -43,29 +57,35 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}&assignId={{assignId}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
+    {{# if(d.marked==2){ }}
+        <a class="layui-btn layui-btn-primary layui-border-purple" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>改判</a>
+        <a class="layui-btn layui-btn-primary layui-border-orange" href="javascript:;" onclick="getScoreLog('{{teacherId}}','{{d.id}}')"><i class="layui-icon layui-icon-form"></i>判分记录</a>
 
+     {{#} else { }}
+        <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
+    {{#} }}
 </script>
 
 <script>
     let form = layui.form;
-    let examId = '0';
     let paperId = '0';
     let isComplated = -1
     let whereJsonStr = '';
     let teacherId = getUrlQueryParams('teacherId');
-    let assignId = getUrlQueryParams('assignId');
-    getSelectItems('@Url.Action("GetTeacherExamDrops")', { teacherId: teacherId, rd: randomInt }, 'examTplInit', 'examId', false)
+    let examId = getUrlQueryParams('examId');
 
-    form.on('select(examId)', v => {
-        examId = v.value;
-        if (examId == '0')
-            getSelectItems('/exam/Paper/GetPaperMini', {}, 'paperTplInit', 'paperId', false);
-        else {
+    getSelectItems('@Url.Action("GetTeacherExamDrops")', { teacherId: teacherId, rd: randomInt }, 'examTplInit', 'examId', false)
+        .then(() => {
+            $('#examId').val(examId);
             getSelectItems('/exam/Paper/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
-        }
+            form.render('select');
+        })
+
+    form.on('select(paperId)', v => {
+        paperId = v.value;
         getUserRecord();
     })
+    getUserRecord();
 
     function getUserRecord() {
         layer.load();
@@ -80,10 +100,11 @@
                 , { field: 'id', title: 'id', hide: true }
                 , { field: 'examTitle', title: '考试' }
                 , { field: 'paperTitle', title: '试卷' }
-                , { field: 'objectiveScore', title: '客观题得分', width: '15%' }
-                , { field: 'score', title: '当前总分', width: '15%' }
-                , { templet: '#markedTpl', title: '主观题判分情况', width: '15%' }
-                , { title: '操作', templet: '#operationTpl' }
+                , { field:'idNumber',title:'准考证号'}
+                , { field: 'objectiveScore', title: '客观题得分', width: '12%' }                
+                , { templet: '#markedTpl', title: '主观题判分情况', width: '12%' }
+                , { field: 'score', title: '当前总分', width: '12%' }
+                , { title: '操作', templet: '#operationTpl', width: '20%' }
             ],
             height: 630,
             nomsg: true //不在弹出提示
@@ -149,6 +170,24 @@
         }
         //return whereJsonStr;
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+
+    function getScoreLog(teacherId, recordId) {
+        axios.get('@Url.Action("GetTeacherRecordScoreLog")', { params: {
+                'teacherId': teacherId,
+                'recordId': recordId
+        }
+        }).then(data => {
+            let json = data.data;
+
+            if (json.code == 0) {
+                renderTpl('logTpl', 'divScoreLog', json.data, false);
+                openDiv('教师打分记录', 'divScoreLog')
+                return;
+            }
+            errorMsg('还没有产生打分记录');
+            //console.log(data);
+        })
     }
 
     function TestNonNegativeInteger(str) {

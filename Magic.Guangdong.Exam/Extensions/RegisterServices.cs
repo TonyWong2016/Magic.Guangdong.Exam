@@ -4,6 +4,7 @@ using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Exam.Filters;
+using Mapster;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IO;
 using SixLabors.ImageSharp;
@@ -282,5 +283,7 @@ namespace Magic.Guangdong.Exam.Extensions
                     options.OnPrepareResponseAsync = _ => Task.CompletedTask;
                 });
         }
+    
+        
     }
 }

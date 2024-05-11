@@ -76,7 +76,7 @@
 
 <script src="/plugins/xm-select.js"></script>
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="/teacher/teacherexamassign/papers?assignId={{d.id}}&teacherId={{d.teacherId}}" ><i class="layui-icon layui-icon-form"></i>考卷详情</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="/teacher/teacherexamassign/papers?teacherId={{d.teacherId}}&examId={{d.examId}}" ><i class="layui-icon layui-icon-form"></i>考卷详情</a>
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/teacher/TeacherExamAssign/remove',removeId:'{{d.id}}',refresh:false,callback:()=>{refreshRandomInt();getTeacherExamAssignTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
 

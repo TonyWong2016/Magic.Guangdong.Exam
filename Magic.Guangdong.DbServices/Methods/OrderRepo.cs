@@ -30,6 +30,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
+                    orderRepo.UnitOfWork = uow;
                     if (!await orderRepo.Where(u => u.OutTradeNo == dto.OutTradeNo && u.IsDeleted == 0).AnyAsync())
                     {
                         return false;
@@ -43,6 +44,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     //await orderRepo.UpdateAsync(order);
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    reportProcessRepo.UnitOfWork = uow;
                     if(!await reportProcessRepo.Where(u => u.OrderId == order.Id).AnyAsync())
                     {
                         return false;
@@ -80,6 +82,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
+                    orderRepo.UnitOfWork = uow;
                     if (!await orderRepo.Where(u => u.OutTradeNo == outTradeNo || u.Status == OrderStatus.Paid).AnyAsync())
                     {
                         return false;
@@ -91,6 +94,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     order.Remark = "后台操作退款";
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    reportProcessRepo.UnitOfWork = uow;
                     var reportProcess = await reportProcessRepo.Where(u => u.OrderId == order.Id).FirstAsync();
                     reportProcess.Status = ReportStatus.Refunded;
                     //后台操作不修改前台客户的报名进度字段

@@ -10,7 +10,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
 
     public class SaveSubjectiveScoreDto
     {
-        public long assignId { get; set; }
+        public Guid teacherId { get; set; }
 
         public long recordId { get; set; }
 
@@ -35,5 +35,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
         public int Score { get; set; }
 
         public long QuestionId { get; set; }
+
+        public string Remark { get; set; }
     }
 }

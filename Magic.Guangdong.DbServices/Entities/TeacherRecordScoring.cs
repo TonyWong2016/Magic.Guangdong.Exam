@@ -18,7 +18,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public long Id { get; set; } = YitIdHelper.NextId();
 
 		[JsonProperty]
-		public long AssignId { get; set; }
+		public Guid TeacherId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; }

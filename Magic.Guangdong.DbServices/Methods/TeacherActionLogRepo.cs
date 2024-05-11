@@ -26,6 +26,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var teacherLoginLogRepo = fsql.Get(conn_str).GetRepository<TeacherLoginLog>();
+                    teacherLoginLogRepo.UnitOfWork = uow;
                     string tokenHash = Security.GenerateMD5Hash(jwt);
                     if(teacherLoginLogRepo.Where(u=>u.TeacherId==teacherId && u.TokenHash== tokenHash).Any())
                     {
@@ -39,7 +40,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         LoginTime = DateTime.Now
                     });
                     var teacherRepo = fsql.Get(conn_str).GetRepository<Teacher>();
-                   
+                    teacherRepo.UnitOfWork = uow;
                     var teacher = await teacherRepo.Where(a => a.Id == teacherId).FirstAsync();
                     teacher.UpdatedAt= DateTime.Now;
                     teacher.Version = exp;

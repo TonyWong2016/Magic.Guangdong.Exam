@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 
-namespace Magic.Guangdong.Exam.Areas.System.Controllers
+namespace Magic.Guangdong.Exam.Teacher.Areas.System.Controllers
 {
     /// <summary>
     /// 账号相关

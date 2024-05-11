@@ -26,6 +26,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var adminLoginLogRepo = fsql.Get(conn_str).GetRepository<AdminLoginLog>();
+                    adminLoginLogRepo.UnitOfWork = uow;
                     string tokenHash = Security.GenerateMD5Hash(jwt);
                     if(adminLoginLogRepo.Where(u=>u.AdminId==adminId && u.TokenHash== tokenHash).Any())
                     {
@@ -33,7 +34,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                     await adminLoginLogRepo.InsertAsync(new AdminLoginLog() { AdminId = adminId, TokenVersion = exp, TokenHash = tokenHash });
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
-                   
+                    adminRepo.UnitOfWork = uow;
                     var admin = await adminRepo.Where(a => a.Id == adminId).FirstAsync();
                     //var claims = JwtService.ValidateJwt(jwt);
                     admin.UpdatedAt= DateTime.Now;

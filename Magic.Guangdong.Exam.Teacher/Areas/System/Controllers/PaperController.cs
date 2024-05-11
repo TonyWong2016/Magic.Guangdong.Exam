@@ -1,13 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EasyCaching.Core;
+using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Teacher.Areas.System.Controllers
 {
     [Area("System")]
     public class PaperController : Controller
     {
+        private readonly IResponseHelper _resp;
+        private readonly ITeacherExamAssignViewRepo _teacherExamAssignViewRepo;
+        private readonly IRedisCachingProvider _redisCachingProvider;
+        public PaperController(IResponseHelper resp, ITeacherExamAssignViewRepo teacherExamAssignViewRepo,IRedisCachingProvider redisCachingProvider)
+        {
+            _resp = resp;
+            _teacherExamAssignViewRepo = teacherExamAssignViewRepo;
+            _redisCachingProvider = redisCachingProvider;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
+
+        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "teacherId" })]
+        public async Task<IActionResult> GetTeacherSummaryData(Guid teacherId)
+        {
+            return Json(_resp.success(await _teacherExamAssignViewRepo.GetTeacherSummaryData(teacherId)));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "teacherId", "examId" })]
+        public async Task<IActionResult> GetTeacherExamSummaryData(Guid teacherId,Guid examId)
+        {
+            return Json(_resp.success(await _teacherExamAssignViewRepo.GetTeacherExamSummaryData(teacherId, examId)));
+        }
+
+        //)
     }
 }

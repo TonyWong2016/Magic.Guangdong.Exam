@@ -93,6 +93,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                    examRepo.UnitOfWork= uow;
                     var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
 
                     if (exam.ExamType == ExamType.Practice)
@@ -101,11 +102,13 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
 
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                    paperRepo.UnitOfWork = uow;
                     if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
                     {
                         return new { code = -1, msg = "当前活动尚未创建任何有效试卷，暂时无法答题" };
                     }
                     var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                    userAnswerRecordRepo.UnitOfWork = uow;
                     var userAnswerRecordQuery = userAnswerRecordRepo
                         .Where(u => u.ReportId == dto.reportId &&
                         u.ExamId == dto.examId &&
@@ -134,6 +137,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
 
                     var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+                    reportInfoRepo.UnitOfWork = uow;
                     var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
                     DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
                     //Logger.Debug("试卷时间：" + myPaper.Duration);
@@ -177,6 +181,7 @@ namespace Magic.Guangdong.DbServices.Methods
         {
 
             var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+            
             var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
             if (exam.ExamType == ExamType.Examination)
             {
@@ -185,6 +190,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
 
             var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+            paperRepo.UnitOfWork.Commit();
             if (!await paperRepo.Where(u => u.ExamId == dto.examId && u.Status == ExamStatus.Enabled && u.IsDeleted == 0).AnyAsync())
             {
                 return new { code = -1, msg = "当前活动尚未创建任何有效试卷，暂时无法答题" };

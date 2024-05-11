@@ -119,7 +119,10 @@ namespace Magic.Guangdong.DbServices.Methods
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
                     var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
                     var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
-                    
+                    paperRepo.UnitOfWork = uow;
+                    questionRepo.UnitOfWork = uow;
+                    relationRepo.UnitOfWork = uow;
+
                     int totalRelation = 0;
                     List<Relation> targetRelations = new List<Relation>();
 
@@ -275,9 +278,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     //取出试卷详情
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                    paperRepo.UnitOfWork = uow;
                     var paper = await paperRepo.Where(u => u.Id == dto.paperId).ToOneAsync();
 
                     var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                    userAnswerRecordRepo.UnitOfWork = uow;
                     //当前试卷下所有的答题记录
                     var currPaperRecords = await userAnswerRecordRepo.Where(u => u.PaperId == dto.paperId).ToListAsync(u => new
                     {
@@ -347,6 +352,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     //取出试卷详情
                     var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                    paperRepo.UnitOfWork= uow;
                     var paper = await paperRepo.Where(u => u.Id == dto.paperId).ToOneAsync();
                     paper.Title = dto.paperTitle;
                     paper.Status =(ExamStatus)dto.paperStatus;
@@ -359,6 +365,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         var questionRepo = fsql.Get(conn_str).GetRepository<QuestionView>();
                         var itemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                        questionRepo.UnitOfWork = uow;
+                        itemRepo.UnitOfWork = uow;
 
                         foreach (var answer in dto.answers)
                         {

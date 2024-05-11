@@ -76,5 +76,13 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="dto"></param>
         /// <returns></returns>
         Task<int> RemoveAssign(TeacherExamAssignDto dto);
+
+
+        /// <summary>
+        /// 提交判分
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        Task<bool> SaveSubjectiveScore(SaveSubjectiveScoreDto dto);
     }
 }

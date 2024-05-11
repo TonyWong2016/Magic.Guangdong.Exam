@@ -1,5 +1,6 @@
 ﻿using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.WeChatPay.V2.Request;
+using FreeSql;
 using FreeSql.Internal.Model;
 using log4net.Repository.Hierarchy;
 using Magic.Guangdong.Assistant;
@@ -51,6 +52,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+                    reportInfoRepo.UnitOfWork = uow;
                     var reportModel = dto.Adapt<ReportInfo>();
                     //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
                     reportModel.ReportNumber =
@@ -61,6 +63,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+                    reportProcessRepo.UnitOfWork = uow;
                     var reportProcessModel = new ReportProcess()
                     {
                         AccountId = dto.AccountId,
@@ -73,9 +76,10 @@ namespace Magic.Guangdong.DbServices.Methods
                     //await reportProcessRepo.InsertAsync(ReportProcessModel);
 
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-                    
+                    examRepo.UnitOfWork = uow;
                     var exam = await examRepo.Where(x => x.Id == dto.ExamId).FirstAsync();
                     var orderRepo = fsql.Get(conn_str).GetRepository<Order>();
+                    orderRepo.UnitOfWork = uow;
                     var order = new Order()
                     {
                         AccountId = dto.AccountId,
@@ -100,6 +104,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     {
                         reportProcessModel.Status = ReportStatus.Succeed;
                         var reportHistoryRepo = fsql.Get(conn_str).GetRepository<ReportCheckHistory>();
+                        reportHistoryRepo.UnitOfWork = uow;
                         await reportHistoryRepo.InsertAsync(new ReportCheckHistory()
                         {
                             AdminId = "nobody",
@@ -185,6 +190,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return false;
             }
             var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
+           
             if(await reportProcessRepo.Where(u=>dto.reportIds.Contains(u.ReportId)).CountAsync() != dto.reportIds.Length)
             {
                 return false;
@@ -193,7 +199,9 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 try
                 {
+                    reportProcessRepo.UnitOfWork = uow;
                     var reportCheckHistoryRepo = fsql.Get(conn_str).GetRepository<ReportCheckHistory>();
+                    reportCheckHistoryRepo.UnitOfWork = uow;
                     List<ReportCheckHistory> listHistory = new List<ReportCheckHistory>(dto.reportIds.Length);
                     List<ReportProcess> listProcess = new List<ReportProcess>(dto.reportIds.Length);
                     foreach (var reportId in dto.reportIds)

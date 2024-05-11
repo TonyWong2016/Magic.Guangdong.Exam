@@ -101,6 +101,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
+                    adminRepo.UnitOfWork = uow;
                     if (await adminRepo
                         .Where(u => u.Name == dto.Name ||
                         u.Email == dto.Email ||
@@ -137,6 +138,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     if (dto.RoleIds.Any())
                     {
                         var adminRoleRepo = fsql.Get(conn_str).GetRepository<AdminRole>();
+                        adminRoleRepo.UnitOfWork = uow;
                         List<AdminRole> adminRoles = new List<AdminRole>();
                         foreach (var roleId in dto.RoleIds)
                         {
@@ -163,6 +165,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
+                    adminRepo.UnitOfWork = uow;
                     if (!await adminRepo.Where(u => u.Id == dto.Id && u.IsDeleted == 0).AnyAsync())
                         return false;
                     var admin = await adminRepo.Where(u => u.Id == dto.Id).FirstAsync();
@@ -187,6 +190,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     if (dto.RoleIds.Any())
                     {
                         var adminRoleRepo = fsql.Get(conn_str).GetRepository<AdminRole>();
+                        adminRoleRepo.UnitOfWork = uow;
                         var originRoles = await adminRoleRepo.Where(u => u.AdminId == admin.Id).ToListAsync();
                         var needDelRoles = originRoles.Select(u => u.RoleId).Except(dto.RoleIds);
                         if (needDelRoles.Any())

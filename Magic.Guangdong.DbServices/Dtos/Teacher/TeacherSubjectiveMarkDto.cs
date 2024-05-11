@@ -30,7 +30,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
     {
         public long RecordId { get; set; }
 
-        public long AssignId { get; set; }
+        public Guid TeacherId { get; set; }
 
         public string IdNumber { get; set; }
 

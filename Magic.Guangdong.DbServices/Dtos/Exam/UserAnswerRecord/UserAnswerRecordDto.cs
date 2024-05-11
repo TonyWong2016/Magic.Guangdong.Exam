@@ -69,6 +69,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord
     {
         public long Id { get; set; }
 
+        public Guid ExamId { get; set; }
         //public string Name { get; set; }
 
         //public string UserName
@@ -80,7 +81,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord
         //    set { }
         //}
 
-        //public string IdNumber { get; set; }
+        public string IdNumber { get; set; }
 
         public string ReportId { get; set; }
 

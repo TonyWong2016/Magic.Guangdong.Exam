@@ -28,16 +28,19 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var adminRoleRepo = fsql.Get(conn_str).GetRepository<AdminRole>();
+                    adminRoleRepo.UnitOfWork = uow;
                     if (roleIds == null || roleIds.Length == 0)
                     {
                         return false;
                     }
                     var roleRepo = fsql.Get(conn_str).GetRepository<Role>();
+                    roleRepo.UnitOfWork = uow;
                     if (!await roleRepo.Where(u => roleIds.Contains(u.Id)).AnyAsync())
                     {
                         return false;
                     }
                     var adminRepo = fsql.Get(conn_str).GetRepository<Admin>();
+                    adminRepo.UnitOfWork = uow;
                     if(!await adminRepo.Where(u=>u.Id == adminId).AnyAsync())
                     {
                         return false;

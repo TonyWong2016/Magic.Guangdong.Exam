@@ -10,6 +10,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface ITeacherExamAssignViewRepo : IExaminationRepository<TeacherExamAssignView>
     {
+        Task<dynamic> GetTeacherExams(Guid teacherId);
         /// <summary>
         /// 获取用户提交的主观题
         /// </summary>
@@ -17,11 +18,11 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<TeacherSubjectiveMarkDto> GetSubjectiveQuestionAndAnswers(long recordId);
 
-        /// <summary>
-        /// 提交判分
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <returns></returns>
-        Task<bool> SaveSubjectiveScore(SaveSubjectiveScoreDto dto);
+        Task<List<TeacherRecordScoreLogDto>> GetSubjectiveScoreLog(Guid teacherId, long recordId);
+
+
+        Task<TeacherSummaryDto> GetTeacherSummaryData(Guid teacherId);
+
+        Task<TeacherPapersMarkedCntDto> GetTeacherExamSummaryData(Guid teacherId, Guid examId);
     }
 }

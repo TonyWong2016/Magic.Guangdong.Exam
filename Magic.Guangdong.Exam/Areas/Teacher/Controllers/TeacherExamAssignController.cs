@@ -17,16 +17,16 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         private readonly IResponseHelper _resp;
         private readonly ITeacherExamAssignRepo _teacherExamAssignRepo;
         private readonly ITeacherExamAssignViewRepo _teacherExamAssignViewRepo;
-        private readonly ITeacherRecordScoringRepo _teacherRecordScoringRepo;
+        private readonly ITeacherRecordScoreLogRepo _teacherRecordScoreLogRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRedisCachingProvider _redisCachingProvider;
 
-        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo,ITeacherRecordScoringRepo teacherRecordScoringRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IRedisCachingProvider redisCachingProvider)
+        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo, ITeacherRecordScoreLogRepo teacherRecordScoreLogRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IRedisCachingProvider redisCachingProvider)
         {
             _resp = resp;
             _teacherExamAssignRepo = teacherExamAssignRepo;
-            _teacherRecordScoringRepo = teacherRecordScoringRepo;
+            _teacherRecordScoreLogRepo = teacherRecordScoreLogRepo;
             _contextAccessor = contextAccessor;
             _teacherExamAssignViewRepo = teacherExamAssignViewRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
@@ -66,11 +66,12 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(long id)
         {
-            if(await _teacherRecordScoringRepo.getAnyAsync(u => u.AssignId == id))
+            var assign = await _teacherExamAssignRepo.getOneAsync(u => u.Id == id);
+            if (await _teacherRecordScoreLogRepo.getAnyAsync(u => u.TeacherId == assign.TeacherId && u.ExamId == assign.ExamId))
             {
                 return Json(_resp.error("该老师已经对其负责的考卷提交了判分记录，不可以删除分配关系"));
             }
-            var assign = await _teacherExamAssignRepo.getOneAsync(u => u.Id == id);
+            
             assign.IsDeleted = 1;
             assign.UpdatedAt = DateTime.Now;
             await _teacherExamAssignRepo.updateItemAsync(assign);
@@ -109,22 +110,22 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         }
 
 
-        public async Task<IActionResult> Detail(long assignId,long recordId)
+        public async Task<IActionResult> Detail(Guid teacherId,long recordId)
         {
-            if(!await _teacherExamAssignRepo.getAnyAsync(u => u.Id == assignId))
+            if(!await _teacherExamAssignRepo.getAnyAsync(u => u.TeacherId == teacherId))
             {
                 return Content("没有分配信息");
             }
-            if (!await _redisCachingProvider.KeyExistsAsync($"subjective_{assignId}_{recordId}"))
+            if (!await _redisCachingProvider.KeyExistsAsync($"subjective_{teacherId}_{recordId}"))
             {
                 var result = await _teacherExamAssignViewRepo.GetSubjectiveQuestionAndAnswers(recordId);
                 if (result == null)
                     return Content("没有试卷信息");
-                result.examInfoDto.AssignId = assignId;
-                await _redisCachingProvider.StringSetAsync($"subjective_{assignId}_{recordId}", JsonHelper.JsonSerialize(result), DateTime.Now.AddMinutes(5) - DateTime.Now);
+                result.examInfoDto.TeacherId = teacherId;
+                await _redisCachingProvider.StringSetAsync($"subjective_{teacherId}_{recordId}", JsonHelper.JsonSerialize(result), DateTime.Now.AddMinutes(5) - DateTime.Now);
                 return View(result);
             }
-            return View(JsonHelper.JsonDeserialize<TeacherSubjectiveMarkDto>(await _redisCachingProvider.StringGetAsync($"subjective_{assignId}_{recordId}")));
+            return View(JsonHelper.JsonDeserialize<TeacherSubjectiveMarkDto>(await _redisCachingProvider.StringGetAsync($"subjective_{teacherId}_{recordId}")));
         }
 
 
@@ -132,7 +133,32 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         public async Task<IActionResult> SaveSubjectiveScore(SaveSubjectiveScoreDto dto)
         {
             Console.WriteLine(JsonHelper.JsonSerialize(dto));
-            return Json(_resp.success(1));
+
+            return Json(_resp.success(await _teacherExamAssignRepo.SaveSubjectiveScore(dto)));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "teacherId", "recordId","rd" })]
+        public async Task<IActionResult> GetTeacherRecordScoreLog(Guid teacherId,long recordId)
+        {
+            var items = await _teacherExamAssignViewRepo.GetSubjectiveScoreLog(teacherId, recordId);
+            if (items.Count > 0)
+            {
+                return Json(_resp.success(items));
+            }
+            return Json(_resp.error("还没有产生打分记录"));
+        }
+
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "recordId", "rd" })]
+        public async Task<IActionResult> AutoGetNextRecord(long recordId)
+        {
+            var currRecord = await _userAnswerRecordViewRepo.getOneAsync(u => u.Id == recordId);
+            var records = (await _userAnswerRecordViewRepo.getListAsync(u => u.ExamId == currRecord.ExamId)).Select(u => u.Id).ToList();
+            int currIndex = records.IndexOf(recordId);
+            if (currIndex + 1 < records.Count())
+            {
+                return Json(_resp.success(records[currIndex + 1]));
+            }
+            return Json(_resp.error("当前是最后一条记录"));
         }
     }
     

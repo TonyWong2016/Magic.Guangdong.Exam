@@ -7,6 +7,7 @@ using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;
 using MathNet.Numerics.Distributions;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -211,5 +212,87 @@ namespace Magic.Guangdong.DbServices.Methods
             await teacherExamAssignRepo.UpdateAsync(list);
             return list.Count;
         }
+
+
+        /// <summary>
+        /// 保存主观题批改记录
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>        
+        public async Task<bool> SaveSubjectiveScore(SaveSubjectiveScoreDto dto)
+        {
+            using (var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            {
+                try
+                {
+                    var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                    var userAnswerRecord = await userAnswerRecordRepo.Where(u => u.Id == dto.recordId).ToOneAsync();
+
+                    var teacherExamAssignViewRepo = fsql.Get(conn_str).GetRepository<TeacherExamAssignView>();
+                    if (!await teacherExamAssignViewRepo.Where(u => u.TeacherId == dto.teacherId && u.ExamId==userAnswerRecord.ExamId && u.IsDeleted == 0).AnyAsync())
+                    {
+                        return false;//没分配这个教师，或者分配已经被删掉了
+                    }                    
+
+                     var teacherExamAssignView = await teacherExamAssignViewRepo.Where(u => u.TeacherId == dto.teacherId && u.ExamId==userAnswerRecord.ExamId && u.IsDeleted == 0).ToOneAsync();
+                    if (teacherExamAssignView.MarkStatus == (int)ExamMarkStatus.Closed || teacherExamAssignView.ExamStatus == (int)ExamStatus.Disabled)
+                    {
+                        return false;//通道关闭
+                    }
+                    userAnswerRecordRepo.UnitOfWork = uow;
+                    //teacherExamAssignViewRepo.UnitOfWork = uow;
+                    var teacherRecordScoringRepo = fsql.Get(conn_str).GetRepository<TeacherRecordScoring>();
+                    teacherRecordScoringRepo.UnitOfWork = uow;
+                    List<TeacherRecordScoring> teacherRecordScorings = new List<TeacherRecordScoring>();
+                    foreach (var item in dto.itemScores)
+                    {
+                        teacherRecordScorings.Add(new TeacherRecordScoring()
+                        {
+                            RecordId = dto.recordId,
+                            TeacherId = dto.teacherId,
+                            QuestionId = item.QuestionId,
+                            SubmitRecordId = item.SubmitRecordId,
+                            SubjectiveItemScore = item.Score,
+                            Remark = $"{item.Remark}-{teacherExamAssignView.TeacherName}({teacherExamAssignView.TeachNo})"
+                            //UserSubjectiveAnswer = userSubjectiveAnswer
+                        });
+                    }
+                    await teacherRecordScoringRepo.InsertAsync(teacherRecordScorings);
+
+                    double subjectiveTotalScore = teacherRecordScorings.Sum(u => u.SubjectiveItemScore);
+
+                   
+                    userAnswerRecord.Score = userAnswerRecord.ObjectiveScore + subjectiveTotalScore;
+                    userAnswerRecord.Remark += $";主观题得分{subjectiveTotalScore}";
+                    userAnswerRecord.UpdatedAt = DateTime.Now;
+                    userAnswerRecord.Marked = ExamMarked.All;
+                    await userAnswerRecordRepo.UpdateAsync(userAnswerRecord);
+
+                    var scoreLogRepo = fsql.Get(conn_str).GetRepository<TeacherRecordScoreLog>();
+                    scoreLogRepo.UnitOfWork = uow;
+                    await scoreLogRepo.InsertAsync(new TeacherRecordScoreLog()
+                    {
+                        //AssginId = dto.assignId,
+                        RecordId = dto.recordId,
+                        TeacherId = teacherExamAssignView.TeacherId,
+                        SubjectiveScore = subjectiveTotalScore,
+                        ExamId = userAnswerRecord.ExamId
+                    });
+
+                    uow.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.Message);
+                    uow.Rollback();
+                    return false;
+                }
+
+            }
+
+        }
+
+        
     }
 }

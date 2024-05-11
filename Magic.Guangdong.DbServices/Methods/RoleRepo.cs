@@ -24,6 +24,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var roleRepo = fsql.Get(conn_str).GetRepository<Role>();
+                    roleRepo.UnitOfWork = uow;
                     //上层排重
                     //if (string.IsNullOrWhiteSpace(dto.Name) || await roleRepo.Where(u => u.Name == dto.Name).AnyAsync())
                     //{
@@ -41,6 +42,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     if (dto.PermissionIds != null && dto.PermissionIds.Any())
                     {
                         var rolePermissionRepo = fsql.Get(conn_str).GetRepository<RolePermission>();
+                        rolePermissionRepo.UnitOfWork = uow;
                         List<RolePermission> rolePermissions = new List<RolePermission>();
                         foreach(long permissionId in dto.PermissionIds)
                         {
@@ -76,6 +78,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 try
                 {
                     var roleRepo = fsql.Get(conn_str).GetRepository<Role>();
+                    roleRepo.UnitOfWork = uow;
                     var role = await roleRepo.Where(u => u.Id == dto.Id).FirstAsync();
                     role.Name = dto.Name;
                     role.Description = dto.Description;
@@ -85,6 +88,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     await roleRepo.UpdateAsync(role);
 
                     var rolePermissionRepo = fsql.Get(conn_str).GetRepository<RolePermission>();
+                    rolePermissionRepo.UnitOfWork = uow;
                     if (dto.PermissionIds != null && dto.PermissionIds.Any())
                     {
                         var originPermissions = await rolePermissionRepo
@@ -150,7 +154,9 @@ namespace Magic.Guangdong.DbServices.Methods
                 {
                     //var keyActionRepo = fsql.Get(conn_str).GetRepository<KeyAction>();
                     var roleRepo = fsql.Get(conn_str).GetRepository<Role>();
+                    roleRepo.UnitOfWork=uow;
                     var rolePermissionRepo = fsql.Get(conn_str).GetRepository<RolePermission>();
+                    rolePermissionRepo.UnitOfWork=uow;
                     var role = await roleRepo.Where(u => u.Id == roleId).FirstAsync();
                     role.IsDeleted = 1;
                     role.UpdatedAt = DateTime.Now;

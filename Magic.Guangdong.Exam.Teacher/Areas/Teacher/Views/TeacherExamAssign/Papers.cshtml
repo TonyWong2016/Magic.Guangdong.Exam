@@ -1,0 +1,206 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row  layui-col-space16">
+            <div class="layui-col-md1">
+                <a class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
+
+            </div>
+            <div class="layui-col-md2">
+                <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
+                    <option value="-1">请选择考试</option>
+                </select>
+            </div>
+
+            <div class="layui-col-md2" style="display:none">
+                <select id="paperId" lay-filter="paperId" name="paperId" class="layui-select">
+                    <option value="-1">请选择试卷</option>
+                </select>
+            </div>
+            <div class="layui-col-md2">
+                <select id="markStatus" lay-filter="markStatus" name="markStatus" class="layui-select">
+                    <option value="">请选择判分状态</option>
+                    <option value="1">未判分</option>
+                    <option value="2">已判分</option>
+                </select>
+            </div>
+            <div class="layui-col-md2">
+                <div class="layui-form-mid layui-text-em">
+                    选择考试后才可以加载分配给您的试卷
+                </div>
+            </div>
+        </div>
+    </form>
+    <table class="layui-table" id="table" lay-filter="table"></table>
+</div>
+
+<div class="layui-layer-notice" id='divScoreLog' style='display:none;'>
+    
+</div>
+
+<script type="text/html" id="logTpl">
+    {{# layui.each(d,function(index,item){}}
+        <div class="layui-panel">
+            <div style="padding: 32px;">
+               教师【{{item.teacherName}}】于【{{item.scoreTime}}】给出了【{{item.subjectiveScore}}】分的主观题总得分；
+            </div>
+        </div>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="examTplInit">
+    <option value="0">请选择考试</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="paperTplInit">
+    <option value="0">请选择试卷</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="markedTpl">
+    {{# if(d.marked==2){ }}
+         <span style="color:#00B050">已判分</span>
+    {{#} else { }}
+        <span style="color:#a233c6">未判分</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    {{# if(d.marked==2){ }}
+        <a class="layui-btn layui-btn-primary layui-border-purple" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>改判</a>
+        <a class="layui-btn layui-btn-primary layui-border-orange" href="javascript:;" onclick="getScoreLog('{{teacherId}}','{{d.id}}')"><i class="layui-icon layui-icon-form"></i>判分记录</a>
+
+     {{#} else { }}
+        <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>
+    {{#} }}
+</script>
+
+<script>
+    let form = layui.form;
+    let paperId = '0';    
+    let teacherId = getUrlQueryParams('teacherId');
+    let examId = '';
+    let markStatus = '';
+
+    getSelectItems('/teacher/teacher/GetTeacherExamDrops', { teacherId: teacherId }, 'examTplInit', 'examId', false)
+        .then((data) => {
+            $('#examId').val(examId);
+            form.render('select')
+        })
+
+
+    form.on('select(examId)', data => {
+        examId = data.value;
+        getSelectItems('/teacher/teacher/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
+        getUserRecord();
+    })
+
+
+    form.on('select(paperId)', v => {
+        paperId = v.value;
+        getUserRecord();
+    })
+
+    form.on('select(markStatus)', v => {
+        markStatus = v.value;
+        getUserRecord();
+    })
+
+    function getUserRecord() {
+        if (!examId) {
+            errorMsg('请选择考试');
+            return;
+        }
+        layer.load();
+        let params = {
+            url: '@Url.Action("GetTeacherPapers")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'examTitle', title: '考试' }
+                , { field: 'paperTitle', title: '试卷' }
+                , { field:'idNumber',title:'准考证号'}
+                , { field: 'objectiveScore', title: '客观题得分', width: '12%' }                
+                , { templet: '#markedTpl', title: '主观题判分情况', width: '12%' }
+                , { field: 'score', title: '当前总分', width: '12%' }
+                , { title: '操作', templet: '#operationTpl', width: '20%' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        let whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }, {
+                'Field': 'ExamType',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+
+
+        if (examId) {
+            whereJsonStr.Filters.push({
+                'Field': 'ExamId',
+                'Operator': 'Equal',
+                'Value': examId
+            });
+        }
+
+        if (paperId != '0') {
+            whereJsonStr.Filters.push({
+                'Field': 'PaperId',
+                'Operator': 'Equal',
+                'Value': paperId
+            });
+        }
+
+        if (markStatus) {
+            whereJsonStr.Filters.push({
+                'Field': 'marked',
+                'Operator': 'Equal',
+                'Value': markStatus
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+
+    function getScoreLog(teacherId, recordId) {
+        axios.get('@Url.Action("GetTeacherRecordScoreLog")', { params: {
+                'teacherId': teacherId,
+                'recordId': recordId
+        }
+        }).then(data => {
+            let json = data.data;
+
+            if (json.code == 0) {
+                renderTpl('logTpl', 'divScoreLog', json.data, false);
+                openDiv('教师打分记录', 'divScoreLog')
+                return;
+            }
+            errorMsg('还没有产生打分记录');
+            //console.log(data);
+        })
+    }
+
+    
+</script>
