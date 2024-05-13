@@ -165,9 +165,11 @@
             localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a, b) => a.depth - b.depth)))
 
             if (item.isLeef == 1 && item.router !== '') {
-                layer.load(2);
+                let loadingIndex = layer.load(2);
                 $('#main-container').attr('src', item.router.replace('Controller', ''));
-                layer.closeAll('loading')
+                $('#main-container').on('load', function () {
+                    layer.close(loadingIndex);
+                });
             }
 
             if (navs.length > 0 && navs.filter(u => u.menuId == item.id).length == 1 || item.sLeef == 1) {

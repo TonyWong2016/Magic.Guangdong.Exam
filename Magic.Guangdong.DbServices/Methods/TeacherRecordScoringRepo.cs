@@ -17,5 +17,18 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             this.fsql = fsql;
         }
+
+        public async Task<TeacherRecordScoring> GetLastScoreDetail(long submitRecoredId)
+        {
+            if(!await getAnyAsync(x => x.SubmitRecordId == submitRecoredId))
+            {
+                return new TeacherRecordScoring() { QuestionId = -1, RecordId = -1, SubmitRecordId = -1 };
+            }
+            
+            return await fsql.Get(conn_str).Select<TeacherRecordScoring>()
+                .Where(x => x.SubmitRecordId == submitRecoredId)
+                .OrderByDescending(x => x.Id)
+                .FirstAsync();
+        }
     }
 }

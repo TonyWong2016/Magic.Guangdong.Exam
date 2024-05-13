@@ -172,9 +172,8 @@
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
     }
 
-    function getScoreLog(teacherId, recordId) {
+    function getScoreLog( recordId) {
         axios.get('@Url.Action("GetTeacherRecordScoreLog")', { params: {
-                'teacherId': teacherId,
                 'recordId': recordId
         }
         }).then(data => {

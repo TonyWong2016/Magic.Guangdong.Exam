@@ -137,10 +137,10 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             return Json(_resp.success(await _teacherExamAssignRepo.SaveSubjectiveScore(dto)));
         }
 
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "teacherId", "recordId","rd" })]
-        public async Task<IActionResult> GetTeacherRecordScoreLog(Guid teacherId,long recordId)
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] {"recordId","rd" })]
+        public async Task<IActionResult> GetTeacherRecordScoreLog(long recordId)
         {
-            var items = await _teacherExamAssignViewRepo.GetSubjectiveScoreLog(teacherId, recordId);
+            var items = await _teacherExamAssignViewRepo.GetSubjectiveScoreLog(recordId);
             if (items.Count > 0)
             {
                 return Json(_resp.success(items));

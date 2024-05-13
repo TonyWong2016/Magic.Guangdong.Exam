@@ -4,15 +4,16 @@
 <div class="layui-card layui-panel">
     <div style="padding:15px">
         <form class="layui-form">
-            <div class="layui-form-item ">
-                <div class="layui-input-inline">
+            <div class="layui-row layui-col-space10">
+                
+                <div class="layui-col-md1">
                     <select id="statusView" lay-verify="" lay-search lay-filter="status">
                         <option value="-1">数据状态</option>
                         <option value="0">正常</option>
                         <option value="1">禁用</option>
                     </select>
                 </div>
-                <div class="layui-input-inline">
+                <div class="layui-col-md1">
                     <select id="unitTypeView" lay-verify="" lay-search lay-filter="unitType">
                         <option value=0>单位类型</option>
                         <option value=1>社会团体</option>
@@ -25,31 +26,32 @@
                         <option value=8>其他</option>
                     </select>
                 </div>
-                <div class="layui-input-inline">
+                <div class="layui-col-md2">
                     <select id="provinceView" lay-filter="provinceId">
                         <option>请选择省份</option>
                     </select>
                 </div>
-
-                <div class="layui-input-inline">
+                <div class="layui-col-md2">
                     <select id="cityView" lay-filter="cityId">
                         <option>请选择城市</option>
-
                     </select>
                 </div>
 
-                <div class="layui-input-inline">
+                <div class="layui-col-md2">
                     <select id="districtView" lay-filter="districtId">
                         <option>请选择区/县</option>
-
                     </select>
                 </div>
-
-                <div class="layui-input-inline">
+                <div class="layui-col-md2">
                     <input class="layui-input" type="text" id="keyword" name="keyword" lay-filter="keyword" placeholder="单位名称/组织机构代码" />
                 </div>
-                <div class="layui-input-inline">
-                    <a href="@Url.Action("Create")" class="layui-btn">添加新单位</a>
+                <div class="layui-col-md2">
+                    <div class="layui-btn-container">
+                        <a href="@Url.Action("Create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新增</a>
+
+                        <a href="javascript:;" onclick="SyncUnitData()" class="layui-btn layui-btn-primary layui-border-purple"><i class="layui-icon layui-icon-download-circle"></i>同步</a>
+
+                    </div>
                 </div>
             </div>
         </form>
@@ -132,7 +134,7 @@
         districtId = 0;
         if (isNumeric(provinceId) && provinceId != '0')
             getSelectItems('/system/city/GetCityDrops', { provinceId: provinceId }, 'selectTpl', 'cityView', false);
-       
+
         getUnitInfoTable();
     })
 
@@ -141,9 +143,9 @@
         $('#districtView').val('').html('');
         form.render('select');
         districtId = 0;
-        if (isNumeric(cityId) && cityId!='0')
+        if (isNumeric(cityId) && cityId != '0')
             getSelectItems('/system/district/GetDistrictDrops', { cityId: cityId }, 'selectTpl', 'districtView', false)
-        
+
         getUnitInfoTable();
     })
     form.on('select(districtId)', (data) => {
@@ -151,7 +153,7 @@
         getUnitInfoTable();
     })
 
-    form.on('select(unitType)',(data)=>{
+    form.on('select(unitType)', (data) => {
         unitType = data.value;
         getUnitInfoTable();
     })
@@ -243,7 +245,7 @@
             });
         }
 
-        
+
 
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
     }

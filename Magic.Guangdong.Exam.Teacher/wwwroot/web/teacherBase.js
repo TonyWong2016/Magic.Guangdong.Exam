@@ -195,10 +195,11 @@ function clearLoginInfo() {
     localStorage.removeItem('teacherId');
     localStorage.removeItem('teacherAccessToken');
     localStorage.removeItem('teacherName');
+    sessionStorage.removeItem('lastExamId');
     if (parent.location) {
-        parent.location.href = "/home/index"
+        parent.location.href = "/system/account/login"
     }
-    window.location.href = "/home/index";
+    window.location.href = "/system/account/login";
 }
 
 function watchInput(inputId, callback, debounce =1500) {

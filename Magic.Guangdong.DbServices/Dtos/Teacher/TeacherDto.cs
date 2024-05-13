@@ -33,6 +33,26 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
 
     }
 
+    public class TeacherClientDto
+    {
+
+        public Guid Id { get; set; } = NewId.NextGuid();
+
+        public string Name { get; set; }
+
+        public string Intro { get; set; }
+
+        //public string TeachNo {  get; set; }
+        public string Mobile { get; set; }
+        public string Email { get; set; }
+
+
+        public string TeachNo { get; set; }
+        //public string KeyId { get; set; }
+        //public string KeySecret { get; set; }
+
+    }
+
     public class TeacherPwdChangedDto
     {
         public Guid Id { get; set; }

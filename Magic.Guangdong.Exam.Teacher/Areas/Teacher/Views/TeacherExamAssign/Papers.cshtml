@@ -5,18 +5,18 @@
     <form class="layui-form">
         <div class="layui-form-item layui-row  layui-col-space16">
             <div class="layui-col-md1">
-                <a class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
+                <a class="layui-btn layui-btn-primary layui-btn-fluid" href="@Url.Action("Dashboard")"><i class="layui-icon layui-icon-left"></i>返回</a>
 
             </div>
             <div class="layui-col-md2">
                 <select id="examId" lay-filter="examId" name="examId" class="layui-select" lay-search>
-                    <option value="-1">请选择考试</option>
+                    @* <option value="-1">请选择考试</option> *@
                 </select>
             </div>
 
             <div class="layui-col-md2" style="display:none">
                 <select id="paperId" lay-filter="paperId" name="paperId" class="layui-select">
-                    <option value="-1">请选择试卷</option>
+                    @* <option value="-1">请选择试卷</option> *@
                 </select>
             </div>
             <div class="layui-col-md2">
@@ -85,21 +85,25 @@
 <script>
     let form = layui.form;
     let paperId = '0';    
-    let teacherId = getUrlQueryParams('teacherId');
+    let teacherId = atob(getCookie('teacherId'));
     let examId = '';
     let markStatus = '';
+    //getUserRecord();
 
     getSelectItems('/teacher/teacher/GetTeacherExamDrops', { teacherId: teacherId }, 'examTplInit', 'examId', false)
         .then((data) => {
-            $('#examId').val(examId);
-            form.render('select')
+            if (sessionStorage.getItem('lastExamId')){
+                examId = sessionStorage.getItem('lastExamId');
+                $('#examId').val(examId);
+                getUserRecord();
+            }
         })
-
-
+        
     form.on('select(examId)', data => {
         examId = data.value;
         getSelectItems('/teacher/teacher/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
         getUserRecord();
+        sessionStorage.setItem('lastExamId', examId);
     })
 
 
@@ -115,7 +119,7 @@
 
     function getUserRecord() {
         if (!examId) {
-            errorMsg('请选择考试');
+            warnMsg('请先选择分配给您的考试项目');
             return;
         }
         layer.load();
@@ -186,7 +190,6 @@
 
     function getScoreLog(teacherId, recordId) {
         axios.get('@Url.Action("GetTeacherRecordScoreLog")', { params: {
-                'teacherId': teacherId,
                 'recordId': recordId
         }
         }).then(data => {

@@ -1,0 +1,231 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Teacher.TeacherClientDto
+<style>
+    .summary-div {
+        display: flex;
+        justify-content: center; /* 水平居中 */
+        align-items: center; /* 垂直居中 */
+        height: 100px; /* 根据需要设定高度 */
+        width: 100%; /* 根据需要设定宽度 */
+        color: #16baaa
+    }
+</style>
+<div class="layui-row">
+    <form class="layui-form">
+        <div class="layui-row layui-col-space5">
+            <div class="layui-col-md1">
+                <a href="@Url.Action("papers")" class="layui-btn layui-btn-primary layui-border-purple layui-btn-fluid"><i class="layui-icon layui-icon-release"></i>去判分</a>
+            </div>
+           
+            <div class="layui-col-md2">
+                <input class="layui-input" value="教师姓名：@Model.Name" />
+            </div>
+            <div class="layui-col-md2">
+                <input class="layui-input" value="教师编号：@Model.TeachNo" />
+            </div>
+            <div class="layui-col-md2">
+                <input class="layui-input" value="Email：@Model.Email" />
+            </div>
+            <div class="layui-col-md2">
+                <input class="layui-input" value="联系方式：@Model.Mobile" />
+            </div>
+            <div class="layui-col-md2">
+                <input class="layui-input" value="简介：@Model.Intro" />
+            </div>
+            <div class="layui-col-md1">
+                <a href="/system/account/logout" class="layui-btn layui-btn-primary layui-border-red layui-btn-fluid"><i class="layui-icon layui-icon-logout"></i>退出登录</a>
+            </div>
+        </div>
+        
+    </form>
+    
+</div>
+<div class="layui-row layui-col-space16">
+    <div class="layui-col-xs4">
+        <div class="grid-demo grid-demo-bg1">
+            <div class="layui-card">
+                <div class="layui-card-header">已分配考试</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="assignedExamCnt" onclick="location.href='@Url.Action("Papers")'" style="cursor:pointer"></span> 场</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-xs4">
+        <div class="layui-card">
+            <div class="layui-card-header">累计判卷</div>
+            <div class="layui-card-body summary-div">
+                <h1><span id="markedCnt" onclick="location.href='@Url.Action("Papers")'" style="cursor:pointer"></span> 套</h1>
+               
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-xs4">
+        <div class="layui-card">
+            <div class="layui-card-header">待判试卷</div>
+            <div class="layui-card-body summary-div" style="color:#ff5722!important">
+                <h1><span id="unMarkedCnt" onclick="location.href='@Url.Action("Papers")'" style="cursor:pointer"></span> 套</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-xs6">
+        <div class="layui-card">
+            <div class="layui-card-header">判卷情况</div>
+            <div class="layui-card-body" style="height:600px" id="markedExamPapersPieChart">
+               
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-xs6">
+        <div class="layui-card">
+            <div class="layui-card-header">判卷次数（提交判卷结果后，在允许范围内可以对试卷进行改判，次数大于等于判卷套数）</div>
+            <div class="layui-card-body summary-div" style="height:600px" id="marked7DaysRecordLineChart">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/plugins/echarts/echarts.min.js"></script>
+<script>
+    let teacherId = atob(getCookie('teacherId'));
+
+    getSummaryData()
+    function getSummaryData() {
+        axios.get('@Url.Action("GetTeacherSummaryData")', { params: {
+                teacherId: teacherId
+            }
+        })
+            .then(data => {
+                let json = data.data;                
+                jHtmlSet('assignedExamCnt',json.data.datas.examCnt)
+                jHtmlSet('markedCnt', json.data.datas.markedCnt)
+                jHtmlSet('unMarkedCnt', json.data.datas.unMarkedCnt)
+
+                let pieObj = {
+                    titleTxt: "各考试科目累计试卷情况",
+                    data: json.data.paperlist,
+                    elemId: "markedExamPapersPieChart",
+                    name: "科目/试卷数量"
+                }
+                makeMarkedExamPapersChart(pieObj);
+
+                let lineObj = {
+                    titleTxt: "近7天判卷次数",
+                    xData: json.data.last7DaysList.map(item => item.markedDateFormat),
+                    yData: json.data.last7DaysList.map(item => item.markedCnt),
+                    elemId: "marked7DaysRecordLineChart",
+                    name: "日期/判卷数量"
+                }
+                makeMarked7DaysRecordLineChart(lineObj)
+            })
+    }
+
+    function makeMarkedExamPapersChart(obj) {
+        let myPieChart = echarts.init(document.getElementById(obj.elemId));
+        // 指定图表的配置项和数据
+        let option = {
+            title: {
+                text: obj.titleTxt ? obj.titleTxt : "",
+                subText: obj.titleSubTxt ? obj.titleSubTxt : "",
+                left: obj.titlePosition ? obj.titlePosition : "center"
+            },
+            legend: {
+                top: 'bottom'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                },
+                right:30
+            },
+            series: [
+                {
+                    name: obj.name,
+                    type: 'pie',
+                    radius: [50, 250],
+                    center: ['50%', '50%'],
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+
+                    data: obj.data
+                }
+            ],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myPieChart.setOption(option);
+        
+    }
+
+    function makeMarked7DaysRecordLineChart(obj) {
+        let myLineChart = echarts.init(document.getElementById(obj.elemId));
+        let option = {
+            title: {
+                text: obj.titleTxt ? obj.titleTxt : "",
+                subText: obj.titleSubTxt ? obj.titleSubTxt : "",
+                left: obj.titlePosition ? obj.titlePosition : "center"
+            },
+            legend: {
+                top: 'bottom'
+            },
+            tooltip: {
+                trigger: 'item',
+                
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                },
+                right:30
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: obj.xData
+            },
+            yAxis: {
+                type: 'value',
+                
+                //interval: 1, // 纵坐标刻度的步长，设置为1
+            },
+            series: [
+                {
+                    data: obj.yData,
+                    type: 'line'
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myLineChart.setOption(option);
+    }
+</script>
+

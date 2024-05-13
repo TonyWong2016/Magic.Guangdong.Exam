@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magic.Guangdong.DbServices.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
         
         public long MarkedCnt { get; set; } = 0;
 
-        public List<TeacherPapersCntDto> PapersCntList { get; set; }
+        public long UnMarkedCnt { get; set; }
+
+        //public List<TeacherPapersCntDto> PapersCntList { get; set; }
     }
 
     public class TeacherPapersCntDto
@@ -22,6 +25,21 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
         public Guid ExamId { get; set; }
 
         public string ExamTitle { get; set; }
+
+        //public int Marked { get; set; }
+
+        public long value
+        {
+            get { return PapersCnt;  }
+        }
+
+        public string name
+        {
+            get
+            {
+                return ExamTitle;
+            }
+            }
 
         //public long MarkedCnt { get; set; }
 
@@ -34,15 +52,22 @@ namespace Magic.Guangdong.DbServices.Dtos.Teacher
         //}
     }
 
-    public class TeacherPapersMarkedCntDto
+    public class TeacherPapersMarkedCntLast7DaysDto
     {
         //public Guid examId { get; set;}
 
         //public string examTitle { get; set;}
 
-        public long MarkedCnt { get; set; }
+        public DateTime MarkedDate { get; set; }
 
-        public long UnMarkedCnt { get; set; }
+        public string MarkedDateFormat {
+            get
+            {
+                return MarkedDate.ToString("yyyy/MM/dd");
+            }
+        }
+
+        public int MarkedCnt { get; set; }
     }
 
 }

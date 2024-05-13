@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public  interface ITeacherRecordScoringRepo :IExaminationRepository<TeacherRecordScoring>
     {
+        Task<TeacherRecordScoring> GetLastScoreDetail(long submitRecoredId);
     }
 }

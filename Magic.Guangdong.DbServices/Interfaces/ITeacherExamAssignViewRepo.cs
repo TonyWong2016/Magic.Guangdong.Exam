@@ -18,11 +18,13 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<TeacherSubjectiveMarkDto> GetSubjectiveQuestionAndAnswers(long recordId);
 
-        Task<List<TeacherRecordScoreLogDto>> GetSubjectiveScoreLog(Guid teacherId, long recordId);
+        Task<List<TeacherRecordScoreLogDto>> GetSubjectiveScoreLog( long recordId);
 
 
         Task<TeacherSummaryDto> GetTeacherSummaryData(Guid teacherId);
 
-        Task<TeacherPapersMarkedCntDto> GetTeacherExamSummaryData(Guid teacherId, Guid examId);
+        Task<List<TeacherPapersCntDto>> GetTeacherPapersSummaryData(Guid teacherId);
+
+        Task<List<TeacherPapersMarkedCntLast7DaysDto>> GetTeacherMarkedCntLast7Days(Guid teacherId);
     }
 }

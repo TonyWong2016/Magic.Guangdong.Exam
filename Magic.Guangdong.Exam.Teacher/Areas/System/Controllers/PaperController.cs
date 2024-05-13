@@ -23,18 +23,6 @@ namespace Magic.Guangdong.Exam.Teacher.Areas.System.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "teacherId" })]
-        public async Task<IActionResult> GetTeacherSummaryData(Guid teacherId)
-        {
-            return Json(_resp.success(await _teacherExamAssignViewRepo.GetTeacherSummaryData(teacherId)));
-        }
-
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "teacherId", "examId" })]
-        public async Task<IActionResult> GetTeacherExamSummaryData(Guid teacherId,Guid examId)
-        {
-            return Json(_resp.success(await _teacherExamAssignViewRepo.GetTeacherExamSummaryData(teacherId, examId)));
-        }
-
         //)
     }
 }

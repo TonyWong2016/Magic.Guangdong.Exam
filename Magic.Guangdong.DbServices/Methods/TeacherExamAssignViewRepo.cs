@@ -18,7 +18,7 @@ namespace Magic.Guangdong.DbServices.Methods
         public async Task<dynamic> GetTeacherExams(Guid teacherId)
         {
             var teacherExamAssignViewRepo = fsql.Get(conn_str).GetRepository<TeacherExamAssignView>();
-            return await teacherExamAssignViewRepo.Where(u => u.TeacherId == teacherId)
+            return await teacherExamAssignViewRepo.Where(u => u.TeacherId == teacherId && u.IsDeleted==0)
                 .ToListAsync(u => new
                 {
                     value = u.ExamId,
@@ -83,11 +83,12 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
 
-        public async Task<List<TeacherRecordScoreLogDto>> GetSubjectiveScoreLog(Guid teacherId, long recordId)
+        public async Task<List<TeacherRecordScoreLogDto>> GetSubjectiveScoreLog(long recordId)
         {
             return await fsql.Get(conn_str).Select<TeacherRecordScoreLog, Teacher>()
                 .LeftJoin((a, b) => a.TeacherId == b.Id)
-                .Where((a, b) => a.TeacherId == teacherId && a.RecordId == recordId)
+                //.Where((a, b) => a.TeacherId == teacherId && a.RecordId == recordId)
+                .Where((a, b) => a.RecordId == recordId)
                 .OrderByDescending((a,b)=>a.Id)
                 .ToListAsync((a, b) => new TeacherRecordScoreLogDto()
                 {
@@ -110,28 +111,42 @@ namespace Magic.Guangdong.DbServices.Methods
             dto.ExamCnt = examIds.Count;
 
             dto.MarkedCnt = await fsql.Get(conn_str).Select<UserAnswerRecord>()
+                .Where(u => examIds.Contains(u.ExamId) && u.IsDeleted == 0 && u.Marked == ExamMarked.All)
+                .CountAsync();
+            long totalPapers = await fsql.Get(conn_str).Select<UserAnswerRecord>()
                 .Where(u => examIds.Contains(u.ExamId) && u.IsDeleted == 0)
                 .CountAsync();
-            var sql = $"select count(1) as PapersCnt,ExamId,ExamTitle from [UserAnswerRecordView] where ExamId in (select ExamId from [TeacherExamAssign] where teacherId='{teacherId}' and IsDeleted=0) and IsDeleted=0 group by ExamId,ExamTitle";
-            dto.PapersCntList = await fsql.Get(conn_str).Ado.QueryAsync<TeacherPapersCntDto>(sql);
+            dto.UnMarkedCnt = totalPapers - dto.MarkedCnt;
+            //var sql = $"select count(1) as PapersCnt,ExamId,ExamTitle from [UserAnswerRecordView] where ExamId in (select ExamId from [TeacherExamAssign] where teacherId='{teacherId}' and IsDeleted=0) and IsDeleted=0 group by ExamId,ExamTitle";
+            //dto.PapersCntList = await fsql.Get(conn_str).Ado.QueryAsync<TeacherPapersCntDto>(sql);
 
             return dto;
         }
 
-        public async Task<TeacherPapersMarkedCntDto> GetTeacherExamSummaryData(Guid teacherId, Guid examId)
+        public async Task<List<TeacherPapersCntDto>> GetTeacherPapersSummaryData(Guid teacherId)
         {
-            //string markedCntSql = $"select recordId from from [TeacherRecordScoreLog] where teacherId='{teacherId}' and examId='{examId}' group by recordId";
-            //string totalCntSql = $"select recordId from from [UserAnswerRecord] where examId='{examId}'";
+            var sql = $" select count(1) as PapersCnt,ExamId,ExamTitle" +
+                $" from [UserAnswerRecordView]" +
+                $" where ExamId in" +
+                $" (select ExamId from [TeacherExamAssign] where teacherId='{teacherId}' and IsDeleted=0)" +
+                $" and IsDeleted=0 group by ExamId,ExamTitle";
 
-            long markedCnt = await fsql.Get(conn_str).Select<TeacherRecordScoreLog>()
-                .Where(u => u.TeacherId == teacherId && u.ExamId == examId)
-                .GroupBy(u => new { u.TeacherId, u.ExamId })                
-                .CountAsync();
-            long totalCnt = await fsql.Get(conn_str).Select<UserAnswerRecord>()
-                .Where(u => u.ExamId == examId && u.IsDeleted == 0)
-                .CountAsync();
 
-            return new TeacherPapersMarkedCntDto { MarkedCnt = markedCnt, UnMarkedCnt = totalCnt - markedCnt };
+            return await fsql.Get(conn_str).Ado.QueryAsync<TeacherPapersCntDto>(sql);
+        }
+
+        public async Task<List<TeacherPapersMarkedCntLast7DaysDto>> GetTeacherMarkedCntLast7Days(Guid teacherId)
+        {
+            var sql = $"select " +
+                $" CONVERT(date, createdAt) AS MarkedDate," + //提取日期部分
+                $" COUNT(*) AS MarkedCnt" + //统计每天的记录数
+                $" from [TeacherRecordScoreLog]" +
+                $" WHERE" +
+                $" createdAt >= DATEADD(day, -7, GETDATE())" +
+                $" and TeacherId='{teacherId}'" +
+                $" GROUP BY CONVERT(date, createdAt)" +
+                $" ORDER BY MarkedDate";
+            return await fsql.Get(conn_str).Ado.QueryAsync<TeacherPapersMarkedCntLast7DaysDto>(sql);
         }
     }
 }

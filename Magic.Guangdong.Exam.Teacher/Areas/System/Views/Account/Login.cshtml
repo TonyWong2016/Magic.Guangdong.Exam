@@ -136,7 +136,7 @@
                 let result = await request('POST', '/system/account/login', data.field, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {                    
                     setLoginInfo(result.data.access_token);
-                    window.location.href = "/system/paper/index";
+                    window.location.href = "/teacher/teacherexamassign/dashboard";
                     successMsg('登录成功');
                     $('.disabledsave').show();
                     $('.save').hide();
