@@ -1,4 +1,5 @@
 ﻿using FreeSql.Internal.Model;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -73,6 +74,41 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.IsDeleted == 0)
                 .Where(u => u.Id == id)
                 .ToOneAsync();
+        }
+
+        public async Task<bool> SyncUnitInfos(List<UnitInfo> unitInfos)
+        {
+            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
+            {
+                try
+                {
+                    var unitInfoRepo = fsql.Get(conn_str).GetRepository<UnitInfo>();
+                    unitInfoRepo.UnitOfWork = uow;
+
+                    var syncRepo = fsql.Get(conn_str).GetRepository<SyncRecord>();
+                    syncRepo.UnitOfWork = uow;
+                    await unitInfoRepo.InsertAsync(unitInfos);
+                    int lastTimeSyncTime = await new SyncRecordRepo(fsql).GetLastRecordByPlatform("xxt");
+                    await syncRepo.InsertAsync(new SyncRecord()
+                    {
+                        Platform = "xxt",
+                        TargetModel = "单位库",
+                        DestModel = "数据字典-单位库",
+                        Usage = "填充单位库数据",
+                        DataAmount = unitInfos.Count,
+                        Times = lastTimeSyncTime + 1,
+                        CreatedAt = DateTime.Now,
+                    });
+                    uow.Commit();
+                    return true;
+                }
+                catch(Exception ex)
+                {                    
+                    uow.Rollback();
+                    Logger.Error(ex.Message);
+                    return false;
+                }
+            }
         }
     }
 }

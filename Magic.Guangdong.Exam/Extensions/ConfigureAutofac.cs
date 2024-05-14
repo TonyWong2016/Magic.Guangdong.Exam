@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Core;
+using Coravel.Invocable;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -19,6 +20,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //注册助手类（standard2.0）
             var assemblyAssistant = Assembly.Load("Magic.Guangdong.Assistant");
             builder.RegisterAssemblyTypes(assemblyAssistant).Where(t => t.Name.EndsWith("Helper") || t.Name.EndsWith("Service")).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(assemblyAssistant).Where(t => t.Name.EndsWith("Job")).AsImplementedInterfaces().InstancePerDependency();
             #endregion
 
             #region 注册模型类

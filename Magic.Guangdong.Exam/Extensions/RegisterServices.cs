@@ -35,6 +35,8 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigurePlug(_configuration);
+            builder.Services.ConfigureCoravel();
+
             // builder.Services.BuildServiceProvider();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -204,20 +206,6 @@ namespace Magic.Guangdong.Exam.Extensions
                     .AllowCredentials();
                 });
             });
-
-            //services.AddSession(options =>
-            //{
-            //    options.IdleTimeout = TimeSpan.FromHours(2);
-            //    options.Cookie.HttpOnly = true;
-            //    options.Cookie.IsEssential = true;
-            //});
-            //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "DataProtection"));
-            
-            ////这里以后要增加日志拦截器和权限拦截器
-            //services.AddAntiforgery(options =>
-            //{
-            //    options.HeaderName = "X-CSRF-TOKEN";
-            //});
         }
 
         private static void ConfigurePlug(this IServiceCollection services, IConfiguration configuration)
@@ -260,7 +248,7 @@ namespace Magic.Guangdong.Exam.Extensions
         {
             
             services.AddScheduler();
-
+            services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
         }
 
         private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)

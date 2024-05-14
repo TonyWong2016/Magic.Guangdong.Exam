@@ -41,9 +41,7 @@
 
                 </select>
             </div>
-            @* <div class="layui-input-inline" style="width:8%">
-            <a class="layui-btn layui-btn-primary" href="javascript:;" target="_blank" id="btnFinal">决赛情况</a>
-            </div> *@
+
 
             <div class="layui-col-md1">
                 <input type="checkbox" lay-filter="showDeleted" title="查看被清除的记录" lay-skin="primary">
@@ -51,11 +49,10 @@
         </div>
         <div class="layui-btn-container">
             <a href="javascript:;" onclick="exportRecord()" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
-            @* <a href="javascript:;" onclick="SyncOnlineScoreToApplyMain(1)" class="layui-btn"><i class="layui-icon layui-icon-senior"></i>同步选拔赛成绩</a>
-            <a href="javascript:;" onclick="SyncOnlineScoreToApplyMain(2)" class="layui-btn"><i class="layui-icon layui-icon-senior"></i>同步决赛成绩</a> *@
+           
             <a href="javascript:;" onclick="ForceMarkingAll()" class="layui-btn layui-btn-danger"><i class="layui-icon layui-icon-fire"></i>强制交卷</a>
         </div>
-        <blockquote class="layui-elem-quote">注意，【同步成绩】和【强制交卷】的操作必须在对应的考试结束后执行。</blockquote>
+        @* <blockquote class="layui-elem-quote">注意，【同步成绩】和【强制交卷】的操作必须在对应的考试结束后执行。</blockquote> *@
 
     </form>
     <table class="layui-table" id="table" lay-filter="table"></table>
@@ -95,11 +92,22 @@
         <span style="color:#00B050">是</span>
     {{#} }}
 </script>
-<script type="text/html" id="examTypeTpl">
-    {{# if(d.examType==0){ }}
-        <span style="color:#a233c6">考试</span>
+
+<script type="text/html" id="markedTpl">
+    {{# if(d.marked==1){ }}
+        <b style="color:#79C0FF">客观题已出分</span>
+    {{#} else if(d.marked==2) { }}
+        <b style="color:#029AE8">主/客观题均出分</span>
     {{#} else { }}
-        <span style="color:#ffb800">练习</span>
+        <b style="color:#2f363c">待出分</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="examTitleTypeTpl">
+    {{# if(d.examType==0){ }}
+        {{ d.examTitle }}(考试)
+    {{#} else { }}
+        {{ d.examTitle }}(练习)
     {{#} }}
 </script>
 
@@ -221,13 +229,14 @@
             cols: [ //表头
                 { title: '序号', templet: '#indexTpl', width: '6%' }
                 , { field: 'id', title: 'id', hide: true }
-                , { templet: '#userNameTpl', title: '答题账号', width: '10%' }
+                , { templet: '#userNameTpl', title: '答题账号', width: '8%' }
                 , { field: 'idNumber', title: '证件号/考号', width: '15%' }
-                , { field: 'examTitle', title: '考试', width: '12%' }
+                // , { field: 'examTitle', title: '考试', width: '12%' }
+                , { templet: '#examTitleTypeTpl', title: '考试', width: '12%' }
                 , { field: 'paperTitle', title: '试卷', width: '12%' }
-                , { templet: '#examTypeTpl', title: '考试类型', width: '10%' }
+                , { templet: '#markedTpl', title: '是否交卷', width: '12%' }
                 , { templet: '#complatedTpl', title: '是否交卷', width: '8%' }
-                , { field: 'score', title: '当前得分', width: '8%' }
+                , { field: 'score', title: '当前总得分', width: '9%' }
                 , { title: '操作', templet: '#operationTpl' }
             ],
             height: 630,

@@ -1,4 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Coravel;
+using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
 using Microsoft.AspNetCore.Builder;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
@@ -42,8 +44,19 @@ namespace Magic.Guangdong.Exam.Extensions
                 pattern: "{controller=Home}/{action=Index}/{id?}"
              );
 
-            
+
             // app.UseWebSockets();
+            app.Services.UseScheduler(scheduler =>
+            {
+                scheduler.OnWorker("SyncUnitDataFromXXT");
+                scheduler
+                    .Schedule<SyncUnitDataFromXXT>()
+                    .EverySecond()
+                    .Once()
+                    .PreventOverlapping(nameof(SyncUnitDataFromXXT))
+                //.PreventOverlapping()
+                ;
+            });
 
             return app;
         }
