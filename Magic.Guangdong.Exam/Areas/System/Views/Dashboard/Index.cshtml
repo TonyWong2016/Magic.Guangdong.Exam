@@ -1,256 +1,226 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
+<style>
+    .summary-div {
+        display: flex;
+        justify-content: center; /* 水平居中 */
+        align-items: center; /* 垂直居中 */
+        height: 100px; /* 根据需要设定高度 */
+        width: 100%; /* 根据需要设定宽度 */
+        color: #16baaa;
+        margin-left:-16px;
+    }
+</style>
 <script src="~/plugins/echarts/echarts.min.js"></script>
-<blockquote class="layui-elem-quote">稍后这里会放一些一目了然的统计类图表，就像下面这样👇</blockquote>
+@* <blockquote class="layui-elem-quote">稍后这里会放一些一目了然的统计类图表，就像下面这样👇</blockquote> *@
 
 <div class="layui-panel">
-    <div id="container" style="height: 800px"></div>
+    <div class="layui-row layui-col-space10" style="padding:15px">
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">累计订单收入（不含退款）</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="orderAmount" style="cursor:pointer"></span> <i class="layui-icon layui-icon-rmb" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">累计报名人数</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="reportNumTotal" style="cursor:pointer"></span> <i class="layui-icon layui-icon-user" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">累计发布考试</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="examNumTotal" style="cursor:pointer"></span> <i class="layui-icon layui-icon-release" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">累计提交试卷</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="recordTotal" style="cursor:pointer"></span> <i class="layui-icon layui-icon-form" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">累计发布证书</div>
+                <div class="layui-card-body summary-div">
+                    <h1><span id="certTotal" style="cursor:pointer"></span> <i class="layui-icon layui-icon-picture" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2">
+            <div class="layui-card">
+                <div class="layui-card-header">主观题待判试卷总量</div>
+                <div class="layui-card-body summary-div" style="color:#ff5722!important">
+                    <h1><span id="unMarkedTotal" style="cursor:pointer"></span> <i class="layui-icon layui-icon-survey" style="font-size:26px"></i></h1>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-body" id="orderDateLine" style="height:560px">
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-body" id="reportExamDateLine" style="height:560px">
+                
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<script type="text/javascript">
-    var dom = document.getElementById('container');
-    var myChart = echarts.init(dom, null, {
-        renderer: 'canvas',
-        useDirtyRect: false
-    });
-    var app = {};
 
-    var option;
+<script>
+    axios('@Url.Action("getdata")').then(data => {
+        console.log(data)
+        let json = data.data;
+        jHtmlSet('orderAmount', json.data.orderAmountTotal);
+        jHtmlSet('reportNumTotal', json.data.reportNumTotal);
+        jHtmlSet('examNumTotal', json.data.examNumTotal);
+        jHtmlSet('recordTotal', json.data.recordTotal);
+        jHtmlSet('certTotal', json.data.certTotal);
+        jHtmlSet('unMarkedTotal', json.data.unMarkedTotal);
+        orderDateLine(json.data.orderDateLine);
+        reportExamDateLine(json.data.reportExamDateLine, json.data.reportPracticeDateLine)
+    })
 
-    const builderJson = {
-        all: 10887,
-        charts: {
-            map: 3237,
-            lines: 2164,
-            bar: 7561,
-            line: 7778,
-            pie: 7355,
-            scatter: 2405,
-            candlestick: 1842,
-            radar: 2090,
-            heatmap: 1762,
-            treemap: 1593,
-            graph: 2060,
-            boxplot: 1537,
-            parallel: 1908,
-            gauge: 2107,
-            funnel: 1692,
-            sankey: 1568
-        },
-        components: {
-            geo: 2788,
-            title: 9575,
-            legend: 9400,
-            tooltip: 9466,
-            grid: 9266,
-            markPoint: 3419,
-            markLine: 2984,
-            timeline: 2739,
-            dataZoom: 2744,
-            visualMap: 2466,
-            toolbox: 3034,
-            polar: 1945
-        },
-        ie: 9743
-    };
-    const downloadJson = {
-        'echarts.min.js': 17365,
-        'echarts.simple.min.js': 4079,
-        'echarts.common.min.js': 6929,
-        'echarts.js': 14890
-    };
-    const themeJson = {
-        'dark.js': 1594,
-        'infographic.js': 925,
-        'shine.js': 1608,
-        'roma.js': 721,
-        'macarons.js': 2179,
-        'vintage.js': 1982
-    };
-    const waterMarkText = '广东教育协会';
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.height = 100;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.globalAlpha = 0.08;
-    ctx.font = '20px Microsoft Yahei';
-    ctx.translate(50, 50);
-    ctx.rotate(-Math.PI / 4);
-    ctx.fillText(waterMarkText, 0, 0);
-    option = {
-        backgroundColor: {
-            type: 'pattern',
-            image: canvas,
-            repeat: 'repeat'
-        },
-        tooltip: {},
-        title: [
-            {
-                text: '在线构建',
-                subtext: '总计 ' + builderJson.all,
-                left: '25%',
-                textAlign: 'center'
+    function orderDateLine(lineData) {
+        let myLineChart = echarts.init(document.getElementById('orderDateLine'));
+        let option = {
+            title: {
+                text: '30日订单收入曲线'
             },
-            {
-                text: '各版本下载',
-                subtext:
-                    '总计 ' +
-                    Object.keys(downloadJson).reduce(function (all, key) {
-                        return all + downloadJson[key];
-                    }, 0),
-                left: '75%',
-                textAlign: 'center'
+            legend: {
+                data: ['收入金额（单位:元）']
             },
-            {
-                text: '主题下载',
-                subtext:
-                    '总计 ' +
-                    Object.keys(themeJson).reduce(function (all, key) {
-                        return all + themeJson[key];
-                    }, 0),
-                left: '75%',
-                top: '50%',
-                textAlign: 'center'
-            }
-        ],
-        grid: [
-            {
-                top: 50,
-                width: '50%',
-                bottom: '45%',
-                left: 10,
+            tooltip: {
+                trigger: 'item',
+
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
                 containLabel: true
             },
-            {
-                top: '55%',
-                width: '50%',
-                bottom: 0,
-                left: 10,
-                containLabel: true
-            }
-        ],
-        xAxis: [
-            {
-                type: 'value',
-                max: builderJson.all,
-                splitLine: {
-                    show: false
-                }
-            },
-            {
-                type: 'value',
-                max: builderJson.all,
-                gridIndex: 1,
-                splitLine: {
-                    show: false
-                }
-            }
-        ],
-        yAxis: [
-            {
-                type: 'category',
-                data: Object.keys(builderJson.charts),
-                axisLabel: {
-                    interval: 0,
-                    rotate: 30
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
                 },
-                splitLine: {
-                    show: false
-                }
+                right: 30
             },
-            {
-                gridIndex: 1,
-                type: 'category',
-                data: Object.keys(builderJson.components),
-                axisLabel: {
-                    interval: 0,
-                    rotate: 30
-                },
-                splitLine: {
-                    show: false
-                }
-            }
-        ],
-        series: [
-            {
-                type: 'bar',
-                stack: 'chart',
-                z: 3,
-                label: {
-                    position: 'right',
-                    show: true
-                },
-                data: Object.keys(builderJson.charts).map(function (key) {
-                    return builderJson.charts[key];
-                })
-            },
-            {
-                type: 'bar',
-                stack: 'chart',
-                silent: true,
+            emphasis: {
                 itemStyle: {
-                    color: '#eee'
-                },
-                data: Object.keys(builderJson.charts).map(function (key) {
-                    return builderJson.all - builderJson.charts[key];
-                })
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
             },
-            {
-                type: 'bar',
-                stack: 'component',
-                xAxisIndex: 1,
-                yAxisIndex: 1,
-                z: 3,
-                label: {
-                    position: 'right',
-                    show: true
-                },
-                data: Object.keys(builderJson.components).map(function (key) {
-                    return builderJson.components[key];
-                })
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: lineData.map(item=>item.createdAtFormat)
             },
-            {
-                type: 'bar',
-                stack: 'component',
-                silent: true,
-                xAxisIndex: 1,
-                yAxisIndex: 1,
-                itemStyle: {
-                    color: '#eee'
-                },
-                data: Object.keys(builderJson.components).map(function (key) {
-                    return builderJson.all - builderJson.components[key];
-                })
+            yAxis: {
+                type: 'value'
             },
-            {
-                type: 'pie',
-                radius: [0, '30%'],
-                center: ['75%', '25%'],
-                data: Object.keys(downloadJson).map(function (key) {
-                    return {
-                        name: key.replace('.js', ''),
-                        value: downloadJson[key]
-                    };
-                })
-            },
-            {
-                type: 'pie',
-                radius: [0, '30%'],
-                center: ['75%', '75%'],
-                data: Object.keys(themeJson).map(function (key) {
-                    return {
-                        name: key.replace('.js', ''),
-                        value: themeJson[key]
-                    };
-                })
-            }
-        ]
-    };
-
-    if (option && typeof option === 'object') {
-        myChart.setOption(option);
+            series: [
+                {
+                    name: '收入金额（单位:元）',
+                    stack: 'Total',
+                    data: lineData.map(item => item.orderAmount),
+                    type: 'line'
+                }
+            ]
+        }
+        myLineChart.setOption(option);
     }
 
-    window.addEventListener('resize', myChart.resize);
-  </script>
+    function reportExamDateLine(lineData,lineData2) {
+        let myLineChart = echarts.init(document.getElementById('reportExamDateLine'));
+        let option = {
+            title: {
+                text: '30日活动报名曲线'
+            },
+            legend: {
+                data: ['考试报名人数', '参与练习次数']
+            },
+            tooltip: {
+                trigger: 'item',
+
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                },
+                right: 30
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: lineData.map(item => item.reportTimeFormat)
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '考试报名人数',
+                    stack: 'Total',
+                    data: lineData.map(item => item.reportCnt),
+                    type: 'line'
+                },
+                {
+                    name: '参与练习次数',
+                    stack: 'Total',
+                    data: lineData2.map(item => item.reportCnt),
+                    type: 'line'
+                }
+            ]
+        }
+        myLineChart.setOption(option);
+    }
+</script>
+

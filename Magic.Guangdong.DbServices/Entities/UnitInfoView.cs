@@ -83,7 +83,8 @@ namespace Magic.Guangdong.DbServices.Entities {
         [JsonProperty, Column(StringLength = 50)]
         public string LegalPerson { get; set; } = "";
 
-        
+		[JsonProperty, Column(StringLength = 50)]
+		public string OriginNo { get; set; } = "0";
 
     }
 

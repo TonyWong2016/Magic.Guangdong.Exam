@@ -66,6 +66,14 @@
     {{# } }}
 </script>
 
+<script type="text/html" id="xxtTpl">
+    {{# if(d.originNo=='0'){ }}
+    <span style="color:#1e9fff">本平台独有</span>
+    {{# } else { }}
+    <span style="color:#FF5722">xxt大库同步</span>
+    {{# } }}
+</script>
+
 <script type="text/html" id="typeTpl">
     {{# if(d.unitType==0){ }}
     未指定
@@ -123,7 +131,12 @@
     let cityId = 0;
     let districtId = 0;
     let unitType = 0;
+    let unitStatus = -1;
     getSelectItems('/system/province/GetProvinceDrops', {}, 'selectTpl', 'provinceView');
+
+    autoSearch('keyword', () => {
+        getUnitInfoTable();
+    })
 
     form.on('select(provinceId)', (data) => {
         provinceId = data.value;
@@ -155,6 +168,10 @@
 
     form.on('select(unitType)', (data) => {
         unitType = data.value;
+        getUnitInfoTable();
+    })
+    form.on('select(status)', (data) => {
+        unitStatus = data.value;
         getUnitInfoTable();
     })
 
@@ -193,11 +210,13 @@
                 'Value': 0
             }]
         };
-        if ($('#statusView').val() && $('#statusView').val() != '-1') {
+        
+
+        if (unitStatus != -1) {
             whereJsonStr.Filters.push({
                 'Field': 'status',
                 'Operator': 'Equal',
-                'Value': $('#statusView').val()
+                'Value': unitStatus
             });
         }
 
@@ -239,7 +258,7 @@
                     'Value': keyword
                 }, {
                     'Field': 'OrganizationCode',
-                    'Operator': 'Contains',
+                    'Operator': 'Equal',
                     'Value': keyword
                 }]
             });
@@ -248,5 +267,9 @@
 
 
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'rd': randomInt };
+    }
+
+    function SyncUnitData(){
+        warnMsg('目前系统有自动同步机制，按天同步，暂时不支持手动同步');
     }
 </script>

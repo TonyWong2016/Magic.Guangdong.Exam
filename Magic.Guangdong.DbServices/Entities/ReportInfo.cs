@@ -77,6 +77,8 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long FileId { get; set; } = 0;
 
+		[JsonProperty]
+		public int IsDeleted { get; set; } = 0;
         
     }
 
