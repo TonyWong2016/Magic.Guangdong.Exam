@@ -102,7 +102,7 @@
         jHtmlSet('certTotal', json.data.certTotal);
         jHtmlSet('unMarkedTotal', json.data.unMarkedTotal);
         orderDateLine(json.data.orderDateLine);
-        reportExamDateLine(json.data.reportExamDateLine, json.data.reportPracticeDateLine)
+        reportExamDateLine(json.data.reportExamDateLine)
     })
 
     function orderDateLine(lineData) {
@@ -153,6 +153,7 @@
                 {
                     name: '收入金额（单位:元）',
                     stack: 'Total',
+                    
                     data: lineData.map(item => item.orderAmount),
                     type: 'line'
                 }
@@ -161,7 +162,7 @@
         myLineChart.setOption(option);
     }
 
-    function reportExamDateLine(lineData,lineData2) {
+    function reportExamDateLine(lineData) {
         let myLineChart = echarts.init(document.getElementById('reportExamDateLine'));
         let option = {
             title: {
@@ -212,12 +213,12 @@
                     data: lineData.map(item => item.reportCnt),
                     type: 'line'
                 },
-                {
-                    name: '参与练习次数',
-                    stack: 'Total',
-                    data: lineData2.map(item => item.reportCnt),
-                    type: 'line'
-                }
+                // {
+                //     name: '参与练习次数',
+                //     stack: 'Total',
+                //     data: lineData2.map(item => item.reportCnt),
+                //     type: 'line'
+                // }
             ]
         }
         myLineChart.setOption(option);

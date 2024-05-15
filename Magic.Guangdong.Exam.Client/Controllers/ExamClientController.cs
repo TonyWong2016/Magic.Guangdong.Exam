@@ -134,7 +134,10 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 await _redisCachingProvider.KeyDelAsync("myReportExamHistories_" + dto.reportId);
                 await _redisCachingProvider.KeyDelAsync("myAccountExamHistories_" + dto.userId);
                 await _redisCachingProvider.KeyDelAsync("userPaper_" + dto.recordId);
-                return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
+                //这样写实非我愿啊/(ㄒoㄒ)/~~~
+                if (dto.isPractice == 0)
+                    return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
+                return Json(await _userAnswerRecordClientRepo.SubmitMyPracticePaper(dto));
             }
 
             Console.WriteLine($"{DateTime.Now}:发布事务--保存答案");
@@ -149,7 +152,6 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
             return Json(_resp.success(
                     await _redisCachingProvider.StringGetAsync(dto.recordId.ToString())));
-
         }
 
 

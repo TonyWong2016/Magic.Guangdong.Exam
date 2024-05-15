@@ -484,6 +484,7 @@
         params.append("userId", accountId);
         params.append("complatedMode", complatedMode);
         params.append("submitAnswerStr", myCurrAnswer);
+        params.append("isPractice", 1);
         params.append("__RequestVerificationToken", requestToken);
         if (complatedMode != 4) {
             sessionStorage.clear();

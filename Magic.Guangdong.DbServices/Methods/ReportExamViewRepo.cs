@@ -38,8 +38,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.IsDeleted == 0)
                 .CountAsync();
 
-            long unMarkedTotal = await fsql.Get(conn_str).Select<UserAnswerRecord>()
-                .Where(u => u.IsDeleted == 0 && u.Marked!=ExamMarked.All)
+            long unMarkedTotal = await fsql.Get(conn_str).Select<UserAnswerRecordView>()
+                .Where(u => u.IsDeleted == 0 && u.Marked!=(int)ExamMarked.All && u.ExamType==0)
                 .CountAsync();
 
             
@@ -52,8 +52,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 $" GROUP BY CONVERT(date, ReportTime) " +
                 $" ORDER BY CONVERT(date, ReportTime);";
             var reportExamDateLine = await fsql.Get(conn_str).Ado.QueryAsync<ReportNumDto>(sql);
-            var reportPracticeDateLine = await fsql.Get(conn_str).Ado.QueryAsync<ReportNumDto>(sql.Replace("examType=0", "examType=1"));
-
+            
+            
             string sqlOrder = $"SELECT" +
                 $" CONVERT(date, CreatedAt) AS CreatedAt," +
                 $" sum(Expenses) AS orderAmount" +
@@ -66,7 +66,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 $" CONVERT(date, CreatedAt)";
             var orderDateLine = await fsql.Get(conn_str).Ado.QueryAsync<OrderNumDto>(sqlOrder);
         
-            return new { orderAmountTotal, reportNumTotal, unMarkedTotal, examNumTotal, recordTotal, certTotal, reportExamDateLine, reportPracticeDateLine, orderDateLine };
+            return new { orderAmountTotal, reportNumTotal, unMarkedTotal, examNumTotal, recordTotal, certTotal, reportExamDateLine,  orderDateLine };
         }
     }
 

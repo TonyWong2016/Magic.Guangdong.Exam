@@ -40,6 +40,8 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<dynamic> SubmitMyPaper(SubmitMyAnswerDto dto);
 
+        Task<dynamic> SubmitMyPracticePaper(SubmitMyAnswerDto dto);
+
         Task<UserAnswerRecordView> Marking(long urid, bool submit = false);
 
     }
