@@ -283,6 +283,15 @@
             renderQuestion(0);
             renderAnswerSheet();
             stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
+       
+            executeAtInterval(2000, () => {
+                let leftTime = countdown.getRemainingTime();
+                if (leftTime > 60 && leftTime < 300) {
+                    $('#countdownTimer').addClass('pico-color-amber-200');
+                } else if (leftTime > 0 && leftTime < 60) {
+                    $('#countdownTimer').addClass('pico-color-red-500');
+                }
+            });
         }
     }
 

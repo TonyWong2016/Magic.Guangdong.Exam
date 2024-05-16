@@ -1,5 +1,5 @@
 ﻿
-function startCountdown(seconds, countdownElementId, onCountdownEnd) {
+function startCountdown_origin(seconds, countdownElementId, onCountdownEnd) {
     let remainingTime = seconds;
     let lastTimestamp = null;
 
@@ -45,6 +45,69 @@ function startCountdown(seconds, countdownElementId, onCountdownEnd) {
         }
     };
 }
+
+function startCountdown(seconds, countdownElementId, onCountdownEnd) {
+    let remainingTime = seconds;
+    let lastTimestamp = null;
+    let lastRemainTime = 0;
+
+    function formatTime(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    function updateCountdown(timestamp) {
+        if (lastTimestamp !== null) {
+            const deltaTime = (timestamp - lastTimestamp) / 1000;
+            remainingTime = Math.max(0, remainingTime - deltaTime);
+        }
+
+        // 确保在时间有变化且到达一定阈值时更新UI，避免频繁更新
+        if (Math.abs(lastRemainTime - remainingTime) >= 0.5) {
+            updateDisplay(remainingTime);
+            lastRemainTime = remainingTime;
+        }
+
+        if (remainingTime > 0) {
+            lastTimestamp = timestamp;
+            requestAnimationFrame(updateCountdown);
+        } else {
+            if (typeof onCountdownEnd === 'function') {
+                onCountdownEnd();
+            }
+        }
+    }
+
+    function updateDisplay(remainingSec) {
+        const hours = Math.floor(remainingSec / 3600);
+        const minutes = Math.floor((remainingSec % 3600) / 60);
+        const seconds = Math.floor(remainingSec % 60);
+
+        const countdownElement = document.getElementById(countdownElementId);
+        countdownElement.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
+    }
+
+    function setRemainingTime(newTime) {
+        remainingTime = newTime;
+        lastRemainTime = remainingTime; // 确保lastRemainTime也被更新
+        updateDisplay(remainingTime);
+        if (!lastTimestamp) {
+            lastTimestamp = performance.now();
+            requestAnimationFrame(updateCountdown);
+        }
+    }
+
+    // 初始化lastRemainTime
+    lastRemainTime = remainingTime;
+    requestAnimationFrame(updateCountdown);
+
+    return {
+        setRemainingTime,
+        getRemainingTime: function () {
+            return Math.floor(remainingTime);
+        }
+    };
+}
+
 
 // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
 //function countdownEnded() {
