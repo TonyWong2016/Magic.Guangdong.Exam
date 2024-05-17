@@ -1,6 +1,8 @@
-﻿using Essensoft.Paylink.Alipay;
+﻿using DotNetCore.CAP;
+using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.Alipay.Request;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Order.Alipay;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -15,7 +17,6 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IOrderRepo _orderRepo;
         private readonly IAlipayClient _alipayClient;
         private readonly IOptions<AlipayOptions> _optionsAliAccessor;
-
         public MyOrderController(IResponseHelper resp, IOrderRepo orderRepo, IAlipayClient alipayClient, IOptions<AlipayOptions> optionsAliAccessor)
         {
             _resp = resp;
@@ -69,6 +70,13 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
                 return null;
             }
+        }
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "SyncExamReportInfoToPractice")]
+        public async Task ConfirmAndSyncOrderInfo(string orderNo)
+        {
+
         }
     }
 }

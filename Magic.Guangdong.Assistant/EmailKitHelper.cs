@@ -180,6 +180,59 @@ namespace Magic.Guangdong.Assistant
             }
         }
 
+        public static async Task SendEMailToManagerMsgAsync(string msg)
+        {
+            IConfigurationSection[] emailCfgs = ConfigurationHelper.GetSections("emailPool");
+            int rand = new Random().Next(0, emailCfgs.Length - 1);
+            IConfigurationSection emailCfg = emailCfgs[rand];
+            _tconfig = new EmailConfig()
+            {
+                Server = emailCfg.GetSection("Server").Value,
+                Email = emailCfg.GetSection("Email").Value,
+                Auth = emailCfg.GetSection("Auth").Value,
+                Port = Convert.ToInt32(emailCfg.GetSection("port").Value)
+            };
+            if (string.IsNullOrEmpty(UserName))
+                UserName = _tconfig.Email;
+            var address = new List<MailboxAddress>
+            {
+                new MailboxAddress("tony","wtlemon@126.com"),
+                //new MailboxAddress("miao","miaolei@xxt.org.cn"),
+                //new MailboxAddress("zhang","zhangbiao@xxt.org.cn")
+                };
+            string templateFilePath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "web", "emailmanagernotice.html");
+            string content = "系统通知";
+
+            using (StreamReader reader = new StreamReader(templateFilePath))
+            {
+                content = reader.ReadToEnd().Replace("**content**", msg);
+
+            }
+            var message = new MimeMessage
+            {
+                Subject = "网站通知",
+                Priority = MessagePriority.Urgent,
+                Date = DateTime.Now,
+
+                Body = new BodyBuilder
+                {
+                    HtmlBody = content
+                }.ToMessageBody()
+            };
+            message.From.Add(new MailboxAddress(UserName, _tconfig.Email));
+            message.To.AddRange(address);
+            using (var client = new SmtpClient())
+            {
+
+                await client.ConnectAsync(_tconfig.Server, _tconfig.Port, UseSsl);
+                //await client.AuthenticateAsync(UserAddress, Password);
+                await client.AuthenticateAsync(_tconfig.Email, _tconfig.Auth);
+
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+        }
+
         /// <summary>
         /// 发送电子邮件
         /// </summary>

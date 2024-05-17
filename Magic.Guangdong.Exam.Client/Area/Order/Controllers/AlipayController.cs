@@ -3,8 +3,12 @@ using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.Alipay.Request;
+using FreeSql.Internal;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dtos.Order;
 using Magic.Guangdong.DbServices.Dtos.Order.Alipay;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -22,6 +26,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         private readonly IOptions<AlipayOptions> _optionsAccessor;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IOrderRepo _orderRepo;
+
 
         public AlipayController(IResponseHelper resp, ICapPublisher capPublisher, IAlipayClient alipayClient, IOptions<AlipayOptions> optionsAccessor, IRedisCachingProvider redisCachingProvider, IOrderRepo orderRepo)
         {
@@ -152,6 +157,18 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             req.SetBizModel(model);
 
             var response = await _client.ExecuteAsync(req, _optionsAccessor.Value);
+            if(response.TradeStatus== "TRADE_SUCCESS")
+            {
+                //发布一个消息
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncOrderInfo", new SyncOrderDto()
+                {
+                    OutTradeNo = response.OutTradeNo,
+                    TradeNo = response.TradeNo,
+                    PayType = PayType.AliPay,
+                    TotalAmount = response.TotalAmount,
+                    Timestamp = Assistant.Utils.DateTimeToTimeStamp(Convert.ToDateTime(response.SendPayDate)).ToString()
+                }) ;
+            }
             //ViewData["response"] = ((AlipayResponse)response).Body;
             //return View();
             return Json(_resp.success(response));

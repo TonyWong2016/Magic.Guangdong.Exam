@@ -51,7 +51,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 scheduler.OnWorker("SyncUnitDataFromXXT");
                 scheduler
                     .Schedule<SyncUnitDataFromXXT>()
-                    .DailyAt(12,0)
+                    .DailyAt(15,30)
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(SyncUnitDataFromXXT))
                 ;

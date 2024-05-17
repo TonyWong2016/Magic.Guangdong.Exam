@@ -1,4 +1,5 @@
 ﻿using Coravel.Invocable;
+using DotNetCore.CAP;
 using Essensoft.Paylink.Alipay.Request;
 using Essensoft.Paylink.WeChatPay.V3.Domain;
 using Magic.Guangdong.Assistant;
@@ -12,10 +13,12 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
     {
         private readonly IUnitInfoRepo _unitInfoRepo;
         private readonly ISyncRecordRepo _syncRecordRepo;
-        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo)
+        private readonly ICapPublisher _capPublisher;
+        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo,ICapPublisher capPublisher)
         {
             _unitInfoRepo = unitInfoRepo;
             _syncRecordRepo = syncRecordRepo;
+            _capPublisher = capPublisher;
         }
         public async Task Invoke()
         {
@@ -75,6 +78,8 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
         internal async Task TransformData(int total)
         {
             int perLimit = 100;//每次传100条记录
+            if(total<perLimit)
+                perLimit = total;
             int planTime = Convert.ToInt32(Math.Floor((total * 1.0) / (perLimit * 1.0)));
             Logger.Warning($"需要下载{planTime}次数据");
             int lastSyncTimes = await _syncRecordRepo.GetLastRecordByPlatform("xxt");
@@ -106,6 +111,9 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
                 
                 await Task.Delay(3000);
             }
+
+            //await _capPublisher.PublishAsync
+            await EmailKitHelper.SendEMailToManagerMsgAsync($"第{slidePlanTime}次单位库数据自动同步完成，此次同步了{total}条记录");
         }
     }
 

@@ -23,7 +23,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var syncRepo = fsql.Get(conn_str).GetRepository<SyncRecord>();
             if(await syncRepo.Where(u=>u.Platform == platform).AnyAsync())
             {
-                return await syncRepo.Where(u=>u.Platform == platform)
+                return await syncRepo.Where(u=>u.Platform == platform && u.DataAmount>0)
                     .OrderByDescending(u=>u.Id)
                     .ToOneAsync(u=>u.Times);
             }

@@ -22,7 +22,9 @@
                 <input type="submit" id="pay" class="pico-background-blue-600" style="border-color:aliceblue" value="支付宝支付" />
                 
             </div>
-
+            <div>
+                <a href="javascript:;" onclick="AlipayOrderQuery()">支付成功后没自动跳转?</a>
+            </div>
             <input id="errorBtn" type="button" disabled class="pico-background-red-600" style="border-color:aliceblue;display:none" value="参数异常" />
         </form>
         
@@ -30,6 +32,7 @@
 </main>
 <script>
     let orderId = getUrlQueryParams('id');
+    let outTradeNo = '';
     //两个参数不能同时为空
     if (!orderId) {
         TT.error('参数异常');
@@ -61,4 +64,32 @@
         jValSet('TotalAmount', examModel.expenses);
         jValSet('orderTradeNumber', examModel.outTradeNo);
     })
+
+
+    function AlipayOrderQuery() {
+        if (jVal('orderTradeNumber')) {
+            let outTradeNo = jVal('orderTradeNumber')
+            setTimeout(async () => {
+                let formData = new FormData();
+                formData.append('__RequestVerificationToken', requestToken);
+                formData.append('OutTradeNo', outTradeNo)
+
+                let json = await request('POST', '/order/alipay/query', formData, CT);
+                //$('#checking').hide();
+                if (json.code != 0) {
+                    TT.error('订单异常');
+                    return;
+                }
+                if (json.data && json.data.trade_status == 'TRADE_SUCCESS') {
+                    $('#success').show();
+                    location.href = '/report/detail?orderconfirm=yes&outTradeNo=' + outTradeNo
+                    return
+                }
+                TT.error('订单异常');
+            })
+        } else{
+            TT.error('没有检测到订单号');
+        }
+        
+    }
 </script>

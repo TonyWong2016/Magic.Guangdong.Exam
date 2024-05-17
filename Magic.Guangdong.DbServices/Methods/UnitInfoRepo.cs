@@ -3,6 +3,7 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
@@ -87,7 +88,26 @@ namespace Magic.Guangdong.DbServices.Methods
 
                     var syncRepo = fsql.Get(conn_str).GetRepository<SyncRecord>();
                     syncRepo.UnitOfWork = uow;
-                    await unitInfoRepo.InsertAsync(unitInfos);
+                    var unitIds =  unitInfos.Select(u=>u.OriginNo).Distinct().ToList();
+                    List<UnitInfo> toUpdateList = new List<UnitInfo>();
+                    if(!await unitInfoRepo.Where(u=> unitIds.Contains(u.OriginNo)).AnyAsync())
+                    {
+                        await unitInfoRepo.InsertAsync(unitInfos);
+                    }
+                    else
+                    {
+                        foreach (var unitInfo in unitInfos)
+                        {
+                            var unit = await unitInfoRepo.Where(u => u.OriginNo == unitInfo.OriginNo).ToOneAsync();
+                            unit = unitInfo.Adapt<UnitInfo>();
+                            toUpdateList.Add(unit);
+                            //unitInfos.Add(unit);
+                        }
+                    }
+                    if (toUpdateList.Any())
+                    {
+                        await unitInfoRepo.UpdateAsync(toUpdateList);
+                    }
                     int lastTimeSyncTime = await new SyncRecordRepo(fsql).GetLastRecordByPlatform("xxt");
                     await syncRepo.InsertAsync(new SyncRecord()
                     {
