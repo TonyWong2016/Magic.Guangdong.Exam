@@ -73,9 +73,54 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
             }
         }
 
-
-
         internal async Task TransformData(int total)
+        {
+            if(!await _syncRecordRepo.getAnyAsync(u => u.Platform == "xxt"))
+            {
+                await TransformDataFirst(total);
+                return;
+            }
+            int perLimit = 100;//每次传100条记录
+            if (total < perLimit)
+                perLimit = total;
+            int planTime = Convert.ToInt32(Math.Floor((total * 1.0) / (perLimit * 1.0)));
+            Logger.Warning($"需要下载{planTime}次数据");
+            int lastSyncTimes = await _syncRecordRepo.GetLastRecordByPlatform("xxt");
+            ////int total = planTime + lastSyncTimes;
+            int slidePlanTime = planTime + lastSyncTimes;//这里要把起点滑动到首次下载的次数
+            for (int i = 1; i < planTime+1; i++)
+            {
+                Logger.Warning($"正在下载第{i + 1}次数据..." + DateTime.Now);
+
+                string responseStr = await RestHelper.Get(
+                    new RestParams()
+                    {
+                        Url = "https://www.xiaoxiaotong.org/api/Article/GetList",
+                        UrlParms = new Dictionary<string, string>
+                        {
+                            { "editdatetime", DateTime.Now.AddDays(-30).ToString() },
+                            { "pageindex", i.ToString() },
+                            { "pagesize", perLimit.ToString() }
+                        },
+                        Headers = new Dictionary<string, string>
+                        {
+                            { "Token", "gdjx#7W5ojU" }
+                        }
+                    }
+                );
+                Logger.Info(responseStr);
+                var listResp = JsonHelper.JsonDeserialize<RecordListResponseModel>(responseStr);
+                await _unitInfoRepo.SyncUnitInfos(listResp.result.desModels);
+
+                await Task.Delay(3000);
+            }
+
+            //await _capPublisher.PublishAsync
+            await EmailKitHelper.SendEMailToManagerMsgAsync($"第{slidePlanTime}次单位库数据自动同步完成，此次同步了{total}条记录");
+        }
+
+        //首次同步，单独调用下
+        internal async Task TransformDataFirst(int total)
         {
             int perLimit = 100;//每次传100条记录
             if(total<perLimit)

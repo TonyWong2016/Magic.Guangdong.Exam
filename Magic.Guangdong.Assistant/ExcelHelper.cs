@@ -1,9 +1,10 @@
 ﻿using Magicodes.ExporterAndImporter.Core;
 using Magicodes.ExporterAndImporter.Excel;
-using NPOI.OpenXml4Net.OPC.Internal;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,6 +80,7 @@ namespace Magic.Guangdong.Assistant
         /// <returns></returns>
         public static async Task<string> GenerateTemplate(string templateName)
         {
+            IExportFileByTemplate exporter = new ExcelExporter();
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "upfile", DateTime.Now.ToString("yyyyMM"), Utils.GetCurrentWeekOfMonth(DateTime.Now).ToString());
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);

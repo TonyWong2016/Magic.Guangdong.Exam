@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 {
+    [Area("Cert")]
     public class CertController : Controller
     {
         private readonly IResponseHelper _resp;

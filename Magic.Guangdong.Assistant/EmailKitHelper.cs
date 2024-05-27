@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
-using NPOI.SS.Formula.Functions;
 using System.Text;
 
 namespace Magic.Guangdong.Assistant

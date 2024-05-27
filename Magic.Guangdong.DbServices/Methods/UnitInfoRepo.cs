@@ -88,26 +88,22 @@ namespace Magic.Guangdong.DbServices.Methods
 
                     var syncRepo = fsql.Get(conn_str).GetRepository<SyncRecord>();
                     syncRepo.UnitOfWork = uow;
-                    var unitIds =  unitInfos.Select(u=>u.OriginNo).Distinct().ToList();
-                    List<UnitInfo> toUpdateList = new List<UnitInfo>();
-                    if(!await unitInfoRepo.Where(u=> unitIds.Contains(u.OriginNo)).AnyAsync())
+                    foreach (var unitInfo in unitInfos)
                     {
-                        await unitInfoRepo.InsertAsync(unitInfos);
-                    }
-                    else
-                    {
-                        foreach (var unitInfo in unitInfos)
+                        if(await unitInfoRepo.Where(u => u.OriginNo == unitInfo.OriginNo).AnyAsync())
                         {
-                            var unit = await unitInfoRepo.Where(u => u.OriginNo == unitInfo.OriginNo).ToOneAsync();
-                            unit = unitInfo.Adapt<UnitInfo>();
-                            toUpdateList.Add(unit);
-                            //unitInfos.Add(unit);
+                            var currInfo = await unitInfoRepo.Where(u => u.OriginNo == unitInfo.OriginNo).ToOneAsync();
+                            unitInfo.Id = currInfo.Id;
+                            unitInfo.UpdatedAt= DateTime.Now;
+                            unitInfo.CreatedAt = currInfo.CreatedAt;                            
+                            await unitInfoRepo.UpdateAsync(unitInfo);
+                        }
+                        else
+                        {
+                            await unitInfoRepo.InsertAsync(unitInfo);
                         }
                     }
-                    if (toUpdateList.Any())
-                    {
-                        await unitInfoRepo.UpdateAsync(toUpdateList);
-                    }
+                    
                     int lastTimeSyncTime = await new SyncRecordRepo(fsql).GetLastRecordByPlatform("xxt");
                     await syncRepo.InsertAsync(new SyncRecord()
                     {

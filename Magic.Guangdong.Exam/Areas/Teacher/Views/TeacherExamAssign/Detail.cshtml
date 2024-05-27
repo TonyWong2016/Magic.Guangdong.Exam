@@ -34,51 +34,52 @@
                         string noHtml = Regex.Replace(item.question.TitleText, @"<[^>]+>", string.Empty);
                         string cleaned = Regex.Replace(noHtml, @"^\d+\u3001", string.Empty);
                         string title = $"<p style='font-size:large;'>{index++}、{cleaned} <b style=\"margin-left:10px;color:#524ED2\"> ({item.question.Score} 分)</u></b>";
-                                @Html.Raw(title)
+                                    @Html.Raw(title)
 
                         if (item.question.TypeName == "编程题")
                         {
-                                    <div class="codeDiv" id="code_@item.userAnswer.Id" style="height:500px;margin-top:10px" data-score="@item.question.Score" data-code="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']').TrimStart('"').TrimEnd('"')">
-                                    </div>
+                                        <div class="codeDiv" id="code_@item.userAnswer.Id" style="height:500px;margin-top:10px" data-score="@item.question.Score" data-code="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']').TrimStart('"').TrimEnd('"')">
+                                        </div>
                         }
                         else
                         {
                         //string[] answerContent = JsonConvert.DeserializeObject<string[]>(item.userAnswer.SubjectiveAnswer);
-                                    <p style="margin-top:10px"></p>
-                                    <div class="userAnswerContentDiv" id="content_@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
-                                    </div>
+                                        <p style="margin-top:10px"></p>
+                                        <div class="userAnswerContentDiv" id="content_@item.userAnswer.Id" data-score="@item.question.Score" data-content="@item.userAnswer.SubjectiveAnswer.TrimStart('[').TrimEnd(']')">
+                                        </div>
                         }
 
-                                <br />
-                                <blockquote class="layui-elem-quote">题目解析：<br />@Html.Raw(item.question.Analysis)</blockquote>
-                                <div class="layui-card">
-                                    <div class="layui-card-header"><h3>教师评分</h3></div>
-                                    <div class="layui-card-body">
+                                    <br />
+                                    <blockquote class="layui-elem-quote">题目解析：<br />@Html.Raw(item.question.Analysis)</blockquote>
+                                    <div class="layui-card">
+                                        <div class="layui-card-header"><h3>教师评分</h3></div>
+                                        <div class="layui-card-body">
 
-                                        <div class="layui-form-item">
-                                            <label class="layui-form-label">得分情况：</label>
-                                            <div class="layui-input-block">
-                                                <div class="sliderScore" style="margin-top:20px;padding-top:15px" data-score="@item.question.Score" id="sliderScore_@item.userAnswer.Id"></div>
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">得分情况：</label>
+                                                <div class="layui-input-block">
+                                                    <div class="sliderScore" style="margin-top:20px;padding-top:15px" data-score="@item.question.Score" id="sliderScore_@item.userAnswer.Id"></div>
+                                                </div>
+                                                <input type="hidden" name="QuestionId[]" value="@item.question.Id" />
+                                                <input type="hidden" name="SubmitRecordId[]" value="@item.userAnswer.Id" />
+                                                <input type="hidden" name="SubjectiveItemScore[]" id="subjectiveItemScore_@item.userAnswer.Id" />
                                             </div>
-                                            <input type="hidden" name="QuestionId[]" value="@item.question.Id" />
-                                            <input type="hidden" name="SubmitRecordId[]" value="@item.userAnswer.Id" />
-                                            <input type="hidden" name="SubjectiveItemScore[]" id="subjectiveItemScore_@item.userAnswer.Id" />
-                                        </div>
-                                        <div class="layui-form-item">
-                                            <label class="layui-form-label">教师评语：</label>
-                                            <div class="layui-input-block">
-                                                <textarea placeholder="非必填" name="Remark[]" class="layui-textarea"></textarea>
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">教师评语：</label>
+                                                <div class="layui-input-block">
+                                                    <textarea placeholder="非必填" name="Remark[]" class="layui-textarea"></textarea>
+                                                </div>
                                             </div>
+                                            <a href="javascript:;" class="layui-btn layui-btn-primary layui-border-purple" onclick="getScoreRecordDetail('@item.userAnswer.Id')">查看对该题目的打分记录</a>
+
+
                                         </div>
-
-
                                     </div>
-                                </div>
                     }
                 }
             </div>
         </fieldset>
-        <a href="javascript:;" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
+        <a href="javascript:;" id="btnBack" class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-left"></i>返回</a>
 
         <a href="javascript:;" lay-filter="save" lay-submit class="layui-btn save"><i class="layui-icon layui-icon-release"></i>提交评分</a>
         <a href="javascript:;" class="layui-btn layui-btn-disabled disabledsave" style="display:none"><i class="layui-icon layui-icon-release"></i>提交中</a>
@@ -86,6 +87,18 @@
         <input type="checkbox" title="提交后自动加载下一套试卷" lay-filter="auto" />
     </form>
 </div>
+
+<div class="layui-layer-notice" id='divScoreLog' style='display:none;'>
+</div>
+<script type="text/html" id="logTpl">
+    {{# layui.each(d,function(index,item){}}
+        <div class="layui-panel">
+            <div style="padding: 32px;">
+               本题目于【{{item.createdAt}}】的得分为【{{item.subjectiveItemScore}}】分，标记信息为【{{item.remark}}】；
+            </div>
+        </div>
+    {{# }) }}
+</script>
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/monaco-editor/min/vs/loader.min.js"></script>
@@ -102,6 +115,8 @@
     renderCodeEditor();
     renderTinymce();
     renderSilderSocre();
+
+    $('#btnBack').attr('href', `@Url.Action("papers")?teacherId=${teacherId}&examId=${examId}`);
 
     form.on('checkbox(auto)', data => {
         if (data.value) {
@@ -313,5 +328,23 @@
                 });
             }
         };
+    }
+
+    function getScoreRecordDetail(submitRecordId) {
+        axios.get('@Url.Action("GetLastMarkDetail")', {
+            params: {
+                submitRecordId: submitRecordId,
+                rd: randomInt
+            }
+        }).then((data) => {
+            let json = data.data;
+
+            if (json.code == 0) {
+                renderTpl('logTpl', 'divScoreLog', json.data, false);
+                openDiv('题目得分记录', 'divScoreLog')
+                return;
+            }
+            errorMsg('还没有产生打分记录');
+        });
     }
 </script>

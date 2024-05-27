@@ -4,6 +4,6 @@
   "remoteBase": "\\\\10.185.4.151\\NET_Attach",
   "remoteUser": "IUSR_YSC",
   "remotePwd": "kgonv3u8Ty",
-  "resourcehost": "https://checkin.xiaoxiaotong.org/FileAttach",
+  "resourcehost": "https://localhost:7188/upfile",
   "attachBase": "http://zb5.xiaoxiaotong.org/FileAttach"
 }

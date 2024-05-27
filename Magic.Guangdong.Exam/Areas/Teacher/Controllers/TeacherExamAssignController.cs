@@ -21,8 +21,10 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRedisCachingProvider _redisCachingProvider;
+        private readonly ITeacherRecordScoringRepo _teacherRecordScoringRepo;
 
-        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo, ITeacherRecordScoreLogRepo teacherRecordScoreLogRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IRedisCachingProvider redisCachingProvider)
+
+        public TeacherExamAssignController(IResponseHelper resp, ITeacherExamAssignRepo teacherExamAssignRepo, ITeacherRecordScoreLogRepo teacherRecordScoreLogRepo, IHttpContextAccessor contextAccessor, ITeacherExamAssignViewRepo teacherExamAssignViewRepo, IUserAnswerRecordViewRepo userAnswerRecordViewRepo, IRedisCachingProvider redisCachingProvider, ITeacherRecordScoringRepo teacherRecordScoringRepo)
         {
             _resp = resp;
             _teacherExamAssignRepo = teacherExamAssignRepo;
@@ -31,6 +33,7 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
             _teacherExamAssignViewRepo = teacherExamAssignViewRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
             _redisCachingProvider = redisCachingProvider;
+            _teacherRecordScoringRepo = teacherRecordScoringRepo;
         }
 
         [RouteMark("教师分配")]
@@ -146,6 +149,18 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
                 return Json(_resp.success(items));
             }
             return Json(_resp.error("还没有产生打分记录"));
+        }
+
+
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "submitRecordId", "rd" })]
+        public async Task<IActionResult> GetLastMarkDetail(long submitRecordId)
+        {
+            var records = await _teacherRecordScoringRepo.getListAsync(u => u.SubmitRecordId == submitRecordId);
+            if (!records.Any())
+            {
+                return Json(_resp.error("未找到该题目的判分记录"));
+            }
+            return Json(_resp.success(records.OrderByDescending(u => u.Id).Select(u => new { u.Id, u.SubjectiveItemScore, u.Remark, u.CreatedAt })));
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "recordId", "rd" })]

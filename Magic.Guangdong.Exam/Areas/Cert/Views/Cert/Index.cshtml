@@ -41,10 +41,26 @@
             <div class="layui-form-item layui-row layui-col-space16">
                 <div class="layui-col-md3">
                     <div class="layui-input-wrap">
-                        <a href="@Url.Action("create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>下载模板</a>
+                        <a href="javascript:;" onclick="DownloadTemplate()" class="layui-btn"><i class="layui-icon layui-icon-template"></i>下载模板</a>
                     </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function DownloadTemplate(){
+        let loadIndex = layer.load();
+        axios.get('@Url.Action("GenerationImportTemplate")')
+            .then((data) => {
+                layer.close(loadIndex);
+                if (data.status == 200) {
+                    let json = data.data;
+                    window.open("@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")" + json.data)
+                } else {
+                    layer.msg("模板下载失败", { icon: 2 });
+                }
+            })
+    }
+</script>
