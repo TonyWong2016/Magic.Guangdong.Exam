@@ -72,11 +72,18 @@
                 </button>
             </header>
 
-            <details class="dropdown" style="margin-top:20px">
+           @*  <details class="dropdown" style="margin-top:20px;display:none">
                 <summary role="button" class="outline">答题卡</summary>
                 <ul id="answerSheet">
                 </ul>
-            </details>
+            </details> *@
+
+            <div style="margin-top:20px">
+                <h5>作答记录</h5>
+                <div id="answerWarp">
+                   
+                </div>
+            </div>
 
             <p style="margin:20px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16" style="margin-bottom:5px;">
@@ -136,7 +143,8 @@
 </main>
 
 <script src="~/web/exam/paper.js"></script>
-<script type="text/html" id="answerSheetTpl">
+
+@* <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
     {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
     <li style="font-size:16px;color:#C6C6C6"><u>{{item.TypeName}}</u></li>
@@ -148,8 +156,22 @@
     {{# } }}
     {{# }) }}
 
-</script>
+</script> *@
 
+<script type="text/html" id="answerWarpTpl">
+    {{# layui.each(d, function(index, item){ }}
+    {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
+     <hr />
+    <p style="font-size:16px;color:#C6C6C6"><i>{{item.TypeName}}</i></p>
+   
+    {{# } }}
+    {{# if(answerArr && answerArr.filter(u=>u.questionId==item.Id).length>0){ }}
+        <a role="button" href="javascript:;"style="margin-top:2%;padding:2%;width:18%"  onclick="renderQuestion({{index}})">{{index + 1}} </a></li >
+    {{# } else { }}
+        <a role="button" class="outline"style="margin-top:2%;padding:2%;width:18%" href="javascript:;"  onclick="renderQuestion({{index}})">{{index + 1}} </a></li >
+    {{# } }}
+    {{# }) }}
+</script>
 
 
 <script type="text/html" id="mainTpl">
@@ -275,7 +297,12 @@
             questionObj.total = paperDetail.Questions.length;
             countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
             renderQuestion(0);
-            renderAnswerSheet();
+            setTimeout(() => {
+                renderAnswerSheet();
+            },300)
+            
+            
+            
             //练习模式不保存草稿
             //stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
         }
@@ -284,8 +311,11 @@
     //渲染答题卡
     function renderAnswerSheet() {
         typeNames = [];
-        answerArr = JSON.parse(confirmAnswerArr());
-        renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+        if (confirmAnswerArr())
+            answerArr = JSON.parse(confirmAnswerArr());
+        //renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+        renderTpl("answerWarpTpl", "answerWarp", paperDetail.Questions, false)
+
         jHtmlSet("questionCnt", questionObj.total)
         jHtmlSet("submitCnt", answerArr.length);
         if (questionObj.total == answerArr.length) {
@@ -314,7 +344,6 @@
 
             renderCodeQuestion()
         }
-
     }
 
     //渲染选项(选择题会执行)

@@ -38,7 +38,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePlug(_configuration);
             builder.Services.ConfigureAuthing();
-            builder.Services.ConfigureSelfAuthing(_configuration);
+            //builder.Services.ConfigureSelfAuthing(_configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // 添加Paylink依赖注入

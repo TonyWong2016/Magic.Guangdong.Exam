@@ -50,7 +50,7 @@
             <fieldset class="grid">
                 <input value="证件号：@Model.record.IdCard" readonly />
                 <input value="准考证：@Model.record.ReportNumber" readonly />
-                <input value="练习次数：@Model.record.Stage" readonly />
+                <input value="练习次数：@(Model.record.Stage+1)" readonly />
             </fieldset>
         </form>
     </article>

@@ -74,11 +74,18 @@
                 </button>
             </header>
 
-            <details class="dropdown" style="margin-top:20px">
+            @* <details class="dropdown" style="margin-top:20px">
                 <summary role="button" class="outline">答题卡</summary>
                 <ul id="answerSheet">
                 </ul>
-            </details>
+            </details> *@
+
+            <div style="margin-top:20px">
+                <h5>答题卡</h5>
+                @* <hr /> *@
+                <div id="answerWarp">
+                </div>
+            </div>
 
             <p style="margin:20px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16" style="margin-bottom:5px;">
@@ -141,7 +148,7 @@
 @* <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script> *@
 
-<script type="text/html" id="answerSheetTpl">
+@* <script type="text/html" id="answerSheetTpl">
     {{# layui.each(d, function(index, item){ }}
     {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
     <li style="font-size:16px;color:#C6C6C6"><u>{{item.TypeName}}</u></li>
@@ -153,8 +160,21 @@
     {{# } }}
     {{# }) }}
 
-</script>
+</script> *@
+<script type="text/html" id="answerWarpTpl">
+    {{# layui.each(d, function(index, item){ }}
+    {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
+    
+    <p style="font-size:16px;color:#C6C6C6;margin-top:15px;margin-bottom:5px"><span>{{item.TypeName}}</span></p>
 
+    {{# } }}
+    {{# if(answerArr && answerArr.filter(u=>u.questionId==item.Id).length>0){ }}
+        <a role="button" href="javascript:;"style="margin-top:2%;padding:2%;width:18%"  onclick="renderQuestion({{index}})">{{index + 1}} </a></li >
+    {{# } else { }}
+        <a role="button" class="outline"style="margin-top:2%;padding:2%;width:18%" href="javascript:;"  onclick="renderQuestion({{index}})">{{index + 1}} </a></li >
+    {{# } }}
+    {{# }) }}
+</script>
 
 
 <script type="text/html" id="mainTpl">
@@ -298,8 +318,11 @@
     //渲染答题卡
     function renderAnswerSheet() {
         typeNames = [];
-        answerArr = JSON.parse(confirmAnswerArr());
-        renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+        if (confirmAnswerArr())
+            answerArr = JSON.parse(confirmAnswerArr());
+        //renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+        renderTpl("answerWarpTpl", "answerWarp", paperDetail.Questions, false)
+
         jHtmlSet("questionCnt", questionObj.total)
         jHtmlSet("submitCnt", answerArr.length);
         if (questionObj.total == answerArr.length) {
