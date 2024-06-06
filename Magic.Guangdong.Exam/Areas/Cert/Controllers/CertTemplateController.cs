@@ -79,8 +79,12 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 filter = filter.And(p => p.ActivityId == activityId);
 
             }
-            return Json(_resp.success(
-                await _certTemplateRepo.getListAsync(filter)));
+            var ret = await _certTemplateRepo.getListAsync(filter);
+            return Json(_resp.success(ret.Select(u => new
+            {
+                value = u.Id,
+                text = u.Title
+            })));
         }
 
         [RouteMark("添加证书模板")]

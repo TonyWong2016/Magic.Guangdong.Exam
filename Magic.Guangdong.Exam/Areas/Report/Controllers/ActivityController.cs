@@ -54,6 +54,10 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActivityDto dto)
         {
+            if(await _activityRepo.getAnyAsync(u => u.Title == dto.Title))
+            {
+                return Json(_resp.error("活动名称已存在"));
+            }
             return Json(_resp.success(await _activityRepo.addItemAsync(dto.Adapt<Activity>())));
         }
 
@@ -75,6 +79,10 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
         public async Task<IActionResult> Edit(ActivityDto dto)
         {
             //var activity = await _activityRepo.getOneAsync(u => u.Id == dto.Id);
+            if(await _activityRepo.getAnyAsync(u=>u.Title==dto.Title && u.Id != dto.Id))
+            {
+                return Json(_resp.error("活动名称已存在"));
+            }
             var activity = dto.Adapt<Activity>();
             activity.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _activityRepo.updateItemAsync(activity)));

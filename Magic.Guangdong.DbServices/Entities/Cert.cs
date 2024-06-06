@@ -32,7 +32,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
 		public string CertNo { get; set; }
 
-		[JsonProperty, Column(InsertValueSql = "getdate()")]
+        [JsonProperty, Column(StringLength = 50, IsNullable = false)]
+        public string IdNumber { get; set; }
+
+        [JsonProperty, Column(InsertValueSql = "getdate()")]
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [JsonProperty]
@@ -45,9 +48,15 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public CertStatus Status { get; set; } = CertStatus.Enable;
 
 		[JsonProperty]
-		public long TemplateId { get; set; }
+		public long TemplateId { get; set; } = 0;
 
-		[JsonProperty, Column(StringLength = 100, IsNullable = false)]
+		[JsonProperty]
+		public long ActivityId { get; set; } = 0;
+
+		[JsonProperty]
+		public Guid ExamId { get; set; } = Guid.Empty;
+
+        [JsonProperty, Column(StringLength = 100, IsNullable = false)]
 		public string Title { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

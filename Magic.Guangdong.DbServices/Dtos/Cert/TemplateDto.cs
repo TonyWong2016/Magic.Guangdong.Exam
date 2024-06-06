@@ -47,9 +47,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// 序号
         /// </summary>
-        [ImporterHeader(Name = "证书编号", Description = "按顺序递增即可,不可重复", IsAllowRepeat = false)]
-        [Required(ErrorMessage = "证书不能为空")]
-        public string CertNo { get; set; }
+        //[ImporterHeader(Name = "证书编号", Description = "按顺序递增即可,不可重复", IsAllowRepeat = false)]
+        //[Required(ErrorMessage = "证书不能为空")]
+        //public string CertNo { get; set; }
 
         /// <summary>
         /// 获奖人员
@@ -62,10 +62,19 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// ID号
         /// </summary>
-        [ImporterHeader(Name = "ID号", Description = "一般为身份证号，准考证号等可以唯一确定身份的属性，不可重复")]
+        [ImporterHeader(Name = "ID号", Description = "该ID号是绝对唯一的，建议使用准考证号或者身份证号+前缀或者后缀，不要单纯使用身份证号，避免学生在多个不同活动中获奖无法颁发证书")]
         [Required(ErrorMessage = "{0}不能为空")]
         [MaxLength(50, ErrorMessage = "字数超出最大限制,请修改!")]
         public string IdNumber { get; set; }
+
+        [ImporterHeader(Name = "关联活动", Description = "证书对应的活动标题，注意不要有特殊符号，没有可以不填")]
+        [MaxLength(200, ErrorMessage = "字数超出最大限制,请修改!")]
+        public string ActivityTitle { get; set; }
+
+        [ImporterHeader(Name = "关联考试", Description = "证书对应的考试标题，注意不要有特殊符号，没有可以不填")]
+        [MaxLength(200, ErrorMessage = "字数超出最大限制,请修改!")]
+        public string ExamTitle { get; set; }
+
 
         /// <summary>
         /// 自定义内容

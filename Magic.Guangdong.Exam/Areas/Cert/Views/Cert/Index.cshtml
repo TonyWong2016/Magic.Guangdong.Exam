@@ -5,21 +5,32 @@
     <div style="padding:15px">
         <form class="layui-form">
             <div class="layui-form-item layui-row layui-col-space16">
-                <div class="layui-col-md3">
+                <div class="layui-col-md2">
                     <div class="layui-input-wrap">
                         <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-note"></i>
+                            <i class="layui-icon layui-icon-flag"></i>
                         </div>
                         <select id="activityId" lay-filter="activityId">
-                            <option value="">请选择归属活动</option>
+                            <option value="">请选择归属活动(如果有)</option>
 
                         </select>
                     </div>
                 </div>
-                <div class="layui-col-md3">
+                <div class="layui-col-md2">
                     <div class="layui-input-wrap">
                         <div class="layui-input-prefix">
                             <i class="layui-icon layui-icon-note"></i>
+                        </div>
+                        <select id="examId" lay-filter="examId">
+                            <option value="">请选择归属考试(如果有)</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-form"></i>
                         </div>
                         <select id="templateId" lay-filter="templateId">
                             <option value="">请选择对应模板</option>
@@ -27,7 +38,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="layui-col-md3">
+                <div class="layui-col-md2">
                     <div class="layui-input-wrap">
                         <div class="layui-input-prefix">
                             <i class="layui-icon layui-icon-search"></i>
@@ -35,22 +46,74 @@
                         <input type="text" id="keyword" placeholder="关键字" class="layui-input">
                     </div>
                 </div>
-
-            </div>
-
-            <div class="layui-form-item layui-row layui-col-space16">
-                <div class="layui-col-md3">
+                <div class="layui-col-md2">
                     <div class="layui-input-wrap">
-                        <a href="javascript:;" onclick="DownloadTemplate()" class="layui-btn"><i class="layui-icon layui-icon-template"></i>下载模板</a>
+                        <a class="layui-btn demo-dropdown-base" lay-options="{trigger: 'hover'}" href="javascript:;">
+                            <span>选择操作</span>
+                            <i class="layui-icon layui-icon-down layui-font-12"></i>
+                        </a>
                     </div>
                 </div>
+
             </div>
         </form>
+
+        <table class="layui-table" lay-filter="table" id="table"></table>
     </div>
 </div>
 
+<script type="text/html" id="statusTpl">
+    {{# if(d.status==0){ }}
+    <span style="color:#5FB878">展示中</span>
+    {{#} else { }}
+    <span style="color:#c2c2c2">已下线</span>
+    {{#} }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-normal" href="{{ baseDownloadUrl + d.path }}" target="_blank">查看证书</a>
+</script>
+
 <script>
-    function DownloadTemplate(){
+    let form = layui.form;
+    let dropdown = layui.dropdown;
+    let activityId = 0;
+    let templateId = 0;
+    let examId = '';
+
+    dropdown.render({
+        elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+        data: [{
+            title: '下载模板',
+            id: 'downloadTemplate'
+        }, {
+            title: '导入模板',
+            id: 'import'
+        }, {
+            title: '导出记录',
+            id: 'export'
+        }, {
+            title: '批量编辑',
+            id: 'bulkEdit'
+        }, {
+            title: '批量删除',
+            id: 'bulkDelete'
+        }],
+        click: function (obj) {
+            console.log(obj)
+            this.elem.find('span').text(obj.title);
+            setTimeout(() => {
+                this.elem.find('span').text('选择操作');
+            }, 2000)
+            if (typeof window[obj.id] === 'function') {
+                window[obj.id]();
+            } else {
+                errorMsg(`【${obj.title}】未指定动作`);
+            }
+        }
+    });
+
+    function downloadTemplate() {
         let loadIndex = layer.load();
         axios.get('@Url.Action("GenerationImportTemplate")')
             .then((data) => {
@@ -62,5 +125,120 @@
                     layer.msg("模板下载失败", { icon: 2 });
                 }
             })
+    }
+
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'activityId', true);
+    getSelectItems('/exam/examination/getexammini', { id: '', type: 0, examType:0, rd: randomInt }, 'selectTpl', 'examId', true)
+    getSelectItems('/Cert/CertTemplate/GetTemplateDrops', { rd: randomInt }, 'selectTpl', 'templateId', true)
+    form.on('select(activityId)', (data) => {
+        activityId = data.value
+        getSelectItems('/exam/examination/getexammini', { id: activityId, type: 0, examType: 0,rd: randomInt }, 'selectTpl', 'examId', false)
+            .then(v => {
+                form.render('select')
+            })
+        getSelectItems('/Cert/CertTemplate/GetTemplateDrops', { activityId: activityId, rd: randomInt }, 'selectTpl', 'templateId', false)
+            .then(v => {
+                form.render('select')
+            })
+        getCerts();
+    })
+    form.on('select(examId)', (data) => {
+        examId = data.value;
+        getCerts();
+    })
+    form.on('select(templateId)', (data) => {
+        templateId = data.value;
+        getCerts();
+    })
+    getCerts();
+    function getCerts(){
+        var params = {
+            url: '@Url.Action("GetCerts")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: "#indexTpl", width: "6%", type: "checkbox" }
+                , { field: 'id', title: 'id', hide: true }
+                , { field: 'title', title: '证书标题', width: "15%" }
+                , { field: 'awardName', title: '获奖人员', width: "15%" }
+                , { field: 'certNum', title: '证书编号', width: "12%" }
+                , { field: 'projectNo', title: '唯一ID号', width: "12%" }
+                , { title: '状态', templet: '#statusTpl', width: "10%" }
+                , { field: 'createdAt', title: '发放时间', width: "12%" }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        let whereJsonStr = {
+            "Logic": "And",
+            "Filters": [{
+                "Field": "IsDeleted",
+                "Operator": "Equal",
+                "Value": 0
+            }]
+        }
+        let keyword = jVal("keyword");
+        if (keyword) {
+            whereJsonStr.Filters.push({
+                "Logic": "Or",
+                "Filters": [{
+                    "Field": "AwardName",
+                    "Operator": "Equal",
+                    "Value": keyword
+                },
+                {
+                    "Field": "CertNum",
+                    "Operator": "Equal",
+                    "Value": keyword
+                },
+                {
+                    "Field": "Title",
+                    "Operator": "Contains",
+                    "Value": keyword
+                }]
+            });
+        }
+        if (templateId > 0) {
+            whereJsonStr.Filters.push({
+                "Logic": "And",
+                "Filters": [{
+                    "Field": "templateId",
+                    "Operator": "Equal",
+                    "value": templateId,
+                }]
+            })
+        }
+        if (activityId > 0) {
+            whereJsonStr.Filters.push({
+                "Logic": "And",
+                "Filters": [{
+                    "Field": "activityId",
+                    "Operator": "Equal",
+                    "value": activityId,
+                }]
+            })
+        }
+        if (examId) {
+            whereJsonStr.Filters.push({
+                "Logic": "And",
+                "Filters": [{
+                    "Field": "ExamId",
+                    "Operator": "Equal",
+                    "value": examId,
+                }]
+            })
+        }
+        return {
+            'whereJsonStr': JSON.stringify(whereJsonStr),
+            'orderby': 'Id', 
+            'isAsc': false, 
+            'rd': randomInt
+        };
     }
 </script>
