@@ -1,13 +1,14 @@
-﻿using EasyCaching.Core;
+﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
+using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.XSSF.UserModel;
-using RabbitMQ.Client;
-using static FreeSql.Internal.GlobalFilter;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 {
@@ -21,8 +22,12 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         private readonly ISixLaborHelper _sixLaborHelper;
         private readonly IWebHostEnvironment _en;
         private readonly IRedisCachingProvider _redisCachingProvider;
+        private readonly IHubContext<Tools.ConnectionHub> _myHub;
+        private readonly ICapPublisher _capPublisher;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private string adminId = "";
 
-        public CertController(IResponseHelper resp, ICertRepo certRepo, ICertTemplateRepo certTemplateRepo, IHttpContextAccessor contextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en,IRedisCachingProvider redisCachingProvider)
+        public CertController(IResponseHelper resp, ICertRepo certRepo, ICertTemplateRepo certTemplateRepo, IHttpContextAccessor contextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en,IRedisCachingProvider redisCachingProvider,IHubContext<Tools.ConnectionHub> myHub,ICapPublisher capPublisher,IHttpClientFactory httpClientFactory)
         {
             _resp = resp;
             _certRepo = certRepo;
@@ -31,6 +36,13 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             _sixLaborHelper = sixLaborHelper;
             _en = en;
             _redisCachingProvider = redisCachingProvider;
+            _myHub = myHub;
+            _capPublisher = capPublisher;
+            _httpClientFactory = httpClientFactory;
+            if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.TryGetValue("userId", out string cookieValue))
+            {
+                adminId = cookieValue;
+            }
         }
 
         public IActionResult Index()
@@ -71,9 +83,15 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             List<ImportTemplateDto> importList;
             if (await _redisCachingProvider.KeyExistsAsync(key))
             {
-                importList = JsonHelper.JsonDeserialize<List<ImportTemplateDto>>(await _redisCachingProvider.StringGetAsync(key))
-            } else
+                importList = JsonHelper.JsonDeserialize<List<ImportTemplateDto>>(await _redisCachingProvider.StringGetAsync(key));
+            }
+            else
+            {
                 importList = await ExcelHelper<ImportTemplateDto>.GetImportData(model.Path);
+            }
+
+            await _certTemplateRepo.CacheActivitiesAndExams(importList);
+
             int importTotal = importList.Count;
             if (importTotal > model.CertNumLength)
             {
@@ -84,17 +102,108 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 return Json(_resp.error($"导入的数据中有重复的id号码"));
             }
+            List<string> orginCertNums = importList.Select(u => u.CertNo).ToList();
             List<string> certNums = new List<string>();
-            for (int i = 1; i <= importTotal; i++) {
-                string item = i.ToString();
-                certNums.Add(model.CertNumPrefix + (i < model.CertNumLength ? new string('0', model.CertNumLength - i) + item : item.Substring(0, model.CertNumLength)));
+            foreach (string item in orginCertNums)
+            {
+                certNums.Add(model.CertNumPrefix + (item.Length < model.CertNumLength ? new string('0', model.CertNumLength - item.Length) + item : item.Substring(0, model.CertNumLength)));
             }
+
             if (model.IsOverwrite == 0 && await _certRepo.getAnyAsync(u => certNums.Contains(u.CertNo)))
             {
                 
                 await _redisCachingProvider.StringSetAsync(key, JsonHelper.JsonSerialize(importList), TimeSpan.FromMinutes(2));
                 return Json(_resp.ret(2, "部分编号记录已存在，是否要覆盖原数据"));
             }
+            await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", "生成证书可能需要较长时间，取决于模板大小和您导入名单的数量，这是一个异步操作，生成情况会实时反馈到前台，期间您不必一直在当前页面停留");
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "InsertCertData", new ImportCapDto { ImportList = importList, ImportModel = model });
+            return Json(_resp.ret(0, "正在后台生成，稍后可在后台查看"));
         }
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "InsertCertData")]
+        public async Task InsertCertData(ImportCapDto dto)
+        {
+            try
+            {
+                //序列化模板信息
+                string resourceHost = ConfigurationHelper.GetSectionValue("resourcehost");
+                var template = await _certTemplateRepo.getOneAsync(u => u.Id == dto.ImportModel.TemplateId);
+                var certConfig = JsonHelper.JsonDeserialize<CertTemplateDto>(template.ConfigJsonStrForImg);
+                certConfig.certTempUrl = template.Url;
+                string requestUrl = template.Url;
+                if (certConfig.certTempUrl.StartsWith("http"))
+                {
+                    requestUrl = resourceHost + template.Url;
+                }
+                using(var client = _httpClientFactory.CreateClient(UtilConsts.CLIENTFACTORYNAME))
+                {
+                    certConfig.certTempData = await client.GetByteArrayAsync(requestUrl);
+                }
+                List<DbServices.Entities.Cert> certList = new List<DbServices.Entities.Cert>();
+                int finished = 0;
+                foreach (var item in dto.ImportList) {
+                    item.CertNo = dto.ImportModel.CertNumPrefix + (item.CertNo.Length < dto.ImportModel.CertNumLength ? new string('0', dto.ImportModel.CertNumLength - item.CertNo.Length) + item.CertNo : item.CertNo.Substring(0, dto.ImportModel.CertNumLength));
+                    
+                    Type tImport = typeof(ImportTemplateDto);
+                    Type tContent = typeof(TemplateContentModel);
+                    var tmpContent = new TemplateContentModel();
+                    foreach (var prop in tImport.GetProperties())
+                    {
+                        if (certConfig.contentList.Any(u => u.key.ToLower() == prop.Name.ToLower()))
+                        {
+                            tContent.GetProperty("content").SetValue(tmpContent, prop.GetValue(item));
+
+                            certConfig.contentList.Where(u => u.key.ToLower() == prop.Name.ToLower()).First().content = tmpContent.content;
+                        }
+                    }
+                    string filename = $"{dto.ImportModel.TemplateId}-{item.CertNo}";
+                    string path = await _sixLaborHelper.MakeCertPic(_en.WebRootPath, certConfig, filename);
+                    
+                    long activityId = 0;
+                    if (await _redisCachingProvider.HExistsAsync("ImportActivities", item.ActivityTitle))
+                    {
+                        activityId = Convert.ToInt64(await _redisCachingProvider.HGetAsync("ImportActivities", item.ActivityTitle));
+                    }
+                    Guid examId = Guid.Empty;
+                    if(await _redisCachingProvider.HExistsAsync("ImportExams", item.ExamTitle))
+                    {
+                        examId = Guid.Parse(await _redisCachingProvider.HGetAsync("ImportExams", item.ExamTitle));
+                    }
+                    certList.Add(new DbServices.Entities.Cert()
+                    {
+                        TemplateId = dto.ImportModel.TemplateId,
+                        CertNo = item.CertNo,
+                        IdNumber = item.IdNumber,
+                        AwardName = item.AwardName,
+                        Url = path,
+                        CertContent = JsonHelper.JsonSerialize(certConfig.contentList.Select(u => new { u.key, u.content })),
+                        ActivityId = activityId,
+                        ExamId = examId,
+                        Title = dto.ImportModel.Title,
+                        Status = DbServices.Entities.CertStatus.Enable,
+
+                    });
+                    finished++;
+
+                    await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", $"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}");
+
+                }
+                await _certRepo.addItemsAsync(certList);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"导入错误:{ex.Message},\n{ex.StackTrace}");
+                await _myHub.Clients.All.SendAsync("ReceiveMessage", $"导入错误:{ex.Message}");
+
+            }
+        }
+    }
+
+    public class ImportCapDto
+    {
+        public List<ImportTemplateDto> ImportList { get; set; }
+
+        public ImportDto ImportModel {  get; set; }
     }
 }

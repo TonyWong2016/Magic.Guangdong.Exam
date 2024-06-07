@@ -3,9 +3,11 @@ using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Exam.Filters;
 using Mapster;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Web.Caching;
@@ -39,7 +41,13 @@ namespace Magic.Guangdong.Exam.Extensions
 
             // builder.Services.BuildServiceProvider();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            builder.Services.AddHttpClient(UtilConsts.CLIENTFACTORYNAME, client =>
+            {
+                string? baseHost = _configuration.GetSection("baseHost").Value;
+                if (!string.IsNullOrEmpty(baseHost))
+                    client.BaseAddress = new Uri(baseHost);
+                client.Timeout = TimeSpan.FromMinutes(1);
+            });
             // 添加Paylink依赖注入
             builder.Services.AddAlipay();
             builder.Services.AddWeChatPay();

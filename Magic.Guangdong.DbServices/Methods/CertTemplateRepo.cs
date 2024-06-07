@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using System;
@@ -39,6 +40,47 @@ namespace Magic.Guangdong.DbServices.Methods
             template.CreatedBy = adminId;
             await templateRepo.InsertAsync(template);
             return true;
+        }
+   
+        public async Task CacheActivitiesAndExams(List<ImportTemplateDto> importList)
+        {
+            if (importList.Where(u => u.ActivityTitle != string.Empty).Any())
+            {
+                var titles = importList.Select(u => u.ActivityTitle).Distinct();
+                var activityRepo = fsql.Get(conn_str).GetRepository<Activity>();
+                var activities = await activityRepo
+                    .Where(u => titles.Contains(u.Title) && u.IsDeleted==0)
+                    .ToListAsync(u => new
+                {
+                    u.Id,
+                    u.Title
+                });
+                if (activities.Any()) {
+                    foreach (var activity in activities) 
+                    { 
+                        await RedisHelper.HSetAsync("ImportActivities", activity.Title, activity.Id.ToString());
+                    }
+                    await RedisHelper.ExpireAsync("ImportActivities", TimeSpan.FromHours(1));
+                }
+            }
+
+            if (importList.Where(u => u.ExamTitle != string.Empty).Any()) { 
+                var titles = importList.Select(u => u.ExamTitle).Distinct();
+                var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+                var exams = await examRepo
+                    .Where(u => titles.Contains(u.Title) && u.IsDeleted==0)
+                    .ToListAsync(u => new
+                {
+                    u.Id,
+                    u.Title
+                });
+                if (exams.Any()) {
+                    foreach (var exam in exams) {
+                        await RedisHelper.HSetAsync("ImportExams", exam.Title, exam.Id.ToString());
+                    }
+                    await RedisHelper.ExpireAsync("ImportExams", TimeSpan.FromHours(1));
+                }
+            }
         }
     }
 }

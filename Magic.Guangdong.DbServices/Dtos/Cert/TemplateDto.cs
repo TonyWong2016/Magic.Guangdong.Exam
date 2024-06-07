@@ -47,9 +47,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// 序号
         /// </summary>
-        //[ImporterHeader(Name = "证书编号", Description = "按顺序递增即可,不可重复", IsAllowRepeat = false)]
-        //[Required(ErrorMessage = "证书不能为空")]
-        //public string CertNo { get; set; }
+        [ImporterHeader(Name = "证书编号", Description = "按顺序递增即可,不可重复", IsAllowRepeat = false)]
+        [Required(ErrorMessage = "证书不能为空")]
+        public string CertNo { get; set; }
 
         /// <summary>
         /// 获奖人员
@@ -62,7 +62,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// ID号
         /// </summary>
-        [ImporterHeader(Name = "ID号", Description = "该ID号是绝对唯一的，建议使用准考证号或者身份证号+前缀或者后缀，不要单纯使用身份证号，避免学生在多个不同活动中获奖无法颁发证书")]
+        [ImporterHeader(Name = "ID号", Description = "该ID号是绝对唯一的，若证书与本系统内的活动相关，请使用(准考证号)或者(4位前缀+身份证号)，不要单纯使用身份证号，避免学生在多个不同活动中获奖而导致无法颁发证书！若不相关，则保证此号码唯一即可")]
         [Required(ErrorMessage = "{0}不能为空")]
         [MaxLength(50, ErrorMessage = "字数超出最大限制,请修改!")]
         public string IdNumber { get; set; }

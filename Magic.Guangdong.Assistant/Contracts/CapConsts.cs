@@ -15,5 +15,7 @@ namespace Magic.Guangdong.Assistant.Contracts
             //string SUBPREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
             return PREFIX + name;
         }
+
+        
     }
 }
