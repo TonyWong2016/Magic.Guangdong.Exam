@@ -2,7 +2,22 @@
 @model Magic.Guangdong.Exam.Client.Pages.Report.CreateModel
 @{
 }
+<style>
+    .upload-preview-container {
+        position: relative;
+        width: 100%; /* 或任何你喜欢的宽度 */
+        height: 100%; /* 或任何你喜欢的高度 */
+        overflow: hidden;
+        cursor: pointer;
+    }
 
+    #preview-image {
+        width: 100%;
+        height: auto; /* 或任何你喜欢的高度 */
+        max-height: 400px;
+        /* object-fit: cover; */
+    }
+</style>
 <main class="container">
     <h2>活动报名</h2>
     <hr />
@@ -33,15 +48,52 @@
 
 
         <article id="reportInfoArea">
-            <label>
-                姓名
-            </label>
-            <input id="Name" name="Name"
-                   placeholder="真实姓名"
-                   autocomplete="off" required />
+            <div class="grid">
+                <div>
+                    <label>
+                        姓名
+                    </label>
+                    <input id="Name" name="Name"
+                           placeholder="真实姓名"
+                           autocomplete="off" required />
 
 
-            <!-- Input outside label -->
+                    <!-- Input outside label -->
+                    <label>证件号</label>
+                    <fieldset class="grid">
+                        <select name="CardType" id="CardType" required>
+                            <option selected disabled value="">
+                                证件类型
+                            </option>
+                            <option value="0">中国大陆公民身份证</option>
+                            <option value="1">香港身份证</option>
+                            <option value="2">澳门身份证</option>
+                            <option value="3">台湾身份证</option>
+                            <option value="4">护照</option>
+                            <option value="5">其他</option>
+
+                        </select>
+                        <input type="text" id="IdCard" name="IdCard" placeholder="输入您的证件号码" aria-label="text" autocomplete="off" aria-describedby="invalid-helper" required />
+
+                    </fieldset>
+                    <small id="invalid-helper"></small>
+                   
+                    <label>联系方式</label>
+                    <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
+                </div>
+                <div>
+                    <label>证件照</label>
+                    <div class="upload-preview-container">
+                        <img id="preview-image" src="/img/preview.jpg" alt="预览图片" onclick="this.parentElement.querySelector('input[type=file]').click()">
+                        <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                    </div>
+                   @*  <img id="preview-image" src="/img/preview.jpg" alt="预览图片" style="max-width: 100%;height: auto;max-height: 400px;">        
+
+                    <label for="file-upload" class="btn btn-primary">
+                        <input type="file" id="file-upload" accept="image/*" onchange="previewImage(event)">
+                    </label> *@
+                </div>
+            </div>
             <label>邮箱</label>
             <fieldset class="grid">
                 <input type="email"
@@ -61,27 +113,6 @@
             </fieldset>
             <small id="invalid-helper-email" class="pico-color-red-550"></small>
 
-            <label>联系方式</label>
-            <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
-
-            <label>证件号</label>
-            <fieldset class="grid">
-                <select name="CardType" id="CardType" required>
-                    <option selected disabled value="">
-                        证件类型
-                    </option>
-                    <option value="0">中国大陆公民身份证</option>
-                    <option value="1">香港身份证</option>
-                    <option value="2">澳门身份证</option>
-                    <option value="3">台湾身份证</option>
-                    <option value="4">护照</option>
-                    <option value="5">其他</option>
-
-                </select>
-                <input type="text" id="IdCard" name="IdCard" placeholder="输入您的证件号码" aria-label="text" autocomplete="off" aria-describedby="invalid-helper" required />
-
-            </fieldset>
-            <small id="invalid-helper"></small>
 
             <label>
                 地址
@@ -562,4 +593,22 @@
         $('#modal-unit article').attr('style', 'max-width:75%')
     }
 
+    function previewImage(event) {
+        let input = event.target;
+        if (input.files && input.files[0]) {
+            let file = input.files[0];
+            // 检查文件大小，如果大于2MB（2 * 1024 * 1024字节），则阻止上传
+            if (file.size > 2 * 1024 * 1024) {
+                alert("文件太大！请上传小于2MB的图片。");
+                return;
+            }
+            let reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('preview-image').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
