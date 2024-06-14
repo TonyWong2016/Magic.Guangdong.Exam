@@ -77,7 +77,7 @@
 
                     </fieldset>
                     <small id="invalid-helper"></small>
-                   
+
                     <label>联系方式</label>
                     <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
                 </div>
@@ -85,13 +85,10 @@
                     <label>证件照</label>
                     <div class="upload-preview-container">
                         <img id="preview-image" src="/img/preview.jpg" alt="预览图片" onclick="this.parentElement.querySelector('input[type=file]').click()">
-                        <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        @* <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="previewImage(event)"> *@
+                        <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                        <canvas id="canvas" style="width: 100%;background-color: #000000;"></canvas>
                     </div>
-                   @*  <img id="preview-image" src="/img/preview.jpg" alt="预览图片" style="max-width: 100%;height: auto;max-height: 400px;">        
-
-                    <label for="file-upload" class="btn btn-primary">
-                        <input type="file" id="file-upload" accept="image/*" onchange="previewImage(event)">
-                    </label> *@
                 </div>
             </div>
             <label>邮箱</label>
@@ -112,7 +109,6 @@
                        value="发送中" />
             </fieldset>
             <small id="invalid-helper-email" class="pico-color-red-550"></small>
-
 
             <label>
                 地址
@@ -249,10 +245,9 @@
         <p>检测到当前账号下已经报名了本场考试，每个身份证号只可以报考一次该考试，若您想为其他人报名，请点击【为他人报名】，继续填报。</p>
         <footer>
             <a role="button"
-                    class="secondary"
-                    data-target="modal-confirm"
-                    href="/activity/index"
-                    >
+               class="secondary"
+               data-target="modal-confirm"
+               href="/activity/index">
                 返回
             </a>
             <button autofocus data-target="modal-confirm" onclick="continueReport()">
@@ -265,12 +260,13 @@
 @* 这里注意，只有考试类型和没有挂载考试的练习需要报名，其余不需要 *@
 <script type="text/html" id="selectExamTpl">
     <option value="0">请选择</option>
-    {{# layui.each(d,function(index,item){}}        
+    {{# layui.each(d,function(index,item){}}
         {{# if(!item.attachmentId){ }}
         <option value="{{ item.examId }}" data-money="{{item.amount}}">{{item.examTitle}}</option>
         {{# } }}
     {{# }) }}
 </script>
+
 <script type="text/html" id="unitDropTpl">
     {{# layui.each(d,function(index,item){}}
     <li>
@@ -282,6 +278,7 @@
     {{# }) }}
 </script>
 
+<script src="~/web/myfcup.js"></script>
 <script>
     let activityId = getUrlQueryParams('id');
     let examModel = {};
@@ -302,7 +299,6 @@
 
     listenChange('ExamId', (event) => {
         examModel.id = event.target.value;
-
         var selectedOption = event.target.options[event.target.selectedIndex];
         var money = selectedOption.getAttribute('data-money');
         examModel.title = selectedOption.text;
@@ -322,10 +318,10 @@
     //监听身份证变化，这个用另外一个方法
     autoSearch('IdCard', () => {
         if (cardType != '0') {
-            
+
             return;
         }
-        if(!cardType)
+        if (!cardType)
             $('#invalid-helper').addClass('pico-color-red-550').html('请选择证件类型')
         $('#invalid-helper').html('');
         let checkRet = SFID(jVal('IdCard'));
@@ -438,12 +434,12 @@
 
         let ret = await request('POST', '/Report/ReportInfo', objectToFormData(formData), CT)
         if (ret.code == 0) {
-            $('#submitInfoWait').html('报名成功').attr('aria-busy',false)
+            $('#submitInfoWait').html('报名成功').attr('aria-busy', false)
             //examModel.orderTradeNumber = ret.data.GetReportDetail;
-            TT.success('报名成功',()=>{
+            TT.success('报名成功', () => {
                 location.href = `/report/detail?id=${ret.data.reportId}`;
             });
-            
+
         } else {
             TT.error('报名失败:' + ret.msg);
             $('#submitInfoWait').hide();
@@ -490,11 +486,11 @@
         })
     }
 
-    function reportLogCheck(){        
+    function reportLogCheck() {
         if (examModel.id) {
             axios.get('CheckReportLogById', {
                 params: {
-                    accountId:accountId,
+                    accountId: accountId,
                     examId: examModel.id
                 }
             }).then(data => {
@@ -514,7 +510,7 @@
         }
     }
 
-    function continueReport(){
+    function continueReport() {
         let modal = document.getElementById('modal-confirm');
         closeModal(modal);
         $('#reportInfoArea').show();
@@ -593,22 +589,123 @@
         $('#modal-unit article').attr('style', 'max-width:75%')
     }
 
-    function previewImage(event) {
-        let input = event.target;
-        if (input.files && input.files[0]) {
-            let file = input.files[0];
-            // 检查文件大小，如果大于2MB（2 * 1024 * 1024字节），则阻止上传
-            if (file.size > 2 * 1024 * 1024) {
-                alert("文件太大！请上传小于2MB的图片。");
-                return;
-            }
-            let reader = new FileReader();
-
-            reader.onload = function (e) {
-                document.getElementById('preview-image').src = e.target.result;
-            }
-
-            reader.readAsDataURL(input.files[0]);
+    let fileUpObj = {
+        elemId: 'file-upload',
+        accept: 'images',
+        previewId: 'preview-image',
+        size: 1024 * 2,
+        progressId: '',
+        canvas: 'canvas',
+        callback: function (res) {
+            // $('#tmpPreview').attr('src', res.data).attr('width', '120px').show();
+            // $('#Url').val(res.data)
         }
     }
+    initUploadFilePro(fileUpObj);
+
+    async function faceDetect(base64) {
+        let faceModel = {
+            "image": base64,
+            "image_type": "BASE64",
+        }
+        let params = {
+            "__RequestVerificationToken": token,
+            "model": faceModel
+        };
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('model', params)
+
+        let json = await request('POST', '/face/facedetect', formData, CT);
+        if (json.code == 0) {
+            $("#canvas").show();
+            $("video").hide();
+        }
+    }
+
+    //写入图片检测信息
+    function drawFaceInfo(faceInfo) {
+        return new Promise(resolve => {
+            let unpassCnt = 0;
+            let canvas = document.getElementById("canvas");
+            let context = canvas.getContext("2d");
+            context.strokeStyle = "#1E9FFF";
+            context.lineWidth = 4;
+            let location = faceInfo.location;
+            //context.rotate(0.01*location.rotation);暂时不要旋转了，转完了清空太麻烦
+            context.strokeRect(location.left, location.top, location.width, location.height);
+            context.font = 'bolder 14px Microsoft YaHei';
+            context.textAlign = 'left';
+            context.textBaseline = 'bottom';
+            let left = 5;
+            let top = 18;
+            let i = 1;
+            context.fillStyle = '#009688';
+            context.fillText(faceInfo.face_token.substr(0, faceInfo.face_token.length / 2) + "***", left, top);
+            if (faceInfo.gender.type == "male")
+                context.fillText('男', left, top + 16 * i);
+            else
+                context.fillText('女', left, top + 16 * i);
+            i++;
+            if (faceInfo.expression.type == "smile" || faceInfo.expression.type == "laugh") {
+                context.fillText('有笑容', left, top + 16 * i);
+                i++;
+            }
+            if (faceInfo.age) {
+                context.fillText('约' + faceInfo.age + '岁', left, top + 16 * i);
+                i++;
+            }
+
+            if (faceInfo.glasses.type == "none")
+                context.fillText('无眼镜', left, top + 16 * i);
+            else if (faceInfo.glasses.type == "common")
+                context.fillText('普通眼镜', left, top + 16 * i);
+            else
+                context.fillText('墨镜', left, top + 16 * i);
+            i++;
+
+            if (faceInfo.quality.completeness > 0.9) {
+                context.fillText("面部完整", left, top + 16 * i);
+            }
+            else {
+                context.fillStyle = '#FF5722';
+                context.fillText("面部不完整", left, top + 16 * i);
+                unpassCnt++;
+            }
+            i++;
+            if (faceInfo.quality.blur < 0.7) {
+                context.fillStyle = '#009688';
+                context.fillText("图像清晰", left, top + 16 * i);
+
+            } else {
+                context.fillStyle = '#FF5722';
+                context.fillText("模糊", left, top + 16 * i);
+                unpassCnt++;
+            }
+            i++;
+            if (faceInfo.quality.illumination > 40) {
+                context.fillStyle = '#009688';
+                context.fillText("光线好", left, top + 16 * i);
+
+            } else {
+                context.fillStyle = '#FF5722';
+                context.fillText("光线差", left, top + 16 * i);
+                unpassCnt++;
+            }
+            i++;
+            if (faceInfo.mask.type == 1) {
+                context.fillText('佩戴口罩', left, top + 16 * i);
+                //i++;
+            } else
+                context.fillText('未佩戴口罩', left, top + 16 * i);
+
+            if (unpassCnt > 1)
+                resolve(false);
+            else
+                resolve(true);
+
+        })
+
+    }
+
 </script>

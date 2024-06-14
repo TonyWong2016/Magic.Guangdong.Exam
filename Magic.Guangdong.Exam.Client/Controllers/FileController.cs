@@ -5,6 +5,7 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using Microsoft.Identity.Client;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
@@ -75,7 +76,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             var index = Request.Form["index"];
             var connId = Request.Form["connId"];
             var is_rewrite = Request.Form["rewrite"];
-            var adminId = Request.Form["adminId"];
+            var accountId = Request.Form["accountId"];
             string temporary = Path.Combine($"{Directory.GetCurrentDirectory()}\\wwwroot\\upfile", lastModified);//临时保存分块的目录
             if (await RedisHelper.HExistsAsync("upload_list", lastModified))
             {
@@ -134,7 +135,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
                 if (total == index)
                 {
-                    mergeOk = await FileMerge(lastModified, fileName, adminId, connId);
+                    mergeOk = await FileMerge(lastModified, fileName, accountId, connId);
                     if (mergeOk)
                         await RedisHelper.HSetAsync("upload_list", lastModified, "success");
                 }
@@ -276,7 +277,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     Size = fileSize,
                     ShortUrl = fileResponseDto.path,
                     AccountId = adminId,
-                    ConnId = connId
+                    ConnId = connId,
+                    Type = "client"
                 };
 
 
@@ -317,7 +319,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                         }
                         else
                         {
-                            Logger.Error("远程连接建立失败");
+                            Assistant.Logger.Error("远程连接建立失败");
                         }
                     }
 
@@ -371,7 +373,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 Size = fi.Length,
                 Ext = fi.Extension,
                 Name = fi.Name,
-                Md5 = fileMd5
+                Md5 = fileMd5,
+                Type = "client"
             });
 
             return returnPath;
@@ -429,6 +432,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     Ext = fileInfo.Extension,
                     Name = fileInfo.Name,
                     Md5 = fileMd5,
+                    Type = "client"
                 });
                 //await CopyFileAsync(save_file, path);
 
@@ -444,7 +448,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         /// <param name="fileName"></param>
         /// <param name="adminId"></param>
         /// <returns></returns>
-        public async Task<bool> FileMerge(string lastModified, string fileName, string adminId = "", string connId = "")
+        public async Task<bool> FileMerge(string lastModified, string fileName, string accountId = "", string connId = "")
         {
             bool ok = false;
             try
@@ -486,8 +490,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     Name = fileName,
                     Ext = fileExt,
                     Size = fileSize,
+                    Type = "client",
                     Path = path,
-                    AccountId = adminId,
+                    AccountId = accountId,
                     ConnId = connId,
                     Md5 = fileMd5
                 };
@@ -523,7 +528,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             }
             else
             {
-                Logger.Error("远程连接建立失败");
+                Assistant.Logger.Error("远程连接建立失败");
             }
         }
 
