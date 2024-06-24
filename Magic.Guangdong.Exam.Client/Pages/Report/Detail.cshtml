@@ -45,7 +45,7 @@
     let outTradeNo = getUrlQueryParams('outTradeNo');
     let url = '/report/GetReportDetailForClient';
     let requestParma = { reportId: reportId };
-    if (!reportId && outTradeNo) {
+    if (!reportId || outTradeNo) {
         url = '/report/GetReportDetailByOutTradeNoForClient';
         requestParma = { outTradeNo: outTradeNo };
     }
@@ -67,8 +67,11 @@
    
     function renderPage(data) {
         let reportItem = data.reportInfo;
+
         let lastCheckHistory = data.lastCheckHistory;
         let attachmentInfo = data.attachmentInfo;
+
+        reportId = reportItem.reportId;
         if (reportItem.reportStatus == 1) {
             $('#success').remove();
             $('#error').show();
@@ -76,7 +79,7 @@
             return;
         }
         practiceDto.examId=reportItem.examId;
-
+        practiceDto.reportId=reportItem.reportId;
         jHtmlSet('reportNumber', reportItem.reportNumber);
         //jHtmlSet('subject', `${reportItem.title}(${reportItem.associationTitle})`);
         jHtmlSet('startTime', convertDateFormat(reportItem.startTime, 'yyyy/MM/dd HH:mm:ss'));

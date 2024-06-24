@@ -9,14 +9,24 @@
         height: 100%; /* 或任何你喜欢的高度 */
         overflow: hidden;
         cursor: pointer;
+        text-align:center;
     }
 
     #preview-image {
+        width: auto;
+        height: 300px; /* 或任何你喜欢的高度 */
+        max-height: 419px;
+        /* object-fit: cover; */
+    }
+
+    #canvas {
         width: 100%;
         height: auto; /* 或任何你喜欢的高度 */
         max-height: 400px;
         /* object-fit: cover; */
     }
+
+
 </style>
 <main class="container">
     <h2>活动报名</h2>
@@ -48,7 +58,7 @@
 
 
         <article id="reportInfoArea">
-            <div class="grid">
+            <div class="grid" id="baseInfo">
                 <div>
                     <label>
                         姓名
@@ -78,16 +88,13 @@
                     </fieldset>
                     <small id="invalid-helper"></small>
 
-                    <label>联系方式</label>
-                    <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
                 </div>
                 <div>
                     <label>证件照</label>
                     <div class="upload-preview-container">
                         <img id="preview-image" src="/img/preview.jpg" alt="预览图片" onclick="this.parentElement.querySelector('input[type=file]').click()">
-                        @* <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="previewImage(event)"> *@
                         <input type="file" id="file-upload" accept="image/*" style="display: none;">
-                        <canvas id="canvas" style="width: 100%;background-color: #000000;"></canvas>
+                        <input type="hidden" id="photo" name="Photo" />
                     </div>
                 </div>
             </div>
@@ -110,6 +117,8 @@
             </fieldset>
             <small id="invalid-helper-email" class="pico-color-red-550"></small>
 
+            <label>联系方式</label>
+            <input type="tel" id="Mobile" name="Mobile" placeholder="输入您的联系方式" aria-label="Tel" autocomplete="tel" required />
             <label>
                 地址
             </label>
@@ -283,6 +292,7 @@
     let activityId = getUrlQueryParams('id');
     let examModel = {};
     let cardType;
+    let faceDetectResult = '';
     axios.get('/activity/getactivity', {
         params: {
             id: activityId
@@ -425,8 +435,13 @@
             TT.error('工作单位需要填写');
             return;
         }
+        if (faceDetectResult === '') {
+            TT.error('请上传头像');
+            return;
+        }
         formData.AccountId = accountId;
         formData.ActivityId = activityId;
+        formData.Photo = faceDetectResult;
         //formData.__RequestVerificationToken = requestToken;
         console.log(JSON.stringify(formData));
         $('#submitInfo').hide();
@@ -595,10 +610,13 @@
         previewId: 'preview-image',
         size: 1024 * 2,
         progressId: '',
-        canvas: 'canvas',
-        callback: function (res) {
-            // $('#tmpPreview').attr('src', res.data).attr('width', '120px').show();
-            // $('#Url').val(res.data)
+        //canvas: 'canvas',
+        callback: async function (res) {
+            let result = document.getElementById('preview-image').src;
+            faceDetectResult = '';
+            if (await faceDetect(result)) {
+                faceDetectResult = res.data;
+            }
         }
     }
     initUploadFilePro(fileUpObj);
@@ -608,104 +626,25 @@
             "image": base64,
             "image_type": "BASE64",
         }
-        let params = {
-            "__RequestVerificationToken": token,
-            "model": faceModel
-        };
         let formData = new FormData();
         formData.append('__RequestVerificationToken', requestToken);
-        formData.append('model', params)
+        formData.append('str', JSON.stringify(faceModel))
 
-        let json = await request('POST', '/face/facedetect', formData, CT);
-        if (json.code == 0) {
-            $("#canvas").show();
-            $("video").hide();
+        let json = await request('POST', '/face/faceDetectStr', formData, CT);
+        console.log(json);
+
+        if (json.code != 0) {
+            TT.error(json.msg);
+            return false;
         }
+        let detectJson = JSON.parse(json.data);
+        if (detectJson.error_code != 0) {
+            TT.error('照片不合规，'+detectJson.error_msg);
+            return false;
+        }
+        TT.info('图片合格');
+        return true;
     }
 
-    //写入图片检测信息
-    function drawFaceInfo(faceInfo) {
-        return new Promise(resolve => {
-            let unpassCnt = 0;
-            let canvas = document.getElementById("canvas");
-            let context = canvas.getContext("2d");
-            context.strokeStyle = "#1E9FFF";
-            context.lineWidth = 4;
-            let location = faceInfo.location;
-            //context.rotate(0.01*location.rotation);暂时不要旋转了，转完了清空太麻烦
-            context.strokeRect(location.left, location.top, location.width, location.height);
-            context.font = 'bolder 14px Microsoft YaHei';
-            context.textAlign = 'left';
-            context.textBaseline = 'bottom';
-            let left = 5;
-            let top = 18;
-            let i = 1;
-            context.fillStyle = '#009688';
-            context.fillText(faceInfo.face_token.substr(0, faceInfo.face_token.length / 2) + "***", left, top);
-            if (faceInfo.gender.type == "male")
-                context.fillText('男', left, top + 16 * i);
-            else
-                context.fillText('女', left, top + 16 * i);
-            i++;
-            if (faceInfo.expression.type == "smile" || faceInfo.expression.type == "laugh") {
-                context.fillText('有笑容', left, top + 16 * i);
-                i++;
-            }
-            if (faceInfo.age) {
-                context.fillText('约' + faceInfo.age + '岁', left, top + 16 * i);
-                i++;
-            }
-
-            if (faceInfo.glasses.type == "none")
-                context.fillText('无眼镜', left, top + 16 * i);
-            else if (faceInfo.glasses.type == "common")
-                context.fillText('普通眼镜', left, top + 16 * i);
-            else
-                context.fillText('墨镜', left, top + 16 * i);
-            i++;
-
-            if (faceInfo.quality.completeness > 0.9) {
-                context.fillText("面部完整", left, top + 16 * i);
-            }
-            else {
-                context.fillStyle = '#FF5722';
-                context.fillText("面部不完整", left, top + 16 * i);
-                unpassCnt++;
-            }
-            i++;
-            if (faceInfo.quality.blur < 0.7) {
-                context.fillStyle = '#009688';
-                context.fillText("图像清晰", left, top + 16 * i);
-
-            } else {
-                context.fillStyle = '#FF5722';
-                context.fillText("模糊", left, top + 16 * i);
-                unpassCnt++;
-            }
-            i++;
-            if (faceInfo.quality.illumination > 40) {
-                context.fillStyle = '#009688';
-                context.fillText("光线好", left, top + 16 * i);
-
-            } else {
-                context.fillStyle = '#FF5722';
-                context.fillText("光线差", left, top + 16 * i);
-                unpassCnt++;
-            }
-            i++;
-            if (faceInfo.mask.type == 1) {
-                context.fillText('佩戴口罩', left, top + 16 * i);
-                //i++;
-            } else
-                context.fillText('未佩戴口罩', left, top + 16 * i);
-
-            if (unpassCnt > 1)
-                resolve(false);
-            else
-                resolve(true);
-
-        })
-
-    }
-
+    
 </script>

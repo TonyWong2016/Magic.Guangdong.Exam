@@ -310,16 +310,7 @@ function initUploadFilePro(obj) {
                 }
                 if (obj.previewId) {
                     document.getElementById(obj.previewId).src = result;
-                    if (obj.canvas) {
-                        // 获取canvas元素
-                        let canvas = document.getElementById(obj.canvas);
-                        // 获取绘图上下文
-                        let ctx = canvas.getContext('2d');
-                        let img = new Image();
-                        img.src = result;
-                        // 将图片绘制到canvas上
-                        ctx.drawImage(img, 0, 0, document.getElementById(obj.previewId).width, document.getElementById(obj.previewId).height);
-                    }
+                    
                 }
                 
             });

@@ -48,6 +48,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         /// 生成一个订单号返回到前台
         /// </summary>
         public string OrderTradeNumber { get; set; }
+
+        public string Photo { get; set; }
     }
 
     public class GetReportListDto

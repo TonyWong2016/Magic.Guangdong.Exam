@@ -1,4 +1,6 @@
-﻿using Magic.Guangdong.Assistant.CloudModels;
+﻿using EasyCaching.Core;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Entities;
@@ -13,10 +15,12 @@ namespace Magic.Guangdong.Exam.Client.Controllers
     {
         private readonly IBaiduFaceHelper _baiduFaceHelper;
         private readonly IResponseHelper _resp;
-        public FaceController(IBaiduFaceHelper baiduFaceHelper,IResponseHelper responseHelper)
+        private readonly IRedisCachingProvider _redisCachingProvider;
+        public FaceController(IBaiduFaceHelper baiduFaceHelper,IResponseHelper responseHelper,IRedisCachingProvider redisCachingProvider)
         {
             _baiduFaceHelper = baiduFaceHelper;
             _resp = responseHelper;
+            _redisCachingProvider = redisCachingProvider;
         }
         public IActionResult Index()
         {
@@ -33,6 +37,18 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> faceDetect(FaceDetect model)
         {
             return Json(_resp.success(await _baiduFaceHelper.faceDetect(model)));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> faceDetectStr(string str)
+        {
+            var model = JsonHelper.JsonDeserialize<FaceDetect>(str);
+            if (model != null)
+            {
+                return Json(_resp.success(await _baiduFaceHelper.faceDetect(model)));
+            }
+            return Json(_resp.error("参数错误"));
         }
 
         [HttpPost]

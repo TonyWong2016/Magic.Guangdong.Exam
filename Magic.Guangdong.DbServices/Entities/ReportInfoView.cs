@@ -96,6 +96,12 @@ namespace Magic.Guangdong.DbServices.Entities {
         [JsonProperty]
         public int TestedTime { get; set; }
 
+        /// <summary>
+        /// 照片地址
+        /// </summary>
+        [JsonProperty, Column(StringLength = 350)]
+        public string Photo { get; set; }
+
     }
 
 }

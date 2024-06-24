@@ -1,5 +1,6 @@
 ﻿using FreeSql.DataAnnotations;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Entities
@@ -79,6 +80,12 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty]
 		public int IsDeleted { get; set; } = 0;
+
+		/// <summary>
+		/// 照片地址
+		/// </summary>
+		[JsonProperty, Column(StringLength = 350)]
+		public string Photo { get; set; }
         
     }
 
