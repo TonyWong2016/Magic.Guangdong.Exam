@@ -1,0 +1,129 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-container" style="padding:15px">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="importForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.AntiForgeryToken()
+            <div class="layui-form-item normalField">
+                <label class="layui-form-label">归属活动</label>
+                <div class="layui-input-block">
+                    <select id="ActivityId" lay-filter="ActivityId">
+                        <option value="">请选择归属活动(如果有)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item normalField">
+                <label class="layui-form-label">归属考试</label>
+                <div class="layui-input-block">
+                    <select id="examId" lay-filter="examId">
+                        <option value="">请选择归属考试(如果有)</option>
+
+                    </select>
+                </div>
+            </div>
+
+           
+            <div class="layui-form-item">
+                <label class="layui-form-label">证书模板</label>
+                <div class="layui-input-inline" style="width:55%">
+                    <select id="templateId" lay-filter="templateId">
+                        <option value="">请选择对应模板</option>
+
+                    </select>
+                </div>
+                <input type="checkbox" name="showcommon" lay-filter="showcommon" title="显示公用模板(对赛区管理员有效)" lay-skin="primary">
+
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">编号长度</label>
+                <div class="layui-input-block">
+                    <select layfilter="selectCertNumLength" name="certNumLength" id="certNumLength" class="importData" lay-verify="required" required>
+                        <option value="">请选择编号长度(不足位数将在前面补0，不含前缀)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                    <br />
+                    <blockquote class="layui-elem-quote">设置的编号长度要结合获奖人数来设置，比如有100人获奖，则需要将长度设置为3以上，否则导入将会失败</blockquote>
+
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">编号前缀</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="text" name="certNumPrefix" id="certNumPrefix" placeholder="请输入编号前缀（将在序号前增加的前缀，没有可为空）" />
+                    <br />
+                    <blockquote class="layui-elem-quote">前缀将追加在编号前方，如前缀设置成2021，长度设置成3，则最终的编号为2021001，不设置则最终编号就是001</blockquote>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">证书标题</label>
+                <div class="layui-input-block">
+                    <input class="layui-input importData" type="text" name="title" id="title" placeholder="请输入证书标题" lay-verify="required" required />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">证书格式</label>
+                <div class="layui-input-block">
+                    <select lay-verify="required" id="type" name="type" required class="importData">
+                        <option value="1">图片(JPG,推荐) </option>
+                        @* <option value="2">PDF(生成pdf类型证书要提前确认尺寸，大小最好是A4等可打印尺寸) </option> *@
+                    </select>
+                </div>
+
+            </div>
+            <input type="hidden" name="path" id="path" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">展示状态</label>
+                <div class="layui-input-block">
+                    <select lay-verify="required" id="status" name="status" required class="importData">
+                        <option value="1">展示</option>
+                        <option value="2">暂不展示</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item" style="display:none" id="divForce">
+                <label class="layui-form-label">强制颁发</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="isForce" id="isForce" lay-filter="isForce" lay-skin="switch" lay-text="ON|OFF" />
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="margin-left:-130px;color:red!important">注意：强制颁发后，将不验证是否通过决赛审核，颁发门槛降低到和选拔赛证书一致</div>
+            </div>
+
+            <div class="layui-form-item">
+                @*<a class="layui-btn layui-btn-primary" href="javascript:;" onclick="DownloadTemplate()" id="btnDownloadTemplate">下载模板</a>*@
+                <a class="layui-btn" href="javascript:;" id="btnUpload" style="display:none">上传</a>
+                <a class="layui-btn layui-btn-disabled" href="javascript:;" id="btnUploadDisable">上传</a>
+                <div class="layui-input-inline layui-progress layui-progress-big" style="margin-top:8px;width:20%;display:none" id="progressBar" lay-filter="progressBar" lay-showPercent="true">
+                    <div class="layui-progress-bar  layui-bg-blue" lay-percent="0%"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/html" id="selectTplCurr">
+    <option value=0>请选择证书模板</option>
+    {{# layui.each(d,function(index,item){}}
+    <option value="{{ item.value }}">{{item.text}}</option>
+    {{# }) }}
+</script>
+<script src="~/plugins/fcup2/fcup.min.js"></script>
+<script src="~/web/myfcup.js"></script>
+<script>
+    let form = layui.form;
+    let activityId = '0';
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
+        .then(v => {
+            form.render('select')
+        })
+    form.on('select(ActivityId)', (data) => {
+        activityId = data.value        
+    })
+</script>

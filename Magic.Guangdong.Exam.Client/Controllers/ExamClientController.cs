@@ -1,19 +1,13 @@
-﻿using Coravel.Cache;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using OfficeOpenXml.FormulaParsing.Utilities;
-using System;
-using System.Drawing.Printing;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
