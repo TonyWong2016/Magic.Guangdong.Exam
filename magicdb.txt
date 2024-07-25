@@ -1,0 +1,3092 @@
+USE [Magic.Guangdong.Exam]
+GO
+/****** Object:  Schema [cap]    Script Date: 2024-07-25 10:16:18 ******/
+CREATE SCHEMA [cap]
+GO
+/****** Object:  Table [dbo].[Order]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Order](
+	[Id] [uniqueidentifier] NOT NULL,
+	[AccountId] [varchar](50) NOT NULL,
+	[PayType] [int] NOT NULL,
+	[PayTime] [varchar](50) NULL,
+	[Status] [int] NULL,
+	[Expenses] [money] NOT NULL,
+	[TradeNo] [varchar](100) NULL,
+	[InvoiceId] [bigint] NOT NULL,
+	[Remark] [nvarchar](50) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Subject] [nvarchar](150) NULL,
+	[OutTradeNo] [varchar](100) NULL,
+	[ExpiredTime] [datetime] NULL,
+	[RefundNo] [varchar](100) NULL,
+	[ReportId] [bigint] NOT NULL,
+ CONSTRAINT [PK_Order] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Examination]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Examination](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Title] [varchar](200) NOT NULL,
+	[Description] [nvarchar](1500) NULL,
+	[AssociationId] [varchar](50) NOT NULL,
+	[AssociationTitle] [varchar](100) NOT NULL,
+	[ExtraInfo] [varchar](2000) NULL,
+	[Remark] [nvarchar](500) NULL,
+	[StartTime] [datetime] NOT NULL,
+	[EndTime] [datetime] NOT NULL,
+	[BaseScore] [float] NOT NULL,
+	[BaseDuration] [float] NOT NULL,
+	[ExamType] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Status] [int] NOT NULL,
+	[OrderIndex] [int] NOT NULL,
+	[GroupCode] [varchar](50) NULL,
+	[IsStrict] [int] NOT NULL,
+	[Expenses] [money] NOT NULL,
+	[Quota] [int] NOT NULL,
+	[Address] [nvarchar](500) NULL,
+	[Audit] [int] NOT NULL,
+	[AttachmentId] [uniqueidentifier] NULL,
+	[MarkStatus] [int] NOT NULL,
+ CONSTRAINT [PK_Examination] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportProcess]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportProcess](
+	[Id] [bigint] NOT NULL,
+	[ActivityId] [bigint] NOT NULL,
+	[Status] [int] NOT NULL,
+	[Step] [int] NOT NULL,
+	[AccountId] [varchar](50) NOT NULL,
+	[ExamId] [uniqueidentifier] NULL,
+	[ReportId] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[OrderId] [uniqueidentifier] NULL,
+	[TestedTime] [int] NOT NULL,
+ CONSTRAINT [PK_ActivityReport] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[ReportOrderView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[ReportOrderView]
+AS
+SELECT   dbo.ReportProcess.Id, dbo.ReportProcess.ActivityId, dbo.ReportProcess.Status AS ReportStatus, 
+                dbo.ReportProcess.Step, dbo.ReportProcess.AccountId, dbo.ReportProcess.ExamId, dbo.ReportProcess.ReportId, 
+                dbo.ReportProcess.CreatedAt, dbo.ReportProcess.UpdatedAt, dbo.ReportProcess.OrderId, dbo.[Order].Subject, 
+                dbo.[Order].OutTradeNo, dbo.[Order].InvoiceId, dbo.[Order].Expenses, dbo.[Order].PayType, dbo.[Order].PayTime, 
+                dbo.[Order].Status AS OrderStatus, dbo.[Order].CreatedAt AS OrderCreatedAt, dbo.[Order].ExpiredTime, 
+                dbo.ReportProcess.TestedTime, dbo.Examination.Title AS ExamTitle, dbo.Examination.AssociationTitle AS AcitivityTitle, 
+                dbo.Examination.ExamType, dbo.Examination.Audit
+FROM      dbo.ReportProcess INNER JOIN
+                dbo.[Order] ON dbo.ReportProcess.OrderId = dbo.[Order].Id INNER JOIN
+                dbo.Examination ON dbo.ReportProcess.ExamId = dbo.Examination.Id
+WHERE   (dbo.[Order].IsDeleted = 0)
+GO
+/****** Object:  Table [dbo].[Province]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Province](
+	[Id] [int] NOT NULL,
+	[ProvinceName] [nvarchar](20) NOT NULL,
+	[ProvinceCode] [nvarchar](10) NOT NULL,
+	[ProvinceShortName] [nvarchar](15) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_Province] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[City]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[City](
+	[Id] [int] NOT NULL,
+	[CityName] [nvarchar](15) NOT NULL,
+	[ProvinceId] [int] NOT NULL,
+	[Status] [int] NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_City] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[District]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[District](
+	[Id] [int] NOT NULL,
+	[DistrictName] [nvarchar](50) NOT NULL,
+	[CityId] [int] NOT NULL,
+	[Status] [int] NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_District] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportInfo]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportInfo](
+	[Id] [bigint] NOT NULL,
+	[AccountId] [varchar](50) NOT NULL,
+	[ActivityId] [bigint] NOT NULL,
+	[ProvinceId] [int] NOT NULL,
+	[CityId] [int] NOT NULL,
+	[DistrictId] [int] NULL,
+	[Email] [varchar](150) NOT NULL,
+	[ExamId] [uniqueidentifier] NULL,
+	[IdCard] [varchar](50) NOT NULL,
+	[Job] [nvarchar](500) NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[OtherInfo] [nvarchar](500) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[UnitId] [bigint] NOT NULL,
+	[Address] [nvarchar](200) NULL,
+	[Mobile] [varchar](50) NOT NULL,
+	[CardType] [int] NOT NULL,
+	[ConnAvailable] [int] NOT NULL,
+	[ReportNumber] [varchar](50) NULL,
+	[FileId] [bigint] NOT NULL,
+	[Photo] [varchar](350) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[ReportInfoView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[ReportInfoView]
+AS
+SELECT   dbo.ReportInfo.Id, dbo.ReportInfo.AccountId, dbo.ReportInfo.ActivityId, dbo.ReportInfo.ProvinceId, dbo.ReportInfo.CityId, 
+                dbo.ReportInfo.DistrictId, dbo.Province.ProvinceName, dbo.City.CityName, dbo.District.DistrictName, 
+                dbo.ReportInfo.Email, dbo.ReportInfo.ExamId, dbo.ReportInfo.IdCard, dbo.ReportInfo.Job, dbo.ReportInfo.Name, 
+                dbo.ReportInfo.OtherInfo, dbo.ReportInfo.Address, dbo.ReportInfo.Mobile, dbo.ReportInfo.CardType, 
+                dbo.ReportInfo.ConnAvailable, dbo.ReportInfo.ReportNumber, dbo.ReportInfo.CreatedAt, dbo.ReportInfo.FileId, 
+                dbo.ReportProcess.Status AS ReportStatus, dbo.ReportProcess.Step AS ReportStep, dbo.ReportProcess.OrderId, 
+                dbo.ReportProcess.TestedTime
+FROM      dbo.City RIGHT OUTER JOIN
+                dbo.Province RIGHT OUTER JOIN
+                dbo.ReportInfo INNER JOIN
+                dbo.ReportProcess ON dbo.ReportInfo.Id = dbo.ReportProcess.ReportId ON 
+                dbo.Province.Id = dbo.ReportInfo.ProvinceId ON dbo.City.Id = dbo.ReportInfo.CityId LEFT OUTER JOIN
+                dbo.District ON dbo.ReportInfo.DistrictId = dbo.District.Id
+GO
+/****** Object:  View [dbo].[CityView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[CityView]
+AS
+SELECT   dbo.City.Id, dbo.City.CityName, dbo.City.ProvinceId, dbo.City.Status, dbo.City.CreatedAt, dbo.City.UpdatedAt, 
+                dbo.City.IsDeleted, dbo.Province.ProvinceShortName
+FROM      dbo.City INNER JOIN
+                dbo.Province ON dbo.City.ProvinceId = dbo.Province.Id
+GO
+/****** Object:  View [dbo].[DistrictView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[DistrictView]
+AS
+SELECT   dbo.District.Id, dbo.District.CityId, dbo.District.Status, dbo.District.CreatedAt, dbo.District.UpdatedAt, 
+                dbo.District.IsDeleted, dbo.City.ProvinceId, dbo.Province.ProvinceShortName, dbo.City.CityName, 
+                dbo.District.DistrictName
+FROM      dbo.District INNER JOIN
+                dbo.City ON dbo.District.CityId = dbo.City.Id INNER JOIN
+                dbo.Province ON dbo.City.ProvinceId = dbo.Province.Id
+WHERE   (dbo.District.IsDeleted = 0)
+GO
+/****** Object:  Table [dbo].[UnitInfo]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UnitInfo](
+	[Id] [bigint] NOT NULL,
+	[UnitNo] [nvarchar](50) NULL,
+	[UnitCaption] [nvarchar](100) NOT NULL,
+	[UnitType] [int] NOT NULL,
+	[ProvinceId] [int] NOT NULL,
+	[CityId] [int] NOT NULL,
+	[Address] [nvarchar](50) NULL,
+	[PostCode] [nvarchar](6) NULL,
+	[Telephone] [nvarchar](20) NULL,
+	[Fax] [nvarchar](20) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[Status] [int] NOT NULL,
+	[UnitStatus] [int] NOT NULL,
+	[UnitUrl] [nvarchar](100) NULL,
+	[UnitIntroduction] [nvarchar](max) NULL,
+	[DistrictId] [int] NOT NULL,
+	[OrganizationCode] [nvarchar](100) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NOT NULL,
+	[LegalPerson] [nvarchar](50) NOT NULL,
+	[OriginNo] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_UnitInfo] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[UnitInfoView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[UnitInfoView]
+AS
+SELECT   dbo.UnitInfo.Id, dbo.UnitInfo.UnitNo, dbo.UnitInfo.UnitCaption, dbo.UnitInfo.UnitType, dbo.UnitInfo.ProvinceId, 
+                dbo.UnitInfo.CityId, dbo.UnitInfo.Address, dbo.UnitInfo.PostCode, dbo.UnitInfo.Telephone, dbo.UnitInfo.Fax, 
+                dbo.UnitInfo.UnitUrl, dbo.UnitInfo.UnitIntroduction, dbo.UnitInfo.Status, dbo.UnitInfo.DistrictId, 
+                dbo.UnitInfo.OrganizationCode, dbo.UnitInfo.IsDeleted, dbo.UnitInfo.UpdatedAt, dbo.UnitInfo.CreatedAt, 
+                dbo.UnitInfo.UnitStatus, dbo.UnitInfo.LegalPerson, dbo.CityView.CityName, dbo.CityView.ProvinceId AS Expr1, 
+                dbo.CityView.ProvinceShortName, dbo.UnitInfo.OriginNo
+FROM      dbo.UnitInfo INNER JOIN
+                dbo.CityView ON dbo.UnitInfo.CityId = dbo.CityView.Id
+WHERE   (dbo.UnitInfo.IsDeleted = 0)
+GO
+/****** Object:  View [dbo].[ReportExamView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[ReportExamView]
+AS
+SELECT   dbo.Examination.Id AS ExamId, dbo.Examination.Title, dbo.Examination.Description, dbo.Examination.AssociationId, 
+                dbo.Examination.AssociationTitle, dbo.Examination.ExtraInfo, dbo.Examination.Remark, dbo.Examination.StartTime, 
+                dbo.Examination.EndTime, dbo.Examination.BaseScore, dbo.Examination.BaseDuration, dbo.Examination.ExamType, 
+                dbo.Examination.Status, dbo.Examination.OrderIndex, dbo.Examination.GroupCode, dbo.Examination.IsStrict, 
+                dbo.Examination.Expenses, dbo.Examination.Quota, dbo.Examination.Address AS ExamAddress, 
+                dbo.Examination.Audit, dbo.ReportInfo.Id AS ReportId, dbo.ReportInfo.AccountId, dbo.ReportInfo.Email, 
+                dbo.ReportInfo.Name, dbo.ReportInfo.IdCard, dbo.ReportInfo.Mobile, dbo.ReportInfo.CardType, 
+                dbo.ReportInfo.ReportNumber, dbo.ReportInfo.FileId, dbo.ReportInfo.CreatedAt AS ReportTime, 
+                dbo.ReportProcess.Status AS ReportStatus, dbo.ReportProcess.Step AS ReportStep, dbo.ReportProcess.OrderId, 
+                dbo.ReportProcess.TestedTime
+FROM      dbo.ReportProcess INNER JOIN
+                dbo.ReportInfo ON dbo.ReportProcess.ReportId = dbo.ReportInfo.Id LEFT OUTER JOIN
+                dbo.Examination ON dbo.ReportInfo.ExamId = dbo.Examination.Id
+GO
+/****** Object:  Table [dbo].[Question]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Question](
+	[Id] [bigint] NOT NULL,
+	[Title] [nvarchar](max) NULL,
+	[TitleText] [nvarchar](500) NULL,
+	[Analysis] [nvarchar](max) NULL,
+	[TypeId] [uniqueidentifier] NOT NULL,
+	[SubjectId] [uniqueidentifier] NOT NULL,
+	[Remark] [nvarchar](150) NULL,
+	[Author] [nvarchar](50) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Score] [float] NOT NULL,
+	[Degree] [varchar](20) NOT NULL,
+	[IsOpen] [int] NOT NULL,
+	[ActivityId] [bigint] NULL,
+ CONSTRAINT [PK_Question] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Subject]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Subject](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Caption] [nvarchar](150) NULL,
+	[Remark] [nvarchar](200) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NULL,
+ CONSTRAINT [PK_Subject] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[QuestionType]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[QuestionType](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Caption] [varchar](100) NULL,
+	[Remark] [varchar](200) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[Objective] [int] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NULL,
+	[SingleAnswer] [int] NULL,
+ CONSTRAINT [PK_QuestionType] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[QuestionView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[QuestionView]
+AS
+SELECT   dbo.Question.Id, dbo.Question.Title, dbo.Question.TitleText, dbo.Question.Analysis, dbo.Question.TypeId, 
+                dbo.Question.SubjectId, dbo.Question.Remark, dbo.Question.Author, dbo.Question.CreatedAt, dbo.Question.CreatedBy, 
+                dbo.Question.UpdatedAt, dbo.Question.UpdatedBy, dbo.Question.Score, dbo.Question.Degree, dbo.Question.IsOpen, 
+                dbo.Question.IsDeleted, dbo.Subject.Caption AS SubjectName, dbo.QuestionType.Caption AS TypeName, 
+                dbo.QuestionType.Objective, dbo.QuestionType.SingleAnswer, dbo.Question.ActivityId
+FROM      dbo.Question INNER JOIN
+                dbo.Subject ON dbo.Question.SubjectId = dbo.Subject.Id LEFT OUTER JOIN
+                dbo.QuestionType ON dbo.Question.TypeId = dbo.QuestionType.Id
+GO
+/****** Object:  Table [dbo].[Paper]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Paper](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Title] [varchar](150) NULL,
+	[Remark] [varchar](500) NULL,
+	[Status] [int] NOT NULL,
+	[ExamId] [uniqueidentifier] NOT NULL,
+	[Score] [float] NOT NULL,
+	[Duration] [float] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[QuestionDetailJson] [varchar](max) NULL,
+	[OpenResult] [int] NOT NULL,
+	[PaperType] [int] NULL,
+	[PaperDegree] [varchar](100) NOT NULL,
+ CONSTRAINT [PK_Paper] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserAnswerRecord]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserAnswerRecord](
+	[Id] [bigint] NOT NULL,
+	[AccountId] [varchar](100) NOT NULL,
+	[UserName] [varchar](150) NULL,
+	[PaperId] [uniqueidentifier] NOT NULL,
+	[ExamId] [uniqueidentifier] NOT NULL,
+	[SubmitAnswer] [varchar](max) NOT NULL,
+	[Remark] [varchar](1000) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[CheatCnt] [int] NOT NULL,
+	[Complated] [int] NOT NULL,
+	[ComplatedMode] [int] NOT NULL,
+	[ObjectiveScore] [float] NOT NULL,
+	[Score] [float] NOT NULL,
+	[IdNumber] [varchar](100) NOT NULL,
+	[ReportId] [bigint] NOT NULL,
+	[UsedTime] [float] NOT NULL,
+	[LimitedTime] [datetime] NOT NULL,
+	[Marked] [int] NOT NULL,
+	[Stage] [int] NOT NULL,
+ CONSTRAINT [PK_UserAnswerRecord] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[UserAnswerRecordView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[UserAnswerRecordView]
+AS
+SELECT   dbo.UserAnswerRecord.Id, dbo.UserAnswerRecord.PaperId, dbo.UserAnswerRecord.ExamId, 
+                dbo.UserAnswerRecord.SubmitAnswer, dbo.UserAnswerRecord.Remark, dbo.UserAnswerRecord.CreatedAt, 
+                dbo.UserAnswerRecord.CheatCnt, dbo.UserAnswerRecord.Complated, dbo.UserAnswerRecord.ComplatedMode, 
+                dbo.UserAnswerRecord.Score, dbo.UserAnswerRecord.IdNumber, dbo.UserAnswerRecord.ReportId, 
+                dbo.UserAnswerRecord.UsedTime, dbo.UserAnswerRecord.LimitedTime, dbo.UserAnswerRecord.Marked, 
+                dbo.Paper.Title AS PaperTitle, dbo.Paper.Duration AS PaperDuration, dbo.Paper.PaperDegree, dbo.Paper.PaperType, 
+                dbo.Paper.OpenResult, dbo.Paper.Status AS PaperStatus, dbo.Paper.CreatedAt AS PaperCreatedAt, 
+                dbo.Examination.Title AS ExamTitle, dbo.Examination.AssociationId, dbo.Examination.AssociationTitle, 
+                dbo.Examination.StartTime, dbo.Examination.EndTime, dbo.Examination.ExamType, 
+                dbo.Examination.Status AS ExamStatus, dbo.Examination.GroupCode, dbo.Examination.IsStrict, 
+                dbo.UserAnswerRecord.Stage, dbo.ReportInfo.Name, dbo.ReportInfo.Mobile, dbo.ReportInfo.CardType, 
+                dbo.ReportInfo.ReportNumber, dbo.ReportInfo.Email, dbo.ReportInfo.IdCard, dbo.UserAnswerRecord.IsDeleted, 
+                dbo.UserAnswerRecord.AccountId, dbo.UserAnswerRecord.UpdatedBy, dbo.UserAnswerRecord.UpdatedAt, 
+                dbo.UserAnswerRecord.CreatedBy, dbo.Paper.Score AS PaperScore, dbo.Examination.AttachmentId, 
+                dbo.UserAnswerRecord.ObjectiveScore, dbo.Examination.MarkStatus
+FROM      dbo.ReportInfo RIGHT OUTER JOIN
+                dbo.UserAnswerRecord ON dbo.ReportInfo.Id = dbo.UserAnswerRecord.ReportId LEFT OUTER JOIN
+                dbo.Paper ON dbo.UserAnswerRecord.PaperId = dbo.Paper.Id LEFT OUTER JOIN
+                dbo.Examination ON dbo.UserAnswerRecord.ExamId = dbo.Examination.Id
+GO
+/****** Object:  Table [dbo].[Teacher]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Teacher](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Intro] [nvarchar](500) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[TeachNo] [varchar](50) NOT NULL,
+	[Mobile] [varchar](50) NULL,
+	[Email] [varchar](50) NOT NULL,
+	[KeyId] [varchar](100) NOT NULL,
+	[KeySecret] [varchar](100) NOT NULL,
+	[Password] [varchar](150) NOT NULL,
+	[Version] [varchar](20) NULL,
+ CONSTRAINT [PK_Teacher] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TeacherExamAssign]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TeacherExamAssign](
+	[Id] [bigint] NOT NULL,
+	[TeacherId] [uniqueidentifier] NOT NULL,
+	[ExamId] [uniqueidentifier] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_TeacherExamAssign] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[TeacherExamAssignView]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[TeacherExamAssignView]
+AS
+SELECT   dbo.TeacherExamAssign.Id, dbo.TeacherExamAssign.TeacherId, dbo.TeacherExamAssign.ExamId, 
+                dbo.TeacherExamAssign.IsDeleted, dbo.Teacher.Name AS TeacherName, dbo.Teacher.TeachNo, dbo.Teacher.Email, 
+                dbo.Teacher.Mobile, dbo.Examination.Title AS ExamTitle, dbo.Examination.StartTime AS ExamStartTime, 
+                dbo.Examination.EndTime AS ExamEndTime, dbo.Examination.ExamType, dbo.Examination.AttachmentId, 
+                dbo.Examination.Status AS ExamStatus, dbo.Examination.AssociationId, 
+                dbo.Examination.BaseDuration AS ExamLimitTime, dbo.Examination.MarkStatus
+FROM      dbo.Teacher INNER JOIN
+                dbo.TeacherExamAssign ON dbo.Teacher.Id = dbo.TeacherExamAssign.TeacherId INNER JOIN
+                dbo.Examination ON dbo.TeacherExamAssign.ExamId = dbo.Examination.Id
+GO
+/****** Object:  Table [cap].[Published]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [cap].[Published](
+	[Id] [bigint] NOT NULL,
+	[Version] [nvarchar](20) NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[Content] [nvarchar](max) NULL,
+	[Retries] [int] NOT NULL,
+	[Added] [datetime2](7) NOT NULL,
+	[ExpiresAt] [datetime2](7) NULL,
+	[StatusName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_cap.Published] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [cap].[Received]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [cap].[Received](
+	[Id] [bigint] NOT NULL,
+	[Version] [nvarchar](20) NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[Group] [nvarchar](200) NULL,
+	[Content] [nvarchar](max) NULL,
+	[Retries] [int] NOT NULL,
+	[Added] [datetime2](7) NOT NULL,
+	[ExpiresAt] [datetime2](7) NULL,
+	[StatusName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_cap.Received] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Activity]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Activity](
+	[Id] [bigint] NOT NULL,
+	[Title] [varchar](200) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[Status] [int] NOT NULL,
+	[StartTime] [datetime] NOT NULL,
+	[EndTime] [datetime] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[FieldJson] [varchar](4000) NULL,
+	[Cover] [varchar](500) NOT NULL,
+ CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Admin]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Admin](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Email] [varchar](150) NOT NULL,
+	[Mobile] [varchar](50) NOT NULL,
+	[Description] [nvarchar](300) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Password] [varchar](150) NOT NULL,
+	[KeySecret] [varchar](100) NOT NULL,
+	[KeyId] [varchar](100) NOT NULL,
+	[NickName] [nvarchar](100) NULL,
+	[Version] [varchar](20) NOT NULL,
+	[Status] [int] NOT NULL,
+	[AccountAvailable] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_Admin] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AdminLoginLog]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AdminLoginLog](
+	[Id] [bigint] NOT NULL,
+	[AdminId] [uniqueidentifier] NOT NULL,
+	[LoginTime] [datetime] NOT NULL,
+	[TokenVersion] [varchar](20) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[TokenHash] [varchar](50) NULL,
+ CONSTRAINT [PK_AdminLoginLog] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AdminRole]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AdminRole](
+	[Id] [bigint] NOT NULL,
+	[AdminId] [uniqueidentifier] NOT NULL,
+	[RoleId] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Cert]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Cert](
+	[Id] [bigint] NOT NULL,
+	[Url] [nvarchar](1000) NOT NULL,
+	[Title] [nvarchar](100) NOT NULL,
+	[AccountId] [varchar](100) NULL,
+	[AwardName] [nvarchar](150) NULL,
+	[TemplateId] [bigint] NULL,
+	[CertNo] [nvarchar](50) NOT NULL,
+	[ReportId] [bigint] NULL,
+	[Status] [int] NOT NULL,
+	[CertContent] [nvarchar](max) NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[ActivityId] [bigint] NULL,
+	[ExamId] [uniqueidentifier] NULL,
+	[IdNumber] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Cert] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CertTemplate]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CertTemplate](
+	[Id] [bigint] NOT NULL,
+	[Title] [nvarchar](100) NULL,
+	[Type] [int] NOT NULL,
+	[Url] [nvarchar](1000) NULL,
+	[ConfigJsonStrForPdf] [nvarchar](max) NULL,
+	[ConfigJsonStrForImg] [nvarchar](max) NULL,
+	[Remark] [varchar](500) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [nvarchar](100) NULL,
+	[Status] [int] NOT NULL,
+	[IsLock] [int] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[ActivityId] [bigint] NOT NULL,
+	[CanvasJson] [nvarchar](max) NULL,
+ CONSTRAINT [PK_Cert_Template] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Face]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Face](
+	[Id] [bigint] NOT NULL,
+	[faceToken] [varchar](50) NULL,
+	[faceInfo] [varchar](500) NULL,
+	[createdAt] [datetime] NOT NULL,
+	[updatedAt] [datetime] NOT NULL,
+	[groupId] [varchar](50) NULL,
+	[role] [varchar](20) NULL,
+	[userId] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_Face] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[File]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[File](
+	[Id] [bigint] NOT NULL,
+	[Name] [nvarchar](150) NOT NULL,
+	[Size] [bigint] NOT NULL,
+	[Type] [varchar](50) NOT NULL,
+	[Ext] [varchar](20) NOT NULL,
+	[AccountId] [varchar](80) NOT NULL,
+	[Path] [varchar](300) NOT NULL,
+	[ShortUrl] [varchar](300) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[ConnId] [varchar](50) NOT NULL,
+	[ConnName] [varchar](50) NOT NULL,
+	[Md5] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_File] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[KeyAction]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[KeyAction](
+	[Id] [bigint] NOT NULL,
+	[Action] [varchar](100) NOT NULL,
+	[AdminId] [uniqueidentifier] NOT NULL,
+	[Description] [varchar](2000) NULL,
+	[Router] [varchar](150) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[AccountId] [uniqueidentifier] NULL,
+	[Type] [int] NOT NULL,
+ CONSTRAINT [PK_KeyAction] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Menu]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Menu](
+	[Id] [bigint] NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Router] [varchar](200) NOT NULL,
+	[ParentId] [bigint] NOT NULL,
+	[Depth] [int] NOT NULL,
+	[IsLeef] [int] NOT NULL,
+	[Description] [varchar](200) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[PermissionId] [bigint] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[CreatorId] [uniqueidentifier] NOT NULL,
+	[Status] [int] NOT NULL,
+	[OrderIndex] [int] NOT NULL,
+ CONSTRAINT [PK_Menu] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Permission]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Permission](
+	[Id] [bigint] NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Description] [varchar](200) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[DataFilterJson] [varchar](500) NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[ParentId] [bigint] NOT NULL,
+	[Depth] [int] NOT NULL,
+	[Type] [int] NOT NULL,
+	[Area] [varchar](50) NOT NULL,
+	[Controller] [varchar](50) NOT NULL,
+	[Action] [varchar](50) NOT NULL,
+	[Status] [int] NOT NULL,
+	[Method] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_Permission] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[QuestionItem]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[QuestionItem](
+	[Id] [bigint] NOT NULL,
+	[Description] [nvarchar](1000) NULL,
+	[Code] [varchar](50) NULL,
+	[Remark] [nvarchar](150) NULL,
+	[Analysis] [nvarchar](500) NULL,
+	[IsOption] [int] NOT NULL,
+	[IsAnswer] [int] NOT NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[CreatdAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[DescriptionText] [nvarchar](500) NULL,
+	[OrderIndex] [int] NULL,
+ CONSTRAINT [PK_QuestionItem] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[QuestionTag]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[QuestionTag](
+	[Id] [bigint] NOT NULL,
+	[Title] [varchar](50) NULL,
+	[Remark] [varchar](150) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[PaperId] [uniqueidentifier] NOT NULL,
+ CONSTRAINT [PK_QuestionTag] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Relation]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Relation](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ExamId] [uniqueidentifier] NOT NULL,
+	[PaperId] [uniqueidentifier] NOT NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[Remark] [nvarchar](100) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[TagId] [bigint] NOT NULL,
+	[ItemScore] [float] NOT NULL,
+ CONSTRAINT [PK_Relation] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportAttribute]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportAttribute](
+	[Id] [bigint] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[ShortName] [nvarchar](50) NOT NULL,
+	[Limit] [nvarchar](500) NULL,
+	[Type] [varchar](50) NULL,
+	[ActivityId] [bigint] NOT NULL,
+	[FileId] [uniqueidentifier] NULL,
+	[DataSource] [varchar](50) NULL,
+	[DataFilterJson] [varchar](4000) NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_ReportAttribute] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportCheckHistory]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportCheckHistory](
+	[Id] [bigint] NOT NULL,
+	[ReportId] [bigint] NOT NULL,
+	[CheckStatus] [int] NOT NULL,
+	[CheckRemark] [nvarchar](200) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[AdminId] [varchar](80) NOT NULL,
+ CONSTRAINT [PK_ReportCheckHistory] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Role]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Role](
+	[Id] [bigint] NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Description] [varchar](50) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[Type] [int] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_Role] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RolePermission]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RolePermission](
+	[Id] [bigint] NOT NULL,
+	[RoleId] [bigint] NOT NULL,
+	[PremissionId] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_RolePermission] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SyncRecord]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SyncRecord](
+	[Id] [bigint] NOT NULL,
+	[Platform] [nvarchar](200) NOT NULL,
+	[TargetModel] [nvarchar](200) NULL,
+	[DestModel] [nvarchar](200) NULL,
+	[Usage] [nvarchar](500) NULL,
+	[Times] [int] NOT NULL,
+	[DataAmount] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+ CONSTRAINT [PK_SyncRecord] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TeacherLoginLog]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TeacherLoginLog](
+	[Id] [bigint] NOT NULL,
+	[TeacherId] [uniqueidentifier] NOT NULL,
+	[LoginTime] [datetime] NOT NULL,
+	[TokenVersion] [varchar](20) NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[TokenHash] [varchar](50) NULL,
+ CONSTRAINT [PK_TeacherLoginLog] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TeacherRecordAssign]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TeacherRecordAssign](
+	[Id] [bigint] NOT NULL,
+	[TeacherId] [uniqueidentifier] NOT NULL,
+	[RecordId] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+ CONSTRAINT [PK_TeacherRecordAssign] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TeacherRecordScoreLog]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TeacherRecordScoreLog](
+	[Id] [bigint] NOT NULL,
+	[TeacherId] [uniqueidentifier] NOT NULL,
+	[RecordId] [bigint] NOT NULL,
+	[SubjectiveScore] [float] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[ExamId] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_TeacherScoreLog] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TeacherRecordScoring]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TeacherRecordScoring](
+	[Id] [bigint] NOT NULL,
+	[TeacherId] [uniqueidentifier] NOT NULL,
+	[SubjectiveItemScore] [float] NOT NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[UserSubjectiveAnswer] [nvarchar](max) NULL,
+	[Remark] [nvarchar](500) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[RecordId] [bigint] NOT NULL,
+	[SubmitRecordId] [bigint] NOT NULL,
+ CONSTRAINT [PK_TeacherRecordScoring] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserAnswerSubmitLog]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserAnswerSubmitLog](
+	[Id] [bigint] NOT NULL,
+	[Urid] [bigint] NOT NULL,
+	[SubmitAnswer] [varchar](max) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[ComplatedMode] [int] NOT NULL,
+ CONSTRAINT [PK_SubmitLog] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserAnswerSubmitRecord]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserAnswerSubmitRecord](
+	[Id] [bigint] NOT NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[SubjectiveAnswer] [nvarchar](max) NULL,
+	[ObjectiveAnswer] [nvarchar](500) NULL,
+	[RecordId] [bigint] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Remark] [nvarchar](500) NULL,
+	[IsSubjective] [int] NOT NULL,
+ CONSTRAINT [PK_RecordAnswer] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserBase]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserBase](
+	[Id] [bigint] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Age] [int] NOT NULL,
+	[Sex] [int] NOT NULL,
+	[Email] [varchar](100) NOT NULL,
+	[Idcard] [varchar](50) NOT NULL,
+	[Mobile] [varchar](50) NOT NULL,
+	[UnitId] [bigint] NOT NULL,
+	[Job] [nvarchar](200) NULL,
+	[Address] [nvarchar](200) NULL,
+	[ProvinceId] [int] NOT NULL,
+	[CityId] [int] NOT NULL,
+	[DistrictId] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Password] [varchar](150) NOT NULL,
+	[KeyId] [varchar](50) NOT NULL,
+	[KeySecret] [varchar](50) NOT NULL,
+	[AvailableLevel] [varchar](50) NOT NULL,
+	[Avatar] [varchar](300) NULL,
+	[AccountId] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_UserBase] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ValidateExpression]    Script Date: 2024-07-25 10:16:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ValidateExpression](
+	[Id] [bigint] NOT NULL,
+	[ExamId] [uniqueidentifier] NULL,
+	[PaperId] [uniqueidentifier] NULL,
+	[Expression] [varchar](max) NULL,
+	[Status] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[UpdatedAt] [datetime] NOT NULL,
+	[CreatedBy] [varchar](50) NULL,
+	[UpdatedBy] [varchar](50) NULL,
+	[Remark] [varchar](2000) NULL,
+	[IsDeleted] [int] NOT NULL,
+	[ColumnId] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_ValidateExpression] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_Title]  DEFAULT ('') FOR [Title]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Activity] ADD  CONSTRAINT [DF_Activity_Conver]  DEFAULT ('') FOR [Cover]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_Version]  DEFAULT ((0)) FOR [Version]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Admin] ADD  CONSTRAINT [DF_Admin_AccountAvailable]  DEFAULT ('username') FOR [AccountAvailable]
+GO
+ALTER TABLE [dbo].[AdminLoginLog] ADD  CONSTRAINT [DF_AdminLoginLog_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[AdminLoginLog] ADD  CONSTRAINT [DF_AdminLoginLog_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[AdminRole] ADD  CONSTRAINT [DF_AdminRole_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[AdminRole] ADD  CONSTRAINT [DF_AdminRole_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[AdminRole] ADD  CONSTRAINT [DF_AdminRole_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Cert] ADD  CONSTRAINT [DF_Cert_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Cert] ADD  CONSTRAINT [DF_Cert_CertContent]  DEFAULT ('[]') FOR [CertContent]
+GO
+ALTER TABLE [dbo].[Cert] ADD  CONSTRAINT [DF_Cert_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Cert] ADD  CONSTRAINT [DF_Cert_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Cert] ADD  CONSTRAINT [DF_Cert_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_TemplateConfigJsonStrForPdf]  DEFAULT ('[]') FOR [ConfigJsonStrForPdf]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_TemplateConfigJsonStrForImg]  DEFAULT ('[]') FOR [ConfigJsonStrForImg]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_CreatedBy]  DEFAULT ('system') FOR [CreatedBy]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_IsLock]  DEFAULT ((0)) FOR [IsLock]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[CertTemplate] ADD  CONSTRAINT [DF_CertTemplate_ActivityId]  DEFAULT ((0)) FOR [ActivityId]
+GO
+ALTER TABLE [dbo].[City] ADD  CONSTRAINT [DF_City_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[City] ADD  CONSTRAINT [DF_City_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[City] ADD  CONSTRAINT [DF_City_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[City] ADD  CONSTRAINT [DF_City_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[District] ADD  CONSTRAINT [DF_District_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[District] ADD  CONSTRAINT [DF_District_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[District] ADD  CONSTRAINT [DF_District_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[District] ADD  CONSTRAINT [DF_District_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_AssociationId]  DEFAULT ((0)) FOR [AssociationId]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_AssociationTitle]  DEFAULT ('无') FOR [AssociationTitle]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Score]  DEFAULT ((100)) FOR [BaseScore]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Duration]  DEFAULT ((15)) FOR [BaseDuration]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_ExamType]  DEFAULT ((0)) FOR [ExamType]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Table_1_CreatedAy]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DEFAULT_Examination_OrderIndex]  DEFAULT ((1)) FOR [OrderIndex]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DEFAULT_Examination_GroupCode]  DEFAULT ('') FOR [GroupCode]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DEFAULT_Examination_IsStrict]  DEFAULT ((0)) FOR [IsStrict]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Expenses]  DEFAULT ((0)) FOR [Expenses]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Quota]  DEFAULT ((0)) FOR [Quota]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_Audit]  DEFAULT ((0)) FOR [Audit]
+GO
+ALTER TABLE [dbo].[Examination] ADD  CONSTRAINT [DF_Examination_MarkStatus]  DEFAULT ((0)) FOR [MarkStatus]
+GO
+ALTER TABLE [dbo].[Face] ADD  CONSTRAINT [DF_Face_createdAt]  DEFAULT (getdate()) FOR [createdAt]
+GO
+ALTER TABLE [dbo].[Face] ADD  CONSTRAINT [DF_Face_updatedAt]  DEFAULT (getdate()) FOR [updatedAt]
+GO
+ALTER TABLE [dbo].[Face] ADD  CONSTRAINT [DF_Face_role]  DEFAULT ('’user‘') FOR [role]
+GO
+ALTER TABLE [dbo].[Face] ADD  CONSTRAINT [DF_Face_userId]  DEFAULT ('0') FOR [userId]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_Size]  DEFAULT ((0)) FOR [Size]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_Type]  DEFAULT ('') FOR [Type]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_Ext]  DEFAULT ('') FOR [Ext]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_UserId]  DEFAULT ('') FOR [AccountId]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_Path]  DEFAULT ('') FOR [Path]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_ShortUrl]  DEFAULT ('') FOR [ShortUrl]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_ConnId]  DEFAULT ('') FOR [ConnId]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_ConnName]  DEFAULT ('') FOR [ConnName]
+GO
+ALTER TABLE [dbo].[File] ADD  CONSTRAINT [DF_File_Md5]  DEFAULT ('') FOR [Md5]
+GO
+ALTER TABLE [dbo].[KeyAction] ADD  CONSTRAINT [DF_KeyAction_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[KeyAction] ADD  CONSTRAINT [DF_KeyAction_Type]  DEFAULT ((1)) FOR [Type]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_ParentId]  DEFAULT ((0)) FOR [ParentId]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_Depth]  DEFAULT ((0)) FOR [Depth]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_IsLeef]  DEFAULT ((0)) FOR [IsLeef]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_PermissionId]  DEFAULT ((0)) FOR [PermissionId]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Menu] ADD  CONSTRAINT [DF_Menu_OrderIndex]  DEFAULT ((0)) FOR [OrderIndex]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_PayType]  DEFAULT ((0)) FOR [PayType]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Table_1_Expense]  DEFAULT ((0)) FOR [Expenses]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_Invoice]  DEFAULT ((0)) FOR [InvoiceId]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Order] ADD  CONSTRAINT [DF_Order_ReportId]  DEFAULT ((0)) FOR [ReportId]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_Duration]  DEFAULT ((15)) FOR [Duration]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_Instant]  DEFAULT ((0)) FOR [OpenResult]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DF_Paper_PaperType]  DEFAULT ((0)) FOR [PaperType]
+GO
+ALTER TABLE [dbo].[Paper] ADD  CONSTRAINT [DEFAULT_Paper_PaperDegree]  DEFAULT ('all') FOR [PaperDegree]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_DataFilterJson]  DEFAULT ('') FOR [DataFilterJson]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_ParentId]  DEFAULT ((0)) FOR [ParentId]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Depth]  DEFAULT ((0)) FOR [Depth]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Type]  DEFAULT ((0)) FOR [Type]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Area]  DEFAULT ('') FOR [Area]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Controller]  DEFAULT ('') FOR [Controller]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Action]  DEFAULT ('') FOR [Action]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_Permission_Method]  DEFAULT ('') FOR [Method]
+GO
+ALTER TABLE [dbo].[Province] ADD  CONSTRAINT [DF_Province_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Province] ADD  CONSTRAINT [DF_Province_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Province] ADD  CONSTRAINT [DF_Province_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_Score]  DEFAULT ((0)) FOR [Score]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_Degree]  DEFAULT ('normal') FOR [Degree]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_ForTest]  DEFAULT ((1)) FOR [IsOpen]
+GO
+ALTER TABLE [dbo].[Question] ADD  CONSTRAINT [DF_Question_ColumnId]  DEFAULT ((0)) FOR [ActivityId]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_Answer]  DEFAULT ('') FOR [Analysis]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_IsOption]  DEFAULT ((1)) FOR [IsOption]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_IsAnswer]  DEFAULT ((0)) FOR [IsAnswer]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_QuestionId]  DEFAULT ((0)) FOR [QuestionId]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_CreatdAt]  DEFAULT (getdate()) FOR [CreatdAt]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_OrderIndex]  DEFAULT ((0)) FOR [OrderIndex]
+GO
+ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_Objective]  DEFAULT ((1)) FOR [Objective]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_SingleAnswer]  DEFAULT ((1)) FOR [SingleAnswer]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_RelationExamTagQuestion_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_RelationExamTagQuestion_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_RelationExamTagQuestion_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_RelationExamTagQuestion_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_Relation_TagId]  DEFAULT ((0)) FOR [TagId]
+GO
+ALTER TABLE [dbo].[Relation] ADD  CONSTRAINT [DF_Relation_Score]  DEFAULT ((0)) FOR [ItemScore]
+GO
+ALTER TABLE [dbo].[ReportAttribute] ADD  CONSTRAINT [DF_ReportAttribute_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ReportCheckHistory] ADD  CONSTRAINT [DF_ReportCheckHistory_CheckStatus]  DEFAULT ((2)) FOR [CheckStatus]
+GO
+ALTER TABLE [dbo].[ReportCheckHistory] ADD  CONSTRAINT [DF_ReportCheckHistory_CheckRemark]  DEFAULT (N'待审') FOR [CheckRemark]
+GO
+ALTER TABLE [dbo].[ReportCheckHistory] ADD  CONSTRAINT [DF_ReportCheckHistory_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[ReportCheckHistory] ADD  CONSTRAINT [DF_ReportCheckHistory_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_ActivityId]  DEFAULT ((0)) FOR [ActivityId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_ProvinceId]  DEFAULT ((0)) FOR [ProvinceId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_CityId]  DEFAULT ((0)) FOR [CityId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_DistrictId]  DEFAULT ((0)) FOR [DistrictId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_Email]  DEFAULT ('‘’') FOR [Email]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_IdCard]  DEFAULT ('‘’') FOR [IdCard]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_Name]  DEFAULT (N'‘’') FOR [Name]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_OtherInfo]  DEFAULT (N'‘’') FOR [OtherInfo]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_UnitId]  DEFAULT ((0)) FOR [UnitId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_Address]  DEFAULT ('') FOR [Address]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_Mobile]  DEFAULT ('') FOR [Mobile]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_CardType]  DEFAULT ((0)) FOR [CardType]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_ConnAvailable]  DEFAULT ((0)) FOR [ConnAvailable]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_FileId]  DEFAULT ((0)) FOR [FileId]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_Status]  DEFAULT ((0)) FOR [Status]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_Step]  DEFAULT ((0)) FOR [Step]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_ReportId]  DEFAULT ((0)) FOR [ReportId]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ReportProcess_TestedTime]  DEFAULT ((0)) FOR [TestedTime]
+GO
+ALTER TABLE [dbo].[Role] ADD  CONSTRAINT [DF_Role_Description]  DEFAULT ('无') FOR [Description]
+GO
+ALTER TABLE [dbo].[Role] ADD  CONSTRAINT [DF_Role_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Role] ADD  CONSTRAINT [DF_Role_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Role] ADD  CONSTRAINT [DF_Role_Type]  DEFAULT ((0)) FOR [Type]
+GO
+ALTER TABLE [dbo].[Role] ADD  CONSTRAINT [DF_Role_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[RolePermission] ADD  CONSTRAINT [DF_RolePermission_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[RolePermission] ADD  CONSTRAINT [DF_RolePermission_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[RolePermission] ADD  CONSTRAINT [DF_RolePermission_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Subject] ADD  CONSTRAINT [DF_Subject_Id]  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[Subject] ADD  CONSTRAINT [DF_Subject_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Subject] ADD  CONSTRAINT [DF_Subject_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Subject] ADD  CONSTRAINT [DF_Subject_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[SyncRecord] ADD  CONSTRAINT [DF_SyncRecord_Times]  DEFAULT ((1)) FOR [Times]
+GO
+ALTER TABLE [dbo].[SyncRecord] ADD  CONSTRAINT [DF_SyncRecord_DataAmount]  DEFAULT ((0)) FOR [DataAmount]
+GO
+ALTER TABLE [dbo].[SyncRecord] ADD  CONSTRAINT [DF_SyncRecord_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Teacher] ADD  CONSTRAINT [DF_Teacher_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Teacher] ADD  CONSTRAINT [DF_Teacher_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[Teacher] ADD  CONSTRAINT [DF_Teacher_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[TeacherExamAssign] ADD  CONSTRAINT [DF_TeacherExamAssign_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[TeacherExamAssign] ADD  CONSTRAINT [DF_TeacherExamAssign_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[TeacherExamAssign] ADD  CONSTRAINT [DF_TeacherExamAssign_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[TeacherLoginLog] ADD  CONSTRAINT [DF_TeacherLoginLog_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[TeacherLoginLog] ADD  CONSTRAINT [DF_TeacherLoginLog_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordAssign] ADD  CONSTRAINT [DF_TeacherRecordAssign_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordAssign] ADD  CONSTRAINT [DF_TeacherRecordAssign_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordAssign] ADD  CONSTRAINT [DF_TeacherRecordAssign_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoreLog] ADD  CONSTRAINT [DF_TeacherScoreLog_SubjectiveScore]  DEFAULT ((0)) FOR [SubjectiveScore]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoreLog] ADD  CONSTRAINT [DF_TeacherScoreLog_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoreLog] ADD  CONSTRAINT [DF_TeacherScoreLog_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoring] ADD  CONSTRAINT [DF_TeacherRecordScoring_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoring] ADD  CONSTRAINT [DF_TeacherRecordScoring_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoring] ADD  CONSTRAINT [DF_TeacherRecordScoring_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoring] ADD  CONSTRAINT [DF_TeacherRecordScoring_RecordId]  DEFAULT ((0)) FOR [RecordId]
+GO
+ALTER TABLE [dbo].[TeacherRecordScoring] ADD  CONSTRAINT [DF_TeacherRecordScoring_SubmitRecordId]  DEFAULT ((0)) FOR [SubmitRecordId]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfo_UnitNo]  DEFAULT ('') FOR [UnitNo]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_ProvinceId]  DEFAULT ((0)) FOR [ProvinceId]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_CityId]  DEFAULT ((0)) FOR [CityId]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_AddDate]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_StatusID]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_CheckStatus]  DEFAULT ((0)) FOR [UnitStatus]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_CountyID]  DEFAULT ((0)) FOR [DistrictId]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_OrganizationCode]  DEFAULT ('') FOR [OrganizationCode]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfomation_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfo_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfo_CreatedBy]  DEFAULT ('') FOR [CreatedBy]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfo_LegalPerson]  DEFAULT ('') FOR [LegalPerson]
+GO
+ALTER TABLE [dbo].[UnitInfo] ADD  CONSTRAINT [DF_UnitInfo_OriginNo]  DEFAULT ('0') FOR [OriginNo]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_CheatCnt]  DEFAULT ((0)) FOR [CheatCnt]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_Complated]  DEFAULT ((0)) FOR [Complated]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_ComplatedMode]  DEFAULT ((0)) FOR [ComplatedMode]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_ObjectiveScore]  DEFAULT ((0)) FOR [ObjectiveScore]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_Score]  DEFAULT ((0)) FOR [Score]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_IdNumber]  DEFAULT ('') FOR [IdNumber]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_ApplyId]  DEFAULT ((0)) FOR [ReportId]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_UsedTime]  DEFAULT ((0)) FOR [UsedTime]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF__UserAnswe__Marke__01D345B0]  DEFAULT ((0)) FOR [Marked]
+GO
+ALTER TABLE [dbo].[UserAnswerRecord] ADD  CONSTRAINT [DF_UserAnswerRecord_Stage]  DEFAULT ((1)) FOR [Stage]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitLog] ADD  CONSTRAINT [DF_SubmitLog_SubmitAnswer]  DEFAULT ('') FOR [SubmitAnswer]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitLog] ADD  CONSTRAINT [DF_SubmitLog_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitLog] ADD  CONSTRAINT [DF_SubmitLog_Complated]  DEFAULT ((0)) FOR [ComplatedMode]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitRecord] ADD  CONSTRAINT [DF_RecordAnswer_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitRecord] ADD  CONSTRAINT [DF_RecordAnswer_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitRecord] ADD  CONSTRAINT [DF_RecordAnswer_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[UserAnswerSubmitRecord] ADD  CONSTRAINT [DF_UserSubmitAnswerRecord_IsObjective]  DEFAULT ((0)) FOR [IsSubjective]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_Sex]  DEFAULT ((0)) FOR [Sex]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_UnitId]  DEFAULT ((0)) FOR [UnitId]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_ProvinceId]  DEFAULT ((0)) FOR [ProvinceId]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_CityId]  DEFAULT ((0)) FOR [CityId]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_DistrictId]  DEFAULT ((0)) FOR [DistrictId]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_IsDeletedAt]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_AvailableLevel]  DEFAULT ('default') FOR [AvailableLevel]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_Avatar]  DEFAULT ('/images/avatar.png') FOR [Avatar]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_AccountId]  DEFAULT ('') FOR [AccountId]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_Status]  DEFAULT ((1)) FOR [Status]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_CreatedBy]  DEFAULT ('') FOR [CreatedBy]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_UpdatedBy]  DEFAULT ('') FOR [UpdatedBy]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_Remark]  DEFAULT ('无') FOR [Remark]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_ColumnId]  DEFAULT ((0)) FOR [ColumnId]
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'默认情况下，只允许用户名密码为username标记，验证邮箱后追加email标记，验证手机后追加mobile标记' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Admin', @level2type=N'COLUMN',@level2name=N'AccountAvailable'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'证书上的原始内容' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Cert', @level2type=N'COLUMN',@level2name=N'CertContent'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-可用，1-不可用' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CertTemplate', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-没有被锁定，可以修改内容，1-被锁定，不可以修改，颁发证书后自动锁定' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CertTemplate', @level2type=N'COLUMN',@level2name=N'IsLock'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'城区ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'City', @level2type=N'COLUMN',@level2name=N'Id'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'城区名称' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'City', @level2type=N'COLUMN',@level2name=N'CityName'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'所属省级行政区ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'City', @level2type=N'COLUMN',@level2name=N'ProvinceId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'区县ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'District', @level2type=N'COLUMN',@level2name=N'Id'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'区县名称' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'District', @level2type=N'COLUMN',@level2name=N'DistrictName'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'城市ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'District', @level2type=N'COLUMN',@level2name=N'CityId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'显示状态 如果为1 则显示 如果为2 则不显示 默认为1' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'District', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'区县表' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'District'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'标准总分数，若试卷未指定总分，则沿用该分数' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'BaseScore'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'标准考试时长，单位：分钟，若生成得试卷没有指定时长，则沿用该时长' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'BaseDuration'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'状态' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'聚合码，设置之后，可以生成聚合多个考试的二维码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'GroupCode'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否严格交卷，是的话超时提交将不给分，否的话答考试结束后有多少分给多少分，1-是，0-否' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'IsStrict'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-放开状态，教师可以判分，只要没关闭，教师可以多次改判，1-关闭状态，教师不可以判分' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Examination', @level2type=N'COLUMN',@level2name=N'MarkStatus'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人脸标识' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Face', @level2type=N'COLUMN',@level2name=N'faceToken'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人脸信息（json字符串）' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Face', @level2type=N'COLUMN',@level2name=N'faceInfo'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'组别，{角色}_{活动名称}_{年份/年月}' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Face', @level2type=N'COLUMN',@level2name=N'groupId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'角色组，user-用户，admin-管理员' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Face', @level2type=N'COLUMN',@level2name=N'role'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'用户id' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Face', @level2type=N'COLUMN',@level2name=N'userId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-正常，1-关闭' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Menu', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-未支付成功，1-微信，2-支付宝，3-银联（暂不支持），4-银行卡转账（暂不支持），5-其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'PayType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'支付时间' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'PayTime'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-支付成功，1-待支付，2-支付失败，3-订单过期（10分钟），4-订单取消/作废' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'支付金额' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'Expenses'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'支付平台返回的订单号' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'TradeNo'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'发票Id,0-没开，其他-对应发票表里的记录' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'InvoiceId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'系统生成的订单号' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Order', @level2type=N'COLUMN',@level2name=N'OutTradeNo'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'试卷的卷面总分，默认继承examination的基础分数' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Paper', @level2type=N'COLUMN',@level2name=N'Score'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'试卷的考试时间，默认继承examination的时间' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Paper', @level2type=N'COLUMN',@level2name=N'Duration'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'抽题情况' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Paper', @level2type=N'COLUMN',@level2name=N'QuestionDetailJson'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否公开成绩查询，0-不公开，1-公开' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Paper', @level2type=N'COLUMN',@level2name=N'OpenResult'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-机器组卷（考试之前先随机生成多套试卷，考试时随机分发，推荐采用此方式，考试前生成多套试卷既满足随机性，也可以对不同的试卷提前校验，避免疏漏，默认），1-人工组卷（严谨的场合下适用，比如统一考试等），2-即时组卷（每个学生考试时随机生成，不推荐正式考试用这种方式，无法对试卷进行校验）' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Paper', @level2type=N'COLUMN',@level2name=N'PaperType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'数据检索权限，当type为1时不为空' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Permission', @level2type=N'COLUMN',@level2name=N'DataFilterJson'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'权限类型，0-页面权限，通过路由守护监测，1-数据权限，检索数据的权限，此时DataFilterjson不为空' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Permission', @level2type=N'COLUMN',@level2name=N'Type'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'省级行政区ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Province', @level2type=N'COLUMN',@level2name=N'Id'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'行政区名称' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Province', @level2type=N'COLUMN',@level2name=N'ProvinceName'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'行政区编码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Province', @level2type=N'COLUMN',@level2name=N'ProvinceCode'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'行政区短称' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Province', @level2type=N'COLUMN',@level2name=N'ProvinceShortName'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'title是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Question', @level2type=N'COLUMN',@level2name=N'TitleText'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'题目解析' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Question', @level2type=N'COLUMN',@level2name=N'Analysis'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'出题人' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Question', @level2type=N'COLUMN',@level2name=N'Author'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'题目难度，easy,normal,difficult三种，默认normal' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Question', @level2type=N'COLUMN',@level2name=N'Degree'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否是公开考题，设置否的话，生成练习题的时候会避开抽到该题，默认是' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Question', @level2type=N'COLUMN',@level2name=N'IsOpen'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'分析' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'Analysis'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否是选项，如果是则生成试卷时渲染到页面，如过不是就不渲染，对应的description里就是答案了' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'IsOption'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否是答案' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'IsAnswer'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'选项内容（description）是通过富文本写入的，在列表页展示时，需要取消html字符，这里单独存一个500字符以内的纯文本标题用作列表展示' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'DescriptionText'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'顺序' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'OrderIndex'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否是客观题，即有标准答案' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionType', @level2type=N'COLUMN',@level2name=N'Objective'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'只有1个答案，1-是，其他-不是' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionType', @level2type=N'COLUMN',@level2name=N'SingleAnswer'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Relation', @level2type=N'COLUMN',@level2name=N'ItemScore'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-通过，1-未通过，2-待审核' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportCheckHistory', @level2type=N'COLUMN',@level2name=N'CheckStatus'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-大陆身份证，1-香港，2-澳门，3-台湾，4-护照，5-其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'CardType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'联系方式可用程度,0-未验证,1-邮箱验证可用,2-手机号可用,3-邮箱和手机号都可用' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'ConnAvailable'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'1-报名成功，' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportProcess', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-普通角色，1-系统级角色' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Role', @level2type=N'COLUMN',@level2name=N'Type'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'密钥，默认为（‘exam123456’）' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Teacher', @level2type=N'COLUMN',@level2name=N'KeyId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'Id'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构编号' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'UnitNo'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构名称' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'UnitCaption'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构类型' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'UnitType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'所在地区' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'CityId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构地址' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'Address'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'邮政编码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'PostCode'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'电话号码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'Telephone'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'传真' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'Fax'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'添加日期' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'CreatedAt'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'机构状态' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'Status'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N' 企业经营状态 0-存续 1-在业 2-吊销 3-注销 4-迁出 5-迁入 6-停业 7-清算 8-其他
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'UnitStatus'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'组织机构代码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'OrganizationCode'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0是未删除 1为已删除' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'IsDeleted'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'法人' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UnitInfo', @level2type=N'COLUMN',@level2name=N'LegalPerson'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'作弊次数' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'CheatCnt'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否完成考试' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'Complated'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'交卷方式，0-自主交卷，1-到时间自动交卷，2-作弊次数过多强制交卷' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'ComplatedMode'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'证件号或者准考证' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'IdNumber'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'答题已经消耗的时长' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'UsedTime'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'参与的第几阶段答题' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'Stage'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'单位库Id' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'UnitId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'工作单位，当UnitId为0时是自定义输入，反之则是从单位库筛选的' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'Job'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'账号可用等级，default-仅用户名密码，email-另支持邮箱，mobile-另支持手机，email,mobile-邮箱手机都支持' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'AvailableLevel'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'登录平台存储的用户信息' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'AccountId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "City"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 146
+               Right = 190
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Province"
+            Begin Extent = 
+               Top = 9
+               Left = 327
+               Bottom = 149
+               Right = 531
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1980
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'CityView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'CityView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "District"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 146
+               Right = 202
+            End
+            DisplayFlags = 280
+            TopColumn = 1
+         End
+         Begin Table = "City"
+            Begin Extent = 
+               Top = 6
+               Left = 240
+               Bottom = 146
+               Right = 392
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Province"
+            Begin Extent = 
+               Top = 6
+               Left = 430
+               Bottom = 146
+               Right = 634
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'DistrictView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'DistrictView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "Question"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 329
+               Right = 192
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Subject"
+            Begin Extent = 
+               Top = 185
+               Left = 319
+               Bottom = 325
+               Right = 473
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "QuestionType"
+            Begin Extent = 
+               Top = 6
+               Left = 230
+               Bottom = 146
+               Right = 396
+            End
+            DisplayFlags = 280
+            TopColumn = 6
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 3855
+         Alias = 900
+         Table = 1740
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'QuestionView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'QuestionView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "ReportProcess"
+            Begin Extent = 
+               Top = 6
+               Left = 554
+               Bottom = 146
+               Right = 706
+            End
+            DisplayFlags = 280
+            TopColumn = 8
+         End
+         Begin Table = "ReportInfo"
+            Begin Extent = 
+               Top = 31
+               Left = 31
+               Bottom = 171
+               Right = 208
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Examination"
+            Begin Extent = 
+               Top = 74
+               Left = 331
+               Bottom = 214
+               Right = 510
+            End
+            DisplayFlags = 280
+            TopColumn = 22
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 1395
+         Table = 2040
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportExamView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportExamView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[48] 4[23] 2[12] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "City"
+            Begin Extent = 
+               Top = 178
+               Left = 328
+               Bottom = 318
+               Right = 480
+            End
+            DisplayFlags = 280
+            TopColumn = 3
+         End
+         Begin Table = "Province"
+            Begin Extent = 
+               Top = 30
+               Left = 317
+               Bottom = 170
+               Right = 521
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "ReportInfo"
+            Begin Extent = 
+               Top = 49
+               Left = 50
+               Bottom = 189
+               Right = 227
+            End
+            DisplayFlags = 280
+            TopColumn = 18
+         End
+         Begin Table = "ReportProcess"
+            Begin Extent = 
+               Top = 45
+               Left = 686
+               Bottom = 185
+               Right = 838
+            End
+            DisplayFlags = 280
+            TopColumn = 8
+         End
+         Begin Table = "District"
+            Begin Extent = 
+               Top = 327
+               Left = 305
+               Bottom = 467
+               Right = 469
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+      ' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportInfoView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane2', @value=N'   Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportInfoView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=2 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportInfoView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "ReportProcess"
+            Begin Extent = 
+               Top = 113
+               Left = 358
+               Bottom = 253
+               Right = 510
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Order"
+            Begin Extent = 
+               Top = 42
+               Left = 645
+               Bottom = 182
+               Right = 807
+            End
+            DisplayFlags = 280
+            TopColumn = 13
+         End
+         Begin Table = "Examination"
+            Begin Extent = 
+               Top = 119
+               Left = 43
+               Bottom = 259
+               Right = 222
+            End
+            DisplayFlags = 280
+            TopColumn = 22
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1980
+         Alias = 2085
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportOrderView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportOrderView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[49] 4[12] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "Teacher"
+            Begin Extent = 
+               Top = 7
+               Left = 333
+               Bottom = 168
+               Right = 485
+            End
+            DisplayFlags = 280
+            TopColumn = 6
+         End
+         Begin Table = "TeacherExamAssign"
+            Begin Extent = 
+               Top = 20
+               Left = 83
+               Bottom = 262
+               Right = 235
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Examination"
+            Begin Extent = 
+               Top = 186
+               Left = 329
+               Bottom = 326
+               Right = 508
+            End
+            DisplayFlags = 280
+            TopColumn = 23
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1785
+         Alias = 1635
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'TeacherExamAssignView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'TeacherExamAssignView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "UnitInfo"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 146
+               Right = 233
+            End
+            DisplayFlags = 280
+            TopColumn = 18
+         End
+         Begin Table = "CityView"
+            Begin Extent = 
+               Top = 6
+               Left = 271
+               Bottom = 146
+               Right = 475
+            End
+            DisplayFlags = 280
+            TopColumn = 4
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 2100
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'UnitInfoView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'UnitInfoView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[43] 4[18] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "ReportInfo"
+            Begin Extent = 
+               Top = 6
+               Left = 615
+               Bottom = 146
+               Right = 792
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "UserAnswerRecord"
+            Begin Extent = 
+               Top = 43
+               Left = 30
+               Bottom = 183
+               Right = 218
+            End
+            DisplayFlags = 280
+            TopColumn = 14
+         End
+         Begin Table = "Paper"
+            Begin Extent = 
+               Top = 198
+               Left = 395
+               Bottom = 338
+               Right = 595
+            End
+            DisplayFlags = 280
+            TopColumn = 3
+         End
+         Begin Table = "Examination"
+            Begin Extent = 
+               Top = 36
+               Left = 398
+               Bottom = 176
+               Right = 577
+            End
+            DisplayFlags = 280
+            TopColumn = 23
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 4035
+         Alias = 2400
+         Table = 2070
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'UserAnswerRecordView'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'UserAnswerRecordView'
+GO
