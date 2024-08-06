@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
+using Essensoft.Paylink.Alipay.Domain;
 
 namespace Magic.Guangdong.Exam.Areas.System.Controllers
 {
@@ -236,5 +237,56 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Json(_resp.success("发送成功"));
         }
 
+        /// <summary>
+        /// 为调用api获取token
+        /// </summary>
+        /// <param name="keyId"></param>
+        /// <param name="sign"></param>
+        /// <param name="timestamp"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAccessTokenForApi(string keyId, string sign, long timestamp)
+        {
+            TimeSpan ts = DateTime.Now - Utils.TimeStampToDateTime(timestamp);
+            if (ts.TotalSeconds > 300)
+            {
+                return Json(_resp.error("时间戳已过期"));
+            }
+            if (!await _adminRepo.getAnyAsync(
+                u =>
+                u.KeyId.Equals(keyId) &&
+                u.IsDeleted == 0))
+            {
+                return Json(_resp.error("用户不存在"));
+            }
+            var admin = await _adminRepo.getOneAsync(
+                u =>
+                u.KeyId.Equals(keyId) &&
+                u.IsDeleted == 0);
+
+            
+            string tt = Security.GenerateMD5Hash(admin.KeyId + admin.KeySecret + timestamp);
+            if (tt == sign.ToLower())
+            {
+                DateTime expires = DateTime.Now.AddHours(6);
+                await CacheMyPermission(new AfterLoginDto() { adminId = admin.Id, exp = expires });
+                string jwt = _jwtService.Make(Utils.ToBase64Str(admin.Id.ToString()), admin.Name, expires);
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitLoginLog", $"{admin.Id}|{jwt}|{Utils.DateTimeToTimeStamp(expires)}");
+                return Json(_resp.success(
+                    new
+                    {
+                        access_token = jwt
+                    }));
+            }
+            return Json(_resp.error("获取Token失败，请检查传入参数是否正确"));
+        }
+
+        [HttpPost]
+        [WebApiModule]
+        public async Task<IActionResult> ApiTest()
+        {
+            return Json(_resp.success(Guid.NewGuid()));
+        }
     }
 }

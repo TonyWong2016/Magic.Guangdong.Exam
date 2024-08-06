@@ -7,6 +7,8 @@ using EasyCaching.Core;
 using DotNetCore.CAP;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.DbServices.Entities;
+using System.Net;
+using FreeSql.Internal;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -51,7 +53,14 @@ namespace Magic.Guangdong.Exam.Filters
                 Assistant.Logger.Debug("访问公开接口");
                 return;
             }
-
+            if (descriptor !=null 
+                && descriptor.MethodInfo.CustomAttributes.Any(u => u.AttributeType.Name == "WebApiModule")
+                )
+            {
+                Assistant.Logger.Debug("外部资源访问内部接口");
+                await ApiCheck(context);
+                return;
+            }
             
             //cookie身份验证
             Guid adminId;
@@ -229,6 +238,39 @@ namespace Magic.Guangdong.Exam.Filters
             return "当前帐号没有执行此操作的权限";
         }
 
-
+        private async Task<AuthorizationFilterContext> ApiCheck(AuthorizationFilterContext context)
+        {
+            string requestMethod = context.HttpContext.Request.Method;
+            
+            var headers = context.HttpContext.Request.Headers;
+            if (!headers.Where(h => h.Key == "Authorization").Any())
+            {
+                Assistant.Logger.Error("缺少token");
+                var item = new JsonResult(new { code = 401, msg = "令牌丢失，请尝试重新登录" });
+                //item.StatusCode = 401;
+                //var item = new RedirectResult("/error?msg=登录异常");
+                context.Result = item;
+                return context;
+                //return false;
+            }
+            string Authorization = headers.Where(h => h.Key == "Authorization").FirstOrDefault().Value;
+            var claim = Assistant.JwtService.ValidateJwt(Authorization);
+            if (claim == null)
+            {
+                var item = new JsonResult(new { code = 400, msg = "非法访问" });
+                context.Result = item;
+                Assistant.Logger.Error("token错辣！走你~");
+                return context;
+            }
+            string sid = Assistant.Utils.FromBase64Str(claim.Sid);
+            if (!await _redisCachingProvider.KeyExistsAsync($"GD.Exam.Permissions_{sid}")  || claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
+            {
+                var item = new JsonResult(new { code = 400, msg = "token错误" });
+                context.Result = item;
+                Assistant.Logger.Error("token错辣或者超时辣！走你~");
+                return context;
+            }
+            return context;
+        }
     }
 }
