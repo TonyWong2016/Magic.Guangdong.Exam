@@ -1,7 +1,5 @@
 ﻿using Coravel.Invocable;
 using DotNetCore.CAP;
-using Essensoft.Paylink.Alipay.Request;
-using Essensoft.Paylink.WeChatPay.V3.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;

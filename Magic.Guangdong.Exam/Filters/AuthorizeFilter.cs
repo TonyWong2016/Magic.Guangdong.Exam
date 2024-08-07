@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using Magic.Guangdong.DbServices.Interfaces;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
+﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using DotNetCore.CAP;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.DbServices.Entities;
-using System.Net;
-using FreeSql.Internal;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System;
+using System.Text;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -59,6 +58,7 @@ namespace Magic.Guangdong.Exam.Filters
             {
                 Assistant.Logger.Debug("外部资源访问内部接口");
                 await ApiCheck(context);
+
                 return;
             }
             
@@ -270,7 +270,29 @@ namespace Magic.Guangdong.Exam.Filters
                 Assistant.Logger.Error("token错辣或者超时辣！走你~");
                 return context;
             }
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+            {
+                AdminId = Guid.Parse(sid),
+                Action = "api接口访问",
+                Description = HeadersToString(context.HttpContext.Request),
+                Router = context.HttpContext.Request.GetDisplayUrl(),
+                CreatedAt = DateTime.Now
+            });
+            await _redisCachingProvider.StringSetAsync(Security.GenerateMD5Hash(Authorization), sid, DateTime.Now.AddMinutes(2) - DateTime.Now);
             return context;
+        }
+
+        private string HeadersToString(HttpRequest request)
+        {
+            StringBuilder headersBuilder = new StringBuilder();
+
+            foreach (var header in request.Headers)
+            {
+                headersBuilder.AppendFormat("{0}: {1}\r\n", header.Key, header.Value);
+            }
+
+
+            return headersBuilder.ToString();
         }
     }
 }

@@ -8,6 +8,7 @@ using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.DbServices.Entities;
 using Azure.Core;
 using System;
+using EasyCaching.Core;
 
 namespace Magic.Guangdong.Exam.Filters
 {
@@ -17,9 +18,11 @@ namespace Magic.Guangdong.Exam.Filters
     public class GlobalActionFilter : IActionFilter
     {
         private readonly ICapPublisher _capPublisher;
-        public GlobalActionFilter(ICapPublisher capPublisher)
+        private readonly IRedisCachingProvider _redisCachingProvider;
+        public GlobalActionFilter(ICapPublisher capPublisher,IRedisCachingProvider redisCachingProvider)
         {
             _capPublisher = capPublisher;
+            _redisCachingProvider = redisCachingProvider;
         }
         /// <summary>
         /// 动作执行后
@@ -37,6 +40,7 @@ namespace Magic.Guangdong.Exam.Filters
         /// <param name="context"></param>
         public async void OnActionExecuting(ActionExecutingContext context)
         {
+            RequestLog(context);
             Console.WriteLine("start:"+DateTime.Now.ToString());
             if (context.RouteData == null ||
                 context.RouteData.Values == null ||
@@ -54,7 +58,15 @@ namespace Magic.Guangdong.Exam.Filters
                 userId = Utils.FromBase64Str(context.HttpContext.Request.Cookies["userId"]);
 
             }
-            
+            else if (context.HttpContext.Request.Headers.Where(u => u.Key == "Authorization").Any())
+            {
+                string Authorization = context.HttpContext.Request.Headers.Where(h => h.Key == "Authorization").FirstOrDefault().Value;
+                if (await _redisCachingProvider.KeyExistsAsync(Security.GenerateMD5Hash(Authorization)))
+                {
+                    userId = await _redisCachingProvider.StringGetAsync(Security.GenerateMD5Hash(Authorization));
+                }
+            }
+
             string area = "";
             string controller = Convert.ToString(context.RouteData.Values["controller"]).ToLower();
             string action = Convert.ToString(context.RouteData.Values["action"]).ToLower();
@@ -101,13 +113,18 @@ namespace Magic.Guangdong.Exam.Filters
                     CreatedAt = DateTime.Now
                 });
             }
-            RequestLog(context);
+           
             Console.WriteLine("end:" + DateTime.Now.ToString());
         }
 
         private void RequestLog(ActionExecutingContext context)
         {
+            if (context.HttpContext == null || context.HttpContext.Request == null)
+            {
+                return;
+            }
             string ip = "";
+            
             var headers = context.HttpContext.Request.Headers;
             if (!headers.Any())
             {
@@ -162,8 +179,12 @@ namespace Magic.Guangdong.Exam.Filters
 
         private void ResponseLog(ActionExecutedContext context)
         {
-            
+            if (context.HttpContext == null || context.HttpContext.Request == null)
+            {
+                return;
+            }
             string ip = "";
+            
             var headers = context.HttpContext.Request.Headers;
             if (!headers.Any())
             {
