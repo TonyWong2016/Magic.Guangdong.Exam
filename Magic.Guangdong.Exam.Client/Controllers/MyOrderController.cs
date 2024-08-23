@@ -73,7 +73,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SyncExamReportInfoToPractice")]
+        [CapSubscribe(CapConsts.PREFIX + "ConfirmAndSyncOrderInfo")]
         public async Task ConfirmAndSyncOrderInfo(string orderNo)
         {
 

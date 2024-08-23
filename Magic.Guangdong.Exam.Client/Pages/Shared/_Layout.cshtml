@@ -47,7 +47,7 @@
     </script>
 </head>
 <body>
-
+    
     <header class="container">
         @* <img src="~/img/header-ht-high.jpg" /> *@
 
@@ -66,7 +66,7 @@
                             <li><a href="#">个人中心</a></li>
                             <li><a href="/report/index">报名记录</a></li>
                             <li><a id="examHistoryHref" href="javascript:;">考试成绩</a></li>
-                            <li><a href="#">退出账号</a></li>
+                            <li><a href="javascript:;" id="btnLogout">退出账号</a></li>
                         </ul>
                     </details>
                 </li>
@@ -84,6 +84,12 @@
 
     <script>
         checkLoginStatus();
+
+        $("#btnLogout").click(function () {
+            deleteCookie("accountId");
+            deleteCookie("accountName");
+            location.href = "@Url.Action("Logout")?idToken=" + jVal("idToken") + "&redirectUrl=" + location.protocol + "//" + location.host + location.pathname;
+        });
         if (accountId)
             $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);
     </script>

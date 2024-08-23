@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Guangdong.Exam.Teacher", "Magic.Guangdong.Exam.Teacher\Magic.Guangdong.Exam.Teacher.csproj", "{497D23FD-8968-4E60-9F64-500F183DB7D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Magic.Cxxy.DbServices", "Magic.Cxxy.DbServices\Magic.Cxxy.DbServices.csproj", "{1751252B-580D-43DA-A28F-82D0D65870BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magic.Cxxy.DbServices", "Magic.Cxxy.DbServices\Magic.Cxxy.DbServices.csproj", "{1751252B-580D-43DA-A28F-82D0D65870BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,17 +1,21 @@
-﻿using Authing.ApiClient.Auth;
+﻿//using Authing.ApiClient.Auth;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
+using IdentityModel;
 using Magic.Guangdong.Assistant;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtExtensions;
+//using NetDevPack.Security.JwtExtensions;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -27,18 +31,20 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 .AddJsonFile("Configs/mqsetting.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("Configs/paysetting.json", optional: true, reloadOnChange: true)
                ;
-            
+
             _configuration = builder.Configuration;
             ConfigurationHelper.Initialize(_configuration);
+
             
+
             Logger.InitLog();
 
             builder.Services.ConfigureOrm(_configuration);
             builder.Services.ConfigureRazorPages();
             builder.Services.ConfigureRedis(_configuration);
             builder.Services.ConfigurePlug(_configuration);
-            builder.Services.ConfigureAuthing();
-            //builder.Services.ConfigureSelfAuthing(_configuration);
+            //builder.Services.ConfigureAuthing();
+            builder.Services.ConfigureSelfAuthing(_configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // 添加Paylink依赖注入
@@ -69,55 +75,56 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             });
         }
 
-        private static void ConfigureAuthing(this IServiceCollection services)
-        {
-            var authenticationClient = new AuthenticationClient(options =>
-            {
+        //private static void ConfigureAuthing(this IServiceCollection services)
+        //{
+        //    var authenticationClient = new AuthenticationClient(options =>
+        //    {
 
-                options.AppId = _configuration["Authing.Config:AppId"];
-                options.Host = _configuration["Authing.Config:Host"];
-                options.UserPoolId = _configuration["Authing.Config:UserPoolId"];
-                options.Secret = _configuration["Authing.Config:Secret"];
-                options.RedirectUri = _configuration["Authing.Config:RedirectUri"];
-            });
-            services.AddSingleton(typeof(AuthenticationClient), authenticationClient);
-            var jwtSettings = new JwtSettings();
-            _configuration.Bind("JwtSettings", jwtSettings);
-            services.AddAuthentication(options =>
-            {
-                //认证middleware配置
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-           .AddJwtBearer(o =>
-           {
-               //主要是jwt  token参数设置
-               o.TokenValidationParameters = new TokenValidationParameters
-               {
-                   //Token颁发机构
-                   ValidIssuer = jwtSettings.Issuer,
-                   //颁发给谁
-                   ValidAudience = jwtSettings.Audience,
-                   //这里的key要进行加密，需要引用Microsoft.IdentityModel.Tokens
-                   // IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                   // ValidateIssuerSigningKey = true,
-                   //是否验证Token有效期，使用当前时间与Token的Claims中的NotBefore和Expires对比
-                   // ValidateLifetime = true,
-                   //允许的服务器时间偏移量
-                   // ClockSkew = TimeSpan.Zero,
-                   ValidAlgorithms = new string[] { "RS256" },
-                   // IssuerSigningKeys = signingKeys,
-               };
-               o.RequireHttpsMetadata = false;
-               o.SaveToken = false;
-               o.IncludeErrorDetails = true;
-               o.SetJwksOptions(new JwkOptions(jwtSettings.JwksUri, jwtSettings.Issuer, new TimeSpan(TimeSpan.TicksPerDay)));
-           });
-        }
+        //        options.AppId = _configuration["Authing.Config:AppId"];
+        //        options.Host = _configuration["Authing.Config:Host"];
+        //        options.UserPoolId = _configuration["Authing.Config:UserPoolId"];
+        //        options.Secret = _configuration["Authing.Config:Secret"];
+        //        options.RedirectUri = _configuration["Authing.Config:RedirectUri"];
+        //    });
+        //    services.AddSingleton(typeof(AuthenticationClient), authenticationClient);
+        //    var jwtSettings = new JwtSettings();
+        //    _configuration.Bind("JwtSettings", jwtSettings);
+        //    services.AddAuthentication(options =>
+        //    {
+        //        //认证middleware配置
+        //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        //    })
+        //   .AddJwtBearer(o =>
+        //   {
+        //       //主要是jwt  token参数设置
+        //       o.TokenValidationParameters = new TokenValidationParameters
+        //       {
+        //           //Token颁发机构
+        //           ValidIssuer = jwtSettings.Issuer,
+        //           //颁发给谁
+        //           ValidAudience = jwtSettings.Audience,
+        //           //这里的key要进行加密，需要引用Microsoft.IdentityModel.Tokens
+        //           // IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+        //           // ValidateIssuerSigningKey = true,
+        //           //是否验证Token有效期，使用当前时间与Token的Claims中的NotBefore和Expires对比
+        //           // ValidateLifetime = true,
+        //           //允许的服务器时间偏移量
+        //           // ClockSkew = TimeSpan.Zero,
+        //           ValidAlgorithms = new string[] { "RS256" },
+        //           // IssuerSigningKeys = signingKeys,
+        //       };
+        //       o.RequireHttpsMetadata = false;
+        //       o.SaveToken = false;
+        //       o.IncludeErrorDetails = true;
+        //       o.SetJwksOptions(new JwkOptions(jwtSettings.JwksUri, jwtSettings.Issuer, new TimeSpan(TimeSpan.TicksPerDay)));
+        //   });
+        //}
 
         private static void ConfigureSelfAuthing(this IServiceCollection services, IConfiguration configuration)
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            //JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -126,10 +133,21 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 .AddCookie("Cookies", options =>
                 {
                     options.AccessDeniedPath = new PathString("/Error?msg=" + Assistant.Utils.EncodeUrlParam("未登录"));
+                
+                })
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        ValidateIssuerSigningKey = false
+                    };
                 })
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
-                    options.Authority = ConfigurationHelper.GetSectionValue("authHost");
+
                     //samesite 设置
                     CookieBuilder cb = new CookieBuilder();
                     cb.Name = OpenIdConnectDefaults.CookieNoncePrefix;
@@ -137,27 +155,32 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     cb.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                     cb.HttpOnly = true;
                     cb.IsEssential = true;
-                    options.NonceCookie = cb;
-                    options.CorrelationCookie = cb;
-                    options.RequireHttpsMetadata = false;
+                    
+                    //options.Authority = ConfigurationHelper.GetSectionValue("authHost");
+                    options.Authority = "http://login.xiaoxiaotong.org";
+                    //options.NonceCookie = cb;
+                    //options.CorrelationCookie = cb;
 
+                    options.ClientId = "MagicExam2024";
+                    options.ClientSecret = "MagicGDExam14cFGp";
 
-                    options.ClientId = "checkinsystem2021";
-                    options.ResponseType = "code id_token";
+                    options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
                     options.Scope.Clear();
                     options.Scope.Add("api1");
                     options.Scope.Add("openid");
                     options.Scope.Add("profile");
                     options.SaveTokens = true;
-                    options.ClientSecret = "checkinsystem2021";
+                    options.RequireHttpsMetadata = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
-                    //options.ClaimActions.MapUniqueJsonKey("role", "role");
-
+                    options.ClaimActions.MapUniqueJsonKey("role", "role");
+                    //options.MapInboundClaims = false;
+                    // options.UseSecurityTokenValidator = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        NameClaimType = "given_name",
-                        RoleClaimType = "role"
+                        NameClaimType = JwtClaimTypes.GivenName,
+                        RoleClaimType = JwtClaimTypes.Role,
                     };
+                    
                 });
         }
 

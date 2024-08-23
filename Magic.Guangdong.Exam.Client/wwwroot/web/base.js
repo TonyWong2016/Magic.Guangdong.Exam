@@ -31,10 +31,10 @@ function clearLoginInfo() {
     deleteCookie('accessToken');
     //localStorage.removeItem('accessToken');
 
-    if (parent.location) {
-        parent.location.href = "/account/login"
-    }
-    window.location.href = "/account/login";
+    //if (parent.location) {
+    //    parent.location.href = "/account/login"
+    //}
+    //window.location.href = "/account/login";
 }
 
 function autoSearch(elemId, callback) {
