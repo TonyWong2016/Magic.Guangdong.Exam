@@ -1,6 +1,7 @@
 ﻿@page
 @model Magic.Guangdong.Exam.Client.Pages.Account.MeModel
 @{
+    
 }
 
 <main class="container">
@@ -10,12 +11,8 @@
         <a role="button" href="/activity/index" class="outline">看看有什么活动</a>
     </article>
 </main>
-
+<input type="hidden" id="idToken" value="@Model.idToken" />
 <script>
-   function getUserInfo(){
-
-   }
-
    axios.get('/account/getuserinfo',{
        params:{
             'accountId':accountId
@@ -24,6 +21,10 @@
        let json = data.data;
        if(json.code==0){
            jHtmlSet('userName',json.data.name)
+       } else{
+           TT.error('获取用户信息失败');
        }
+
    })
+   idToken = jVal('idToken');
 </script>

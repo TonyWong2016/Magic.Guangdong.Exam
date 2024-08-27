@@ -93,12 +93,13 @@ namespace Magic.Guangdong.Exam.Extensions
         }
 
        
-        static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
         /// <summary>
         /// 配置orm
         /// </summary>
         private static void ConfigureOrm(this IServiceCollection services,IConfiguration configuration)
         {
+            IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
+
             #region orm框架
             //IFreeSql fsql = new FreeSqlBuilder()
             //.UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
@@ -120,6 +121,7 @@ namespace Magic.Guangdong.Exam.Extensions
                         })//监听SQL语句
                     .Build()
                 );
+                
             }
             else
             {
@@ -128,6 +130,8 @@ namespace Magic.Guangdong.Exam.Extensions
                     .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
                     .Build()
                 );
+
+                
             }
             
 

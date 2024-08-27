@@ -184,12 +184,13 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 });
         }
 
-        static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
+       
         /// <summary>
         /// 配置orm
         /// </summary>
         private static void ConfigureOrm(this IServiceCollection services, IConfiguration configuration)
         {
+            IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
             #region orm框架
             //IFreeSql fsql = new FreeSqlBuilder()
             //.UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
@@ -211,12 +212,28 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     })//监听SQL语句
                     .Build()
                 );
+                ib.Register("db_passport", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("PassportConnString"))
+                    .UseMonitorCommand(cmd =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"Sql：{cmd.CommandText}");
+                        Console.ResetColor();
+                    })//监听SQL语句
+                    .Build()
+                );
             }
             else
             {
                 ib.Register("db_exam", () =>
                     new FreeSqlBuilder()
                     .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
+                    .Build()
+                );
+                ib.Register("db_passport", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("PassportConnString"))
                     .Build()
                 );
             }
@@ -244,6 +261,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
         /// <param name="configuration"></param>
         private static void ConfigureRedisCluser(this IServiceCollection services, IConfiguration configuration)
         {
+            
             services.AddMemoryCache();
             services.AddResponseCaching();
             services.AddEasyCaching(options =>

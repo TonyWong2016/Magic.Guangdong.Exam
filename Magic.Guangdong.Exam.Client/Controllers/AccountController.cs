@@ -18,6 +18,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Magic.Passport.DbServices.Interfaces;
+using Mapster;
+using Magic.Guangdong.DbServices.Dtos.Account;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
@@ -31,9 +34,15 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IResponseHelper _resp;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly IUserCenterRepo _userCenterRepo;
        
-        public AccountController(IResponseHelper resp,ICapPublisher capPublisher,IUserBaseRepo userBaseRepo, IRedisCachingProvider redisCachingProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AccountController(IResponseHelper resp,
+            ICapPublisher capPublisher,
+            IUserBaseRepo userBaseRepo, 
+            IRedisCachingProvider redisCachingProvider,
+            IConfiguration configuration, 
+            IHttpContextAccessor httpContextAccessor,
+            IUserCenterRepo userCenterRepo)
         {
             _resp = resp;
             _userBaseRepo = userBaseRepo;
@@ -42,6 +51,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             _redisCachingProvider = redisCachingProvider;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _userCenterRepo = userCenterRepo;
         }
 
 
@@ -182,9 +192,36 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> GetUserInfo(string accountId)
         {
             if (await _userBaseRepo.getAnyAsync(u => u.AccountId == accountId))
-                return Json(_resp.success(await _userBaseRepo.getOneAsync(u => u.AccountId == accountId)));
+            {
+                var account = await _userBaseRepo.getOneAsync(u => u.AccountId == accountId);
+                return Json(_resp.success(account.Adapt<AccountDto>()));
+
+            }
+            int uid = 0;
+            if(!int.TryParse(accountId,out uid))
+            {
+                return Redirect("/account/me");
+            }
+            if (await _userCenterRepo.getAnyAsync(u => u.UID == uid))
+            {
+                var passportUser = await _userCenterRepo.getOneAsync(u => u.UID == uid);
+                var newUserBase = new UserBase()
+                {
+                    AccountId = accountId,
+                    Name = passportUser.Name,
+                    Password = Utils.GenerateRandomCodePro(8, 2),
+                    IdCard = passportUser.IdentityNo,
+                    Sex = string.IsNullOrEmpty(passportUser.IdentityNo) ? 0
+                    : passportUser.IdentityNo.Length == 18 ? Convert.ToInt32(passportUser.IdentityNo.Substring(16, 1)) % 2 : 0,
+                    Email = passportUser.Email,
+                    Mobile = passportUser.Mobile,                    
+                };
+                await _userBaseRepo.addItemAsync(newUserBase);
+                return Json(_resp.success(newUserBase.Adapt<AccountDto>()));
+            }
+            return Redirect("/account/me");
             // 如果用户没有进行登录，则跳转到 /auth/login 进行登录
-            return Redirect("/auth/login");
+            //return Redirect("/auth/login");
         }
 
         [NonAction]

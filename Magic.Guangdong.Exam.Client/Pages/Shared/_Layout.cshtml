@@ -38,6 +38,7 @@
         let accountId = getCookie('accountId');
         const CT = { 'Content-Type': 'multipart/form-data' };
         let shouldSubmit = false;
+        let idToken='';
     </script>
     <script type="text/html" id="selectTpl">
         <option value="0">请选择</option>
@@ -63,7 +64,7 @@
                             我的账户
                         </summary>
                         <ul dir="rtl">
-                            <li><a href="#">个人中心</a></li>
+                            <li><a href="https://i.xiaoxiaotong.org/">个人中心</a></li>
                             <li><a href="/report/index">报名记录</a></li>
                             <li><a id="examHistoryHref" href="javascript:;">考试成绩</a></li>
                             <li><a href="javascript:;" id="btnLogout">退出账号</a></li>
@@ -88,7 +89,7 @@
         $("#btnLogout").click(function () {
             deleteCookie("accountId");
             deleteCookie("accountName");
-            location.href = "@Url.Action("Logout")?idToken=" + jVal("idToken") + "&redirectUrl=" + location.protocol + "//" + location.host + location.pathname;
+            location.href = "/account/Logout?idToken=" + idToken + "&redirectUrl=" + location.protocol + "//" + location.host + location.pathname;
         });
         if (accountId)
             $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);

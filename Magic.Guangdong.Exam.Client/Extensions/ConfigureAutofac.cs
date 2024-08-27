@@ -19,7 +19,10 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             builder.RegisterAssemblyTypes(assemblyDbServices)
                 .Where(u => u.Name.EndsWith("Repository") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
                 .AsImplementedInterfaces();
-
+            var assemblyPassportDbServices = Assembly.Load("Magic.Passport.DbServices");
+            builder.RegisterAssemblyTypes(assemblyPassportDbServices)
+                .Where(u => u.Name.EndsWith("Repository") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
+                .AsImplementedInterfaces();
             #endregion
 
         }

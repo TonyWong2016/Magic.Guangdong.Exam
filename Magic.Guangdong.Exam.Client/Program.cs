@@ -11,7 +11,8 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 containerBuilder.RegisterModule<ConfigureAutofac>();
                 //containerBuilder.Build();
             });
-builder.Services.AddSession();
+//builder.Services.AddSession();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,7 +36,7 @@ app.UseCookiePolicy();
 
 app.UseResponseCompression();
 app.UseResponseCaching();
-app.UseSession();
+//app.UseSession();
 app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}"
