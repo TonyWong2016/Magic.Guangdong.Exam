@@ -26,7 +26,11 @@
             <header>{{ item.title }}</header>
             <p class="grid">
                 <a role="button" href="@Url.Page("Detail")?id={{item.id}}"class="secondary">查看</a>
-                <a role="button" href="@Url.PageLink("/Report/Create")?id={{item.id}}" >报名</a>
+                {{# if(item.canIReport==0){ }}
+                    <a role="button" href="@Url.PageLink("/Report/Create")?id={{item.id}}" >报名</a>
+                {{# } else { }}
+                    <a role="button" class="contrast" href="javascript:;">不可报名</a>
+                {{# } }}
             </p>
             <img src="{{ fileBaseUrl+item.cover}}" alt="cover" />
 

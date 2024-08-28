@@ -119,8 +119,18 @@ namespace Magic.Guangdong.DbServices.Entities {
         [JsonProperty]
         public int TestedTime { get; set; }
 
-		//[JsonProperty]
-		//public Guid AttachmentId { get; set; }
+        /// <summary>
+        /// 联系方式可用程度
+        /// 0-未验证
+        /// 1-邮箱验证可用
+        /// 2-手机号可用
+        /// 3-邮箱和手机号都可用
+        /// </summary>
+        [JsonProperty]
+        public int ConnAvailable { get; set; }
+
+        //[JsonProperty]
+        //public Guid AttachmentId { get; set; }
     }
 
 }

@@ -2,12 +2,72 @@
 @model Magic.Guangdong.Exam.Client.Pages.Activity.DetailModel
 @{
 }
+<style>
+    .distinct-div {
+        /* 设置背景颜色为淡蓝色 */
+        background-color: #e0f7fa;
+        /* 设置边框为4像素宽的虚线，颜色为鲜艳的蓝色 */
+        border: 2px dashed #00bfff;
+        /* 添加圆角，使边框看起来更加圆滑 */
+        border-radius: 10px;
+        /* 可以添加一些额外的样式来使div更加突出 */
+        padding: 10px; /* 内边距 */
+        margin: 10px; /* 外边距 */
+        color: #333; /* 文字颜色 */
+        font-family: Arial, sans-serif; /* 字体 */
+        font-size: 16px; /* 字号 */
+    }
+</style>
 <main class="container">
     <article>
-        @Html.Raw(Model.Deacription)
-        <footer class="grid">
-            <a role="button" href="@Url.Page("/Report/Create")?id=@Model.Id">去报名</a>
-        </footer>
+        @{
+            if (Model.IsDeleted!=0)
+            {
+                <h2 style="color:red;text-align:center;padding:100px">活动已删除</h2>
+            }
+            else
+            {
+                <form>
+                    <fieldset>
+                        <label>
+                            活动标题
+                            <input name="title"
+                                   placeholder="活动标题"
+                                   value="@Model.Title"
+                                   readonly />
+                        </label>
+                        <label>
+                            活动时间
+                            <input type="text"
+                                   name="activityTime"
+                                   value="@Model.StartTime ~ @Model.EndTime"
+                                   readonly />
+                        </label>
+                        活动详情
+                        <br />
+                        <div class="distinct-div">
+                            @Html.Raw(@Model.Deacription)
+                        </div>
+                    </fieldset>
+                </form>
+
+                <footer class="grid">                
+                    @{
+                        if (Model.CanIReport == 0)
+                        {
+                            <a role="button" href="@Url.Page("/Report/Create")?id=@Model.Id">去报名</a>
+                        }
+                        else
+                        {
+                            <a role="button" style="background-color:#EE402E;border-color:#EE402E" href="javascript:;">@Model.Msg</a>
+                        }
+                        <a role="button" class="secondary" href="@Url.Page("index")">返回</a>
+                    }
+                </footer>
+            }
+            
+        }
+        
     </article>
    
 </main>

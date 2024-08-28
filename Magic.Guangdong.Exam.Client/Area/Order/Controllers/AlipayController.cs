@@ -85,8 +85,8 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                 };
                 var req = new AlipayTradePagePayRequest();
                 req.SetBizModel(model);
-                req.SetNotifyUrl("https://localhost:7296/order/alipaynotify/pagepay");
-                req.SetReturnUrl("https://localhost:7296/order/alipayreturn/pagepay");
+                req.SetNotifyUrl("http://localhost:5256/order/alipaynotify/pagepay");
+                req.SetReturnUrl("http://localhost:5256/order/alipayreturn/pagepay");
 
                 var response = await _client.PageExecuteAsync(req, _optionsAccessor.Value);
                 return Content(response.Body, "text/html", Encoding.UTF8);
@@ -168,9 +168,9 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                     TotalAmount = response.TotalAmount,
                     Timestamp = Assistant.Utils.DateTimeToTimeStamp(Convert.ToDateTime(response.SendPayDate)).ToString()
                 }) ;
+                
+                
             }
-            //ViewData["response"] = ((AlipayResponse)response).Body;
-            //return View();
             return Json(_resp.success(response));
         }
 

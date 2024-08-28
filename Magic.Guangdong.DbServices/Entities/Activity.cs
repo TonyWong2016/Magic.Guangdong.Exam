@@ -64,6 +64,12 @@ namespace Magic.Guangdong.DbServices.Entities {
         /// </summary>
         [JsonProperty]
         public string Cover { get; set; } = "/images/cover.jpg";
+
+		/// <summary>
+		/// 宣传封面
+		/// </summary>
+		[JsonProperty]
+		public string Remark { get; set; } = "";
     }
 
 }

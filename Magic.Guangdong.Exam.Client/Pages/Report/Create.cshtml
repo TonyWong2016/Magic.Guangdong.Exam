@@ -270,7 +270,7 @@
 <script type="text/html" id="selectExamTpl">
     <option value="0">请选择</option>
     {{# layui.each(d,function(index,item){}}
-        {{# if(!item.attachmentId){ }}
+        {{# if(!item.attachmentId || item.examType==0){ }}
         <option value="{{ item.examId }}" data-money="{{item.amount}}">{{item.examTitle}}</option>
         {{# } }}
     {{# }) }}

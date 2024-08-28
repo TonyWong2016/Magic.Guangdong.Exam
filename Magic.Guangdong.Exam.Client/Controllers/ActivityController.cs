@@ -34,7 +34,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public IActionResult GetActivities(PageDto dto)
         {
             long total = 0;
-            return Json(_resp.success(new { items = _activityRepo.getList(dto, out total), total }));
+            return Json(_resp.success(new { items = _activityRepo.GetActivityItemsClient(dto, out total), total }));
         }
 
         /// <summary>

@@ -1,25 +1,12 @@
-﻿using Essensoft.Paylink.Alipay.Domain;
-using Essensoft.Paylink.WeChatPay.V2.Request;
-using FreeSql;
-using FreeSql.Internal.Model;
-using log4net.Repository.Hierarchy;
+﻿using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
-using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;
-using MathNet.Numerics.Distributions;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -99,6 +86,11 @@ namespace Magic.Guangdong.DbServices.Methods
                         reportProcessModel.Step = ReportStep.Paied;
                         order.PayType = PayType.None;
                     }
+                    //else
+                    //{
+                    //    await RedisHelper.HSetAsync("unPaidOrder", dto.OrderTradeNumber, dto.Id);
+                    //    await RedisHelper.ExpireAtAsync("unPaidOrder", exam.EndTime);
+                    //}
                     //如果考试本身设定了不需要审核
                     if (exam.Audit == ExamAudit.No)
                     {

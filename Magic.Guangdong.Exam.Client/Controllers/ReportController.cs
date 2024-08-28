@@ -13,20 +13,37 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using Yitter.IdGenerator;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Essensoft.Paylink.Alipay.Domain;
+using Microsoft.AspNetCore.Hosting;
+using NPOI.SS.Formula.Functions;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
     public class ReportController : Controller
     {
         private readonly IResponseHelper _resp;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IReportInfoRepo _reportInfoRepo;
         private readonly IUserBaseRepo _userBaseRepo;
+        private readonly IReportProcessRepo _reportProcessRepo;
         private readonly IExaminationClientRepo _examinationClientRepo;
         private readonly IActivityRepo _activityRepo;
         private readonly ICapPublisher _capPublisher;
         private readonly IRedisCachingProvider _redisProvider;
         private readonly IUnitInfoRepo _unitInfoRepo;
-        public ReportController(IResponseHelper resp,IExaminationClientRepo examinationClientRepo, IReportInfoRepo reportInfoRepo,IUserBaseRepo userBaseRepo, IActivityRepo activityRepo, ICapPublisher capPublisher, IRedisCachingProvider redisProvider, IUnitInfoRepo unitInfoRepo)
+        private readonly IReportExamViewRepo _reportExamViewRepo;
+        public ReportController(IResponseHelper resp,
+            IWebHostEnvironment webHostEnvironment,
+            IExaminationClientRepo examinationClientRepo,
+            IReportInfoRepo reportInfoRepo,
+            IUserBaseRepo userBaseRepo, 
+            IActivityRepo activityRepo,
+            ICapPublisher capPublisher,
+            IRedisCachingProvider redisProvider, 
+            IUnitInfoRepo unitInfoRepo,
+            IReportProcessRepo reportProcessRepo,
+            IReportExamViewRepo reportExamViewRepo)
         {
             _resp = resp;
             _reportInfoRepo = reportInfoRepo;
@@ -36,6 +53,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             _redisProvider = redisProvider;
             _unitInfoRepo = unitInfoRepo;
             _examinationClientRepo = examinationClientRepo;
+            _reportProcessRepo = reportProcessRepo;
+            _webHostEnvironment = webHostEnvironment;
+            _reportExamViewRepo = reportExamViewRepo;
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -60,7 +80,10 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             //var reportInfo = dto.Adapt<ReportInfo>();
             dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
             if (await _reportInfoRepo.ReportActivity(dto))
-                return Json(_resp.success(new { tradeNo= dto.OrderTradeNumber ,reportId = dto.Id}));
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
+                return Json(_resp.success(new { tradeNo = dto.OrderTradeNumber, reportId = dto.Id }));
+            }
             return Json(_resp.error("报名失败"));
         }
 
@@ -179,7 +202,33 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             await _redisProvider.StringSetAsync("SyncExamReportInfoToPractice_" + list.items[0].AccountId, "done", DateTime.Now.AddMinutes(5) - DateTime.Now);
         }
 
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "CheckReportStatus")]
+        public async Task CheckReportStatus(long reportId)
+        {
+            var reportInfo = await _reportExamViewRepo.getOneAsync(u => u.ReportId == reportId);
+            if (reportInfo == null || reportInfo.ReportStatus!=0 || reportInfo.ReportStep!=1)
+            {
+                Console.WriteLine("异常的报名活动");
+                return;
+            }
+            
+            if (reportInfo.ConnAvailable==1 || reportInfo.ConnAvailable==3)
+            {
+                string htmlContent;
+                string templateFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "web", "emailnotice.html");
+                using (StreamReader reader = new StreamReader(templateFilePath))
+                {
+                    htmlContent = reader.ReadToEnd()
+                        .Replace("**title**","报名成功")
+                        .Replace("**content1**", $"您的已经成功报名考试【{reportInfo.Title}】，考试时间为【{reportInfo.StartTime}~{reportInfo.EndTime}】，准考证号为")
+                        .Replace("**content2**", $"{reportInfo.ReportNumber}")
+                        .Replace("**content3**", $"请牢记您的准考证号，准时参加考试");
 
-        
+                }
+                await EmailKitHelper.SendVerificationCodeEmailAsync("报名成功", htmlContent, reportInfo.Email, reportInfo.Name);
+                //await _emailSender.SendEmailAsync(reportInfo.Email,"报名成功",)
+            }
+        }
     }
 }

@@ -1,6 +1,10 @@
-﻿using Magic.Guangdong.DbServices.Dtos.Report.Activities;
+﻿using FreeSql.Internal.Model;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Report.Activities;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +54,29 @@ namespace Magic.Guangdong.DbServices.Methods
                 Title = activity.Title,
                 Exams = exams,
             };
+        }
+    
+        public List<ActivityItemsDto> GetActivityItemsClient(PageDto pageDto,out long total)
+        {
+            if(string.IsNullOrEmpty(pageDto.whereJsonStr))
+            {
+                var noWhereItems = fsql.Get(conn_str).Select<Activity>()
+                    .Where(u=>u.IsDeleted==0)
+                    .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
+                    .Count(out total)
+                    .Page(pageDto.pageindex, pageDto.pagesize)
+                    .ToList();
+                return noWhereItems.Adapt<List<ActivityItemsDto>>();
+            }
+            DynamicFilterInfo filter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
+            var items = fsql.Get(conn_str).Select<Activity>()
+                    .Where(u => u.IsDeleted == 0)
+                    .WhereDynamicFilter(filter)
+                    .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
+                    .Count(out total)
+                    .Page(pageDto.pageindex, pageDto.pagesize)
+                    .ToList();
+            return items.Adapt<List<ActivityItemsDto>>();
         }
     }
 }

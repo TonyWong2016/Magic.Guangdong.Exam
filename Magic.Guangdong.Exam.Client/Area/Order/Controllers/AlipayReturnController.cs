@@ -1,4 +1,5 @@
-﻿using DotNetCore.CAP;
+﻿using Azure;
+using DotNetCore.CAP;
 using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Notify;
@@ -62,6 +63,8 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                     Timestamp = notify.Timestamp
                 });
 
+                var order = await _orderRepo.getOneAsync(u => u.TradeNo == notify.OutTradeNo);
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", order.ReportId);
                 return Redirect("/order/result?sub=" + sub);
             }
             catch (AlipayException ex)
