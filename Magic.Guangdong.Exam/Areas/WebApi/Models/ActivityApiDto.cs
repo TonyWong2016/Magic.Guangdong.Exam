@@ -1,6 +1,6 @@
 ﻿using Yitter.IdGenerator;
 
-namespace Magic.Guangdong.Exam.Areas.Report.Models
+namespace Magic.Guangdong.Exam.Areas.WebApi.Models
 {
     public class ActivityApiDto
     {
@@ -18,5 +18,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Models
         public string FieldJson { get; set; } = "{}";
 
         public int CreatedExam { get; set; } = 0;
+
+        public ExamApiDto ExamDto { get; set; }
     }
 }

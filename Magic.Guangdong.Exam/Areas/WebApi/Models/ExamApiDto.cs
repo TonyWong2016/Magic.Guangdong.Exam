@@ -1,0 +1,40 @@
+﻿using MassTransit;
+
+namespace Magic.Guangdong.Exam.Areas.WebApi.Models
+{
+    public class ExamApiDto
+    {
+        public Guid Id { get; set; } = NewId.NextGuid();
+        public string Title { get; set; }
+
+        public string Description { get; set; }
+
+        public long AssociationId { get; set; }
+
+        public string AssociationTitle { get; set; }
+
+        public string Remark { get; set; } = "接口创建";
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+
+        public double BaseScore { get; set; }
+
+        public double BaseDuration { get; set; }
+
+        public int IsStrict { get; set; } = 0;
+
+        public decimal Expenses {  get; set; } = decimal.Zero;
+
+        public int Quota { get; set; } = 0;
+
+        public string Address { get; set; } = "线上";
+
+        public int Audit { get; set; } = 2;
+
+        public Guid AttachmentId { get; set; } = Guid.Empty;
+
+        public int MarkStatus {  get; set; } = 0;
+    }
+}

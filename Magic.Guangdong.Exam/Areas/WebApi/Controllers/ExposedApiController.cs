@@ -11,11 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 using Magic.Guangdong.DbServices.Dtos.Report.Activities;
 using Magic.Guangdong.DbServices.Entities;
 using Mapster;
-using Magic.Guangdong.Exam.Areas.Report.Models;
+using Magic.Guangdong.Exam.Areas.WebApi.Models;
 
 namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 {
-    [Area("webapi")]    
+    [Area("webapi")]
     public class ExposedApiController : Controller
     {
         private readonly IResponseHelper _resp;
@@ -27,6 +27,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IRoleRepo _roleRepo;
         private readonly IJwtService _jwtService;
         private readonly IActivityRepo _activityRepo;
+        private readonly IExaminationRepo _examinationRepo;
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider, 
             IWebHostEnvironment webHostEnvironment, 
@@ -35,6 +36,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             IRoleRepo roleRepo,
             IAdminRoleRepo adminRoleRepo,
             IActivityRepo activityRepo,
+            IExaminationRepo examinationRepo,
             IJwtService jwtService)
         {
             _resp = resp;
@@ -45,6 +47,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _roleRepo = roleRepo;
             _adminRoleRepo= adminRoleRepo;
             _activityRepo = activityRepo;
+            _examinationRepo = examinationRepo;
             _jwtService = jwtService;
         }
 
@@ -107,15 +110,37 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [WebApiModule]
-        public async Task<IActionResult> CreateActivity(ActivityApiDto dto)
+        public async Task<IActionResult> CreateOrModifyActivity(ActivityApiDto dto)
         {
-            if (await _activityRepo.getAnyAsync(u => u.Title == dto.Title))
+            try
             {
-                return Json(_resp.error("活动名称已存在"));
+                if (await _activityRepo.getAnyAsync(u => u.Id == dto.Id && u.Title != dto.Title))
+                {
+                    var modifyActivity = dto.Adapt<Activity>();
+                    modifyActivity.UpdatedAt = DateTime.Now;
+                    await _activityRepo.updateItemAsync(modifyActivity);
+                }
+                else if (await _activityRepo.getAnyAsync(u => u.Title == dto.Title))
+                {
+                    return Json(_resp.error("活动名称已存在"));
+                }
+                var newActivity = dto.Adapt<Activity>();
+                newActivity.Remark = "接口创建";
+                await _activityRepo.addItemAsync(newActivity);
+                if (dto.CreatedExam == 1 && dto.ExamDto != null)
+                {
+                    if (dto.ExamDto.AssociationId == 0)
+                        dto.ExamDto.AssociationId = dto.Id;
+                    if (string.IsNullOrEmpty(dto.ExamDto.AssociationTitle))
+                        dto.ExamDto.AssociationTitle = dto.Title;
+                    await CreateOrModifyExam(dto.ExamDto);
+                }
             }
-            var activity = dto.Adapt<Activity>();
-            activity.Remark = "接口创建";
-            return Json(_resp.success(await _activityRepo.addItemAsync(activity)));
+            catch(Exception ex)
+            {
+                return Json(_resp.error($"创建失败，{ex.Message}"));
+            }
+            return Json(_resp.success(true,"操作成功"));
         }
 
         [HttpPost]
@@ -129,6 +154,30 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             var activity = dto.Adapt<Activity>();
             activity.UpdatedAt = DateTime.Now;
             return Json(_resp.success(await _activityRepo.updateItemAsync(activity)));
+        }
+
+        [HttpPost]
+        [WebApiModule]
+        public async Task<IActivityRepo> CreateOrModifyExamination(ExamApiDto examApiDto)
+        {
+            if (await CreateOrModifyExam(examApiDto))
+                return Json(_resp.success(true, "操作成功"));
+            return Json(_resp.error("创建失败"));
+        }
+
+        public async Task<bool> CreateOrModifyExam(ExamApiDto examApiDto)
+        {
+            var exam = examApiDto.Adapt<Examination>();
+            if (await _examinationRepo.getAnyAsync(u => u.Id == examApiDto.Id))
+            {                
+                return await _examinationRepo.updateItemAsync(exam) == 1;
+            }
+
+            if(await _examinationRepo.getAnyAsync(u => u.Title == exam.Title))
+            {
+                return false;
+            }
+            return await _examinationRepo.addItemAsync(exam) == 1;
         }
 
         private async Task CacheMyPermission(AfterLoginDto dto)
