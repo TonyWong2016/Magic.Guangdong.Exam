@@ -1,17 +1,16 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Areas.WebApi.Models;
 using Magic.Guangdong.Exam.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Magic.Guangdong.DbServices.Dtos.Report.Activities;
-using Magic.Guangdong.DbServices.Entities;
-using Mapster;
-using Magic.Guangdong.Exam.Areas.WebApi.Models;
 
 namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 {
@@ -50,9 +49,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _examinationRepo = examinationRepo;
             _jwtService = jwtService;
         }
-
         [HttpPost]
-        [WebApiModule]
+        [WebApiModule] 
         public async Task<IActionResult> Test()
         {
             return Json(_resp.success(Guid.NewGuid()));
@@ -67,28 +65,28 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAccessToken(string keyId, string sign, long timestamp)
+        public async Task<IActionResult> GetAccessToken([FromBody]TokenParam model)
         {
-            TimeSpan ts = DateTime.Now - Utils.TimeStampToDateTime(timestamp);
+            TimeSpan ts = DateTime.Now - Utils.TimeStampToDateTime(model.timestamp);
             if (ts.TotalSeconds > 300)
             {
                 return Json(_resp.error("时间戳已过期"));
             }
             if (!await _adminRepo.getAnyAsync(
                 u =>
-                u.KeyId.Equals(keyId) &&
+                u.KeyId.Equals(model.keyId) &&
                 u.IsDeleted == 0))
             {
                 return Json(_resp.error("用户不存在"));
             }
             var admin = await _adminRepo.getOneAsync(
                 u =>
-                u.KeyId.Equals(keyId) &&
+                u.KeyId.Equals(model.keyId) &&
                 u.IsDeleted == 0);
 
 
-            string tt = Security.GenerateMD5Hash(admin.KeyId + admin.KeySecret + timestamp);
-            if (tt == sign.ToLower())
+            string tt = Security.GenerateMD5Hash(admin.KeyId + admin.KeySecret + model.timestamp);
+            if (tt == model.sign.ToLower())
             {
                 DateTime expires = DateTime.Now.AddHours(6);
                 await CacheMyPermission(new AfterLoginDto() { adminId = admin.Id, exp = expires });
@@ -110,13 +108,17 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [WebApiModule]
-        public async Task<IActionResult> CreateOrModifyActivity(ActivityApiDto dto)
+        public async Task<IActionResult> CreateOrModifyActivity([FromBody]ActivityApiDto dto)
         {
             try
             {
+                if (dto.St > dto.Et)
+                {
+                    return Json(_resp.error("开始时间不能大于结束时间"));
+                }
                 if (await _activityRepo.getAnyAsync(u => u.Id == dto.Id && u.Title != dto.Title))
                 {
-                    var modifyActivity = dto.Adapt<Activity>();
+                    var modifyActivity = dto.Adapt<Activity>();                    
                     modifyActivity.UpdatedAt = DateTime.Now;
                     await _activityRepo.updateItemAsync(modifyActivity);
                 }
@@ -125,6 +127,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                     return Json(_resp.error("活动名称已存在"));
                 }
                 var newActivity = dto.Adapt<Activity>();
+                //newActivity.StartTime = Utils.TimeStampToDateTime(dto.St);
+                //newActivity.EndTime = Utils.TimeStampToDateTime(dto.Et);
+                newActivity.CreatedAt = DateTime.Now;
                 newActivity.Remark = "接口创建";
                 await _activityRepo.addItemAsync(newActivity);
                 if (dto.CreatedExam == 1 && dto.ExamDto != null)
@@ -198,5 +203,14 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             }
             await _redisCachingProvider.KeyExpireAsync("GD.Exam.Permissions_" + dto.adminId.ToString(), Convert.ToInt32((dto.exp - DateTime.Now).TotalSeconds));
         }
+    }
+
+    public class TokenParam
+    {
+        public string keyId { get; set; }
+
+        public string sign { get; set; }
+
+        public long timestamp { get; set; }
     }
 }

@@ -51,7 +51,6 @@ function loadImg() {
     }).then(() => {
         if (localStorage.getItem('canvasJson')) {
             canvas.loadFromJSON(localStorage.getItem('canvasJson'))
-            
         }
     })
 

@@ -23,6 +23,9 @@ namespace Magic.Guangdong.Exam.Client.Pages
         [AllowAnonymous]
         public void OnGet()
         {
+           
+            RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            Assistant.Logger.Error(RequestId);
             //RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         }
     }

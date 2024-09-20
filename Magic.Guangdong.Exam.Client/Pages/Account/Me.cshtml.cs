@@ -25,12 +25,15 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
         }
         public async void OnGet()
         {
+            Assistant.Logger.Debug("登录完成");
             if (_httpContextAccessor.HttpContext.Request.Cookies.Any(u => u.Key == "accountId"))
             {
+                Assistant.Logger.Debug("cookie存在");
                 Console.WriteLine("cookie存在");
             }
             else
             {
+                Assistant.Logger.Debug("1.开始记录信息");
                 var result = await HttpContext.AuthenticateAsync(OpenIdConnectDefaults.AuthenticationScheme);
                 if (result?.Principal == null)
                 {

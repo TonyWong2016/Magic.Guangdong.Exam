@@ -9,9 +9,17 @@
         <header class="pico-color-Amber-200">系统消息</header>
         <h4 id="content" class="pico-color-red-500" style="text-align:center;margin-top:3rem"></h4>
     </article>
+
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
 </main>
 <script>
     let msg = getUrlQueryParams('msg');
+    console.log(msg);
     if(!msg)
         msg = '系统异常'
     try {

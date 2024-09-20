@@ -92,7 +92,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove([FromServices]IExaminationRepo examRepo, [FromServices]IReportProcessRepo reportProcessRepo, long id)
         {
-            if (await examRepo.getAnyAsync(u => u.AssociationId == id.ToString()) || await reportProcessRepo.getAnyAsync(u=>u.ActivityId==id))
+            if (await examRepo.getAnyAsync(u => u.AssociationId == id.ToString() && u.IsDeleted==0) || await reportProcessRepo.getAnyAsync(u=>u.ActivityId==id))
             {
                 return Json(_resp.error("该活动已被占用（关联了考试，或者已有报名该活动的用户），无法删除"));
             }

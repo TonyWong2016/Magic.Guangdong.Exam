@@ -15,9 +15,25 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Models
 
         public string Remark { get; set; } = "接口创建";
 
-        public DateTime StartTime { get; set; }
+        public long St { get; set; }
 
-        public DateTime EndTime { get; set; }
+        public long Et { get; set; }
+
+        public DateTime StartTime
+        {
+            get
+            {
+                return Assistant.Utils.TimeStampToDateTime(St);
+            }
+        }
+
+        public DateTime EndTime
+        {
+            get
+            {
+                return Assistant.Utils.TimeStampToDateTime(Et);
+            }
+        }
 
         public double BaseScore { get; set; }
 

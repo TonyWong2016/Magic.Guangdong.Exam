@@ -191,6 +191,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [ResponseCache(Duration = 600,VaryByQueryKeys = new string[] {"accountId","rd"})]
         public async Task<IActionResult> GetUserInfo(string accountId)
         {
+            Logger.Debug("获取用户信息");
             if (await _userBaseRepo.getAnyAsync(u => u.AccountId == accountId))
             {
                 var account = await _userBaseRepo.getOneAsync(u => u.AccountId == accountId);
@@ -200,11 +201,18 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             int uid = 0;
             if(!int.TryParse(accountId,out uid))
             {
+                Logger.Debug("获取失败");
                 return Redirect("/account/me");
             }
             if (await _userCenterRepo.getAnyAsync(u => u.UID == uid))
             {
+                Logger.Debug("获取成功");
                 var passportUser = await _userCenterRepo.getOneAsync(u => u.UID == uid);
+                if (await _userBaseRepo.getAnyAsync(u => u.AccountId == uid.ToString()))
+                {
+                    var userBase = await _userBaseRepo.getOneAsync(u => u.AccountId == uid.ToString());
+                    return Json(_resp.success(userBase.Adapt<AccountDto>()));
+                }
                 var newUserBase = new UserBase()
                 {
                     AccountId = accountId,

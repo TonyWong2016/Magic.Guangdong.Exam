@@ -10,9 +10,25 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Models
 
         public string? Description { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public long St { get; set; }
 
-        public DateTime EndTime { get; set; }
+        public long Et { get; set; }
+
+        public DateTime StartTime
+        {
+            get
+            {
+                return Assistant.Utils.TimeStampToDateTime(St);
+            }
+        }
+
+        public DateTime EndTime
+        {
+            get
+            {
+                return Assistant.Utils.TimeStampToDateTime(Et);
+            }
+        }
 
         public int Status { get; set; } = 0;
         public string FieldJson { get; set; } = "{}";

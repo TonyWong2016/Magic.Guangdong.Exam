@@ -314,17 +314,18 @@
             return;
         }
         //console.log(certParam) // 在控制台输出结果
-        
         successMsg('保存成功')
     }
 
     $('#btnBack').click(() => {
+        localStorage.removeItem('canvasJson');
         if (from) {
             window.location.href = atob(decodeURIComponent(from));
             // localStorage.removeItem('templateJson');
             // localStorage.removeItem('canvasJson');
         } else
             window.location.href = '/cert/certtemplate/index';
+
     })
 
    

@@ -262,7 +262,7 @@ namespace Magic.Guangdong.Exam.Filters
                 Assistant.Logger.Error("token错辣！走你~");
                 return context;
             }
-            string sid = Assistant.Utils.FromBase64Str(claim.Sid);
+            string sid = Assistant.Utils.FromBase64Str(claim.Sid).ToLower();
             if (!await _redisCachingProvider.KeyExistsAsync($"GD.Exam.Permissions_{sid}")  || claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
             {
                 var item = new JsonResult(new { code = 400, msg = "token错误" });

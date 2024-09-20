@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <input type="checkbox" name="remember" lay-skin="primary" title="记住密码">
+                <input type="checkbox" name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="记住密码">
                 <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
             </div>
             <div class="layui-form-item">
@@ -70,15 +70,6 @@
                 <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
 
             </div>
-            @* <div class="layui-form-item exam-login-other">
-                <label>社交账号登录</label>
-                <span style="padding: 0 21px 0 6px;">
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-qq" style="color: #3492ed;"></i></a>
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-wechat" style="color: #4daf29;"></i></a>
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-weibo" style="color: #cf1900;"></i></a>
-                </span>
-                或 <a href="#reg">注册帐号</a>
-            </div> *@
         </div>
         @Html.AntiForgeryToken()
     </form>
@@ -111,6 +102,7 @@
        
         let captchaRet = 0;
         layui.use(function () {
+            let rememberme = false;
             var form = layui.form;
             var layer = layui.layer;
             // 提交事件
@@ -133,6 +125,11 @@
                 delete field.password;
                 delete field.captcha;
 
+                if (rememberme) {
+                    field.remember = 1;
+                    //localStorage.setItem('rememberAccountInfo', {userName});                    
+                }
+
                 let result = await request('POST', '/system/account/login', data.field, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {                    
                     setLoginInfo(result.data.access_token);
@@ -149,6 +146,13 @@
 
                 return false; // 阻止默认 form 跳转
             });
+
+            form.on('checkbox(rememberme)', function (data) {
+                let elem = data.elem;
+                rememberme = elem.checked;
+                if (rememberme)
+                    layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
+            })
         });
 
         var targetElement = document.getElementById('captcha');

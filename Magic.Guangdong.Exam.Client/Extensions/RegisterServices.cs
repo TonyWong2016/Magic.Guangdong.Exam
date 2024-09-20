@@ -38,7 +38,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             
 
             Logger.InitLog();
-
+            builder.Services.ConfigurePolicy(_configuration);
             builder.Services.ConfigureOrm(_configuration);
             builder.Services.ConfigureRazorPages();
             builder.Services.ConfigureRedis(_configuration);
@@ -153,13 +153,14 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     cb.Name = OpenIdConnectDefaults.CookieNoncePrefix;
                     cb.SameSite = SameSiteMode.Unspecified;
                     cb.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                    cb.HttpOnly = true;
+                    cb.HttpOnly = false;
                     cb.IsEssential = true;
                     
                     //options.Authority = ConfigurationHelper.GetSectionValue("authHost");
                     options.Authority = "http://login.xiaoxiaotong.org";
-                    //options.NonceCookie = cb;
-                    //options.CorrelationCookie = cb;
+                    //正是环境需要这两行⬇️
+                    options.NonceCookie = cb;
+                    options.CorrelationCookie = cb;
 
                     options.ClientId = "MagicExam2024";
                     options.ClientSecret = "MagicGDExam14cFGp";
@@ -290,6 +291,33 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             //RedisHelper.Initialization(new CSRedis.CSRedisClient(configuration.GetSection("CsredisStr:ConnectionString").Value, configuration.GetSection("CsredisStr:Sentinels").GetChildren().Select(p => p.Value).ToArray()));
         }
         #endregion
+
+        /// <summary>
+        /// 配置跨域访问
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        private static void ConfigurePolicy(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("api", builder =>
+                {
+                    builder.WithOrigins("https://localhost:5001,https://localhost:7296").AllowAnyHeader().AllowCredentials().WithExposedHeaders("cyscc");
+
+                    builder.SetIsOriginAllowed(orgin => true).AllowCredentials().AllowAnyHeader();
+                });
+                //登录用户使用
+                options.AddPolicy("any", builder =>
+                {
+                    builder.WithOrigins(configuration.GetSection("corsHosts").Value.Split(","))
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+                });
+            });
+        }
+
 
         private static void ConfigurePlug(this IServiceCollection services, IConfiguration configuration)
         {
