@@ -537,6 +537,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         var process = await reportProcessRepo.Where(u => u.ReportId == _reportId && u.ExamId == record.ExamId).ToOneAsync();
 
                         process.TestedTime = record.Stage;
+                        //process.TestedTime = 1;
                         process.UpdatedAt = DateTime.Now;
                         await reportProcessRepo.UpdateAsync(process);
                     }
@@ -546,9 +547,10 @@ namespace Magic.Guangdong.DbServices.Methods
                     uow.Commit();
                     return new { code = 0, msg = "success", data = record };
                 }
-                catch
+                catch(Exception ex)
                 {
                     uow.Rollback();
+                    Logger.Error($"提交失败,{ex.Message},{ex.StackTrace}");
                     throw;
                 }
             }

@@ -58,7 +58,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportCheckQuery = examReportRepo
                 .Where(u => u.Status == 0 && u.ReportStatus == (int)ReportStatus.Succeed && u.ReportStep == (int)ReportStep.Paied)
                 .Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId)
-                .Where(u => u.ExamType == (int)ExamType.Examination)
+                .Where(u => u.ExamType == (int)ExamType.Examination)                
                 ;
                 
 
@@ -104,6 +104,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.Complated != ExamComplated.Cancle)
                 .Where(u => u.ExamId == dto.examId && u.ReportId == dto.reportId)
                 .Where(u => u.Stage == dto.stage)
+                .Where(u => u.IsDeleted == 0)
                 //.WhereIf(!string.IsNullOrWhiteSpace(dto.idCard), u => u.IdNumber == dto.idCard)
                 //.WhereIf(!string.IsNullOrWhiteSpace(dto.reportNumber), u => u.IdNumber == dto.reportNumber)
                 ;

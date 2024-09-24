@@ -9,6 +9,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Areas.WebApi.Models;
 using Magic.Guangdong.Exam.Extensions;
 using Mapster;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -134,18 +135,22 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 await _activityRepo.addItemAsync(newActivity);
                 if (dto.CreatedExam == 1 && dto.ExamDto != null)
                 {
+                    dto.ExamDto.Id=NewId.NextGuid();
                     if (dto.ExamDto.AssociationId == 0)
                         dto.ExamDto.AssociationId = dto.Id;
                     if (string.IsNullOrEmpty(dto.ExamDto.AssociationTitle))
                         dto.ExamDto.AssociationTitle = dto.Title;
-                    await CreateOrModifyExam(dto.ExamDto);
+                    if(await CreateOrModifyExam(dto.ExamDto))
+                        return Json(_resp.success(new { examId = dto.ExamDto.Id, activityId = dto.Id }, "操作成功"));
+
+                    return Json(_resp.error("创建失败"));
                 }
             }
             catch(Exception ex)
             {
                 return Json(_resp.error($"创建失败，{ex.Message}"));
             }
-            return Json(_resp.success(true,"操作成功"));
+            return Json(_resp.success(new { examId="未提交创建考试的参数",activityId=dto.Id  },"操作成功"));
         }
 
         [HttpPost]

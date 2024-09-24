@@ -29,7 +29,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
             try
             {
                 var client = new HttpClient();
-                DateTime fromDate = DateTime.Now.AddDays(-30);
+                DateTime fromDate = DateTime.Now.AddDays(-300);
                 string responseStr = await RestHelper.Get(
                     new RestParams()
                     {
