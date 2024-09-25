@@ -1,0 +1,177 @@
+{
+  "RedisOption": {
+    //部署线上的时候注意修改
+    "Mode": "sentinel",
+    "Single": "10.185.1.176:6379,password=magicloud666,defaultDatabase=6",
+    "SentinelNodes": "10.185.1.176:26379,10.185.1.178:26380,10.185.1.178:26381",
+    "SentinelService": "serviceName=mymaster,password=magicloud666,defaultDatabase=6,abortConnect=true"
+  },
+  "IpRateLimiting": {
+    //"例如设置了5次每分钟访问限流。当False时：项目中每个接口都加入计数，不管你访问哪个接口，只要在一分钟内累计够5次，将禁止访问。": null,
+    //True：当一分钟请求了5次GetData接口，则该接口将在时间段内禁止访问，但是还可以访问PostData()5次,总得来说是每个接口都有5次在这一分钟，互不干扰。
+    "EnableEndpointRateLimiting": true,
+    "StackBlockedRequests": false,
+    "RealIpHeader": "X-Real-IP",
+    "ClientIdHeader": "X-ClientId",
+    "HttpStatusCode": 429,
+    //"IpWhitelist": [ "127.0.0.1", "::1", "192.168.0.0/24" ],
+    "IpWhitelist": ["192.168.0.0/24" ],
+    "EndpointWhitelist": [ "get:/api/license", "*:/api/status" ],
+    "ClientWhitelist": [ "dev-id-1", "dev-id-2" ],
+    "GeneralRules": [
+      {
+        "Endpoint": "*",
+        "Period": "1s",
+        "Limit": 5
+      },
+      {
+        "Endpoint": "*",
+        "Period": "1m",
+        "Limit": 300
+      }
+      //,{
+      //  "Endpoint": "*",
+      //  "Period": "12h",
+      //  "Limit": 1000
+      //},
+      //{
+      //  "Endpoint": "*",
+      //  "Period": "7d",
+      //  "Limit": 10000
+      //}
+    ],
+    "QuotaExceededResponse": {
+      "Content": "{{\"code\":429, \"msg\": \"您的访问过于频繁，已经触发限流规则，每{1}允许访问{0}次，请{2}秒后在试\", \"data\": \"Quota exceeded. Maximum allowed: {0} per {1}. Please try again in {2} second(s).\" }}",
+      "ContentType": "application/json",
+      //"StatusCode": 429
+      "StatusCode": 200
+    }
+  },
+  "IpRateLimitPolicies": {
+    "IpRules": [
+      {
+        "Ip": "84.247.85.224",
+        "Rules": [
+          {
+            "Endpoint": "*",
+            "Period": "1s",
+            "Limit": 10
+          },
+          {
+            "Endpoint": "*",
+            "Period": "15m",
+            "Limit": 200
+          }
+        ]
+      },
+      {
+        "Ip": "127.0.0.1",
+        "Rules": [
+          {
+            "Endpoint": "*",
+            "Period": "1s",
+            "Limit": 10
+          },
+          {
+            "Endpoint": "*",
+            "Period": "1m",
+            "Limit": 200
+          }
+        ]
+      }
+    ]
+  },
+  
+  //客户端ID限流
+  "ClientRateLimiting": {
+    "EnableEndpointRateLimiting": true,
+    "StackBlockedRequests": false,
+    "ClientIdHeader": "X-ClientId",
+    "HttpStatusCode": 429,
+    "EndpointWhitelist": [ "get:/examination/index", "*:/examinationpure/*", "*:/cert/index", "*:/apply/*" ],
+    "ClientWhitelist": [ "dev-id-1", "dev-id-2","666","fileupload" ],
+    "GeneralRules": [
+      {
+        "Endpoint": "*",
+        "Period": "1s",
+        "Limit": 10
+      }
+      //,{
+      //  "Endpoint": "*",
+      //  "Period": "15m",
+      //  "Limit": 200
+      //},
+      //{
+      //  "Endpoint": "*",
+      //  "Period": "12h",
+      //  "Limit": 1000
+      //},
+      //{
+      //  "Endpoint": "*",
+      //  "Period": "7d",
+      //  "Limit": 1000000
+      //}
+    ],
+    "QuotaExceededResponse": {
+      "Content": "{{\"code\":429, \"msg\": \"您的访问过于频繁，已经触发限流规则，每{1}允许访问{0}次，请{2}秒后在试\", \"data\": \"Quota exceeded. Maximum allowed: {0} per {1}. Please try again in {2} second(s).\" }}",
+      "ContentType": "application/json",
+      //"StatusCode": 429
+      "StatusCode": 200
+    }
+  },
+
+  "ClientRateLimitPolicies": {
+    "ClientRules": [
+      {
+        "ClientId": "dev-id-1",
+        "Rules": [
+          {
+            "Endpoint": "get:/cert/getCustomTitles",
+            "Period": "1s",
+            "Limit": 5
+          },
+          {
+            "Endpoint": "get:/cert/*",
+            "Period": "1m",
+            "Limit": 2
+          },
+          {
+            "Endpoint": "put:/api/clients",
+            "Period": "5m",
+            "Limit": 2
+          }
+        ]
+      },
+      {
+        "ClientId": "cl-key-2",
+        "Rules": [
+          {
+            "Endpoint": "*",
+            "Period": "1s",
+            "Limit": 10
+          },
+          {
+            "Endpoint": "get:/api/clients",
+            "Period": "1m",
+            "Limit": 0
+          },
+          {
+            "Endpoint": "post:/api/clients",
+            "Period": "5m",
+            "Limit": 50
+          }
+        ]
+      },
+      {
+        "ClientId": "cl-key-3",
+        "Rules": [
+          {
+            "Endpoint": "post:/api/clients",
+            "Period": "1s",
+            "Limit": 3
+          }
+        ]
+      }
+    ]
+  }
+}

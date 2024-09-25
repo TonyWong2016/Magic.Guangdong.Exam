@@ -9,6 +9,11 @@
     <link type="image/x-icon" rel="shortcut icon" href="/images/guangdong_logo-32.ico" />
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" id="layui_theme_css" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
+    <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
+    <script src="~/web/base.js">    </script>
+    <script src="~/web/requestapi.js"></script>
+    <script src="~/web/layextend.js"></script>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
     </script>
@@ -17,7 +22,7 @@
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header layui-bg-blue">
             <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
-                广东教协
+                为自己代盐
             </div>
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
@@ -67,11 +72,7 @@
 
     @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
     @* <script src="~/js/site.js" asp-append-version="true"></script> *@
-    <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
-    <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
-    <script src="~/web/base.js"></script>
-    <script src="~/web/requestapi.js"></script>
-    <script src="~/web/layextend.js"></script>
+    
 
     @await RenderSectionAsync("Scripts", required: false)
 
@@ -96,7 +97,7 @@
 
     <script>
         var navs = [];
-        var element = layui.element;
+       // var element = layui.element;
         element.render('nav', 'sideNav');
         async function fetchTopMenus() {
             try {

@@ -5,5 +5,11 @@
   "remoteUser": "IUSR_YSC",
   "remotePwd": "kgonv3u8Ty",
   "resourcehost": "https://localhost:7188/upfile",
-  "attachBase": "http://zb5.xiaoxiaotong.org/FileAttach"
+  "attachBase": "http://zb5.xiaoxiaotong.org/FileAttach",
+  "MinioSettings": {
+    "Endpoint": "172.28.240.79:9000",
+    "AccessKey": "L1XKUPmwjyyjwVD49HFy",
+    "SecretKey": "hIorVOK3kfwg220JXFT19jI9XoKkY5s4MOWR17D5",
+    "UseSSL": false
+  }
 }

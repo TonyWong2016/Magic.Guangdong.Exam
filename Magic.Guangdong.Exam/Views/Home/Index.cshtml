@@ -3,16 +3,81 @@
     Layout = "_LayoutGD";
 }
 <div style="padding: 15px;">
-    <blockquote class="layui-elem-quote layui-text">
-        Layui 框体布局内容主体区域
-    </blockquote>
+    
     <div class="layui-card layui-panel">
         <div class="layui-card-header">
-            下面是充数内容，为的是出现滚动条
+            Minio测试
         </div>
         <div class="layui-card-body">
-            充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>充数内容<br>你还真滑到了底部呀
+            <div class="layui-row">
+                <div class="layui-col-md2">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="btnUpload"><i class="layui-icon layui-icon-upload-circle"></i> 选择要上传的文件</a>
+
+                </div>
+                <div class="layui-col-md10">
+                    <div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="progress" style="margin-top:10px;margin-left:-70px">
+                        <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <blockquote class="layui-elem-quote layui-text">
+                    结果：<b id="result"></b>
+                </blockquote>
+            </div>
         </div>
     </div>
-    <br><br>
+    
 </div>
+<script src="~/plugins/fcup2/fcup.min.js"></script>
+<script src="~/web/myfcup.js"></script>
+<style>
+    .blink {
+        animation: blinker 1s linear infinite;
+    }
+    @@keyframes blinker { 
+      50% { 
+        opacity: 0; 
+      }
+    }
+</style>
+<script>
+    let fileUpObj = {
+        elemId: 'btnUpload',
+        types: 'jpg,jpeg,png,docx,ppt,pdf',
+        progressElem: 'progress',
+        callback: function (res) {
+            console.log(res);
+
+            if(res.completed){
+                document.getElementById('result').innerText=res.path;
+                blinkTextWithCount();
+            }
+        }
+    }
+    initUploadMinio(fileUpObj);
+
+    function blinkText() {
+        const textElement = document.getElementById('result');
+        textElement.classList.toggle('blink');
+    }
+
+    // 如果需要定时控制闪烁次数，可以使用如下方法：
+    let blinkCount = 0;
+    const maxBlinks = 5; // 设置最大闪烁次数
+
+    function blinkTextWithCount() {
+        const textElement = document.getElementById('result');
+        if (blinkCount < maxBlinks) {
+            textElement.classList.toggle('blink');
+            blinkCount++;
+            setTimeout(() => {
+                //blinkCount = 0; // 重置计数器
+                textElement.classList.remove('blink'); // 移除类以停止闪烁
+            }, 2000); // 闪烁后2秒重置
+        } else {
+            textElement.classList.remove('blink'); // 达到最大次数后停止闪烁
+        }
+    }
+</script>

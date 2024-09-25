@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.0.1" />
     <PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.0.1" />

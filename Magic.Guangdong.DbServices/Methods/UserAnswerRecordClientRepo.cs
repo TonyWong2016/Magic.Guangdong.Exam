@@ -3,12 +3,6 @@ using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
-using NPOI.SS.Formula.Functions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Methods

@@ -1,4 +1,5 @@
-﻿using Autofac.Extensions.DependencyInjection;
+﻿using AspNetCoreRateLimit;
+using Autofac.Extensions.DependencyInjection;
 using Coravel;
 using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
 using Microsoft.AspNetCore.Builder;
@@ -34,7 +35,13 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseDefaultFiles();
             app.UseResponseCaching();
             app.MapRazorPages();
-           
+
+            //注入ip限流中间件
+            app.UseIpRateLimiting();
+
+            //注入客户端限流中间件（需要自己在请求客户端实现X-ClientId）
+            //app.UseClientRateLimiting();
+
             app.MapControllerRoute(
                name: "area",
                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
@@ -59,6 +66,9 @@ namespace Magic.Guangdong.Exam.Extensions
 
             return app;
         }
+
+
+        
     }
    
 }

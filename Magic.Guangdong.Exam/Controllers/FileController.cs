@@ -70,7 +70,7 @@ namespace Magic.Guangdong.Exam.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> UploadFile()
-        {
+        {            
             var data = Request.Form.Files[0];
             string lastModified = Request.Form["lastModified"].ToString();
             var total = Request.Form["total"];
@@ -284,7 +284,7 @@ namespace Magic.Guangdong.Exam.Controllers
 
 
 
-                fileResponseDto.fileId = Convert.ToInt32(_fileRepo.addItemsIdentity(file));
+                fileResponseDto.fileId = _fileRepo.addItemsIdentity(file);
                 #region 上传到远程附件服务器（或本地服务器，注释的代码是本地）
 
                 try
@@ -603,7 +603,7 @@ namespace Magic.Guangdong.Exam.Controllers
 
         public string path { get; set; }
 
-        public int fileId { get; set; }
+        public long fileId { get; set; }
 
         public int fileIndex { get; set; }
     }

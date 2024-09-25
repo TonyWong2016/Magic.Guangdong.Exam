@@ -3,6 +3,8 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -12,6 +14,7 @@ using Mapster;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 {
@@ -28,6 +31,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IJwtService _jwtService;
         private readonly IActivityRepo _activityRepo;
         private readonly IExaminationRepo _examinationRepo;
+        private readonly IUserBaseRepo _userBaseRepo;
+        private readonly IReportInfoRepo _reportInfoRepo;
+        private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider, 
             IWebHostEnvironment webHostEnvironment, 
@@ -37,6 +43,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             IAdminRoleRepo adminRoleRepo,
             IActivityRepo activityRepo,
             IExaminationRepo examinationRepo,
+            IUserBaseRepo userBaseRepo,
+            IReportInfoRepo reportInfoRepo,
+            IUserAnswerRecordViewRepo userAnswerRecordViewRepo,
             IJwtService jwtService)
         {
             _resp = resp;
@@ -48,6 +57,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _adminRoleRepo= adminRoleRepo;
             _activityRepo = activityRepo;
             _examinationRepo = examinationRepo;
+            _userBaseRepo = userBaseRepo;
+            _reportInfoRepo = reportInfoRepo;
             _jwtService = jwtService;
         }
         [HttpPost]
@@ -155,7 +166,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         [HttpPost]
         [WebApiModule]
-        public async Task<IActivityRepo> ModifyActivity(ActivityApiDto dto)
+        public async Task<IActionResult> ModifyActivity(ActivityApiDto dto)
         {
             if (await _activityRepo.getAnyAsync(u => u.Title == dto.Title && u.Id != dto.Id))
             {
@@ -168,11 +179,58 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         [HttpPost]
         [WebApiModule]
-        public async Task<IActivityRepo> CreateOrModifyExamination(ExamApiDto examApiDto)
+        public async Task<IActionResult> CreateOrModifyExamination(ExamApiDto examApiDto)
         {
             if (await CreateOrModifyExam(examApiDto))
                 return Json(_resp.success(true, "操作成功"));
             return Json(_resp.error("创建失败"));
+        }
+
+        /// <summary>
+        /// 提交报名信息
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [WebApiModule]
+        public async Task<IActionResult> SubmitReportInfo(ReportInfoDto dto)
+        {
+            if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
+            {
+                return Json(_resp.error("用户不存在"));
+            }
+
+            if (!await _activityRepo.getAnyAsync(a => a.Id == dto.ActivityId))
+            {
+                return Json(_resp.error("活动不存在"));
+            }
+
+            //证件号作为唯一报名活动的重复性判定元素
+            if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && (r.ActivityId == dto.ActivityId || r.ExamId == dto.ExamId)))
+            {
+                return Json(_resp.error("您已经报名该活动了"));
+            }
+            dto.Id = YitIdHelper.NextId();
+            //var reportInfo = dto.Adapt<ReportInfo>();
+            dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
+            if (await _reportInfoRepo.ReportActivity(dto))
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
+                return Json(_resp.success(new { tradeNo = dto.OrderTradeNumber, reportId = dto.Id }));
+            }
+            return Json(_resp.error("报名失败"));
+        }
+
+        /// <summary>
+        /// 获取答题记录
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [WebApiModule]
+        public IActionResult GetUserAnswerRecords(PageDto dto)
+        {
+            long total;
+            return Json(_resp.success(new { items = _userAnswerRecordViewRepo.GetUserRecord(dto, out total), total }));
         }
 
         public async Task<bool> CreateOrModifyExam(ExamApiDto examApiDto)

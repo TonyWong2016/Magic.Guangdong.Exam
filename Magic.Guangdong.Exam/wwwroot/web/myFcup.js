@@ -270,13 +270,6 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
         // 上传进度事件
         progress: (num, other) => {
             element.progress(progressElem, num + "%");
-            //console.log(num);
-            //console.log('上传进度' + num);
-            //console.log("上传类型" + other.type);
-            //console.log("已经上传" + other.current);
-            //console.log("剩余上传" + other.surplus);
-            //console.log("已用时间" + other.usetime);
-            //console.log("预计时间" + other.totaltime);
             console.log(other);
             if (num >= 99 && !uploadFlag) {
                 Toast.info("已上传" + num + "%，正在进行最后的校验阶段，请耐心等待，上传完成后会出现成功提示", 1000 * 10);
@@ -324,7 +317,7 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
                 if (typeof (callback) == 'function') {
                     callback(res);
                 }
-                Toast.info("上传完成");
+                layer.msg('上传完成', { icon: 1 });
                 element.progress(progressElem, "100%");
                 return false;
             }
@@ -399,4 +392,70 @@ function initUploadFilePro(obj) {
             layer.msg("上传图片失败", { icon: 2 });
         }
     });
+}
+
+function initUploadMinio(obj) {
+    if (!obj.url)
+        obj.url = "/Upload/tominio";
+    var up = new fcup({
+        id: obj.elemId, // 绑定id
+        url: obj.url, // url地址
+
+        type: obj.types, // 限制上传类型，为空不限制
+        shardsize: "0.5", // 每次分片大小，单位为M，默认1M
+        minsize: '', // 最小文件上传M数，单位为M，默认为无
+        maxsize: "2048", // 上传文件最大M数，单位为M，默认200M
+        timeout: 600000,
+        headers: { 'Authorization': localStorage.getItem('accessToken'), 'X-CSRF-TOKEN': requestToken },
+        apped_data: obj.appendData,
+        // 定义错误信息
+        errormsg: {
+            1000: "未找到上传id",
+            1001: "类型不允许上传",
+            1002: "上传文件过小",
+            1003: "上传文件过大",
+            1004: "上传请求超时"
+        },
+
+        // 错误提示
+        error: (msg) => {
+            layer.alert(msg, {icon:2});
+        },
+
+        // 初始化事件
+        start: () => {
+            console.log('上传已准备就绪');
+
+            element.progress(obj.progressElem, 0);
+        },
+
+        // 等待上传事件，可以用来loading
+        beforeSend: () => {
+            //console.log('等待请求中');
+        },
+
+        // 上传进度事件
+        progress: (num, other) => {
+            element.progress(obj.progressElem, num + "%");
+            console.log(other);
+            //if (num >= 99 && !uploadFlag) {
+            //    layer.msg("已上传" + num + "%，正在进行最后的校验阶段，请耐心等待，上传完成后会出现成功提示", {icon:0});
+            //    uploadFlag = true;
+            //}
+        },
+        // 上传成功回调，回调会根据切片循环，要终止上传循环，必须要return false，成功的情况下要始终返回true;
+        success: (res) => {
+            let data = res ? eval('(' + res + ')') : '';
+            if (data.data.completed) {
+                if (typeof (obj.callback) == 'function') {
+                    obj.callback(data.data);
+                }
+                layer.msg('上传完成', { icon: 1 });
+                element.progress(obj.progressElem, "100%");
+                return false;
+            }
+            // 如果接口没有错误，必须要返回true，才不会终止上传循环
+            return true;
+        }
+    })
 }

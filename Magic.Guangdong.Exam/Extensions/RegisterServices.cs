@@ -1,4 +1,5 @@
-﻿using Coravel;
+﻿using AspNetCoreRateLimit;
+using Coravel;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
@@ -9,6 +10,7 @@ using Mapster;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
+using Minio;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Commands;
@@ -25,10 +27,12 @@ namespace Magic.Guangdong.Exam.Extensions
         {
             builder.Configuration
                  .AddJsonFile("Configs/cachesetting.json", optional: true, reloadOnChange: true)
-                 .AddJsonFile("Configs/filesetting.json", optional: true, reloadOnChange: true)
+                 .AddJsonFile("Configs/resoucesetting.json", optional: true, reloadOnChange: true)
                  .AddJsonFile("Configs/mqsetting.json", optional: true, reloadOnChange: true)
                  .AddJsonFile("Configs/paysetting.json", optional: true, reloadOnChange: true)
-                ;
+                 .AddJsonFile("Configs/ratelimitsetting.json", optional: true, reloadOnChange: true)
+
+                 ;
             _configuration = builder.Configuration;
             ConfigurationHelper.Initialize(_configuration);
             Logger.InitLog();
@@ -55,6 +59,10 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.Configure<AlipayOptions>(_configuration.GetSection("Alipay"));
             builder.Services.Configure<WeChatPayOptions>(_configuration.GetSection("WeChatPay"));
             builder.Services.ConfigureImageSharp(_configuration);
+
+            builder.Services.ConfigureMinIo(_configuration);
+
+            builder.Services.ConfigureRateLimit(_configuration);
             return builder;
         }
 
@@ -283,7 +291,45 @@ namespace Magic.Guangdong.Exam.Extensions
                     options.OnPrepareResponseAsync = _ => Task.CompletedTask;
                 });
         }
-    
-        
+
+        /// <summary>
+        /// 配置minio
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        private static void ConfigureMinIo(this IServiceCollection services, IConfiguration configuration)
+        {
+            var minioSetting = configuration.GetSection("MinioSettings").Get<MinioSettings>();
+
+            services.AddMinio(x =>
+            {
+                x.WithEndpoint(minioSetting.Endpoint)
+                .WithCredentials(minioSetting.AccessKey, minioSetting.SecretKey)
+                .WithSSL(minioSetting.UseSSL)
+                .Build();
+            });
+        }
+
+        //基于内存配置限流
+        private static void ConfigureRateLimit(this IServiceCollection services, IConfiguration configuration)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            services.AddMemoryCache();
+            // configure IP rate limiting middleware 
+            services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+            services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
+
+            // configure client rate limiting middleware            
+            services.Configure<ClientRateLimitOptions>(configuration.GetSection("ClientRateLimiting"));
+            services.Configure<ClientRateLimitPolicies>(configuration.GetSection("ClientRateLimitPolicies"));
+
+
+            services.AddInMemoryRateLimiting();
+
+
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        }
+
     }
 }
