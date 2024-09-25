@@ -7,9 +7,12 @@
   "resourcehost": "https://localhost:7188/upfile",
   "attachBase": "http://zb5.xiaoxiaotong.org/FileAttach",
   "MinioSettings": {
-    "Endpoint": "172.28.240.79:9000",
-    "AccessKey": "L1XKUPmwjyyjwVD49HFy",
-    "SecretKey": "hIorVOK3kfwg220JXFT19jI9XoKkY5s4MOWR17D5",
+    //"Endpoint": "172.28.240.79:9000",
+    //"AccessKey": "L1XKUPmwjyyjwVD49HFy",
+    //"SecretKey": "hIorVOK3kfwg220JXFT19jI9XoKkY5s4MOWR17D5",
+    "Endpoint": "192.168.5.18:9000 ",
+    "AccessKey": "hrZ9ujz6Ez1nIm5cd14p",
+    "SecretKey": "ZNKxZcNE8b9RT09ZglHgvob5a0E0tNFeHPidsrXD",
     "UseSSL": false
   }
 }

@@ -23,7 +23,6 @@ namespace Magic.Guangdong.Exam.Controllers
     /// <param name="_fileRepo"></param>
     public class UploadController(IMinioClient _minioClient, IResponseHelper _resp, IFileRepo _fileRepo) : Controller
     {
-
         public IActionResult Index()
         {
             return View();

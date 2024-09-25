@@ -16,9 +16,9 @@ axiosInstance.interceptors.request.use(function (config) {
         config.headers.Authorization = token;
 
     }
-    if (!config.headers.indexOf('X-ClientId')) {
-        config.headers['X-ClientId'] = new Date().getTime();
-    }
+    //if (!config.headers.indexOf('X-ClientId')) {
+    //    config.headers['X-ClientId'] = new Date().getTime();
+    //}
     return config;
 }, function (error) {
     return Promise.reject(error);
