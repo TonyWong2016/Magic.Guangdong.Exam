@@ -224,7 +224,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     Email = passportUser.Email,
                     Mobile = passportUser.Mobile,                    
                 };
-                await _userBaseRepo.addItemAsync(newUserBase);
+
+                //await _userBaseRepo.addItemAsync(newUserBase);
+                await _userBaseRepo.InsertUserBaseSecurity(newUserBase);
                 return Json(_resp.success(newUserBase.Adapt<AccountDto>()));
             }
             return Redirect("/account/me");

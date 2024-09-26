@@ -33,13 +33,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public Guid? ExamId { get; set; } = Guid.Empty;
 
-		[JsonProperty, Column(DbType = "varchar(50)")]
+		[JsonProperty, Column(DbType = "varchar(500)")]
 		public string IdCard { get; set; } = string.Empty;
 
         [JsonProperty, Column(StringLength = 500)]
 		public string Job { get; set; } = string.Empty;
 
-        [JsonProperty, Column(DbType = "varchar(50)")]
+        [JsonProperty, Column(DbType = "varchar(500)")]
 		public string Mobile { get; set; } = string.Empty;
 
         [JsonProperty, Column(StringLength = 50)]
@@ -86,7 +86,27 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
 		[JsonProperty, Column(StringLength = 350)]
 		public string Photo { get; set; }
-        
+
+        [JsonProperty]
+        public string PrefixIdcard { get; set; }
+        [JsonProperty]
+        public string SuffixIdcard { get; set; }
+        [JsonProperty]
+        public string PrefixMobile { get; set; }
+        [JsonProperty]
+        public string SuffixMobile { get; set; }
+
+        [JsonProperty]
+        public int PhoneType { get; set; } = 0;
+
+        [JsonProperty]
+        public string HashIdcard { get; set; }
+        [JsonProperty]
+        public string HashMobile { get; set; }
+
+		[JsonProperty]
+		public int IsSecurity { get; set; } = 0;
+
     }
 
 	public enum CardType

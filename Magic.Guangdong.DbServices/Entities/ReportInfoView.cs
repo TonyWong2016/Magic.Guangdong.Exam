@@ -102,6 +102,18 @@ namespace Magic.Guangdong.DbServices.Entities {
         [JsonProperty, Column(StringLength = 350)]
         public string Photo { get; set; }
 
+		[JsonProperty]
+		public string SecurityIdCard { get; set; }
+
+		[JsonProperty]
+		public string SecurityMobile {  get; set; }
+        [JsonProperty]
+        public string HashIdCard { get; set; }
+        [JsonProperty]
+        public string HashMobile { get; set; }
+
+		[JsonProperty]
+		public int IsSecurity { get; set; }
     }
 
 }

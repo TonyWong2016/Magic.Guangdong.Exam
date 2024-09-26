@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Magic.Guangdong.Assistant.Dto;
+using MassTransit;
+using NPOI.OpenXmlFormats.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core.Tokenizer;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -173,5 +177,26 @@ namespace Magic.Guangdong.Assistant
                 }
             }
         }
+
+        public static MaskDataDto getMaskData(MaskDataDto dto)
+        {
+            if (dto.valid)
+            {
+                //dto.encryptText = Assistant.Security.Encrypt(dto.text, Encoding.UTF8.GetBytes(dto.keyId), Encoding.UTF8.GetBytes(dto.keySecret));
+
+                var textParts = new List<string>()
+                    {
+                        dto.text.Substring(0, (int)dto.firstPoint),
+                        dto.text.Substring((int)dto.lastPoint, dto.text.Length - (int)dto.lastPoint)
+                    };
+
+                
+            }
+            return dto;
+        }
     }
+
+    
+
+
 }

@@ -1,5 +1,7 @@
-﻿using FreeSql.Internal.Model;
+﻿using BaiduBce.Services.Bos.Model;
+using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
@@ -46,8 +48,11 @@ namespace Magic.Guangdong.DbServices.Methods
                         reportModel.IdCard.Substring(reportModel.IdCard.Length - 4, 4) +
                         Utils.DateTimeToTimeStamp(DateTime.Now) +
                        (reportModel.ExamId == null ? Utils.GenerateRandomCodePro(6) : reportModel.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
+                    if (reportModel.IsSecurity == 0)
+                    {
+                        reportModel = GetReportSecurityModel(reportModel);
+                    }
                     await reportInfoRepo.InsertAsync(reportModel);
-
 
                     var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
                     reportProcessRepo.UnitOfWork = uow;
@@ -165,6 +170,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     a.ExamId,
                     a.ActivityId,
                     b.Subject,
+                    a.SecurityIdCard,
+                    a.SecurityMobile,
                     OrderStatus = b.Status,
                     accountName = c.Name
                 });
@@ -258,7 +265,11 @@ namespace Magic.Guangdong.DbServices.Methods
                 b.Subject,
                 orderStatus = b.Status,
                 b.RefundNo,
-                b.TradeNo
+                b.TradeNo,
+                a.SecurityIdCard,
+                a.SecurityMobile,
+                //a.HashIdCard,
+                //a.HashMobile
                 //b.ExamId,
                 //b.ActivityId
             });
@@ -350,107 +361,144 @@ namespace Magic.Guangdong.DbServices.Methods
 
         }
 
-    }
+        /// <summary>
+        /// 安全插入报名数据
+        /// </summary>
+        /// <param name="reportInfo"></param>
+        /// <returns></returns>
+        public async Task<bool> InsertReportSecurity(ReportInfo reportInfo)
+        {
+            if (reportInfo == null)
+            {
+                return false;
+            }
+            var maskIdCard = new MaskDataDto();
+            string keyId = reportInfo.ReportNumber.Substring(0, 16);
+            string keySecret = reportInfo.ReportNumber.Substring(reportInfo.ReportNumber.Length - 16, 16);
+           
+            maskIdCard.keyId = keyId;
+            maskIdCard.keySecret = keySecret;
+            maskIdCard.text = reportInfo.IdCard.Trim();
+            if (reportInfo.CardType == 0)
+            {
+                maskIdCard.maskDataType = MaskDataType.ChinaIdCard;
+            }
+            else
+            {
+                maskIdCard.maskDataType = MaskDataType.Other;
+            }
+            if (maskIdCard.valid)
+            {
+                reportInfo.PrefixIdcard = maskIdCard.splitTexts[0];
+                reportInfo.SuffixIdcard = maskIdCard.splitTexts[1];
+                reportInfo.IdCard = maskIdCard.encryptText;
+                reportInfo.HashIdcard = maskIdCard.hashText;
+            }
+            else
+            {
+                return false;
+            }
 
-    public class ReportOrderList()
-    {
-        public List<ReportOrderView> items { get; set; }
+            var maskPhone = new MaskDataDto();
+            maskPhone.keyId = keyId;
+            maskPhone.keySecret = keySecret;
+            maskPhone.text = reportInfo.Mobile.Trim();
+            if (reportInfo.CardType == 0)
+            {
+                maskPhone.maskDataType = MaskDataType.ChinaCellPhone;
+            }
+            else
+            {
+                maskPhone.maskDataType = MaskDataType.Other;
+            }
 
-        public long total { get; set; }
-    }
+            if (maskPhone.valid)
+            {
+                reportInfo.PrefixMobile = maskPhone.splitTexts[0];
+                reportInfo.SuffixMobile = maskPhone.splitTexts[1];
+                reportInfo.Mobile = maskPhone.encryptText;
+                reportInfo.HashMobile = maskPhone.hashText;
+            }
+            else
+            {
+                return false;
+            }
+            return await fsql.Get(conn_str).Insert(reportInfo).ExecuteAffrowsAsync() == 1;
+        }
+
+        public async Task<int> MaskReportInfoData()
+        {
+            var reportRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+            var reportInfos = await reportRepo.Where(u => u.IsDeleted == 0 && u.IsSecurity == 0).ToListAsync();
+            List<ReportInfo> MaskReportInfoList = new List<ReportInfo>();
+            int count = 0;
+            foreach (var reportInfo in reportInfos) {
+                MaskReportInfoList.Add(GetReportSecurityModel(reportInfo));
+                if (MaskReportInfoList.Count % 100 == 0)
+                {
+                    count += await reportRepo.UpdateAsync(MaskReportInfoList);
+                    
+                }
+            }
+            if (MaskReportInfoList.Count > 0)
+            {
+                count += await reportRepo.UpdateAsync(MaskReportInfoList);
+            }
+            return count;
+        }
+
+        public ReportInfo GetReportSecurityModel(ReportInfo reportInfo)
+        {
+
+            var maskIdCard = new MaskDataDto();
+            string keyId = reportInfo.ReportNumber.Substring(0, 16);
+            string keySecret = reportInfo.ReportNumber.Substring(reportInfo.ReportNumber.Length - 16, 16);
+
+            maskIdCard.keyId = keyId;
+            maskIdCard.keySecret = keySecret;
+            maskIdCard.text = reportInfo.IdCard.Trim();
+            if (reportInfo.CardType == 0)
+            {
+                maskIdCard.maskDataType = MaskDataType.ChinaIdCard;
+            }
+            else
+            {
+                maskIdCard.maskDataType = MaskDataType.Other;
+            }
+            if (maskIdCard.valid)
+            {
+                reportInfo.PrefixIdcard = maskIdCard.splitTexts[0];
+                reportInfo.SuffixIdcard = maskIdCard.splitTexts[1];
+                reportInfo.IdCard = maskIdCard.encryptText;
+                reportInfo.HashIdcard = maskIdCard.hashText;
+            }
+
+            var maskPhone = new MaskDataDto();
+            maskPhone.keyId = keyId;
+            maskPhone.keySecret = keySecret;
+            maskPhone.text = reportInfo.Mobile.Trim();
+            if (reportInfo.CardType == 0)
+            {
+                maskPhone.maskDataType = MaskDataType.ChinaCellPhone;
+            }
+            else
+            {
+                maskPhone.maskDataType = MaskDataType.Other;
+            }
+
+            if (maskPhone.valid)
+            {
+                reportInfo.PrefixMobile = maskPhone.splitTexts[0];
+                reportInfo.SuffixMobile = maskPhone.splitTexts[1];
+                reportInfo.Mobile = maskPhone.encryptText;
+                reportInfo.HashMobile = maskPhone.hashText;
+            }
+            reportInfo.IsSecurity = 1;
+            return reportInfo;
+        }
+
         
-
-    public class ExportReportInfo
-    {
-        public long Id { get; set; }
-
-        public int orderStatus { get; set; }
-
-        public int ReportStatus { get; set; }
-        public string AccountId { get; set; }
-        [Description("姓名")]
-        public string Name { get; set; }
-
-        [Description("证件号")]
-        public string IdCard { get; set; }
-    
-
-        [Description("准考证号")]
-        public string ReportNumber { get; set; }
-
-        [Description("省份")]
-        public string ProvinceName { get; set; }
-
-        [Description("城市")]
-        public string CityName { get; set; }
-
-        [Description("区县")]
-        public string DistrictName { get; set; }
-
-        [Description("电子邮箱")]
-        public string Email { get; set; }
-
-        [Description("电话")]
-        public string Mobile { get; set; }
-
-        [Description("单位")]
-        public string Job { get; set; }
-
-        [Description("考试科目")]
-        public string Subject { get; set; }
-
-      
-        [Description("报名状态")]
-        public string ReportStatusStr
-        {
-            get
-            {
-                if(ReportStatus==0)
-                {
-                    return "报名成功";
-                }else if(ReportStatus==3)
-                {
-                    return "已退款";
-                }else if (ReportStatus == 2)
-                {
-                    return "未审核";
-                }
-                else
-                {
-                    return "报名失败";
-                }
-            }
-        }
-
-        [Description("订单编号")]
-        public string TradeNo { get; set; }
-
-        [Description("退款编号")]
-        public string RefundNo { get; set; }
-
-        [Description("订单状态")]
-        public string OrderStatusStr
-        {
-            get
-            {
-                if (orderStatus == 0)
-                {
-                    return "支付成功";
-                }
-                else if (orderStatus == 2)
-                {
-                    return "订单过期";
-                }
-                else if(orderStatus == 3)
-                {
-                    return "支付失败";
-                }
-                else if (orderStatus == 4)
-                {
-                    return "已退款";
-                }
-                return "待支付";
-            }
-        }
     }
+
+    
 }

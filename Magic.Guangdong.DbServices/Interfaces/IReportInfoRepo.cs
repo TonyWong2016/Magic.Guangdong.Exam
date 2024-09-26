@@ -51,5 +51,18 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="reportId"></param>
         /// <returns></returns>
         Task<dynamic> GetReportDetailForClient(long reportId);
+
+        /// <summary>
+        /// 脱敏报名数据
+        /// </summary>
+        /// <returns></returns>
+        Task<int> MaskReportInfoData();
+
+        /// <summary>
+        /// 安全插入报名数据
+        /// </summary>
+        /// <param name="reportInfo"></param>
+        /// <returns></returns>
+        Task<bool> InsertReportSecurity(ReportInfo reportInfo);
     }
 }

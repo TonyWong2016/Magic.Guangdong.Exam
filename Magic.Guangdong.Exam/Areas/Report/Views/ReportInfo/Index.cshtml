@@ -50,6 +50,7 @@
                 <a href="javascript:;" class="layui-btn layui-btn-normal" onclick="layer.alert('目前其余工作量太大了，进阶功能稍后再做...')"><i class="layui-icon layui-icon-senior"></i>批量审核</a>
 
                 <a href="javascript:;" class="layui-btn" onclick="exportTable()"><i class="layui-icon layui-icon-export"></i>导出</a>
+                <a href="javascript:;" class="layui-btn  layui-btn-warm" onclick="MaskReportInfo()"><i class="layui-icon layui-icon-lock"></i>一键脱敏</a>
             </div>
         </div>
     </form>
@@ -72,7 +73,7 @@
                                     </div>
                                 </div>
                                 <div class="layui-form-item">
-                                    <label class="layui-form-label">证件号码</label>
+                                    <label class="layui-form-label unmask" style="color:#1e9fff;font-weight:bold">证件号码</label>
                                     <div class="layui-input-block">
                                         <input type="text" name="idCard" readonly autocomplete="off" class="layui-input layui-bg-gray" />
                                     </div>
@@ -84,7 +85,7 @@
                                     </div>
                                 </div>
                                 <div class="layui-form-item">
-                                    <label class="layui-form-label">联系方式</label>
+                                    <label class="layui-form-label unmask" style="color:#1e9fff;font-weight:bold">联系方式</label>
                                     <div class="layui-input-block">
                                         <input type="text" name="mobile" readonly autocomplete="off" class="layui-input layui-bg-gray" />
                                     </div>
@@ -142,6 +143,7 @@
                                 <div class="layui-input-block">
                                     <a class="layui-btn save" href="javascript:;" onclick="submitCheckResult()" id="reportResultSubmit">立即提交</a>
                                     <a class="layui-btn layui-bg-gray disabledsave" style="display:none" id="reportResultSubmitDisabled" href="javascript:;">立即提交</a>
+                                    <a class="layui-btn layui-bg-purple unmask" href="javascript:;" id="unMask">查看敏感信息</a>
 
                                     @* <button type="reset" class="layui-btn layui-btn-primary">重置</button> *@
                                 </div>
@@ -290,11 +292,11 @@
                 { field: 'id', title: '报名id', type: 'checkbox' }
                 , { field: 'name', title: '姓名', width: 100 }
                 // , { field: 'accountName', title: '账号', width: 100 }
-                , { field: 'idCard', title: '证件号', width: 140 }
+                , { field: 'securityIdCard', title: '证件号', width: 140 }
                 // , { field: 'reportNumber', title: '考号', width: 160 }
                 , { field: 'subject', title: '报考内容' }
                 , { field: 'email', title: '邮箱', width: 120 }
-                , { field: 'mobile', title: '电话', width: 120 }
+                , { field: 'securityMobile', title: '电话', width: 120 }
                 , { templet: '#areaTpl', title: '地域', width: 160 }
                 , { templet: '#statusTpl', field: 'reportStatus', title: '报名状态', width: 120 }
                 , { templet: '#payTpl', field: 'orderStatus', title: '交费状态', width: 120 }
@@ -436,9 +438,9 @@
             $('#reportResultSubmitDisabled').show();
         }
         checkStatus = data.value;
-        if(data.value=='0'){
+        if (data.value == '0') {
             jHtmlSet('checkRemark', '审核通过');
-        } else if(data.value=='1'){
+        } else if (data.value == '1') {
             jHtmlSet('checkRemark', '审核不通过');
         }
     })
@@ -460,9 +462,9 @@
         });
         form.val('check-report', {
             'name': item.name,
-            'idCard': item.idCard,
+            'idCard': item.securityIdCard,
             'email': item.email,
-            'mobile': item.mobile,
+            'mobile': item.securityMobile,
             'job': item.job,
             'reportNumber': item.reportNumber,
             'subject': item.subject,
@@ -470,7 +472,7 @@
             'reportId': item.id,
             'checkStatus': item.reportStatus
         })
-        
+
         layer.open({
             type: 1,
             title: false,
@@ -575,5 +577,39 @@
 
     }
 
+    function MaskReportInfo() {
+        layer.confirm('执行脱敏操作后，证件号，手机号将会加密保存，并只显示部分前缀和后缀，若要获取完整信息，需联系超管进行解密操作，是否继续', { icon: 0 }, async () => {
+            loadingMsg();
+            let formData = new FormData();
+            formData.append('__RequestVerificationToken', requestToken);
+            let ret = await request('POST', '/report/reportinfo/MaskReportInfo', formData, CT);
+            if (ret.code != 0) {
+                errorMsg(ret.msg);
+                return;
+            }
+            successMsg(ret.msg)
+        })
+
+    }
+
+    async function DecryptReportInfo(reportId){
+        layer.load();
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('verifyCode', '');
+        formData.append('reportId',reportId);
+        let ret = await request('POST', '/report/reportinfo/DecryptMaskInfo', formData, CT);
+        if (ret.code != 0) {
+            errorMsg(ret.msg);
+            return;
+        }
+        layer.closeAll('loading');
+        layer.alert(`身份证号: 【${ret.data.idCard}】<br /> 联系方式【${ret.data.mobile}】`,{icon:4});
+    }
+
+    $('.unmask').click(async ()=>{
+        // let reportId = jVal('reportId');
+        await DecryptReportInfo(jVal('reportId'))
+    })
 </script>
 

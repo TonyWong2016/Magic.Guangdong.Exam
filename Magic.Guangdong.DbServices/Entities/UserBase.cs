@@ -29,13 +29,13 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(100)", IsNullable = false)]
 		public string Email { get; set; } = "";
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		[JsonProperty, Column(DbType = "varchar(500)", IsNullable = false)]
 		public string IdCard { get; set; } = "";
 
 		[JsonProperty, Column(StringLength = 200)]
 		public string Job { get; set; } = "";
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		[JsonProperty, Column(DbType = "varchar(500)", IsNullable = false)]
 		public string Mobile { get; set; } = "";
 
 		[JsonProperty, Column(StringLength = 50, IsNullable = false)]
@@ -82,6 +82,26 @@ namespace Magic.Guangdong.DbServices.Entities {
 		/// </summary>
 		[JsonProperty]
 		public string AccountId { get; set; }
+
+        [JsonProperty]
+        public string PrefixIdcard { get; set; }
+        [JsonProperty]
+        public string SuffixIdcard { get; set; }
+        [JsonProperty]
+        public string PrefixMobile { get; set; }
+        [JsonProperty]
+        public string SuffixMobile { get; set; }
+
+		[JsonProperty]
+		public int CardType { get; set; } = 0;
+
+		[JsonProperty]
+		public int PhoneType { get; set;} = 0;
+
+        [JsonProperty]
+        public string HashIdcard { get; set; }
+        [JsonProperty]
+        public string HashMobile { get; set; }
     }
 
 }

@@ -271,5 +271,7 @@ namespace Magic.Guangdong.Assistant
             // 返回结果，加上1是因为计数从0开始，我们需要从第1周开始计数
             return weekNumber + 1;
         }
+
+
     }
 }

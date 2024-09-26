@@ -121,14 +121,19 @@ namespace Magic.Guangdong.Exam.Controllers
                            .WithObject(model.savedFileName)
                            .WithExpiry(60 * 60 * 24);
                     string temporaryUrl = await _minioClient.PresignedGetObjectAsync(args);
+                    Uri uriResult;
+
+                    bool result = Uri.TryCreate(temporaryUrl, UriKind.Absolute, out uriResult)
+                        && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                     var file = new DbServices.Entities.File()
                     {
                         Name = model.savedFileName,
                         Ext = model.fileExt,
                         Size = model.fileSize,
-                        ShortUrl = temporaryUrl,
+                        ShortUrl = result ? uriResult.PathAndQuery : temporaryUrl,
                         AccountId = "system",
-                        ConnId = ""
+                        ConnId = "",
+                        Md5 = model.uploadId
                     };
                     await _fileRepo.addItemAsync(file);
                     respData.fileId = file.Id;
