@@ -50,6 +50,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         public string OrderTradeNumber { get; set; }
 
         public string Photo { get; set; }
+
+        public string ReportNumber { get; set; }
     }
 
     public class GetReportListDto
@@ -71,6 +73,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
     public class ReportInfoApiDto
     {
+        public long Id { get; set; }
         public string AccountId { get; set; }
 
         public long ActivityId { get; set; }
@@ -116,5 +119,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         public string OrderTradeNumber { get; set; }
 
         public string Photo { get; set; }
+
+        public string ReportNumber { get; set; }
     }
 }

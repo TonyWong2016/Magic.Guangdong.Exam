@@ -102,6 +102,9 @@ namespace Magic.Guangdong.DbServices.Entities {
         public string HashIdcard { get; set; }
         [JsonProperty]
         public string HashMobile { get; set; }
+
+		[JsonProperty]
+		public int IsSecurity { get; set; }
     }
 
 }

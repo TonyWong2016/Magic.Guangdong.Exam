@@ -7,7 +7,7 @@
     <form>
         <fieldset role="group">
             <input type="text"
-                    id="keyword"
+                   id="keyword"
                    name="keyword"
                    placeholder="输入活动关键字"
                    autocomplete="off" />
@@ -18,11 +18,16 @@
 </main>
 
 <script id="activityTpl" type="text/html">
-    {{# layui.each(d,function(index, item){ }}
-    {{# if(index%3==0) { }}
-        <div class="grid">
-    {{# } }}
-        <article id="activityInfo{{ index }}">
+
+    {{# layui.each(d,function(index0, group){  }}    
+        {{# if(group.length==3) { }}
+     <div class="grid" >
+        {{# } else { }}
+        {{# let lastWidth = (document.querySelector('#content').clientWidth / 3.088) * group.length;console.log(lastWidth) }}
+     <div class="grid" style="width:{{ lastWidth }}px">
+         {{#} }}
+        {{# layui.each(group,function(index,item){ }}
+        <article id="activityInfo{{ index }}" class="gridArticle">
             <header>{{ item.title }}</header>
             <p class="grid">
                 <a role="button" href="@Url.Page("Detail")?id={{item.id}}"class="secondary">查看</a>
@@ -35,9 +40,8 @@
             <img src="{{ fileBaseUrl+item.cover}}" alt="cover" />
 
         </article>
-    {{# if(index%3==0 && index>0 || index==d.length-1) { }}
-        </div>
-    {{# } }}
+        {{# }) }}
+         </div>
     {{# }) }}
 </script>
 <script>
@@ -50,15 +54,18 @@
     })
 
     getActivities();
-    function getActivities(){
-        axios.get('@Url.Action("GetActivities","Activity")', {
+    function getActivities() {
+        axios.get('@Url.Action("GetActivities", "Activity")', {
             params: makeWhereJson(),
             headers: {
                 '__RequestVerificationToken': requestToken
             }
         }).then(data => {
             let json = data.data;
-            renderTpl('activityTpl', 'content', json.data.items, false);
+            // renderTpl('activityTpl', 'content', json.data.items, false);
+            let items = groupByThree(json.data.items);
+            console.log(items)
+            renderTpl('activityTpl', 'content', items, false);
             $('#content').attr('aria-busy', false);
         })
     }
@@ -77,7 +84,7 @@
                 'Value': 0
             }]
         };
-        
+
         if (keyword && isNumeric(keyword)) {
             whereJsonStr.Filters.push({
                 'Logic': 'Or',
@@ -91,7 +98,7 @@
                     'Value': keyword
                 }]
             });
-        } 
+        }
         if (keyword && !isNumeric(keyword)) {
             whereJsonStr.Filters.push({
                 'Logic': 'And',
@@ -107,7 +114,12 @@
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'pageIndex': pageIndex, 'pageSize': pageSize };
     }
 
-    function report(activityId){
-
+    // 按每三个一组分组
+    function groupByThree(articles) {
+        let result = [];
+        for (let i = 0; i < articles.length; i += 3) {
+            result.push(articles.slice(i, i + 3));
+        }
+        return result;
     }
 </script>

@@ -351,8 +351,9 @@
         formData.append('notice', notice)
         let json = await request('POST', '@Url.Action("RemoveRecord")', formData, CT);
         if (json.code == 1) {
-            successMsg('操作成功');
-            getUserRecord();
+            successMsg('操作成功', () => {
+                getUserRecord();
+            });            
         } else {
             successMsg(json.msg)
         }

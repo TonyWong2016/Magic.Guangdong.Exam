@@ -33,6 +33,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="dto"></param>
         /// <returns></returns>
         Task<bool> CheckReportInfo(ReportCheckHistoryDto dto);
+
         Task<bool> ReportActivity(ReportInfoDto dto);
 
         /// <summary>

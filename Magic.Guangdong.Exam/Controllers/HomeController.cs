@@ -1,8 +1,8 @@
-﻿using Magic.Guangdong.Exam.Extensions;
+﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Text;
 
 namespace Magic.Guangdong.Exam.Controllers
 {
@@ -55,6 +55,21 @@ namespace Magic.Guangdong.Exam.Controllers
         public IActionResult AdminLogin(string msg)
         {
             return Redirect("/system/account/login?msg="+msg);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTemporaryToken([FromServices] IJwtService _jwtService)
+        {
+            try
+            {
+                DateTime expires = DateTime.Now.AddMinutes(10);
+                string jwt = _jwtService.Make(Utils.ToBase64Str("49D90000-4C24-00FF-D9D4-08DC47CA938C"), "sa", expires);
+                return Content(jwt);
+            }
+            catch
+            {
+                throw;
+            }      
         }
     }
 }

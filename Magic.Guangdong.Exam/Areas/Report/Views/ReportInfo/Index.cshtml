@@ -43,7 +43,7 @@
                 </select>
             </div>
             <div class="layui-input-inline layui-col-md5">
-                <input class='layui-input' id='keyword' placeholder='考生信息关键字，支持考号（推荐优先以考号查询）,姓名，邮箱，电话，以及证件号' />
+                <input class='layui-input' id='keyword' placeholder='考生信息关键字，考号,姓名，邮箱，手机，证件号(大陆证件/手机号支持后四位查询)' />
 
             </div>
             <div class="layui-input-inline layui-col-md3">
@@ -213,7 +213,7 @@
     <a class="layui-btn layui-btn-primary layui-border-orange save" href="javascript:;" onclick="getCheckHistory('{{ d.id }}',{{d.LAY_INDEX}})"><i class="layui-icon layui-icon-list"></i>审核记录</a>
 
 </script>
-
+<script src="~/plugins/js-md5/build/md5.min.js"></script>
 <script>
     let form = layui.form;
     let activityId = '0';
@@ -364,9 +364,9 @@
         let stringType = identifyStringType(keyword);
         if (stringType == 'idCard') {
             whereJsonStr.Filters.push({
-                'Field': 'a.IdCard',
+                'Field': 'a.HashIdCard',
                 'Operator': 'Equal',
-                'Value': keyword
+                'Value': md5(keyword)
             });
         }
         else if (stringType == 'email') {
@@ -378,9 +378,9 @@
         }
         else if (stringType == 'phone') {
             whereJsonStr.Filters.push({
-                'Field': 'a.Mobile',
+                'Field': 'a.HashMobile',
                 'Operator': 'Equal',
-                'Value': keyword
+                'Value': md5(keyword)
             });
         }
         else if (stringType == 'pureChinese') {
@@ -388,6 +388,20 @@
                 'Field': 'a.Name',
                 'Operator': 'Equal',
                 'Value': keyword
+            });
+        }
+        else if (stringType == 'pureNumber') {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'SuffixIdCard',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }, {
+                    'Field': 'SuffixMobile',
+                    'Operator': 'Equal',
+                    'Value': keyword
+                }]
             });
         }
         else if (stringType == 'string') {
@@ -398,14 +412,12 @@
                     'Operator': 'Contains',
                     'Value': keyword
                 }, {
-                    'Field': 'a.IdCard',
-                    'Operator': 'Contains',
+                    'Field': 'a.Job',
+                    'Operator': 'Equal',
                     'Value': keyword
                 }]
             });
         }
-
-
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'Id', 'isAsc': false, 'rd': randomInt };
     }
 
@@ -611,5 +623,6 @@
         // let reportId = jVal('reportId');
         await DecryptReportInfo(jVal('reportId'))
     })
+
 </script>
 

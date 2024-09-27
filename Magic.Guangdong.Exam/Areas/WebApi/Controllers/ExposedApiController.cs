@@ -35,8 +35,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IReportInfoRepo _reportInfoRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         public ExposedApiController(IResponseHelper resp,
-            IRedisCachingProvider redisCachingProvider, 
-            IWebHostEnvironment webHostEnvironment, 
+            IRedisCachingProvider redisCachingProvider,
+            IWebHostEnvironment webHostEnvironment,
             ICapPublisher capPublisher,
             IAdminRepo adminRepo,
             IRoleRepo roleRepo,
@@ -54,15 +54,16 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _capPublisher = capPublisher;
             _adminRepo = adminRepo;
             _roleRepo = roleRepo;
-            _adminRoleRepo= adminRoleRepo;
+            _adminRoleRepo = adminRoleRepo;
             _activityRepo = activityRepo;
             _examinationRepo = examinationRepo;
             _userBaseRepo = userBaseRepo;
             _reportInfoRepo = reportInfoRepo;
             _jwtService = jwtService;
+            _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
         }
         [HttpPost]
-        [WebApiModule] 
+        [WebApiModule]
         public async Task<IActionResult> Test()
         {
             return Json(_resp.success(Guid.NewGuid()));
@@ -77,7 +78,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAccessToken([FromBody]TokenParam model)
+        public async Task<IActionResult> GetAccessToken([FromBody] TokenParam model)
         {
             TimeSpan ts = DateTime.Now - Utils.TimeStampToDateTime(model.timestamp);
             if (ts.TotalSeconds > 300)
@@ -120,7 +121,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [WebApiModule]
-        public async Task<IActionResult> CreateOrModifyActivity([FromBody]ActivityApiDto dto)
+        public async Task<IActionResult> CreateOrModifyActivity([FromBody] ActivityApiDto dto)
         {
             try
             {
@@ -130,7 +131,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 }
                 if (await _activityRepo.getAnyAsync(u => u.Id == dto.Id && u.Title != dto.Title))
                 {
-                    var modifyActivity = dto.Adapt<Activity>();                    
+                    var modifyActivity = dto.Adapt<Activity>();
                     modifyActivity.UpdatedAt = DateTime.Now;
                     await _activityRepo.updateItemAsync(modifyActivity);
                 }
@@ -146,22 +147,22 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 await _activityRepo.addItemAsync(newActivity);
                 if (dto.CreatedExam == 1 && dto.ExamDto != null)
                 {
-                    dto.ExamDto.Id=NewId.NextGuid();
+                    dto.ExamDto.Id = NewId.NextGuid();
                     if (dto.ExamDto.AssociationId == 0)
                         dto.ExamDto.AssociationId = dto.Id;
                     if (string.IsNullOrEmpty(dto.ExamDto.AssociationTitle))
                         dto.ExamDto.AssociationTitle = dto.Title;
-                    if(await CreateOrModifyExam(dto.ExamDto))
+                    if (await CreateOrModifyExam(dto.ExamDto))
                         return Json(_resp.success(new { examId = dto.ExamDto.Id, activityId = dto.Id }, "操作成功"));
 
                     return Json(_resp.error("创建失败"));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(_resp.error($"创建失败，{ex.Message}"));
             }
-            return Json(_resp.success(new { examId="未提交创建考试的参数",activityId=dto.Id  },"操作成功"));
+            return Json(_resp.success(new { examId = "未提交创建考试的参数", activityId = dto.Id }, "操作成功"));
         }
 
         [HttpPost]
@@ -193,55 +194,114 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [WebApiModule]
-        public async Task<IActionResult> SubmitReportInfo(ReportInfoDto dto)
+        public async Task<IActionResult> SubmitReportInfo([FromBody]ReportInfoDto dto)
         {
-            if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
+            try
             {
-                return Json(_resp.error("用户不存在"));
-            }
+                if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
+                {
+                    return Json(_resp.error("用户不存在"));
+                }
 
-            if (!await _activityRepo.getAnyAsync(a => a.Id == dto.ActivityId))
-            {
-                return Json(_resp.error("活动不存在"));
-            }
+                if (!await _activityRepo.getAnyAsync(a => a.Id == dto.ActivityId))
+                {
+                    return Json(_resp.error("活动不存在"));
+                }
 
-            //证件号作为唯一报名活动的重复性判定元素
-            if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && (r.ActivityId == dto.ActivityId || r.ExamId == dto.ExamId)))
-            {
-                return Json(_resp.error("您已经报名该活动了"));
+                //证件号作为唯一报名活动的重复性判定元素
+                if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && (r.ActivityId == dto.ActivityId || r.ExamId == dto.ExamId)))
+                {
+                    return Json(_resp.error("您已经报名该活动了"));
+                }
+                dto.Id = YitIdHelper.NextId();
+                //var reportInfo = dto.Adapt<ReportInfo>();
+                dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
+                //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
+                dto.ReportNumber =
+                            dto.ReportNumber =
+                                dto.IdCard.Substring(dto.IdCard.Length - 4, 4) +
+                                Utils.DateTimeToTimeStamp(DateTime.Now) +
+                               (dto.ExamId == Guid.Empty ? Utils.GenerateRandomCodePro(6) : dto.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
+
+                if (await _reportInfoRepo.ReportActivity(dto))
+                {
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
+                    return Json(_resp.success(new
+                    {
+                        tradeNo = dto.OrderTradeNumber,
+                        reportId = dto.Id,
+                        dto.ReportNumber
+                    }));
+                }
+                return Json(_resp.error("报名失败"));
             }
-            dto.Id = YitIdHelper.NextId();
-            //var reportInfo = dto.Adapt<ReportInfo>();
-            dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
-            if (await _reportInfoRepo.ReportActivity(dto))
+            catch(Exception ex)
             {
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
-                return Json(_resp.success(new { tradeNo = dto.OrderTradeNumber, reportId = dto.Id }));
+                Console.WriteLine(ex.Message);
+                throw;
             }
-            return Json(_resp.error("报名失败"));
         }
 
         /// <summary>
         /// 获取答题记录
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="recordParam"></param>
         /// <returns></returns>
+        [HttpPost]
         [WebApiModule]
-        public IActionResult GetUserAnswerRecords(PageDto dto)
+        public async Task<IActionResult> GetUserAnswerRecords([FromBody] RecordParam recordParam)
         {
-            long total;
-            return Json(_resp.success(new { items = _userAnswerRecordViewRepo.GetUserRecord(dto, out total), total }));
+            if (recordParam.reportIds.Length > 50)
+            {
+                return Json(_resp.error("最多可以查询50条记录"));
+            }
+            return Json(_resp.success(await _userAnswerRecordViewRepo.GetUserAnswerRecordApi(recordParam.reportIds, recordParam.examType, recordParam.isDeleted)));
+        }
+
+        /// <summary>
+        /// 审核接口
+        /// </summary>
+        /// <param name="checkParam"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [WebApiModule]        
+        public async Task<IActionResult> CheckReportInfo([FromBody] CheckParam checkParam)
+        {
+            if (!await _reportInfoRepo.getAnyAsync(u => u.Id == checkParam.reportId))
+            {
+                return Json(_resp.error("报名信息不存在"));
+            }
+
+
+            if (!Enum.IsDefined(typeof(CheckStatus), checkParam.checkResult))
+            {
+                return Json(_resp.error("审核结果不正确"));
+            }
+            var dto = new ReportCheckHistoryDto()
+            {
+                reportIds = new long[] { checkParam.reportId },
+                checkStatus = (CheckStatus)checkParam.checkResult,
+                adminId = "api",
+                checkRemark = checkParam.checkRemark
+            };
+            if (await _reportInfoRepo.CheckReportInfo(dto))
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "ReportNotice", dto.reportIds);
+                return Json(_resp.success("审核成功"));
+            }
+            return Json(_resp.error("审核失败"));
+
         }
 
         public async Task<bool> CreateOrModifyExam(ExamApiDto examApiDto)
         {
             var exam = examApiDto.Adapt<Examination>();
             if (await _examinationRepo.getAnyAsync(u => u.Id == examApiDto.Id))
-            {                
+            {
                 return await _examinationRepo.updateItemAsync(exam) == 1;
             }
 
-            if(await _examinationRepo.getAnyAsync(u => u.Title == exam.Title))
+            if (await _examinationRepo.getAnyAsync(u => u.Title == exam.Title))
             {
                 return false;
             }
@@ -275,5 +335,21 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         public string sign { get; set; }
 
         public long timestamp { get; set; }
+    }
+
+    public class RecordParam
+    {
+        public string[] reportIds { get; set; }
+
+        public int? examType { get; set; }
+
+        public int? isDeleted { get; set; }
+    }
+
+    public class CheckParam
+    {
+        public long reportId { get; set; }
+        public int checkResult { get; set; }
+        public string checkRemark { get; set; }
     }
 }

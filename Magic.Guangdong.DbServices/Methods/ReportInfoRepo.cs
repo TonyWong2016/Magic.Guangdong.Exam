@@ -43,11 +43,12 @@ namespace Magic.Guangdong.DbServices.Methods
                     var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
                     reportInfoRepo.UnitOfWork = uow;
                     var reportModel = dto.Adapt<ReportInfo>();
-                    //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
-                    reportModel.ReportNumber =
-                        reportModel.IdCard.Substring(reportModel.IdCard.Length - 4, 4) +
-                        Utils.DateTimeToTimeStamp(DateTime.Now) +
-                       (reportModel.ExamId == null ? Utils.GenerateRandomCodePro(6) : reportModel.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
+                    if (string.IsNullOrEmpty(reportModel.ReportNumber))
+                        //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
+                        reportModel.ReportNumber =
+                            reportModel.IdCard.Substring(reportModel.IdCard.Length - 4, 4) +
+                            Utils.DateTimeToTimeStamp(DateTime.Now) +
+                           (reportModel.ExamId == null ? Utils.GenerateRandomCodePro(6) : reportModel.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
                     if (reportModel.IsSecurity == 0)
                     {
                         reportModel = GetReportSecurityModel(reportModel);
@@ -110,7 +111,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             ReportId = reportModel.Id,
                             CreatedAt = DateTime.Now
                         });
-                        
+
                     }
                     await orderRepo.InsertAsync(order);
                     await reportProcessRepo.InsertAsync(reportProcessModel);
@@ -189,8 +190,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 return false;
             }
             var reportProcessRepo = fsql.Get(conn_str).GetRepository<ReportProcess>();
-           
-            if(await reportProcessRepo.Where(u=>dto.reportIds.Contains(u.ReportId)).CountAsync() != dto.reportIds.Length)
+
+            if (await reportProcessRepo.Where(u => dto.reportIds.Contains(u.ReportId)).CountAsync() != dto.reportIds.Length)
             {
                 return false;
             }
@@ -220,7 +221,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                     await reportProcessRepo.UpdateAsync(listProcess);
                     await reportCheckHistoryRepo.InsertAsync(listHistory);
-                    
+
                     uow.Commit();
                     return true;
                 }
@@ -230,7 +231,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     return false;
                 }
             }
-        } 
+        }
 
         /// <summary>
         /// 导出报名列表
@@ -247,7 +248,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 query = query
                     .WhereDynamicFilter(dyfilter);
             }
-            var list =  await query.ToListAsync((a, b) => new 
+            var list = await query.ToListAsync((a, b) => new
             {
                 a.Id,
                 a.AccountId,
@@ -298,7 +299,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 reportOrderList.items = await query
                     .Page(dto.pageIndex, dto.pageSize)
                     .OrderBy(u => u.ReportStatus)
-                    .OrderByDescending(u=>u.OrderCreatedAt)
+                    .OrderByDescending(u => u.OrderCreatedAt)
                     .ToListAsync();
             }
             return reportOrderList;
@@ -337,12 +338,12 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.Title,
                     practiceId = u.Id,
                     practiceTitle = u.Title,
-                    
+
                 });
 
             var lastCheckHistory = await fsql.Get(conn_str).Select<ReportCheckHistory>()
                 .Where(a => a.ReportId == reportId)
-                .OrderByDescending(a => a.Id)                
+                .OrderByDescending(a => a.Id)
                 .ToOneAsync(u => new
                 {
                     u.Id,
@@ -351,7 +352,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.CheckStatus,
                     //审核记录里只可能有通过和不通过，没有待审
                     checkResult = u.CheckStatus == 0 ? "已通过" : "未通过"
-                }) ;
+                });
             return new
             {
                 reportInfo,
@@ -375,7 +376,7 @@ namespace Magic.Guangdong.DbServices.Methods
             var maskIdCard = new MaskDataDto();
             string keyId = reportInfo.ReportNumber.Substring(0, 16);
             string keySecret = reportInfo.ReportNumber.Substring(reportInfo.ReportNumber.Length - 16, 16);
-           
+
             maskIdCard.keyId = keyId;
             maskIdCard.keySecret = keySecret;
             maskIdCard.text = reportInfo.IdCard.Trim();
@@ -432,12 +433,13 @@ namespace Magic.Guangdong.DbServices.Methods
             var reportInfos = await reportRepo.Where(u => u.IsDeleted == 0 && u.IsSecurity == 0).ToListAsync();
             List<ReportInfo> MaskReportInfoList = new List<ReportInfo>();
             int count = 0;
-            foreach (var reportInfo in reportInfos) {
+            foreach (var reportInfo in reportInfos)
+            {
                 MaskReportInfoList.Add(GetReportSecurityModel(reportInfo));
                 if (MaskReportInfoList.Count % 100 == 0)
                 {
                     count += await reportRepo.UpdateAsync(MaskReportInfoList);
-                    
+
                 }
             }
             if (MaskReportInfoList.Count > 0)
@@ -497,8 +499,8 @@ namespace Magic.Guangdong.DbServices.Methods
             return reportInfo;
         }
 
-        
+
     }
 
-    
+
 }

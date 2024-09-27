@@ -26,6 +26,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return false;
             }
             var maskIdCard = new MaskDataDto();
+            user.IsSecurity = 0;
             maskIdCard.keyId = user.KeyId;
             maskIdCard.keySecret = user.KeySecret;
             maskIdCard.text = user.IdCard.Trim();
@@ -43,6 +44,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 user.SuffixIdcard = maskIdCard.splitTexts[1];
                 user.IdCard = maskIdCard.encryptText;
                 user.HashIdcard = maskIdCard.hashText;
+                user.IsSecurity = 1;
             }
             else
             {
@@ -52,6 +54,7 @@ namespace Magic.Guangdong.DbServices.Methods
             maskPhone.keyId = user.KeyId;
             maskPhone.keySecret = user.KeySecret;
             maskPhone.text = user.Mobile.Trim();
+            
             if (user.CardType == 0)
             {
                 maskPhone.maskDataType = MaskDataType.ChinaCellPhone;
@@ -67,12 +70,13 @@ namespace Magic.Guangdong.DbServices.Methods
                 user.SuffixMobile = maskPhone.splitTexts[1];
                 user.Mobile = maskPhone.encryptText;
                 user.HashMobile = maskPhone.hashText;
+                user.IsSecurity = 1;
             }
             else
             {
                 return false;
             }
-
+            
             return await fsql.Get(conn_str).Insert(user).ExecuteAffrowsAsync() == 1;
         }
     }

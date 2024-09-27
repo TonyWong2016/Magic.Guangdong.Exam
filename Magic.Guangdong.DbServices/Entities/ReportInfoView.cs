@@ -114,6 +114,11 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty]
 		public int IsSecurity { get; set; }
+
+        [JsonProperty]
+        public string SuffixIdCard { get; set; }
+        [JsonProperty]
+        public string SuffixMobile { get; set; }
     }
 
 }

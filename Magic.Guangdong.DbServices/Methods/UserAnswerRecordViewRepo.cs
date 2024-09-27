@@ -7,6 +7,7 @@ using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;
 using Newtonsoft.Json;
+using NPOI.POIFS.Dev;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -89,6 +90,35 @@ namespace Magic.Guangdong.DbServices.Methods
                     score = u.Score.ToString(),
                     objectScore=u.ObjectiveScore.ToString(),
                     complated = u.Complated == 0 ? "未交卷" : "已交卷"
+                });
+        }
+
+        public async Task<dynamic> GetUserAnswerRecordApi(string[] reportIds,int? examType,int? isDeleted)
+        {
+            return await fsql.Get(conn_str).Select<UserAnswerRecordView>()
+                .Where(u => reportIds.Contains(u.ReportId))
+                .WhereIf(examType!=null,u=>u.ExamType==examType)
+                .WhereIf(isDeleted != null, u => u.IsDeleted == isDeleted)
+                .OrderByDescending(u => u.Id)
+                .ToListAsync(u => new
+                {
+                    u.Id,
+                    u.ReportNumber,
+                    u.Name,
+                    u.Score,
+                    u.ExamId,
+                    u.PaperId,
+                    u.AccountId,
+                    u.ObjectiveScore,
+                    u.PaperScore,
+                    u.SubmitAnswer,
+                    u.Stage,
+                    u.Complated,
+                    u.CreatedAt,
+                    u.UsedTime,
+                    u.Marked,
+                    u.IsDeleted,
+                    u.ExamType
                 });
         }
 

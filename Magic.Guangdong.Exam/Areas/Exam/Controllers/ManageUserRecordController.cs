@@ -180,27 +180,30 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 var userInfo = await _userRepo.getOneAsync(u => u.AccountId == record.AccountId);
                 if (userInfo == null)
                     return;
-                string content = $"<p>以下内容为系统自动发送，请勿直接回复！</p>" +
+                
+                if (isnotice == 1)
+                {
+                    string content = $"<p>以下内容为系统自动发送，请勿直接回复！</p>" +
                     $"<p>您账号{WebUtility.UrlDecode(record.Name)}下的一条答题记录已被管理员删除</p>" +
                     $"<p>记录详情如下</p>" +
                     $"<p>考试信息：{record.ExamTitle}</p>" +
-                    $"<p>答题人证件号码：{record.IdNumber}</p>" +
+                    $"<p>答题人准考证：{record.ReportNumber}</p>" +
                     $"<p>原答题分数：{record.Score}</p>" +
                     $"<p>创建答题时间：{record.CreatedAt}</p>" +
-                    $"<p>删除时间：{record.UpdatedAt}</p>" ;
+                    $"<p>删除时间：{record.UpdatedAt}</p>";
 
-                string[] emailBCcs = new string[] { "wangteng@xxt.org.cn" };
-                if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("mailBcc")))
-                {
-                    emailBCcs = ConfigurationHelper.GetSectionValue("mailBcc").Split(',');
-                }
-                //await CipAssistant.EmailHelper.SendEmailProAsync(userInfo.Email, "答题记录被删除", content, null, new string[] { "wangteng@xxt.org.cn" });
-                List<MailboxAddress> to = new List<MailboxAddress>();
-                to.Add(new MailboxAddress(record.Name, record.Email));
-                to.Add(new MailboxAddress("tony", "wangteng@xxt.org.cn"));
-                if (isnotice == 1)
+                    string[] emailBCcs = new string[] { "wangteng@xxt.org.cn" };
+                    if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("mailBcc")))
+                    {
+                        emailBCcs = ConfigurationHelper.GetSectionValue("mailBcc").Split(',');
+                    }
+                    //await CipAssistant.EmailHelper.SendEmailProAsync(userInfo.Email, "答题记录被删除", content, null, new string[] { "wangteng@xxt.org.cn" });
+                    List<MailboxAddress> to = new List<MailboxAddress>();
+                    to.Add(new MailboxAddress(record.Name, record.Email));
+                    to.Add(new MailboxAddress("tony", "wangteng@xxt.org.cn"));
                     await EmailKitHelper.SendEMailAsync("答题记录被删除", content, to);
-                
+
+                }
 
                 //删除提交的答案记录
                 await _provider.KeyDelAsync(record.Id.ToString());
