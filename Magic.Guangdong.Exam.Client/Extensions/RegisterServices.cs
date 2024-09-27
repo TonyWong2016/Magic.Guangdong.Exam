@@ -59,7 +59,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
         private static void ConfigureRazorPages(this IServiceCollection services)
         {
-            services.AddRazorPages()
+            services.AddRazorPages().AddRazorRuntimeCompilation()
                 .AddMvcOptions(option =>
                 {
                     option.Filters.Add(typeof(Filters.AuthorizeFilter));

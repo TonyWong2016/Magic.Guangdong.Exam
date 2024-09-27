@@ -35,7 +35,7 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseDefaultFiles();
             app.UseResponseCaching();
             app.MapRazorPages();
-
+            
             //注入ip限流中间件
             app.UseIpRateLimiting();
 
