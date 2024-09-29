@@ -194,10 +194,13 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [WebApiModule]
-        public async Task<IActionResult> SubmitReportInfo([FromBody]ReportInfoDto dto)
+        public async Task<IActionResult> SubmitReportInfo([FromBody]ReportInfoApiDto dto)
         {
             try
             {
+                if (!dto.isValid) {
+                    return Json(_resp.error("关键信息不可为空"));
+                }
                 if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
                 {
                     return Json(_resp.error("用户不存在"));
@@ -223,7 +226,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                                 Utils.DateTimeToTimeStamp(DateTime.Now) +
                                (dto.ExamId == Guid.Empty ? Utils.GenerateRandomCodePro(6) : dto.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
 
-                if (await _reportInfoRepo.ReportActivity(dto))
+                if (await _reportInfoRepo.ReportActivity(dto.Adapt<ReportInfoDto>()))
                 {
                     await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
                     return Json(_resp.success(new
@@ -238,7 +241,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw;
+                return Json(_resp.error("报名失败"));
             }
         }
 

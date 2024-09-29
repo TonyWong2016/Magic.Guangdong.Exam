@@ -73,6 +73,21 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
     public class ReportInfoApiDto
     {
+        public bool isValid
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(AccountId)
+                    || string.IsNullOrEmpty(Name)
+                    || string.IsNullOrEmpty(IdCard)
+                    || string.IsNullOrEmpty(Mobile)
+                    || string.IsNullOrEmpty(Email))
+                    return false;
+
+
+                return true;
+            }
+        }
         public long Id { get; set; }
         public string AccountId { get; set; }
 
