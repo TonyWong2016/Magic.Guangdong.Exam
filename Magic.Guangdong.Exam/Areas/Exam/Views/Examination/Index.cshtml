@@ -139,7 +139,7 @@
         <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='@Url.Action("Edit")?id={{d.id}}'><i class='layui-icon layui-icon-edit'></i>编辑</a>
         <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick='cloneExam("{{d.id}}")'><i class='layui-icon layui-icon-template-1'></i>克隆</a>
         {{# if(d.status==0) { }}
-        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷详情</a>
+        <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='/exam/paper/index?examId={{d.id}}&associationId={{ d.associationId }}'><i class='layui-icon layui-icon-template'></i>试卷</a>
         @* <a class='layui-btn layui-btn-sm layui-btn-primary layui-border-blue' href='javascript:;' onclick="makeQrcode('{{ d.associationId }}','{{d.id}}','{{d.title}}','{{d.groupCode}}')"><i class='layui-icon layui-icon-cellphone'></i>二维码</a> *@
         <a class='layui-btn layui-btn-sm  layui-btn-primary layui-border-orange' href='javascript:;' onclick="setExamStatus('{{d.id}}')"><i class='layui-icon layui-icon-lock'></i>禁用</a>
 

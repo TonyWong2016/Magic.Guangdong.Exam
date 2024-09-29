@@ -133,6 +133,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 foreach (var item in notComplatedRecords)
                 {
                     var record = await _userAnswerRecordViewRepo.ForceMarking(item);
+
                     await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
                 }
                 return Json(_resp.success(true, "操作成功"));
@@ -221,6 +222,11 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 Console.WriteLine(ex.Message);
                 Logger.Error(ex.Message + "/r/n" + ex.StackTrace);
             }
+        }
+
+        public async Task<IActionResult> Test(long urid)
+        {
+            return Json(_resp.success(await _userAnswerRecordViewRepo.AddQuestionRecord(urid)));
         }
     }
 }

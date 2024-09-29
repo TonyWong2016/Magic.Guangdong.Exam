@@ -1,4 +1,5 @@
-﻿using FreeSql.Internal.Model;
+﻿using Essensoft.Paylink.Alipay.Parser;
+using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
@@ -323,6 +324,137 @@ namespace Magic.Guangdong.DbServices.Methods
             await reportProcessRepo.UpdateAsync(process);
             return record;
 
+        }
+
+        /// <summary>
+        /// 添加题目记录
+        /// </summary>
+        /// <param name="urid"></param>
+        /// <returns></returns>
+        public async Task<bool> AddQuestionRecord(long urid)
+        {
+            try
+            {
+                var questionRecordRepo = fsql.Get(conn_str).GetRepository<QuestionRecord>();
+
+                var userAnswerRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                var record = await userAnswerRepo.Where(u => u.Id == urid).ToOneAsync();
+                if (string.IsNullOrEmpty(record.SubmitAnswer) || record.SubmitAnswer.Length <= 2)
+                {
+                    return false;
+                }
+                var questionRecords = new List<QuestionRecord>();
+                //取题目
+                var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
+                var relations = await fsql.Get(conn_str).Select<Relation, QuestionView>()
+                    .LeftJoin((a, b) => a.QuestionId == b.Id)
+                    .Where((a, b) => a.PaperId == record.PaperId && a.IsDeleted == 0)
+                    .ToListAsync((a, b) => new
+                    {
+                        a.QuestionId,
+                        a.ItemScore,
+                        b.Objective,
+                        b.SingleAnswer
+
+                    });
+
+                //取选项
+                List<SubmitAnswerDto> Answers = JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(record.SubmitAnswer);
+                var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                var userQuestionIds = Answers.Select(u => u.questionId).ToList();
+                var questionItems = await questionItemRepo
+                    .Where(u => u.IsDeleted == 0 && userQuestionIds.Contains(u.QuestionId))
+                    .ToListAsync(u => new
+                    {
+                        u.IsAnswer,
+                        u.Id,
+                        u.Description,
+                        u.Code,
+                        u.IsOption,
+                        u.QuestionId
+                    });
+                var correctItems = questionItems.Where(u => u.IsAnswer == 1);
+
+                
+                //遍历
+                foreach (var answer in Answers)
+                {
+                    var questionRecord = new QuestionRecord()
+                    {
+                        RecordId = urid,
+                        AccountId = record.AccountId
+                    };
+                    if (!relations.Where(u => u.QuestionId == answer.questionId).Any())
+                    {
+                        continue;
+                    }
+                    var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
+                    questionRecord.QuestionId = answer.questionId;
+
+                    //if (answer.userAnswer.Length==1 && answer.userAnswer[0]==)
+                    if (relation.Objective != 1)
+                    {
+                        questionRecord.UserAnswerContent = string.Join("_EOF_", answer.userAnswer);
+
+                        continue;//主观题，跳过
+                    }
+                    //如果是单选或者判断题
+                    if (relation.SingleAnswer == 1)
+                    {
+                        questionRecord.IsCorrect = 2;
+                        questionRecord.UserAnswerId = answer.userAnswer[0];
+                        questionRecord.UserAnswerContent = questionItems.Where(u => u.Id == Convert.ToInt64(questionRecord.UserAnswerId)).First().Code;
+
+
+                        var currItem = correctItems.Where(u => u.QuestionId == answer.questionId).First();
+                        //且答案正确
+                        if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
+                        {
+                            questionRecord.IsCorrect = 1;
+                        }
+                    }
+                    //如果是多选
+                    if (relation.SingleAnswer == 0)
+                    {
+                        questionRecord.IsCorrect = 2;
+                        questionRecord.UserAnswerId = string.Join(",", answer.userAnswer);
+                        bool sub_flag = true;
+                        var currItems = correctItems.Where(u => u.QuestionId == answer.questionId).ToList();
+
+                        if (answer.userAnswer.Length != currItems.Count)
+                        {
+                            questionRecord.IsCorrect = 2;
+                            sub_flag = false;
+                        }
+                        int correctCnt = 0;
+                        foreach (var currItem in currItems)
+                        {
+                            questionRecord.UserAnswerContent += questionItems.Where(u => u.Id == currItem.Id).First().Code;
+
+                        }
+                        if (correctCnt == currItems.Count && sub_flag)
+                        {
+                            questionRecord.IsCorrect = 1;
+                        }
+                    }
+
+                    if (await questionRecordRepo.Where(u => u.RecordId == questionRecord.RecordId && u.QuestionId == questionRecord.QuestionId).AnyAsync())
+                    {
+                        await questionRecordRepo.Where(u => u.RecordId == questionRecord.RecordId && u.QuestionId == questionRecord.QuestionId)
+                            .ToUpdate().Set(u => u.IsDeleted == 1).ExecuteAffrowsAsync();
+                    }
+                    questionRecords.Add(questionRecord);
+                }
+
+                
+                await questionRecordRepo.InsertAsync(questionRecords);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                Assistant.Logger.Error(ex);
+                return false;
+            }
         }
 
         public async Task<List<long>> GetNotComplatedList(Guid examId)

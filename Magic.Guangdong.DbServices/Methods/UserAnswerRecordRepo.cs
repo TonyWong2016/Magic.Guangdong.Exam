@@ -256,110 +256,149 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <returns></returns>
         public async Task<UserAnswerRecord> Marking(long urid, bool submit = false)
         {
-            //第一步：把提交的答案取出来
-            var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
-            var record = await userAnswerRecordRepo.Where(u => u.Id == urid).ToOneAsync();
-            if (record.UpdatedBy == "systemmarked")
+            using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {
-                return record;//已经给过分了
-            }
-            if (record.Complated == 0 && record.LimitedTime > DateTime.Now && !submit)
-            {
-                return record;//尚未
-            }
-            List<SubmitAnswerDto> Answers = JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(record.SubmitAnswer);
-
-            //第二步，把试卷的题目和分数取出来
-            var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
-            var relations = await fsql.Get(conn_str).Select<Relation, QuestionView>()
-                .LeftJoin((a, b) => a.QuestionId == b.Id)
-                .Where((a, b) => a.PaperId == record.PaperId && a.IsDeleted == 0)
-                .ToListAsync((a, b) => new
+                try
                 {
-                    a.QuestionId,
-                    a.ItemScore,
-                    b.Objective,
-                    b.SingleAnswer
-                });
-            //double paperScore = relations.Sum(u => u.ItemScore);
+                    //第一步：把提交的答案取出来
+                    var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+                    var questionRecordRepo = fsql.Get(conn_str).GetRepository<QuestionRecord>();
+                    userAnswerRecordRepo.UnitOfWork = uow;
+                    questionRecordRepo.UnitOfWork= uow;
+                    
+                    var record = await userAnswerRecordRepo.Where(u => u.Id == urid).ToOneAsync();
 
-
-            //第三步，把用户提交的题目的正确答案都取出来
-            var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
-            var userQuestionIds = Answers.Select(u => u.questionId).ToList();
-            var correctItems = await questionItemRepo
-                .Where(u => u.IsDeleted == 0 && u.IsAnswer == 1 && userQuestionIds.Contains(u.QuestionId))
-                .ToListAsync(u => new
-                {
-                    u.IsAnswer,
-                    u.Id,
-                    u.Description,
-                    u.Code,
-                    u.IsOption,
-                    u.QuestionId
-                });
-            //string lastQuestionId = "";
-
-            //第四步，开始判分，客观题直接给，主观题撂着...
-            double userObjectiveScore = 0;
-            foreach (var answer in Answers)
-            {
-                var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
-
-                //if (answer.userAnswer.Length==1 && answer.userAnswer[0]==)
-                if (relation.Objective != 1)
-                {
-                    continue;//主观题，跳过
-                }
-                //如果是单选或者判断题
-                if (relation.SingleAnswer == 1)
-                {
-                    var currItem = correctItems.Where(u => u.QuestionId == answer.questionId).First();
-                    //且答案正确
-                    if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
+                    var questionRecord = new QuestionRecord()
                     {
-                        userObjectiveScore += relation.ItemScore;//得分
+                        RecordId = urid,
+                        AccountId = record.AccountId,
+                        
+                    };
+                    if (record.UpdatedBy == "systemmarked")
+                    {
+                        return record;//已经给过分了
                     }
-                }
-                //如果是多选
-                if (relation.SingleAnswer == 0)
-                {
-                    var currItems = correctItems.Where(u => u.QuestionId == answer.questionId).ToList();
-                    if (answer.userAnswer.Length != currItems.Count)
+                    if (record.Complated == 0 && record.LimitedTime > DateTime.Now && !submit)
                     {
-                        continue;//首先答案数量得一致，不一致就直接跳过
+                        return record;//尚未
                     }
-                    int correctCnt = 0;
-                    foreach (var currItem in currItems)
-                    {
-                        foreach (var userAnswer in answer.userAnswer)
+                    List<SubmitAnswerDto> Answers = JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(record.SubmitAnswer);
+
+                    //第二步，把试卷的题目和分数取出来
+                    var relationRepo = fsql.Get(conn_str).GetRepository<Relation>();
+                    var relations = await fsql.Get(conn_str).Select<Relation, QuestionView>()
+                        .LeftJoin((a, b) => a.QuestionId == b.Id)
+                        .Where((a, b) => a.PaperId == record.PaperId && a.IsDeleted == 0)
+                        .ToListAsync((a, b) => new
                         {
-                            if (userAnswer == currItem.Id.ToString() || userAnswer == currItem.Code)
+                            a.QuestionId,
+                            a.ItemScore,
+                            b.Objective,
+                            b.SingleAnswer
+                        });
+                    //double paperScore = relations.Sum(u => u.ItemScore);
+
+
+                    //第三步，把用户提交的题目的正确答案都取出来
+                    var questionItemRepo = fsql.Get(conn_str).GetRepository<QuestionItem>();
+                    var userQuestionIds = Answers.Select(u => u.questionId).ToList();
+                    var questionItems = await questionItemRepo
+                        //.Where(u => u.IsDeleted == 0 && u.IsAnswer == 1 && userQuestionIds.Contains(u.QuestionId))
+                        .Where(u => u.IsDeleted == 0 && userQuestionIds.Contains(u.QuestionId))
+                        .ToListAsync(u => new
+                        {
+                            u.IsAnswer,
+                            u.Id,
+                            u.Description,
+                            u.Code,
+                            u.IsOption,
+                            u.QuestionId
+                        });
+                    var correctItems = questionItems.Where(u => u.IsAnswer == 1);
+                    //string lastQuestionId = "";
+
+                    //第四步，开始判分，客观题直接给，主观题撂着...
+                    double userObjectiveScore = 0;
+                    foreach (var answer in Answers)
+                    {
+                        var relation = relations.Where(u => u.QuestionId == answer.questionId).First();
+                        questionRecord.QuestionId = answer.questionId;
+                        
+                        //if (answer.userAnswer.Length==1 && answer.userAnswer[0]==)
+                        if (relation.Objective != 1)
+                        {
+                            questionRecord.UserAnswerContent = string.Join("_EOF_", answer.userAnswer);
+                            continue;//主观题，跳过
+                        }
+                        //如果是单选或者判断题
+                        if (relation.SingleAnswer == 1)
+                        {
+                            questionRecord.IsCorrect = 2;
+                            questionRecord.UserAnswerId = answer.userAnswer[0];
+                            questionRecord.UserAnswerContent = questionItems.Where(u => u.QuestionId == Convert.ToInt64(questionRecord.UserAnswerId)).First().Code;
+                            var currItem = correctItems.Where(u => u.Id == answer.questionId).First();
+                            //且答案正确
+                            if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                             {
-                                correctCnt++;//这里判分的逻辑也可以改成判定数组是否包含正确答案，但实际上，字符串的包含判定还是比较耗资源的，两个循环看起来麻烦，实际相对contains的方式还是省了。
+                                userObjectiveScore += relation.ItemScore;//得分
+                                questionRecord.IsCorrect = 1;
+                            }
+                        }
+                        //如果是多选
+                        if (relation.SingleAnswer == 0)
+                        {
+                            var currItems = correctItems.Where(u => u.QuestionId == answer.questionId).ToList();
+                            questionRecord.IsCorrect = 2;
+                            questionRecord.UserAnswerId = string.Join(",", answer.userAnswer) ;
+                            if (answer.userAnswer.Length != currItems.Count)
+                            {
+                                continue;//首先答案数量得一致，不一致就直接跳过
+                            }
+                            int correctCnt = 0;
+                            foreach (var currItem in currItems)
+                            {
+                                foreach (var userAnswer in answer.userAnswer)
+                                {
+                                    questionRecord.UserAnswerContent += questionItems.Where(u => u.Id == currItem.Id).First().Code;
+                                    if (userAnswer == currItem.Id.ToString() || userAnswer == currItem.Code)
+                                    {
+                                        correctCnt++;//这里判分的逻辑也可以改成判定数组是否包含正确答案，但实际上，字符串的包含判定还是比较耗资源的，两个循环看起来麻烦，实际相对contains的方式还是省了。
+                                    }
+                                }
+                            }
+                            if (correctCnt == currItems.Count)
+                            {
+                                userObjectiveScore += relation.ItemScore;
+                                questionRecord.IsCorrect = 1;
                             }
                         }
                     }
-                    if (correctCnt == currItems.Count)
+                    if (submit)//强制交卷
                     {
-                        userObjectiveScore += relation.ItemScore;
+                        record.Complated = ExamComplated.Yes;
+                        record.ComplatedMode = ExamComplatedMode.Force;
                     }
+                    record.Remark += $"客观题成绩为{userObjectiveScore}分";
+                    record.UpdatedAt = DateTime.Now;
+                    record.UpdatedBy = "systemmarked";
+                    record.Marked = ExamMarked.Part;
+                    record.ObjectiveScore = userObjectiveScore;
+                    await userAnswerRecordRepo.UpdateAsync(record);
+                    await questionRecordRepo.InsertAsync(questionRecord);
+                    uow.Commit();
+                    return record;
+                }
+                catch(Exception ex)
+                {
+                    Assistant.Logger.Error(ex);
+                    uow.Rollback();
+                    throw;
                 }
             }
-            if (submit)//强制交卷
-            {
-                record.Complated = ExamComplated.Yes;
-                record.ComplatedMode = ExamComplatedMode.Force;
-            }
-            record.Remark += $"客观题成绩为{userObjectiveScore}分";
-            record.UpdatedAt = DateTime.Now;
-            record.UpdatedBy = "systemmarked";
-            record.Marked = ExamMarked.Part;
-            record.ObjectiveScore = userObjectiveScore;
-            await userAnswerRecordRepo.UpdateAsync(record);
-            return record;
+            
 
         }
+        
         #endregion
 
         #region For ClientSide

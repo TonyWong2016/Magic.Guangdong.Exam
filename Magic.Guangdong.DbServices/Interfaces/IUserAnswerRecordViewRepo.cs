@@ -18,6 +18,8 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<UserAnswerRecordView> ForceMarking(long urid);
 
+        Task<bool> AddQuestionRecord(long urid);
+
         Task<List<long>> GetNotComplatedList(Guid examId);
 
         Task<dynamic> GetUserAnswerRecordApi(string[] reportIds, int? examType, int? isDeleted);
