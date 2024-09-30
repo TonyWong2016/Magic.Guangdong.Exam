@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -70,6 +71,19 @@ namespace Magic.Guangdong.Exam.Controllers
             {
                 throw;
             }      
+        }
+
+        public IActionResult TestMaskData(string text)
+        {
+            var maskData = new MaskDataDto()
+            {
+                text = text,
+                keyId = Utils.GenerateRandomCodePro(16),
+                keySecret = Utils.GenerateRandomCodePro(16),
+                maskDataType = MaskDataType.Other
+            };
+            Console.WriteLine($"TestMaskData: {JsonHelper.JsonSerialize(maskData)}");
+            return Json(maskData);
         }
     }
 }

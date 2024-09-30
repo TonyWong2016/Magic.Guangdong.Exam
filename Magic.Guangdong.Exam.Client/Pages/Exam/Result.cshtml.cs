@@ -76,7 +76,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             ExamId = record.ExamId;
             ExamTitle = record.ExamTitle;
             ReportNumber = record.ReportNumber;
-            IdCard = record.IdCard;
+            IdCard = record.SecurityIdCard;
             Email = record.Email;
             Mobile = record.Mobile;
             Name = record.Name;

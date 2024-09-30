@@ -534,6 +534,7 @@
 
         //console.log(json);
         if (json.code == 0 && complatedMode != 4) {
+            closeModal(document.getElementById('modal-submit'));
             TT.success('交卷成功', () => {
                 location.href = '/exam/result?urid=' + urid;
                 $('.submitEnabled').show();

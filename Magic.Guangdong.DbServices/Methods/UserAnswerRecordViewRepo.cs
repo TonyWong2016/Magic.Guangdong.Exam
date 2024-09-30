@@ -119,7 +119,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     u.UsedTime,
                     u.Marked,
                     u.IsDeleted,
-                    u.ExamType
+                    u.ExamType,
+                    u.ReportId
                 });
         }
 

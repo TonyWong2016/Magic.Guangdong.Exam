@@ -1,9 +1,9 @@
 USE [Magic.Guangdong.Exam]
 GO
-/****** Object:  Schema [cap]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Schema [cap]    Script Date: 2024-09-30 17:25:41 ******/
 CREATE SCHEMA [cap]
 GO
-/****** Object:  Table [dbo].[Order]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Order]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -32,7 +32,7 @@ CREATE TABLE [dbo].[Order](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Examination]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Examination]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -71,7 +71,7 @@ CREATE TABLE [dbo].[Examination](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ReportProcess]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[ReportProcess]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -95,7 +95,7 @@ CREATE TABLE [dbo].[ReportProcess](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[ReportOrderView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[ReportOrderView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -114,7 +114,7 @@ FROM      dbo.ReportProcess INNER JOIN
                 dbo.Examination ON dbo.ReportProcess.ExamId = dbo.Examination.Id
 WHERE   (dbo.[Order].IsDeleted = 0)
 GO
-/****** Object:  Table [dbo].[Province]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Province]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -133,7 +133,7 @@ CREATE TABLE [dbo].[Province](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[City]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[City]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -152,7 +152,7 @@ CREATE TABLE [dbo].[City](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[District]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[District]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -171,7 +171,7 @@ CREATE TABLE [dbo].[District](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ReportInfo]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[ReportInfo]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -185,7 +185,7 @@ CREATE TABLE [dbo].[ReportInfo](
 	[DistrictId] [int] NULL,
 	[Email] [varchar](150) NOT NULL,
 	[ExamId] [uniqueidentifier] NULL,
-	[IdCard] [varchar](50) NOT NULL,
+	[IdCard] [varchar](500) NOT NULL,
 	[Job] [nvarchar](500) NULL,
 	[Name] [nvarchar](50) NOT NULL,
 	[OtherInfo] [nvarchar](500) NULL,
@@ -194,15 +194,23 @@ CREATE TABLE [dbo].[ReportInfo](
 	[IsDeleted] [int] NOT NULL,
 	[UnitId] [bigint] NOT NULL,
 	[Address] [nvarchar](200) NULL,
-	[Mobile] [varchar](50) NOT NULL,
+	[Mobile] [varchar](500) NOT NULL,
 	[CardType] [int] NOT NULL,
 	[ConnAvailable] [int] NOT NULL,
 	[ReportNumber] [varchar](50) NULL,
 	[FileId] [bigint] NOT NULL,
-	[Photo] [varchar](350) NULL
+	[Photo] [varchar](350) NULL,
+	[PrefixIdCard] [nvarchar](50) NULL,
+	[PrefixMobile] [nvarchar](50) NULL,
+	[SuffixIdCard] [nvarchar](50) NULL,
+	[SuffixMobile] [nvarchar](50) NULL,
+	[PhoneType] [int] NOT NULL,
+	[HashIdCard] [nvarchar](50) NULL,
+	[HashMobile] [nvarchar](50) NULL,
+	[IsSecurity] [int] NOT NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[ReportInfoView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[ReportInfoView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -215,7 +223,9 @@ SELECT   dbo.ReportInfo.Id, dbo.ReportInfo.AccountId, dbo.ReportInfo.ActivityId,
                 dbo.ReportInfo.OtherInfo, dbo.ReportInfo.Address, dbo.ReportInfo.Mobile, dbo.ReportInfo.CardType, 
                 dbo.ReportInfo.ConnAvailable, dbo.ReportInfo.ReportNumber, dbo.ReportInfo.CreatedAt, dbo.ReportInfo.FileId, 
                 dbo.ReportProcess.Status AS ReportStatus, dbo.ReportProcess.Step AS ReportStep, dbo.ReportProcess.OrderId, 
-                dbo.ReportProcess.TestedTime
+                dbo.ReportProcess.TestedTime, dbo.ReportInfo.PrefixIdCard + N'******' + dbo.ReportInfo.SuffixIdCard AS SecurityIdCard, 
+                dbo.ReportInfo.PrefixMobile + N'****' + dbo.ReportInfo.SuffixMobile AS SecurityMobile, dbo.ReportInfo.HashIdCard, 
+                dbo.ReportInfo.HashMobile, dbo.ReportInfo.IsSecurity, dbo.ReportInfo.SuffixIdCard, dbo.ReportInfo.SuffixMobile
 FROM      dbo.City RIGHT OUTER JOIN
                 dbo.Province RIGHT OUTER JOIN
                 dbo.ReportInfo INNER JOIN
@@ -223,7 +233,7 @@ FROM      dbo.City RIGHT OUTER JOIN
                 dbo.Province.Id = dbo.ReportInfo.ProvinceId ON dbo.City.Id = dbo.ReportInfo.CityId LEFT OUTER JOIN
                 dbo.District ON dbo.ReportInfo.DistrictId = dbo.District.Id
 GO
-/****** Object:  View [dbo].[CityView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[CityView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -235,7 +245,7 @@ SELECT   dbo.City.Id, dbo.City.CityName, dbo.City.ProvinceId, dbo.City.Status, d
 FROM      dbo.City INNER JOIN
                 dbo.Province ON dbo.City.ProvinceId = dbo.Province.Id
 GO
-/****** Object:  View [dbo].[DistrictView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[DistrictView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -250,7 +260,7 @@ FROM      dbo.District INNER JOIN
                 dbo.Province ON dbo.City.ProvinceId = dbo.Province.Id
 WHERE   (dbo.District.IsDeleted = 0)
 GO
-/****** Object:  Table [dbo].[UnitInfo]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[UnitInfo]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -284,7 +294,7 @@ CREATE TABLE [dbo].[UnitInfo](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[UnitInfoView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[UnitInfoView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -301,7 +311,7 @@ FROM      dbo.UnitInfo INNER JOIN
                 dbo.CityView ON dbo.UnitInfo.CityId = dbo.CityView.Id
 WHERE   (dbo.UnitInfo.IsDeleted = 0)
 GO
-/****** Object:  View [dbo].[ReportExamView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[ReportExamView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -317,12 +327,15 @@ SELECT   dbo.Examination.Id AS ExamId, dbo.Examination.Title, dbo.Examination.De
                 dbo.ReportInfo.Name, dbo.ReportInfo.IdCard, dbo.ReportInfo.Mobile, dbo.ReportInfo.CardType, 
                 dbo.ReportInfo.ReportNumber, dbo.ReportInfo.FileId, dbo.ReportInfo.CreatedAt AS ReportTime, 
                 dbo.ReportProcess.Status AS ReportStatus, dbo.ReportProcess.Step AS ReportStep, dbo.ReportProcess.OrderId, 
-                dbo.ReportProcess.TestedTime
+                dbo.ReportProcess.TestedTime, dbo.ReportInfo.ConnAvailable, dbo.ReportInfo.HashIdCard, dbo.ReportInfo.PhoneType, 
+                dbo.ReportInfo.HashMobile, dbo.ReportInfo.IsSecurity, 
+                dbo.ReportInfo.PrefixIdCard + N'******' + dbo.ReportInfo.SuffixIdCard AS SecurityIdCard, 
+                dbo.ReportInfo.PrefixMobile + N'****' + dbo.ReportInfo.SuffixMobile AS SecurityMobile
 FROM      dbo.ReportProcess INNER JOIN
                 dbo.ReportInfo ON dbo.ReportProcess.ReportId = dbo.ReportInfo.Id LEFT OUTER JOIN
                 dbo.Examination ON dbo.ReportInfo.ExamId = dbo.Examination.Id
 GO
-/****** Object:  Table [dbo].[Question]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Question]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -351,7 +364,7 @@ CREATE TABLE [dbo].[Question](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Subject]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Subject]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -371,7 +384,7 @@ CREATE TABLE [dbo].[Subject](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[QuestionType]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[QuestionType]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -393,7 +406,7 @@ CREATE TABLE [dbo].[QuestionType](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[QuestionView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[QuestionView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -409,7 +422,7 @@ FROM      dbo.Question INNER JOIN
                 dbo.Subject ON dbo.Question.SubjectId = dbo.Subject.Id LEFT OUTER JOIN
                 dbo.QuestionType ON dbo.Question.TypeId = dbo.QuestionType.Id
 GO
-/****** Object:  Table [dbo].[Paper]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Paper]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -437,7 +450,7 @@ CREATE TABLE [dbo].[Paper](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserAnswerRecord]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[UserAnswerRecord]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -472,7 +485,7 @@ CREATE TABLE [dbo].[UserAnswerRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[UserAnswerRecordView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[UserAnswerRecordView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -493,13 +506,14 @@ SELECT   dbo.UserAnswerRecord.Id, dbo.UserAnswerRecord.PaperId, dbo.UserAnswerRe
                 dbo.ReportInfo.ReportNumber, dbo.ReportInfo.Email, dbo.ReportInfo.IdCard, dbo.UserAnswerRecord.IsDeleted, 
                 dbo.UserAnswerRecord.AccountId, dbo.UserAnswerRecord.UpdatedBy, dbo.UserAnswerRecord.UpdatedAt, 
                 dbo.UserAnswerRecord.CreatedBy, dbo.Paper.Score AS PaperScore, dbo.Examination.AttachmentId, 
-                dbo.UserAnswerRecord.ObjectiveScore, dbo.Examination.MarkStatus
+                dbo.UserAnswerRecord.ObjectiveScore, dbo.Examination.MarkStatus, 
+                dbo.ReportInfo.PrefixIdCard + N'******' + dbo.ReportInfo.SuffixIdCard AS SecurityIdCard
 FROM      dbo.ReportInfo RIGHT OUTER JOIN
                 dbo.UserAnswerRecord ON dbo.ReportInfo.Id = dbo.UserAnswerRecord.ReportId LEFT OUTER JOIN
                 dbo.Paper ON dbo.UserAnswerRecord.PaperId = dbo.Paper.Id LEFT OUTER JOIN
                 dbo.Examination ON dbo.UserAnswerRecord.ExamId = dbo.Examination.Id
 GO
-/****** Object:  Table [dbo].[Teacher]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Teacher]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -525,7 +539,7 @@ CREATE TABLE [dbo].[Teacher](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TeacherExamAssign]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[TeacherExamAssign]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -543,7 +557,7 @@ CREATE TABLE [dbo].[TeacherExamAssign](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[TeacherExamAssignView]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  View [dbo].[TeacherExamAssignView]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -560,7 +574,7 @@ FROM      dbo.Teacher INNER JOIN
                 dbo.TeacherExamAssign ON dbo.Teacher.Id = dbo.TeacherExamAssign.TeacherId INNER JOIN
                 dbo.Examination ON dbo.TeacherExamAssign.ExamId = dbo.Examination.Id
 GO
-/****** Object:  Table [cap].[Published]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [cap].[Published]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -580,7 +594,7 @@ CREATE TABLE [cap].[Published](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [cap].[Received]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [cap].[Received]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -601,7 +615,7 @@ CREATE TABLE [cap].[Received](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Activity]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Activity]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -618,13 +632,14 @@ CREATE TABLE [dbo].[Activity](
 	[IsDeleted] [int] NOT NULL,
 	[FieldJson] [varchar](4000) NULL,
 	[Cover] [varchar](500) NOT NULL,
+	[Remark] [nvarchar](100) NULL,
  CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Admin]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Admin]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -651,7 +666,7 @@ CREATE TABLE [dbo].[Admin](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[AdminLoginLog]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[AdminLoginLog]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -670,7 +685,7 @@ CREATE TABLE [dbo].[AdminLoginLog](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[AdminRole]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[AdminRole]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -684,7 +699,7 @@ CREATE TABLE [dbo].[AdminRole](
 	[IsDeleted] [int] NOT NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Cert]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Cert]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -712,7 +727,7 @@ CREATE TABLE [dbo].[Cert](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[CertTemplate]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[CertTemplate]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -739,7 +754,7 @@ CREATE TABLE [dbo].[CertTemplate](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Face]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Face]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -759,7 +774,7 @@ CREATE TABLE [dbo].[Face](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[File]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[File]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -785,7 +800,7 @@ CREATE TABLE [dbo].[File](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[KeyAction]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[KeyAction]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -805,7 +820,7 @@ CREATE TABLE [dbo].[KeyAction](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Menu]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Menu]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -831,7 +846,7 @@ CREATE TABLE [dbo].[Menu](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Permission]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Permission]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -858,7 +873,7 @@ CREATE TABLE [dbo].[Permission](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[QuestionItem]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[QuestionItem]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -885,28 +900,53 @@ CREATE TABLE [dbo].[QuestionItem](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[QuestionTag]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[QuestionRecord]    Script Date: 2024-09-30 17:25:41 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[QuestionRecord](
+	[Id] [bigint] NOT NULL,
+	[RecordId] [bigint] NULL,
+	[AccountId] [nvarchar](50) NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[UserAnswerContent] [nvarchar](max) NULL,
+	[UserAnswerId] [nvarchar](500) NULL,
+	[IsCorrect] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[IsDeleted] [int] NOT NULL,
+	[Version] [nvarchar](50) NULL,
+ CONSTRAINT [PK_QuestionRecord] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[QuestionTag]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[QuestionTag](
 	[Id] [bigint] NOT NULL,
-	[Title] [varchar](50) NULL,
-	[Remark] [varchar](150) NULL,
+	[Title] [varchar](300) NULL,
+	[Remark] [varchar](500) NULL,
 	[CreatedAt] [datetime] NOT NULL,
 	[UpdatedAt] [datetime] NOT NULL,
 	[CreatedBy] [varchar](50) NULL,
 	[UpdatedBy] [varchar](50) NULL,
 	[IsDeleted] [int] NOT NULL,
 	[PaperId] [uniqueidentifier] NOT NULL,
+	[Accuracy] [float] NOT NULL,
+	[QuestionId] [bigint] NOT NULL,
+	[Version] [nvarchar](50) NOT NULL,
  CONSTRAINT [PK_QuestionTag] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Relation]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Relation]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -930,7 +970,7 @@ CREATE TABLE [dbo].[Relation](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ReportAttribute]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[ReportAttribute]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -952,7 +992,7 @@ CREATE TABLE [dbo].[ReportAttribute](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ReportCheckHistory]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[ReportCheckHistory]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -971,7 +1011,7 @@ CREATE TABLE [dbo].[ReportCheckHistory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Role]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[Role]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -990,7 +1030,7 @@ CREATE TABLE [dbo].[Role](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[RolePermission]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[RolePermission]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1008,7 +1048,7 @@ CREATE TABLE [dbo].[RolePermission](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[SyncRecord]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[SyncRecord]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1028,7 +1068,7 @@ CREATE TABLE [dbo].[SyncRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TeacherLoginLog]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[TeacherLoginLog]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1047,7 +1087,7 @@ CREATE TABLE [dbo].[TeacherLoginLog](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TeacherRecordAssign]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[TeacherRecordAssign]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1065,7 +1105,7 @@ CREATE TABLE [dbo].[TeacherRecordAssign](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TeacherRecordScoreLog]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[TeacherRecordScoreLog]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1084,7 +1124,7 @@ CREATE TABLE [dbo].[TeacherRecordScoreLog](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TeacherRecordScoring]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[TeacherRecordScoring]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1107,7 +1147,7 @@ CREATE TABLE [dbo].[TeacherRecordScoring](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserAnswerSubmitLog]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[UserAnswerSubmitLog]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1124,7 +1164,7 @@ CREATE TABLE [dbo].[UserAnswerSubmitLog](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserAnswerSubmitRecord]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[UserAnswerSubmitRecord]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1146,7 +1186,7 @@ CREATE TABLE [dbo].[UserAnswerSubmitRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserBase]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[UserBase]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1157,8 +1197,8 @@ CREATE TABLE [dbo].[UserBase](
 	[Age] [int] NOT NULL,
 	[Sex] [int] NOT NULL,
 	[Email] [varchar](100) NOT NULL,
-	[Idcard] [varchar](50) NOT NULL,
-	[Mobile] [varchar](50) NOT NULL,
+	[Idcard] [varchar](500) NOT NULL,
+	[Mobile] [varchar](500) NOT NULL,
 	[UnitId] [bigint] NOT NULL,
 	[Job] [nvarchar](200) NULL,
 	[Address] [nvarchar](200) NULL,
@@ -1174,13 +1214,22 @@ CREATE TABLE [dbo].[UserBase](
 	[AvailableLevel] [varchar](50) NOT NULL,
 	[Avatar] [varchar](300) NULL,
 	[AccountId] [varchar](50) NOT NULL,
+	[PrefixIdCard] [nvarchar](50) NULL,
+	[PrefixMobile] [nvarchar](50) NULL,
+	[SuffixIdCard] [nvarchar](50) NULL,
+	[SuffixMobile] [nvarchar](50) NULL,
+	[CardType] [int] NOT NULL,
+	[PhoneType] [int] NOT NULL,
+	[HashIdCard] [nvarchar](50) NULL,
+	[HashMobile] [nvarchar](50) NULL,
+	[IsSecurity] [int] NULL,
  CONSTRAINT [PK_UserBase] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ValidateExpression]    Script Date: 2024-07-25 10:16:18 ******/
+/****** Object:  Table [dbo].[ValidateExpression]    Script Date: 2024-09-30 17:25:41 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1466,11 +1515,21 @@ ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_IsDeleted]  DE
 GO
 ALTER TABLE [dbo].[QuestionItem] ADD  CONSTRAINT [DF_QuestionItem_OrderIndex]  DEFAULT ((0)) FOR [OrderIndex]
 GO
+ALTER TABLE [dbo].[QuestionRecord] ADD  CONSTRAINT [DF_QuestionRecord_UserAnswerId]  DEFAULT ((0)) FOR [UserAnswerId]
+GO
+ALTER TABLE [dbo].[QuestionRecord] ADD  CONSTRAINT [DF_QuestionRecord_IsCorrect]  DEFAULT ((0)) FOR [IsCorrect]
+GO
+ALTER TABLE [dbo].[QuestionRecord] ADD  CONSTRAINT [DF_QuestionRecord_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[QuestionRecord] ADD  CONSTRAINT [DF_QuestionRecord_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
 ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
 GO
 ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_UpdatedAt]  DEFAULT (getdate()) FOR [UpdatedAt]
 GO
 ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[QuestionTag] ADD  CONSTRAINT [DF_QuestionTag_Accuracy]  DEFAULT ((0)) FOR [Accuracy]
 GO
 ALTER TABLE [dbo].[QuestionType] ADD  CONSTRAINT [DF_QuestionType_Id]  DEFAULT (newid()) FOR [Id]
 GO
@@ -1539,6 +1598,10 @@ GO
 ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_ConnAvailable]  DEFAULT ((0)) FOR [ConnAvailable]
 GO
 ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_FileId]  DEFAULT ((0)) FOR [FileId]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_PhoneType]  DEFAULT ((0)) FOR [PhoneType]
+GO
+ALTER TABLE [dbo].[ReportInfo] ADD  CONSTRAINT [DF_ReportInfo_IsSecurity]  DEFAULT ((0)) FOR [IsSecurity]
 GO
 ALTER TABLE [dbo].[ReportProcess] ADD  CONSTRAINT [DF_ActivityReport_Status]  DEFAULT ((0)) FOR [Status]
 GO
@@ -1710,6 +1773,10 @@ ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_Avatar]  DEFAULT ('/im
 GO
 ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_AccountId]  DEFAULT ('') FOR [AccountId]
 GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_CardType]  DEFAULT ((0)) FOR [CardType]
+GO
+ALTER TABLE [dbo].[UserBase] ADD  CONSTRAINT [DF_UserBase_PhoneType]  DEFAULT ((0)) FOR [PhoneType]
+GO
 ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_Status]  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[ValidateExpression] ADD  CONSTRAINT [DF_ValidateExpression_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
@@ -1830,6 +1897,8 @@ EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'选项内容�
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'顺序' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionItem', @level2type=N'COLUMN',@level2name=N'OrderIndex'
 GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-待定，1-正确，2-错误' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionRecord', @level2type=N'COLUMN',@level2name=N'IsCorrect'
+GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否是客观题，即有标准答案' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionType', @level2type=N'COLUMN',@level2name=N'Objective'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'只有1个答案，1-是，其他-不是' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'QuestionType', @level2type=N'COLUMN',@level2name=N'SingleAnswer'
@@ -1841,6 +1910,14 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-大陆身份证，1-香港，2-澳门，3-台湾，4-护照，5-其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'CardType'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'联系方式可用程度,0-未验证,1-邮箱验证可用,2-手机号可用,3-邮箱和手机号都可用' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'ConnAvailable'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'电话类型，0-大陆11位手机号，1-其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'PhoneType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'证件号的哈希值，快速检索用' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'HashIdCard'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'证件号的哈希值，快速检索用' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'HashMobile'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'是否进行的安全保存，0-不是（默认），1-是' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportInfo', @level2type=N'COLUMN',@level2name=N'IsSecurity'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'1-报名成功，' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'ReportProcess', @level2type=N'COLUMN',@level2name=N'Status'
 GO
@@ -1891,6 +1968,10 @@ EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'答题已经�
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'参与的第几阶段答题' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserAnswerRecord', @level2type=N'COLUMN',@level2name=N'Stage'
 GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'脱敏保存的证件号码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'Idcard'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'脱敏保存的手机号码' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'Mobile'
+GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'单位库Id' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'UnitId'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'工作单位，当UnitId为0时是自定义输入，反之则是从单位库筛选的' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'Job'
@@ -1898,6 +1979,10 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'账号可用等级，default-仅用户名密码，email-另支持邮箱，mobile-另支持手机，email,mobile-邮箱手机都支持' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'AvailableLevel'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'登录平台存储的用户信息' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'AccountId'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-大陆身份证，其他数字--其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'CardType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'0-大陆11位手机号，其他数字--其他' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'UserBase', @level2type=N'COLUMN',@level2name=N'PhoneType'
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 
@@ -2349,7 +2434,7 @@ Begin DesignProperties =
    End
    Begin DiagramPane = 
       Begin Origin = 
-         Top = 0
+         Top = -96
          Left = 0
       End
       Begin Tables = 
@@ -2371,7 +2456,7 @@ Begin DesignProperties =
                Right = 208
             End
             DisplayFlags = 280
-            TopColumn = 0
+            TopColumn = 27
          End
          Begin Table = "Examination"
             Begin Extent = 
@@ -2381,7 +2466,7 @@ Begin DesignProperties =
                Right = 510
             End
             DisplayFlags = 280
-            TopColumn = 22
+            TopColumn = 23
          End
       End
    End
@@ -2393,7 +2478,7 @@ Begin DesignProperties =
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
+         Column = 3315
          Alias = 1395
          Table = 2040
          Output = 720
@@ -2418,7 +2503,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[48] 4[23] 2[12] 3) )"
+         Configuration = "(H (1[49] 4[12] 2[24] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -2512,7 +2597,7 @@ Begin DesignProperties =
                Right = 227
             End
             DisplayFlags = 280
-            TopColumn = 18
+            TopColumn = 27
          End
          Begin Table = "ReportProcess"
             Begin Extent = 
@@ -2544,8 +2629,8 @@ Begin DesignProperties =
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 900
+         Column = 3495
+         Alias = 2580
          Table = 1170
          Output = 720
          Append = 1400
@@ -2556,9 +2641,9 @@ Begin DesignProperties =
          Filter = 1350
          Or = 1350
          Or = 1350
-      ' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportInfoView'
+     ' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'ReportInfoView'
 GO
-EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane2', @value=N'   Or = 1350
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane2', @value=N'    Or = 1350
       End
    End
 End

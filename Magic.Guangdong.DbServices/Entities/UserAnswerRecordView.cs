@@ -66,6 +66,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string IdCard { get; set; }
 
+		[JsonProperty]
+		public string SecurityIdCard { get; set; }
+
 		[JsonProperty, Column(DbType = "varchar(100)", IsNullable = false)]
 		public string IdNumber { get; set; }
 
