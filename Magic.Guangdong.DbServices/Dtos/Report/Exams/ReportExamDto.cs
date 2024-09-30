@@ -18,7 +18,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Exams
 
         public string accountId { get; set; }
 
-        public string idCard { get; set; }
+        //public string idCardUnMask { get; set; }
+
+        public string HashIdcard { get; set; }
 
         public string reportNumber { get; set; }
 

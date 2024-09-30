@@ -41,7 +41,7 @@
             <button id="ConfirmExam"
                     class="primary container-fluid"
                     style="display:none;margin-top:12px"
-                    data-target="model-confirm"
+                    data-target="modal-confirm"
                     onClick="toggleModal(event)">
                 验证通过，开始答题
             </button>
@@ -51,7 +51,7 @@
 
             <small>大赛组委会保证输入的证件号码仅用于在线测评验证</small>
             <p style="text-align:center;color:#039be5;margin-top:20px;margin-bottom:-30px;font-size:smaller;display:none"><a id="detectiveLink" href="/apply/test"><u>页面显示有问题?</u></a></p>
-            <dialog id="model-confirm">
+            <dialog id="modal-confirm">
                 <article>
                     <h3 style="text-align:center">信息确认</h3>
                     <p id="userInfo">
@@ -73,14 +73,14 @@
                         <a href="#cancel"
                            role="button"
                            class="secondary"
-                           data-target="model-confirm"
+                           data-target="modal-confirm"
                            onClick="toggleModal(event)">
                             取消
                         </a>
                         <a id="btnConfirm"
                            href="#confirm"
                            role="button"
-                           data-target="model-confirm"
+                           data-target="modal-confirm"
                            onClick="ConfirmMyPaper()">
                             去答题
                         </a>
@@ -89,7 +89,7 @@
                            href="#confirm"
                            role="button"
                            aria-busy="true"
-                           data-target="model-confirm">
+                           data-target="modal-confirm">
                             抽卷中
                         </a>
                     </footer>
@@ -110,14 +110,15 @@
 <script type="text/html" id="examTpl">
     {{# layui.each(d,function(index,item){ }}
         {{# if(item.status==0){ }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.associationTitle}}-{{item.title}}</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.associationTitle}}-{{item.title}}</option>
         {{# } else { }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-idcard="{{item.idCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}
     {{# }) }}
 </script>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/plugins/js-md5/build/md5.min.js"></script>
 @* <script src="~/web/exam/Index.js"></script> *@
 <script>
     //测试用
@@ -190,7 +191,7 @@
             $('#CreateMyExam').html(result);
             $('#idNumber').attr('aria-invalid', false)
             $('#CreateMyExam').html('身份证号码核验中...').attr('aria-busy', true);
-            queryModel.IdCard = idNumber;
+            queryModel.HashIdCard = md5(idNumber);
             queryModel.reportNumber = '';
             return true;
         }
@@ -198,7 +199,7 @@
             //idNumberType = 'reportNumber';
             $('#idNumber').attr('aria-invalid', false);
             $('#CreateMyExam').html('准考证号核验中...').attr('aria-busy', true);
-            queryModel.IdCard = '';
+            queryModel.securityIdCard = '';
             queryModel.reportNumber = idNumber;
             return true;
         }
@@ -227,7 +228,8 @@
                     let item = $("#exam").find('option:selected');
                     jHtmlSet('name', item.data('name'));
                     jHtmlSet('examTitle', item.text());
-                    jHtmlSet('idCard', item.data('idcard'));
+                    //jHtmlSet('idCard', item.data('idcard'));
+                    jHtmlSet('idCard', item.data('securityidcard'));
                     jHtmlSet('reportNumber', item.data('reportnumber'));
                     jHtmlSet('email', item.data('email'));
                     $('#CreateMyExam').hide();
@@ -274,8 +276,10 @@
             location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`
             return;
         }
+        closeModal(document.getElementById('modal-confirm'));
         TT.error(json.msg);
         $("#btnConfirm").show();
         $("#btnConfirm2").hide();
+       
     }
 </script>

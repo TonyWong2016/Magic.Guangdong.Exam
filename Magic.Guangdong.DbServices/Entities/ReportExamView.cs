@@ -131,6 +131,23 @@ namespace Magic.Guangdong.DbServices.Entities {
 
         //[JsonProperty]
         //public Guid AttachmentId { get; set; }
+
+        [JsonProperty]
+        public string SecurityIdCard { get; set; }
+
+        [JsonProperty]
+        public string SecurityMobile { get; set; }
+
+        [JsonProperty]
+        public int PhoneType { get; set; } = 0;
+
+        [JsonProperty]
+        public string HashIdcard { get; set; }
+        [JsonProperty]
+        public string HashMobile { get; set; }
+
+        [JsonProperty]
+        public int IsSecurity { get; set; } = 0;
     }
 
 }

@@ -39,7 +39,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 .WhereIf(dto.reportId != null, u => u.ReportId == dto.reportId)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.groupCode), u => u.GroupCode == dto.groupCode)
-                .WhereIf(!string.IsNullOrWhiteSpace(dto.idCard), u => u.IdCard == dto.idCard)
+                //.WhereIf(!string.IsNullOrWhiteSpace(dto.idCard), u => u.IdCard == dto.idCard)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.HashIdcard), u => u.HashIdcard == dto.HashIdcard)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.reportNumber), u => u.ReportNumber == dto.reportNumber)
                 .WhereIf(dto.examType >-1, u => u.ExamType == dto.examType)
                 ;
@@ -50,7 +51,7 @@ namespace Magic.Guangdong.DbServices.Methods
         {
             if (dto.examId == null || dto.reportId == null)
                 return "参数不合法";
-            if (string.IsNullOrWhiteSpace(dto.idCard) && string.IsNullOrWhiteSpace(dto.reportNumber))
+            if (string.IsNullOrWhiteSpace(dto.HashIdcard) && string.IsNullOrWhiteSpace(dto.reportNumber))
                 return "证件号和准考证号不可以同时为空";
             
             var examReportRepo= fsql.Get(conn_str).GetRepository<ReportExamView>();
@@ -80,7 +81,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //{
             //    return "没有交费";
             //}
-            if(!string.IsNullOrWhiteSpace(dto.idCard) && examReport.IdCard.Trim() != dto.idCard.Trim())
+            if(!string.IsNullOrWhiteSpace(dto.HashIdcard) && examReport.HashIdcard.Trim() != dto.HashIdcard.Trim())
             {
                 return "身份证号核验失败";
             }
