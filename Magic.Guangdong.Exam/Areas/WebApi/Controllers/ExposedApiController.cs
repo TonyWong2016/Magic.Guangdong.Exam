@@ -198,8 +198,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         {
             try
             {
-                if (!dto.isValid) {
-                    return Json(_resp.error("关键信息不可为空"));
+                if (!dto.isValid) 
+                {
+                    return Json(_resp.error("关键信息不可为空，且中国大陆的证件号和手机号要符合格式要求"));
                 }
                 if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
                 {

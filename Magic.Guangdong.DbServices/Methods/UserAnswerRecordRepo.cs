@@ -221,7 +221,9 @@ namespace Magic.Guangdong.DbServices.Methods
                 else
                 {
                     record.UpdatedBy = dto.userId.ToString();
-                    record.Remark += $"交卷,答题人识别码[{dto.idNumber}]";
+                    string remark = $"交卷,答题人识别码[{dto.idNumber}]";
+                    if (!record.Remark.Contains(remark))
+                        record.Remark += remark;
                 }
 
                 record.ComplatedMode = (ExamComplatedMode)dto.complatedMode;

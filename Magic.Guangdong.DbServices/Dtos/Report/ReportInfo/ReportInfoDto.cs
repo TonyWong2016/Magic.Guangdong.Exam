@@ -83,7 +83,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
                     || string.IsNullOrEmpty(Mobile)
                     || string.IsNullOrEmpty(Email))
                     return false;
-
+                if (CardType == CardType.China 
+                    && 
+                    (Mobile.Length > 11 || !Assistant.IdCardValidator.IsValidIdCard(IdCard))
+                    )
+                    return false;
 
                 return true;
             }

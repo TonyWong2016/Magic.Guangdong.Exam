@@ -306,7 +306,10 @@ namespace Magic.Guangdong.DbServices.Methods
                         record.UpdatedBy = dto.accountId.ToString();
                         record.CheatCnt = dto.cheatCnt;
                         record.UpdatedAt = DateTime.Now;
-                        record.Remark += $"交卷，答题人识别码[{dto.idNumber}]；";
+                        //record.Remark += $"交卷，答题人识别码[{dto.idNumber}]；";
+                        string remark = $"交卷,答题人识别码[{dto.idNumber}]";
+                        if (!record.Remark.Contains(remark))
+                            record.Remark += remark;
                     }
                     else
                     {
@@ -417,6 +420,8 @@ namespace Magic.Guangdong.DbServices.Methods
             //第一步：把提交的答案取出来
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
             var record = await userAnswerRecordRepo.Where(u => u.IdNumber == idNumber && u.PaperId == paperId && u.IsDeleted == 0).ToOneAsync();
+            if(record.Marked!= ExamMarked.No)
+                return 1;
             List<SubmitAnswerDto> Answers = JsonHelper.JsonDeserialize<List<SubmitAnswerDto>>(record.SubmitAnswer);
 
             //第二步，把试卷的题目和分数取出来
