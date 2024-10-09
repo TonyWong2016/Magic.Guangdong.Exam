@@ -335,6 +335,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             CreatedBy = item.createdby,
                             Score = item.score,
                             Degree = item.degree,
+                            CreatedAt=DateTime.Now
                         };
 
                         List<QuestionItem> questionItems = new List<QuestionItem>();
@@ -350,7 +351,8 @@ namespace Magic.Guangdong.DbServices.Methods
                                 CreatedBy = question.CreatedBy,
                                 Remark = "word导入",
                                 OrderIndex = subItem.index == 0 ? i : subItem.index,
-                                IsOption = subItem.code == "主观题" ? 0 : 1
+                                IsOption = subItem.code == "主观题" ? 0 : 1,
+                                CreatdAt=DateTime.Now
                             });
                             i++;
                         }

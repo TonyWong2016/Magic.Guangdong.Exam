@@ -37,7 +37,7 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
              ));
         }
 
-        [ResponseCache(Duration = 10)]
+        //[ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "rd","pageindex","pagesize","whereJsonStr","orderby" })]
         public IActionResult GetActivities(PageDto dto)
         {
             long total = 0;

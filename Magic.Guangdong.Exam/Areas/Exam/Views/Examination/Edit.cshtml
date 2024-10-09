@@ -1,7 +1,8 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-@model Magic.Guangdong.DbServices.Entities.Examination
+@* @model Magic.Guangdong.DbServices.Entities.Examination *@
+@model Magic.Guangdong.DbServices.Dtos.Exam.Examinations.ExaminationDto
 
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
@@ -239,7 +240,7 @@
             });
             return;
         }
-        errorMsg('保存失败')
+        errorMsg(ret.msg)
     })
 
     if (jVal('ExamType') == '1') {

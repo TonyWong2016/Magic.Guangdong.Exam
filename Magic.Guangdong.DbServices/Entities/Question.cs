@@ -29,8 +29,8 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public long ActivityId { get; set; } = 0;
 
-        [JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime CreatedAt { get; set; }
+		[JsonProperty, Column(InsertValueSql = "getdate()")]
+		public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string CreatedBy { get; set; }
@@ -85,9 +85,9 @@ namespace Magic.Guangdong.DbServices.Entities
 		public Guid TypeId { get; set; }
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]
-		public DateTime UpdatedAt { get; set; }
+		public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-		[JsonProperty, Column(DbType = "varchar(50)")]
+        [JsonProperty, Column(DbType = "varchar(50)")]
 		public string UpdatedBy { get; set; }
 
 	}

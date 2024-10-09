@@ -9,6 +9,7 @@ using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
@@ -124,7 +125,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             if (await _examinationRepo.getAnyAsync(u => u.Id == id))
             {
                 var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
-                return View(exam);
+                return View(exam.Adapt<ExaminationDto>());
             }
             return Redirect("/error?msg=考试不存在");
         }
@@ -135,15 +136,22 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Examination model)
+        public async Task<IActionResult> Edit(ExaminationDto model)
         {
-            if (await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id))
+            var exam = await _examinationRepo.getOneAsync(u => u.Id == model.Id);
+            
+            if ((model.StartTime!=exam.StartTime ||
+                model.EndTime!=exam.EndTime ||
+                model.Expenses!=exam.Expenses ||
+                model.AssociationId!=exam.AssociationId ||
+                model.BaseScore !=exam.BaseScore ) &&
+                await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id))
             {
-                return Json(_resp.error("该考试下已经产生了用户报名记录，不可再进行修改"));
+                return Json(_resp.error("该考试下已经产生了用户报名记录，不可再对关键信息（起止时间，分数，费用，关联活动等）进行修改"));
             }
             model.UpdatedAt = DateTime.Now;
             //return Json(_resp.success(await _examinationRepo.updateItemAsync(model)));
-            return Json(_resp.success(await _examinationRepo.UpdateExamInfo(model)));
+            return Json(_resp.success(await _examinationRepo.UpdateExamInfo(model.Adapt<Examination>())));
         }
 
         /// <summary>
