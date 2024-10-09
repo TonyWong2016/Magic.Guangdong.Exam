@@ -110,7 +110,12 @@
 
         {{# layui.each(d,function(index,item){ }}
         <dd>
-            <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">{{ item.name }}</a>
+            <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">
+                {{ item.name }}
+                {{# if(item.isOuter==1){ }}
+                 <i class="layui-icon layui-icon-link"></i>
+                {{# } }}
+            </a>
             {{# if(item.isLeef==1){ }}
                 <dl class="layui-nav-item" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
             {{# }else { }}
@@ -152,6 +157,12 @@
                 item = itemStr
             } else
                 item = JSON.parse(itemStr)
+            if (item.isOuter == 1) {                
+                window.open(item.router);
+                layer.alert('外链地址已在新窗口打开');
+                return;
+            }
+
             if (breadcrumbArr.filter(u => u.name == item.name & u.depth == item.depth).length == 0) {
                 removeObjectFromArray(breadcrumbArr, 'depth', item.depth);
                 item.depth == 0 ? breadcrumbArr = [] : "";

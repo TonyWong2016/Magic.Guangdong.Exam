@@ -37,7 +37,13 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
 		public int IsLeef { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
+		/// <summary>
+		/// 是否外链地址
+		/// </summary>
+        [JsonProperty]
+        public int IsOuter { get; set; } = 0;
+
+        [JsonProperty, Column(DbType = "varchar(50)", IsNullable = false)]
 		public string Name { get; set; } = "";
 
 		[JsonProperty]
@@ -46,7 +52,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long PermissionId { get; set; } = 0;
 
-		[JsonProperty, Column(DbType = "varchar(200)", IsNullable = false)]
+		[JsonProperty, Column(DbType = "varchar(300)", IsNullable = false)]
 		public string Router { get; set; } = "";
 
 		[JsonProperty, Column(InsertValueSql = "getdate()")]

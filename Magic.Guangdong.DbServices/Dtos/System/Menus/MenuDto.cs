@@ -31,7 +31,20 @@ namespace Magic.Guangdong.DbServices.Dtos.System.Menus
 
         public int IsLeef { get; set; }
 
+        public int IsOuter { get; set; }
         public int OrderIndex {  get; set; }
+
+        public bool IsValid
+        {
+            get
+            {
+                if (IsOuter == 1 && !Router.StartsWith("http"))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
 
         //public Guid CreatorId { get; set; } = Guid.Empty;
     }

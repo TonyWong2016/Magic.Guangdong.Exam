@@ -84,6 +84,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         //[RouteMark("创建栏目")]
         public async Task<IActionResult> Create(MenuDto menuDto)
         {
+            if (!menuDto.IsValid)
+            {
+                return Json(_resp.error("外链地址不合法"));
+            }
             var menu = menuDto.Adapt<Menu>();
             //先临时指定一个
             menu.CreatorId = Guid.Parse("49D90000-4C24-00FF-D9D4-08DC47CA938C");

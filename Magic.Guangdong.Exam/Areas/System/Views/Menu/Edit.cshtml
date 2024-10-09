@@ -53,12 +53,22 @@
 
                 </div>
             </div>
+
+            <div class="layui-form-item leafAttrs" style="display:none">
+                <label class="layui-form-label">外链地址</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-filter="_isouterLink" id="_isouterLink" lay-text="是|否" lay-skin="switch">
+                    <blockquote class="layui-elem-quote" style="margin-top:10px">外链地址需要手动输入完整的url地址</blockquote>
+                </div>
+            </div>
             <div id="divProp" class="leafAttrs" style="display:none">
                 <div class="layui-form-item">
                     <label class="layui-form-label"><span class="layui-badge-purple"></span> 路由地址</label>
                     <div class="layui-input-block">
                         <div id="routerView">
                         </div>
+                        <input class="layui-input" style="display:none" id="outerLink" lay-verify="url" placeholder="请输入完整的外链地址" />
+
                     </div>
 
                 </div>
@@ -72,6 +82,7 @@
             </div>
             <input type="hidden" asp-for="IsLeef" />
             <input type="hidden" asp-for="Status"/>
+            <input type="hidden" asp-for="IsOuter" />
             <input type="hidden" asp-for="ParentId"/>
             <input type="hidden" asp-for="Depth"/>
             <input type="hidden" asp-for="PermissionId"/>
@@ -151,7 +162,9 @@
         var field = data.field;
         delete field.select;
         console.log(field)
-       
+        if (field.IsOuter == 1) {
+            field.Router = $('#outerLink').val();
+        }
         let formData = objectToFormData(field);
         try {
             const result = await request('POST', '/system/menu/Edit', formData, { 'Content-Type': 'multipart/form-data' });
@@ -180,6 +193,21 @@
         }
     });
 
+    form.on('switch(_isouterLink)', function (data) {
+        form.val('menu-form', { 'IsOuter': 0 });
+        if (routers && routers.getValue().length > 0)
+            routers.setValue([]);
+        if (data.elem.checked) {
+            form.val('menu-form', { 'PermissionId': 0, 'IsOuter': 1 });
+            $('#routerView').hide();
+            $('#outerLink').show();
+            return;
+        }
+        $('#outerLink').hide();
+        $('#routerView').show();
+
+    });
+
     form.on('switch(_status)', function (data) {
         form.val('menu-form', { 'Status': 0 });
         $('.leafAttrs').hide();
@@ -205,6 +233,11 @@
         if ($('#Status').val() == '1') {
             $('#_status').attr('checked', 'checked')
             
+        }
+        if ($('#IsOuter').val() == '1') {
+            $('#_isouterLink').attr('checked', 'checked')
+            $('#routerView').hide();
+            $('#outerLink').show().val($('#Router').val());
         }
         if (!$('#Router').val()) {
             $('#Router').val('-')
