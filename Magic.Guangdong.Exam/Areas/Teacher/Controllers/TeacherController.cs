@@ -153,7 +153,7 @@ namespace Magic.Guangdong.Exam.Areas.Teacher.Controllers
                 {
                      new MailboxAddress(teacher.Name, teacher.Email)
                 };
-            await EmailKitHelper.SendEMailAsync("密码修改通知", $"您在广东教育协会的登录密码已修改，修改后密码为【{dto.AuthToken}】。",
+            await EmailKitHelper.SendEMailAsync("密码修改通知", $"您在为自己代盐的登录密码已修改，修改后密码为【{dto.AuthToken}】。",
                 noticeTo);
         }
 

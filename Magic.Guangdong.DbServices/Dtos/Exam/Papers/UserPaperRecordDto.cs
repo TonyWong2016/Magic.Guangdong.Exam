@@ -166,6 +166,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public int openResult { get; set; }
 
+        public int marked { get; set; }
+
         public double score { get; set; }
 
         public int isComplated { get; set; } = 0;

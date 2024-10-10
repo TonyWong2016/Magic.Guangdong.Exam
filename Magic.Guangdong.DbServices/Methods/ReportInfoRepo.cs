@@ -147,6 +147,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 query = query
                     .WhereDynamicFilter(dyfilter);
             }
+            string photoPrefix = ConfigurationHelper.GetSectionValue("ExamClientHost");
             return query
                 .Count(out total)
                 .OrderByPropertyNameIf(!string.IsNullOrEmpty(pageDto.orderby), pageDto.orderby, pageDto.isAsc)
@@ -174,7 +175,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     a.SecurityIdCard,
                     a.SecurityMobile,
                     OrderStatus = b.Status,
-                    accountName = c.Name
+                    accountName = c.Name,
+                    photo = photoPrefix+a.Photo
                 });
         }
 

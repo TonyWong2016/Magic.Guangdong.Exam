@@ -101,7 +101,7 @@
                                 <div class="layui-form-item">
                                     <label class="layui-form-label">照片</label>
                                     <div class="layui-input-block">
-                                        <img alt="photo" src="~/images/avatar.jpg" width="200px" />
+                                        <img alt="photo" src="~/images/avatar.jpg" data-src="/images/avatar.jpg" width="200px" id="photo" />
                                         <input type="hidden" name="fileId" readonly>
                                     </div>
 
@@ -472,6 +472,7 @@
         table.setRowChecked('table', {
             index: index
         });
+        layer.closeAll();
         form.val('check-report', {
             'name': item.name,
             'idCard': item.securityIdCard,
@@ -482,9 +483,12 @@
             'subject': item.subject,
             'createdAt': item.createdAt,
             'reportId': item.id,
-            'checkStatus': item.reportStatus
-        })
+            'checkStatus': item.reportStatus,
 
+        })
+        $('#photo').attr('src', $('#photo').data('src'))
+        if(item.photo)
+            $('#photo').attr('src',item.photo)
         layer.open({
             type: 1,
             title: false,
@@ -545,6 +549,7 @@
     }
 
     function getCheckHistory(reportId, index) {
+        layer.closeAll();
         currTableIndex = index;
         let table = layui.table;
         table.setRowChecked('table', {

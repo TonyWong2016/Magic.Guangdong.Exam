@@ -221,7 +221,7 @@
     function getUserRecord() {
         layer.load();
         let params = {
-            url: '@Url.Action("GetUserRecord")',
+            url: '@Url.Action("GetUserRecord")?isasc=false',
             elem: '#table',
             where: { 'whereJsonStr': JSON.stringify(makeWhereJson()) },
             size: 'lg',
@@ -252,12 +252,12 @@
         var ret = await request('POST', '@Url.Action("ExportUserRecord")', formData, { 'Content-Type': 'multipart/form-data' });
         layer.closeAll('loading');
         if (ret.code == 0) {
-            successMsg('导出成功', () => {
-                window.open(baseDownloadUrl + json.data);
+            successMsg('导出成功,请注意浏览器不要拦截弹出的窗口', () => {
+                window.open(baseDownloadUrl + ret.data);
             });
             return;
         }
-        errorMsg('导出失败：' + json.msg);
+        errorMsg('导出失败：' + ret.msg);
     }
 
     function makeWhereJson() {

@@ -452,7 +452,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     isDeleted = u.IsDeleted,
                     isStrict = Convert.ToInt32(u.IsStrict),
                     testedTime = u.Stage,
-                    examType = u.ExamType
+                    examType = u.ExamType,
+                    marked = u.Marked
                 });
         }
         

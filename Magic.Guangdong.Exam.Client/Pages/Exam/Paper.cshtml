@@ -49,7 +49,7 @@
             <article id="backup" class="contentDiv" style="display:none">
                 <header id="errMsg"></header>
                 <h1 aria-busy="true"></h1>
-                
+
                 <footer style="text-align:center">
                     <a href="/exam/paper?urid=@Model.urid&pid=@Model.PaperId" role="button" class="contrast outline">刷新重试</a>
                 </footer>
@@ -75,9 +75,9 @@
             </header>
 
             @* <details class="dropdown" style="margin-top:20px">
-                <summary role="button" class="outline">答题卡</summary>
-                <ul id="answerSheet">
-                </ul>
+            <summary role="button" class="outline">答题卡</summary>
+            <ul id="answerSheet">
+            </ul>
             </details> *@
 
             <div style="margin-top:20px">
@@ -164,7 +164,7 @@
 <script type="text/html" id="answerWarpTpl">
     {{# layui.each(d, function(index, item){ }}
     {{# if(typeNames.indexOf(item.TypeName)==-1) { typeNames.push(item.TypeName) }}
-    
+
     <p style="font-size:16px;color:#C6C6C6;margin-top:15px;margin-bottom:5px"><span>{{item.TypeName}}</span></p>
 
     {{# } }}
@@ -264,12 +264,12 @@
     let editorManager;//代码编辑器
     let typeNames = [];
 
-    if (jVal('lastAnswer')) 
+    if (jVal('lastAnswer'))
         answerArr = JSON.parse(jVal('lastAnswer'));
-    
+
     if (sessionStorage.getItem("answerArr"))
         answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
-    
+
 
     executeFunctions([generationPaper, renderPaper]);
 
@@ -303,7 +303,7 @@
             renderQuestion(0);
             renderAnswerSheet();
             stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
-       
+
             executeAtInterval(2000, () => {
                 let leftTime = countdown.getRemainingTime();
                 if (leftTime > 60 && leftTime < 300) {
@@ -344,12 +344,12 @@
         makeOption(currQuestion.SingleAnswer);
 
         if (currQuestion.IsObjective == 0) {
-            
+
             listenSubjectiveInput(currQuestion.Id)
         }
         $('.contentDiv article').css('min-height', '768px')
         if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
-            $('.contentDiv article').css('min-height','1100px')
+            $('.contentDiv article').css('min-height', '1100px')
             renderCodeQuestion()
         }
 
@@ -436,7 +436,7 @@
     function listenSubjectiveInput(questionId) {
         let elemId = 'content_' + questionId;
         let answerArrItem = {};
-        if (answerArr.filter(u => u.questionId == questionId).length > 0) { 
+        if (answerArr.filter(u => u.questionId == questionId).length > 0) {
             jValSet(elemId, answerArr.filter(u => u.questionId == questionId)[0].userAnswer)
         }
         monitorAswer(elemId, () => {
@@ -463,8 +463,8 @@
         let lastCode = sessionStorage.getItem('currCode_' + currQuestion.Id);
 
         //如果缓存里没有代码记录，且已提交的答案里包含了编程题答案，更新代码缓存
-        if (!lastCode && 
-            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 && 
+        if (!lastCode &&
+            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 &&
             answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer
         ) {
             sessionStorage.setItem('currCode_' + currQuestion.Id, answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer[0])
@@ -489,8 +489,8 @@
         }, 50)
     }
 
-    
-    
+
+
     //错误提示
     function toggleError(show, msg = '') {
         jHtmlSet("errMsg", msg);
@@ -503,7 +503,7 @@
         }
     }
 
-    
+
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
         setTimeout(async () => {
@@ -544,5 +544,28 @@
     }
 
 
+   function checkWindowSize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        console.log("宽："+width)
+        console.log("高："+height)
+        if (width < 1024 || height < 500) {
+            alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
+        }
+    }
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
 
+    const debouncedCheckWindowSize = debounce(checkWindowSize, 300);
+
+    // 初始化检查
+    checkWindowSize();
+
+    // 监听窗口大小变化
+   window.addEventListener('resize', debouncedCheckWindowSize);
 </script>

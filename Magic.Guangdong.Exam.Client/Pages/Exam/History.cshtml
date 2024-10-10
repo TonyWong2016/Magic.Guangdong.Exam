@@ -2,6 +2,34 @@
 @model Magic.Guangdong.Exam.Client.Pages.Exam.HistoryModel
 @{
 }
+<style>
+    /* 作废项目的特殊样式 */
+    .void {
+        position: relative;
+        color: #999; /* 文字颜色变淡 */
+        text-decoration: line-through; /* 斜线穿过文本 */
+        background-color: #fdd; /* 背景颜色变为淡红色 */
+    }
+
+        /* 添加水印效果 */
+        .void::before {
+            content: '已作废';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: rgba(255, 0, 0, 0.5); /* 水印颜色 */
+            font-size: 2em; /* 字体大小 */
+            font-weight: bold; /* 加粗字体 */
+            transform: rotate(-45deg); /* 旋转角度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            text-decoration: none; /* 确保水印没有删除线 */
+        }
+</style>
 <main class="container">
     <h3 class="pico-color-azure-500">我的答题记录：</h3>
     <p>
@@ -20,10 +48,17 @@
         }
         foreach (var item in Model.myExamHistories)
         {
-            <article>
+            <article class="@(item.isDeleted==1?"void":"")">
                 <p>参与考试：@item.examTitle</p>
                 <p>练习试卷：@item.paperTitle</p>
-                <p>测评得分：@(item.openResult==0?"待公布":item.score)</p>
+                <p>测评得分：@(item.openResult==0?"待公布":item.score)
+                    @{
+                        if (item.marked == 1)
+                        {
+                            <abbr>，不含主观题</abbr>
+                        }
+                    }
+                </p>
                 <p>准考证号：@item.idNumber</p>
                 <p>考试类型：@(item.examType==1?"刷题练习":"正式考试")</p>
                 <p>考试时间：@item.CreatedAt</p>
@@ -38,6 +73,7 @@
                             </a>
                         </p>
                     }
+                    
                 }
                 
             </article>

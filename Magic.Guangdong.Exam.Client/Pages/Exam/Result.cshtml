@@ -27,10 +27,10 @@
                 电子邮箱：
                 <font class="pico-color-violet-500" id="email">@Model.Email</font>
             </li>
-            <li>
+            @* <li>
                 联系方式：
                 <font class="pico-color-violet-500" id="email">@Model.Mobile</font>
-            </li>
+            </li> *@
         </ul>
     </details>
 
@@ -40,6 +40,10 @@
             {
                 <h3>您的测评成绩为</h3>
                 <h1 style="color:#e53935;">@Model.Score 分</h1>
+                if (Model.Marked == 1)
+                {
+                    <small>不包含主观题得分</small>
+                }
             }
             else
             {

@@ -31,7 +31,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
                     {
                         myExamHistories = await _userAnswerRecordClientRepo.GetMyReportExamRecords(reportId);
                         await _redisCachingProvider.StringSetAsync("myReportExamHistories_" + reportId,
-                            JsonHelper.JsonSerialize(myExamHistories), TimeSpan.FromMinutes(10));
+                            JsonHelper.JsonSerialize(myExamHistories), TimeSpan.FromMinutes(5));
                     }
                     myExamHistories = JsonHelper.JsonDeserialize<List<ExamRecordDto>>(await _redisCachingProvider.StringGetAsync("myReportExamHistories_" + reportId));
                 }
@@ -41,7 +41,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
                     {
                         myExamHistories = await _userAnswerRecordClientRepo.GetMyAccountExamRecords(accountId);
                         await _redisCachingProvider.StringSetAsync("myAccountExamHistories_" + accountId,
-                            JsonHelper.JsonSerialize(myExamHistories), TimeSpan.FromMinutes(10));
+                            JsonHelper.JsonSerialize(myExamHistories), TimeSpan.FromMinutes(5));
                     }
                     myExamHistories = JsonHelper.JsonDeserialize<List<ExamRecordDto>>(await _redisCachingProvider.StringGetAsync("myAccountExamHistories_" + accountId));
 

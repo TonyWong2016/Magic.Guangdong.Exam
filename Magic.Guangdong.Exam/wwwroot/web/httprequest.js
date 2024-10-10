@@ -7,6 +7,8 @@
 //"queryObj":对象,如：{id:"123","name":title}
 //"arae":字符串，如："system","exam",""
 //}
+
+
 function GetServerData(router, query, area='') {
    
     //先统一处理，再匹配是否正确

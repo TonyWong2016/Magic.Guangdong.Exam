@@ -179,7 +179,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 record.ComplatedMode,
                 record.CreatedAt,
                 complated = record.Complated == 1 ? "已交卷" : "未交卷",
-                marked = record.Marked == 1 ? "已出成绩" : "未出成绩",
+                marked = record.Marked == 0 ? "待出分" : (record.Marked == 1?"客观分已出":"主客观均已出分"),
                 answers = ret
             };
         }

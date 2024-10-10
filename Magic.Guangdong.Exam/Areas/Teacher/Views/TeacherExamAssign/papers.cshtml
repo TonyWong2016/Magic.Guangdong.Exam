@@ -64,7 +64,7 @@
 <script type="text/html" id="operationTpl">
     {{# if(d.marked==2){ }}
         <a class="layui-btn layui-btn-primary layui-border-purple" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>改判</a>
-        <a class="layui-btn layui-btn-primary layui-border-orange" href="javascript:;" onclick="getScoreLog('{{teacherId}}','{{d.id}}')"><i class="layui-icon layui-icon-form"></i>判分记录</a>
+        <a class="layui-btn layui-btn-primary layui-border-orange" href="javascript:;" onclick="getScoreLog('{{d.id}}')"><i class="layui-icon layui-icon-form"></i>判分记录</a>
 
      {{#} else { }}
         <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Detail")?recordId={{d.id}}&teacherId={{teacherId}}&examId={{examId}}"><i class="layui-icon layui-icon-edit"></i>去判分</a>

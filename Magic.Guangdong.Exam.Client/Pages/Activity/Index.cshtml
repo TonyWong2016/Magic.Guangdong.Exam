@@ -15,6 +15,7 @@
         </fieldset>
     </form>
     <div id="content"></div>
+    <small style="color:#525F7A;" id="nomoremsg">向下滑动加载更多</small>
 </main>
 
 <script id="activityTpl" type="text/html">
@@ -38,7 +39,7 @@
                 {{# } }}
             </p>
             <img src="{{ fileBaseUrl+item.cover}}" alt="cover" />
-
+            
         </article>
         {{# }) }}
          </div>
@@ -47,14 +48,36 @@
 <script>
     let pageSize = 6;
     let pageIndex = 1;
-
+    let total = pageIndex * pageSize;
+    let scrollTimeout;
     autoSearch('keyword', function () {
         $('#content').attr('aria-busy', 'true');
         getActivities();
     })
 
+    window.addEventListener('scroll',function(){
+        
+        clearTimeout(scrollTimeout);
+
+        // 当用户接近页面底部时触发加载更多数据
+        if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.scrollHeight - 100) {
+            if (pageIndex > 1 && (pageIndex - 1) * pageSize > total) {
+                return;
+            }
+            scrollTimeout = setTimeout(() => {
+                pageIndex++;
+                getActivities()
+            }, 150); // 设置延迟，防止频繁调用
+        }
+    })
+
     getActivities();
     function getActivities() {
+        if (pageIndex>1 && (pageIndex-1) * pageSize > total) {
+            $('#nomoremsg').text('没有更多活动了');
+            TT.warning('没有更多活动了');
+            return;
+        }
         axios.get('@Url.Action("GetActivities", "Activity")', {
             params: makeWhereJson(),
             headers: {
@@ -62,10 +85,11 @@
             }
         }).then(data => {
             let json = data.data;
+            total = json.data.total;
             // renderTpl('activityTpl', 'content', json.data.items, false);
             let items = groupByThree(json.data.items);
             console.log(items)
-            renderTpl('activityTpl', 'content', items, false);
+            renderTpl('activityTpl', 'content', items, true);
             $('#content').attr('aria-busy', false);
         })
     }
@@ -111,7 +135,7 @@
         }
 
 
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id', 'pageIndex': pageIndex, 'pageSize': pageSize };
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'id','isAsc':false, 'pageIndex': pageIndex, 'pageSize': pageSize };
     }
 
     // 按每三个一组分组

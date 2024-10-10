@@ -54,7 +54,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         public PaperOpenResult OpenResult { get; set; }
 
         [BindProperty]
-        public ExamMarked Marked { get; set; }
+        public int Marked { get; set; }
 
         [BindProperty]
         public ExamComplated Complated { get; set; }
@@ -81,8 +81,9 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             Mobile = record.Mobile;
             Name = record.Name;
             Score = record.Score;
+            
             OpenResult = (PaperOpenResult)record.OpenResult;
-            Marked = (ExamMarked)record.Marked;
+            Marked = record.Marked;
             ExamType = (ExamType)record.ExamType;
             Complated = (ExamComplated)record.Complated;
             await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
