@@ -34,6 +34,7 @@
                 </li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="$('#main-container').attr('src', '/system/dashboard/index');">Dashboard</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中！该特性为SaaS类软件产品的核心概念，通过开通不同的租户来管理不同的客户数据，使租户数据在物理隔离的前提下仍能实现业务的一致性。',{icon:4})">租户管理</a></li>
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="openTimeLine()">更新记录</a></li>
 
             </ul>
             <ul class="layui-nav layui-layout-right">
@@ -83,6 +84,9 @@
 
             </div>
         </div>
+        <div class="layui-panel" id="timelineView" style="display:none;">
+        </div>
+        
     </div>
 
     <script type="text/html" id="keyActionTpl">
@@ -125,6 +129,23 @@
         {{# }) }}
     </script>
 
+    <script type="text/html" id="timelineTpl">
+        <div class="layui-timeline" style="padding:30px">
+           
+            {{# layui.each(d,function(index,item){ }}
+            <div class="layui-timeline-item">
+                <i class="layui-icon layui-timeline-axis layui-icon-{{item.icon}}"></i>
+                <div class="layui-timeline-content layui-text">
+                    <h3 class="layui-timeline-title">{{ item.title }}</h3>
+                    <p>
+                        {{- item.content }}
+                    </p>
+                </div>
+            </div>
+            {{# }) }}
+        </div>
+    </script>
+
     <script>
         autoCheckLoginStatus();
         var breadcrumbArr = [];
@@ -157,7 +178,7 @@
                 item = itemStr
             } else
                 item = JSON.parse(itemStr)
-            if (item.isOuter == 1) {                
+            if (item.isOuter == 1) {
                 window.open(item.router);
                 layer.alert('外链地址已在新窗口打开');
                 return;
@@ -241,10 +262,22 @@
 
             })
         }
-       
-        
 
         jHtmlSet('adminName', localStorage.getItem('userName'))
+    
+        function openTimeLine(){
+            let jsonArr = [
+                {'icon':'note','title':'2024.04','content':'立项<br/>开始搭建项目框架，以及各类基础设施，消息队列，缓存，日志，支付中心等'},
+                { 'icon': 'note', 'title': '2024.05', 'content': '第一个版本开发完成，包含管理后台，客户端答题' },
+                { 'icon': 'note', 'title': '2024.06', 'content': '客户端答题UI整体重塑，抛弃了原有响应式的设计风格，为多端单独设计，目前支持PC端；<br/>在对系统性能，并发能力做了大量的工作' },
+                { 'icon': 'note', 'title': '2024.07', 'content': '教师判分系统开发完成,3个系统完成合并联调' },
+                { 'icon': 'note', 'title': '2024.08', 'content': '由于航天项目晋级，工程暂停' },
+                { 'icon': 'note', 'title': '2024.09', 'content': '编写外部对接接口，文档地址：<a href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc" target="_blank">https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc</a><br/>增加大量定制需求，支持免付费，免审核，支持考试模式和练习模式<br/>增加脱敏设计，增加数据安全性' },
+                { 'icon': 'note', 'title': '2024.10', 'content': '由于没有明确的需求，目前主要为完善流程，修复bug' },
+            ]
+            renderTpl('timelineTpl', 'timelineView', jsonArr, true);
+            openDiv('项目推进时间线', 'timelineView', '50%', '80%')
+        }
     </script>
 </body>
 </html>
