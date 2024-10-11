@@ -34,7 +34,7 @@
                 </li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="$('#main-container').attr('src', '/system/dashboard/index');">Dashboard</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中！该特性为SaaS类软件产品的核心概念，通过开通不同的租户来管理不同的客户数据，使租户数据在物理隔离的前提下仍能实现业务的一致性。',{icon:4})">租户管理</a></li>
-                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="openTimeLine()">更新记录</a></li>
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="openTimeLine()" style="color:yellow">🌕更新记录</a></li>
 
             </ul>
             <ul class="layui-nav layui-layout-right">
@@ -111,7 +111,7 @@
     </script>
 
     <script type="text/html" id="navSideChildMenuTpl">
-
+        
         {{# layui.each(d,function(index,item){ }}
         <dd>
             <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">
@@ -127,19 +127,24 @@
             {{#} }}
         </dd>
         {{# }) }}
+                
     </script>
 
     <script type="text/html" id="timelineTpl">
+        <blockquote class="layui-elem-quote">
+          说明，2024年10月10日以前的更新记录是按月总结，以后的更新按具体日期节点总结。
+        </blockquote>
         <div class="layui-timeline" style="padding:30px">
 
             {{# layui.each(d,function(index,item){ }}
             <div class="layui-timeline-item">
                 <i class="layui-icon layui-timeline-axis layui-icon-{{item.icon}}"></i>
                 <div class="layui-timeline-content layui-text">
-                    <h3 class="layui-timeline-title">{{ item.title }}</h3>
+                    <h3 class="layui-timeline-title">{{- item.title }}</h3>
                     <p>
                         {{- item.content }}
                     </p>
+                    <b>Author </b>:<cite> {{- item.author}}</cite>
                 </div>
             </div>
             {{# }) }}
@@ -225,7 +230,7 @@
         fetchTopMenus();
 
         function LogoutAccount() {
-            layer.confirm('确定要退出当前账号吗', { icon: 0 }, function () {
+            layer.confirm('若您开启了3天免登录，主动退出后再次访问需要重新输入账号密码，确定要退出当前账号吗？', { icon: 0 }, function () {
                 location.href = '/system/account/login?msg=logout';
             })
         }
@@ -267,16 +272,18 @@
 
         function openTimeLine() {
             let jsonArr = [
-                { 'icon': 'note', 'title': '2024.03', 'content': '立项，总结需求文档，分别为：<br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/psgtdd04r47tfa50?singleDoc#"> 《广东省教协在线考试系统设计草案》</a><br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/re57l9zvs1g5o7ek?singleDoc#">《广东教育协会考试系统项目整理》</a>' },
-                { 'icon': 'note', 'title': '2024.04', 'content': '开始搭建项目框架，以及各类基础设施，消息队列，缓存，日志，支付中心等' },
-                { 'icon': 'note', 'title': '2024.05', 'content': '第一个版本开发完成，包含管理后台，客户端答题' },
-                { 'icon': 'note', 'title': '2024.06', 'content': '客户端答题UI整体重塑，抛弃了原有响应式的设计风格，为多端单独设计，目前支持PC端；<br/>在对系统性能，并发能力做了大量的工作' },
-                { 'icon': 'note', 'title': '2024.07', 'content': '教师判分系统开发完成,3个系统完成合并联调' },
-                { 'icon': 'note', 'title': '2024.08', 'content': '由于航天项目紧急，工程暂停' },
-                { 'icon': 'note', 'title': '2024.09', 'content': '客户端对接用户中心<br/>编写外部对接接口，文档地址：<a href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc" target="_blank">https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc</a><br/>增加大量定制需求，支持免付费，免审核，支持考试模式和练习模式<br/>增加脱敏设计，增加数据安全性' },
-                { 'icon': 'note', 'title': '2024.10', 'content': '由于没有明确的需求，目前主要为完善流程，修复bug' },
+                { 'icon': 'flag', 'title': '2024.03','author':'tony,miao', 'content': '立项，总结需求文档，分别为：<br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/psgtdd04r47tfa50?singleDoc#"> 《广东省教协在线考试系统设计草案》</a><br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/re57l9zvs1g5o7ek?singleDoc#">《广东教育协会考试系统项目整理》 密码：lan1</a>' },
+                { 'icon': 'github', 'title': '2024.04','author':'tony', 'content': '开始搭建项目框架，以及各类基础设施，消息队列，缓存，日志，支付中心等' },
+                { 'icon': 'release', 'title': '2024.05','author':'tony', 'content': '第一个版本开发完成，包含管理后台，客户端答题' },
+                { 'icon': 'note', 'title': '2024.06', 'author':'tony','content': '客户端答题UI整体重塑，抛弃了原有响应式的设计风格，为多端单独设计，目前支持PC端；<br/>在对系统性能，并发能力做了大量的工作' },
+                { 'icon': 'note', 'title': '2024.07','author':'tony', 'content': '教师判分系统开发完成,3个系统完成合并联调' },
+                { 'icon': 'moon', 'title': '2024.08','author':'tony', 'content': '由于航天项目紧急，工程暂停' },
+                { 'icon': 'fire', 'title': '2024.09', 'author':'tony','content': '客户端对接用户中心<br/>编写外部对接接口，文档地址：<a href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc" target="_blank">https://www.yuque.com/yuqueyonghuhz99ts/iw926p/gsp1l9mgf6ywn5cn?singleDoc</a><br/>增加大量定制需求，支持免付费，免审核，支持考试模式和练习模式<br/>增加脱敏设计，增加数据安全性' },
+                { 'icon': 'note', 'title': '2024.10', 'author':'tony','content': '由于没有明确的需求，目前主要为完善流程，修复bug' },
+                { 'icon': 'note', 'title': '2024.10.11', 'author':'tony','content': '完善服务端登录，支持3天免登录，验证码登录' },
+
             ]
-            renderTpl('timelineTpl', 'timelineView', jsonArr, true);
+            renderTpl('timelineTpl', 'timelineView', jsonArr, false);
             openDiv('项目推进时间线', 'timelineView', '50%', '80%')
         }
     </script>

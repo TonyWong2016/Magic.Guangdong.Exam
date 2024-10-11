@@ -159,6 +159,71 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             return Redirect("/system/account/login?msg=logout");
         }
 
+        [AllowAnonymous]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> LoginByVarify(string email,string captchaTsp,string hashVerifyCode)
+        {
+            if (!await _adminRepo.getAnyAsync(
+                u =>
+                u.Email.Equals(email) &&
+                u.IsDeleted == 0))
+            {
+                return Json(_resp.error("邮箱不存在"));
+            }
+            if(!await _redisCachingProvider.KeyExistsAsync(email+ "_manage"))
+            {
+                return Json(_resp.error("验证码错误"));
+            }
+            string findCode = await _redisCachingProvider.StringGetAsync(email + "_manage");
+            if (Security.GenerateMD5Hash(findCode + captchaTsp) != hashVerifyCode)
+            {
+                return Json(_resp.error("验证码错误"));
+            }
+            var admin = await _adminRepo.getOneAsync(
+               u =>
+               u.Email.Equals(email) &&
+               u.IsDeleted == 0);
+            DateTime expires =  DateTime.Now.AddHours(3);
+            await CacheMyPermission(new AfterLoginDto() { adminId = admin.Id, exp = expires });
+            string jwt = _jwtService.Make(Utils.ToBase64Str(admin.Id.ToString()), admin.Name, expires);
+            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitLoginLog", $"{admin.Id}|{jwt}|{Utils.DateTimeToTimeStamp(expires)}");
+            await _redisCachingProvider.KeyDelAsync(email + "_manage");
+            return Json(_resp.success(
+                new
+                {
+                    access_token = jwt
+                }));
+        }
+
+        [AllowAnonymous]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateVerifyCode([FromServices] IWebHostEnvironment _webHostEnvironment, string to, int length = 4)
+        {
+            if (!await _adminRepo.getAnyAsync(
+                u =>
+                u.Email.Equals(to) &&
+                u.IsDeleted == 0))
+            {
+                return Json(_resp.error("邮箱不存在"));
+            }
+            string code = Utils.GenerateRandomCode(length);
+            //15+1分钟有效（冗余1分钟）
+            await _redisCachingProvider.StringSetAsync(to + "_manage", code, DateTime.Now.AddMinutes(16) - DateTime.Now);
+
+            if (!to.Contains("@") || to.Split('@').Length!=2)
+            {
+                return Json(_resp.error("邮箱格式错误"));
+            }
+            string htmlContent;
+            string templateFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "web", "emailcode.html");
+            using (StreamReader reader = new StreamReader(templateFilePath))
+            {
+                htmlContent = reader.ReadToEnd().Replace("**content**", code);
+
+            }
+            await EmailKitHelper.SendVerificationCodeEmailAsync("验证码", htmlContent, to, to);
+            return Json(_resp.success("发送成功，请在15分钟内完成验证"));
+        }
 
         [AllowAnonymous]
         [RouteMark("注册管理员")]

@@ -25,24 +25,45 @@
             font-size: 26px;
         }
     </style>
-    <form class="layui-form">
-        <div class="exam-login-container">
+    <form class="layui-form" id="mainForm">
+        <div class="exam-login-container" id="selfLogin">
             <div class="layui-form-item">
                 <div class="layui-input-wrap">
                     <div class="layui-input-prefix">
                         <i class="layui-icon layui-icon-username"></i>
                     </div>
-                    <input type="text" name="account" value="" lay-verify="required" placeholder="用户名" lay-reqtext="请填写用户名" autocomplete="off" class="layui-input" lay-affix="clear">
+                    <input type="text" id="account" name="account" value="" lay-verify="required" placeholder="用户名或邮箱" lay-reqtext="请填写用户名或邮箱" autocomplete="off" class="layui-input" lay-affix="clear">
                 </div>
             </div>
-            <div class="layui-form-item">
+            <div class="layui-form-item byPassword">
                 <div class="layui-input-wrap">
                     <div class="layui-input-prefix">
                         <i class="layui-icon layui-icon-password"></i>
                     </div>
-                    <input type="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
+                    <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
                 </div>
             </div>
+            
+            <div class="layui-form-item byVerifyCode" style="display:none">
+                <div class="row">
+                    <div class="layui-col-xs7">
+                        <div class="layui-input-wrap">
+                            <div class="layui-input-prefix">
+                                <i class="layui-icon layui-icon-email"></i>
+                            </div>
+                            <input type="text" id="verifyCode" value="" placeholder="邮件验证码" lay-reqtext="邮件验证码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-col-xs5">
+                        <div style="margin-left: 2px;">
+                            <a href="javascript:;" id="fetchVerifyCode" class="layui-btn layui-btn-primary save" lay-on="get-vercode">获取验证码</a>
+                            <a href="javascript:;" id="fetchVerifyCodeDisabled" class="layui-btn layui-btn-primary layui-btn-disabled disabledsave" style="display:none">获取验证码</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="layui-form-item">
                 <div class="layui-row">
                     <div class="layui-col-xs7">
@@ -61,9 +82,13 @@
                     </div>
                 </div>
             </div>
-            <div class="layui-form-item">
-                <input type="checkbox" name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="记住密码">
-                <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
+            <div class="layui-form-item byPassword">
+                <input type="checkbox"  name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="3天内免登录">
+                <a href="#" style="float: right; margin-top: 7px;" class="byPassword" id="loginByVerifyCode">验证码登录</a>
+
+            </div>
+            <div class="layui-form-item byVerifyCode">
+                <a href="#" style="float: right; margin-top: 7px;display:none" class="byVerifyCode" id="loginByPassword">账号密码登录</a>
             </div>
             <div class="layui-form-item">
                 <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
@@ -71,17 +96,36 @@
 
             </div>
         </div>
+
+        <div class="exam-login-container" id="autoAuth" style="display:none">
+            <div class="layui-form-item">
+                <div class="layui-panel">
+                    <div style="padding: 32px;">
+                        当前您（<span id="autoUserId"></span>）的登录凭证仍然有效
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+
+                <a class="layui-btn layui-btn-normal layui-btn-fluid save" id="btnLoginAuto" lay-filter="exam-login-auto">进入系统</a>
+            </div>
+            <div class="layui-form-item">
+                <a class="layui-btn layui-btn-danger layui-btn-fluid save" id="btnLoginoutAuto" lay-filter="exam-loginout-auto">退出当前</a>
+
+            </div>
+        </div>
         @Html.AntiForgeryToken()
     </form>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/lib/axios/axios.min.js"></script>
-    <script src="~/web/base.js"></script>
+    <script src="~/web/base.js?v=20241011"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
 
     <script src="~/plugins/js-md5/build/md5.min.js"></script>
     <script>
+        let loginType = 'pwd';
         let pageLoadMsg = getUrlQueryParams('msg');
         if (pageLoadMsg == 'invalidtoken') {
             errorMsg('身份凭证异常，请尝试重新登录');
@@ -97,7 +141,32 @@
                 parent.location.href = '/system/account/login';
             },5000)
         }
-        
+
+        if (getCookie('examToken')) {
+            let userId = getCookie('userId');
+            $('#autoUserId').html(atob(userId));
+            $('#selfLogin').hide();
+            $('#autoAuth').show();
+            $('#btnLoginAuto').attr('href','/system/manage')
+            //$('#autoExpiredAt').html(getCookieExpiration('examToken'))
+            $('#btnLoginoutAuto').click(() => {
+                clearLoginInfo();
+                location.reload();
+            })
+        }
+
+        $('#loginByVerifyCode').click(() => {
+            loginType = 'code';
+            $('.byPassword').hide();
+            $('.byVerifyCode').show();
+            $('#password').val('········');
+        })
+        $('#loginByPassword').click(() => {
+            loginType = 'pwd';
+            $('.byPassword').show();
+            $('.byVerifyCode').hide();
+            document.getElementById('mainForm').reset();
+        })
         removeQueryParamFromCurrentUrl('msg');
        
         let captchaRet = 0;
@@ -129,10 +198,24 @@
                     field.remember = 1;
                     //localStorage.setItem('rememberAccountInfo', {userName});                    
                 }
-
-                let result = await request('POST', '/system/account/login', data.field, { 'Content-Type': 'multipart/form-data' });
+                let requestParms = {
+                    'url': '/system/account/login',
+                    'data':data.field
+                }
+                if (loginType == 'code'){
+                    let formData = new FormData();
+                    formData.append('email', field.account);
+                    formData.append('captchaTsp', field.captchaTsp);
+                    formData.append('__RequestVerificationToken', field.__RequestVerificationToken);
+                    formData.append('hashVerifyCode', md5($('#verifyCode').val() + field.captchaTsp));
+                    requestParms = {
+                        'url': '/system/account/LoginByVarify',
+                        'data': formData
+                    }
+                }
+                let result = await request('POST', requestParms.url, requestParms.data, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {                    
-                    setLoginInfo(result.data.access_token);
+                    setLoginInfo(result.data.access_token);                    
                     window.location.href = "/system/manage";
                     successMsg('登录成功');
                     $('.disabledsave').show();
@@ -150,17 +233,54 @@
             form.on('checkbox(rememberme)', function (data) {
                 let elem = data.elem;
                 rememberme = elem.checked;
-                if (rememberme)
-                    layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
+                //if (rememberme)
+                    //layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
             })
         });
+
+        //发送验证码
+        $('#fetchVerifyCode').click(async () => {
+            $('.save').hide();
+            $('.disabledsave').show();
+            let email = $('#account').val();
+            if (!email) {
+                layer.alert('请输入邮箱', { icon: 2 })
+                return;
+            }
+            if (parseInt($('#captcha').val()) != captchaRet) {
+                layer.alert('验证码错误', { icon: 2 })
+                $('.disabledsave').hide();
+                $('.save').show();
+                generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append('to', email);
+            formData.append('__RequestVerificationToken', $('@Html.AntiForgeryToken()').val())
+            let result = await request('POST', '/system/account/GenerateVerifyCode', formData, { 'Content-Type': 'multipart/form-data' });
+            if (result.code == 0) {
+                successMsg('发送成功');
+                $('#fetchVerifyCode').hide();
+                $('#fetchVerifyCodeDisabled').show();
+                accurateCountdown(60, 'fetchVerifyCodeDisabled', () => {
+                    $('#fetchVerifyCode').show();
+                    $('#fetchVerifyCodeDisabled').hide();
+                })
+               
+            } else {
+                errorMsg(result.msg);
+                $('#fetchVerifyCode').show();
+                $('#fetchVerifyCodeDisabled').hide();
+            }
+        })
 
         var targetElement = document.getElementById('captcha');
 
         // 添加键盘事件监听器，这里以 'keydown' 为例
         targetElement.addEventListener('keydown', function (event) {
-            // 检查是否按下的是回车键（Enter键），其 keyCode 常数为 13
-            if (event.key === 'Enter' || event.keyCode === 13) {
+            // 检查是否按下的是回车键（Enter键），其 keyCode 常数为 13（已弃用）
+            if (event.key === 'Enter') {
                 event.preventDefault(); // 可选，阻止默认行为，如表单提交或页面滚动
 
                 // 在这里编写回车键被按下后要执行的代码
@@ -259,7 +379,7 @@
                 }
             }
         }
-
+              
         generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
     </script>
 

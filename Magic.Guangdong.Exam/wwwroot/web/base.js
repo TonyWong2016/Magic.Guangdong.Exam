@@ -255,7 +255,7 @@ function autoSearch(elemId, callback) {
 }
 
 // 函数：设置（写入）cookie，支持SameSite属性
-function setCookie(name, value, daysToExpire, sameSite = 'Lax') {
+function setCookie(name, value, daysToExpire, sameSite = 'Lax', httponly = false, secure=false, path = '/',domain='') {
     // HTTP-only标志必须在服务器端设置，这里仅做提示
     //console.warn('请注意：HTTP-only标志应由服务器端设置，客户端无法直接设置。');
 
@@ -271,8 +271,15 @@ function setCookie(name, value, daysToExpire, sameSite = 'Lax') {
     // SameSite属性
     cookieText += `SameSite=${sameSite.toLowerCase()};`;
 
+    if (httponly)
+        cookieText += ';HttpOnly';
+    if (domain)
+        cookie += '; domain=' + domain;
+    if (secure)
+        cookie += '; Secure';
+    
     // 路径
-    cookieText += 'Path=/;';
+    cookieText += 'Path=' + path + ';';
 
     // 将最终的cookie文本设置到document.cookie
     document.cookie = cookieText;
@@ -286,6 +293,30 @@ function getCookie(name) {
         let cookie = cookies[i].trim();
         if (cookie.startsWith(nameEQ)) {
             return decodeURIComponent(cookie.substring(nameEQ.length));
+        }
+    }
+    return null;
+}
+
+//获取cookie剩余有效期限
+function getCookieExpiration(name) {
+    const cookies = document.cookie.split('; ');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].split('=');
+        if (cookie[0] === name) {
+            const cookieString = cookies[i];
+            const expiresIndex = cookieString.indexOf('expires=');
+            if (expiresIndex !== -1) {
+                const expiresValue = cookieString.substring(expiresIndex + 7).trim();
+                const expiresDate = new Date(expiresValue);
+                const now = new Date();
+                const remainingTime = expiresDate.getTime() - now.getTime();
+                if (remainingTime > 0) {
+                    return remainingTime / 1000;  // 返回剩余时间（秒）
+                } else {
+                    return 0;  // 已经过期
+                }
+            }
         }
     }
     return null;
@@ -452,4 +483,47 @@ function identifyStringType(input) {
     } else {
         return "string"; // 其他类型
     }
+}
+
+//倒计时
+//参数elementId，用于指定要显示倒计时的HTML元素ID。
+//获取该元素，并在开始前检查其是否存在，若不存在则抛出错误。
+//定义一个新的内部函数updateElementContent，它接受剩余时间作为参数，根据元素类型（input或非input）更新其内容。对于input元素，设置其value属性；对于其他元素，更新其textContent属性。
+//在countdown函数中，调用updateElementContent来实时更新元素内容。
+//在开始倒计时前，先将初始倒计时数值（完整秒数）显示在目标元素上。
+//现在，您可以传入一个元素ID，当该元素是button、a（链接）、span等非input元素时，倒计时进度会显示在其textContent中；如果是input元素，则显示在value属性中。
+function accurateCountdown(seconds, elementId, callback) {
+    const startTimestamp = Date.now();
+    const targetElement = document.getElementById(elementId);
+
+    if (!targetElement) {
+        throw new Error(`Element with ID "${elementId}" not found.`);
+    }
+
+    function updateElementContent(remainingTime) {
+        const isInput = targetElement.tagName.toLowerCase() === 'input';
+
+        if (isInput) {
+            targetElement.value = remainingTime;
+        } else {
+            targetElement.textContent = remainingTime;
+        }
+    }
+
+    function countdown() {
+        const remainingSeconds = Math.max(0, seconds - Math.floor((Date.now() - startTimestamp) / 1000));
+        if (remainingSeconds === 0) {
+            if (typeof callback === 'function') {
+                callback();
+            }
+            return;
+        }
+
+        updateElementContent(`${remainingSeconds} 秒`);
+
+        requestAnimationFrame(countdown);
+    }
+
+    updateElementContent(`${seconds} 秒`);
+    countdown();
 }
