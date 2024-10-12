@@ -4,6 +4,7 @@ using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using IdentityModel;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.IService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,7 +47,6 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             //builder.Services.ConfigureAuthing();
             builder.Services.ConfigureSelfAuthing(_configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             // 添加Paylink依赖注入
             builder.Services.AddAlipay();
             builder.Services.AddWeChatPay();
@@ -351,6 +351,12 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
     }
 
+    public class PublicContract
+    {
+        static string aa = ConfigurationHelper.GetSectionValue("ProviderName");
+    }
+
+    //之前用authing的时候用到
     public class JwtSettings
     {
         //token是谁颁发的

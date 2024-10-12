@@ -9,5 +9,7 @@ namespace Magic.Guangdong.Assistant.Contracts
     public static class UtilConsts
     {
         public const string CLIENTFACTORYNAME = "MagicHttpClient";
+
+        
     }
 }

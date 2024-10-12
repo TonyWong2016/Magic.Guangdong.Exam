@@ -1,7 +1,7 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "首页";
+    ViewData["SubTitle"] = "信息认证";
 }
 <style>
     .flashing-element {
@@ -24,13 +24,13 @@
             </h5>
         </header>
         <form>
-            <label class="examItem" for="exam">请选择要参与的在线测评 <u id="examRecords" style="float:right;color:#039be5;display:none">答题记录</u></label>
+            <label class="examItem" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">答题记录</u></label>
             <select id="exam" class="examItem" required>
                 <option value="">请选择</option>
             </select>
 
-            <label for="info" class="examItem">在线测评时间</label>
-            <input type="text" id="info" class="examItem" placeholder="请选择要参与的测评" disabled />
+            <label for="info" class="examItem">考试时间</label>
+            <input type="text" id="info" class="examItem" placeholder="请选择要参与的考试" disabled />
 
             <label for="idNumber">选手证件号码</label>
             <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
@@ -66,7 +66,7 @@
                         <small>
                             请核对信息是否正确，如无问题，请点击【去答题】；
                             如有问题，请马上联系考场管理人员。<u style="color:#D93526">注意，使用手机测评的考生，测评开始后尽量不要锁屏，直到完成测评</u>，否则可能影响赛队在线测评成绩！
-                            <u style="color:##93526">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
+                            <u style="color:#D93526">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
                         </small>
                     </p>
                     <footer>
@@ -110,7 +110,13 @@
 <script type="text/html" id="examTpl">
     {{# layui.each(d,function(index,item){ }}
         {{# if(item.status==0){ }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">{{item.associationTitle}}-{{item.title}}</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">
+                {{# if(item.associationTitle == item.title) { }}
+                    {{item.title}}
+                {{# } else { }}
+                    {{item.associationTitle}}-{{item.title}}
+                {{# } }}
+            </option>
         {{# } else { }}
             <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(不在考试时间范围内)</option>
         {{# } }}

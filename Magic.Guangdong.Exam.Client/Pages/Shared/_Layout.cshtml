@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - 为自己代盐</title>
+    <title>@ViewData["ProviderName"] @ViewData["SubTitle"]</title>
 
     <link type="image/x-icon" rel="shortcut icon" href="/img/guangdong_logo-32.ico" />
     @* <link href="~/lib/layui/css/layui.css" rel="stylesheet" /> *@
@@ -54,7 +54,7 @@
 
         <nav>
             <ul>
-                <li><strong>为自己代盐</strong></li>
+                <li><strong>@ViewData["ProviderName"]-@ViewData["PageKeyword1"]</strong></li>
             </ul>
             <ul>
                 <li id="AnswerCard" style="display:none"><a href="#" class="secondary">答题卡</a></li>
@@ -94,6 +94,8 @@
         });
         if (accountId)
             $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);
+        // else
+        //     location.href='/account/me';
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -39,23 +40,30 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 Assistant.Logger.Debug("访问公开接口");
                 return;
             }
-
-            return;
-            //cookie身份验证
-            Guid accountId;
-            if (!CookieCheck(context, out accountId))
+            var cookies = context.HttpContext.Request.Cookies;
+            if (!cookies.Where(u => u.Key == "accountId").Any() && !page.Contains("account") )
             {
+                var item = new RedirectResult("/account/me");
+                context.Result = item;
+                Assistant.Logger.Error("登录信息已注销~");
                 return;
             }
+            return;
+            ////cookie身份验证
+            //Guid accountId;
+            //if (!CookieCheck(context, out accountId))
+            //{
+            //    return;
+            //}
 
-            //非get请求，请求头验证
-            if (!HeaderCheck(context))
-            {                
-                return;
-            }
+            ////非get请求，请求头验证
+            //if (!HeaderCheck(context))
+            //{                
+            //    return;
+            //}
 
-            //string header = context.HttpContext.Request.Headers["Authorization"];
-            Assistant.Logger.Info("page:" + page);
+            ////string header = context.HttpContext.Request.Headers["Authorization"];
+            //Assistant.Logger.Info("page:" + page);
 
         }
 
