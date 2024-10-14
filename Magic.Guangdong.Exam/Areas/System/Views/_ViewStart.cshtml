@@ -1,3 +1,6 @@
 ﻿@{
     Layout = "_Layout";
+    ViewData.Add("ProviderName", Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("providerName"));
+    ViewData.Add("FooterName", Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("footerName"));
+    ViewData.Add("Env", "product");
 }

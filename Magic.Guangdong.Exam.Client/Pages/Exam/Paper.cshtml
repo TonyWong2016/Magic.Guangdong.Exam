@@ -311,6 +311,7 @@
                 } else if (leftTime > 0 && leftTime < 60) {
                     $('#countdownTimer').addClass('pico-color-red-500');
                 }
+                
             });
         }
     }
@@ -522,9 +523,8 @@
 
     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
     function countdownEnded() {
-        setTimeout(async () => {
-            SubmitMyPaper(1)
-        })
+        TT.error('考试时间到，系统将为您自动提交考试结果');
+        SubmitMyPaper(1)
         console.log('Countdown has ended!');
     }
 

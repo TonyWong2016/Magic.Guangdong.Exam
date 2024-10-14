@@ -88,11 +88,13 @@
             layer.close(index);
             
             let formData = new FormData();
-            formData.append('id', Id);
-            FfrmData.append('__RequestVerificationToken',requestToken)
-            var ret = await request('Delete', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
+            formData.append('id', id);
+            formData.append('__RequestVerificationToken', requestToken)
+            var ret = await request('post', '@Url.Action("Delete")', formData, { 'Content-Type': 'multipart/form-data' });
             if (ret.code == 0) {
-                successMsg('操作成功');
+                successMsg('操作成功', () => {
+                    getSubjects();
+                });
                 return;
             }
             errorMsg('操作失败')

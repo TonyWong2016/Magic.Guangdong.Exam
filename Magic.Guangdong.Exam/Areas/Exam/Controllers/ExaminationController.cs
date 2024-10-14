@@ -26,9 +26,10 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         private readonly IResponseHelper _resp;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IPaperRepo _paperRepo;
 
         private string adminId = "system";
-        public ExaminationController(IExaminationRepo examinationRepo, IReportInfoRepo reportInfoRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider,IHttpContextAccessor httpContextAccessor)
+        public ExaminationController(IExaminationRepo examinationRepo, IReportInfoRepo reportInfoRepo, ICapPublisher capBus, IResponseHelper resp, IRedisCachingProvider redisCachingProvider,IHttpContextAccessor httpContextAccessor,IPaperRepo paperRepo)
         {
             _examinationRepo = examinationRepo;
             _reportInfoRepo = reportInfoRepo;
@@ -36,6 +37,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             _resp = resp;
             _redisCachingProvider = redisCachingProvider;
             _contextAccessor = httpContextAccessor;
+            _paperRepo = paperRepo;
             adminId = (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
                Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
 
@@ -144,14 +146,20 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 model.EndTime!=exam.EndTime ||
                 model.Expenses!=exam.Expenses ||
                 model.AssociationId!=exam.AssociationId ||
-                model.BaseScore !=exam.BaseScore ) &&
+                model.BaseScore !=exam.BaseScore ||
+                model.BaseDuration != exam.BaseDuration) &&
                 await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id))
             {
-                return Json(_resp.error("该考试下已经产生了用户报名记录，不可再对关键信息（起止时间，分数，费用，关联活动等）进行修改"));
+                return Json(_resp.error("该考试下已经产生了用户报名记录，不可再对关键信息（起止时间，考试时长，分数，费用，关联活动等）进行修改"));
             }
             model.UpdatedAt = DateTime.Now;
+            var finalModel = model.Adapt<Examination>();
+            if (finalModel.BaseDuration != exam.BaseDuration) 
+            {
+                await _paperRepo.UpdatePaperExamDuration(finalModel);
+            }
             //return Json(_resp.success(await _examinationRepo.updateItemAsync(model)));
-            return Json(_resp.success(await _examinationRepo.UpdateExamInfo(model.Adapt<Examination>())));
+            return Json(_resp.success(await _examinationRepo.UpdateExamInfo(finalModel)));
         }
 
         /// <summary>

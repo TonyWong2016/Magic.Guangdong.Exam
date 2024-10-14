@@ -6,21 +6,21 @@
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
         <div class="layui-form-item">
-            <label class="layui-form-label">考试标题</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试标题</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="Title" placeholder="请创建考试标题，如xx年度xx活动第x次在线考试" lay-verify="required" required />
+                 <input class="layui-input" asp-for="Title" placeholder="请创建考试标题，如xx年度xx活动第x次在线考试" lay-verify="required" required />
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">考试详情</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试详情</label>
             <div class="layui-input-block">
                 <textarea class="layui-textarea" asp-for="Description" placeholder="考试详情" lay-verify="required" required ></textarea>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">关联活动</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 关联活动</label>
             <div class="layui-input-block">
                @* <select asp-for="AssociationId" lay-filter="AssociationId" lay-verify="required" required>
                 </select>*@
@@ -31,7 +31,7 @@
             <input type="hidden" asp-for="AssociationTitle" />
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">报考名额</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 报考名额</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="Quota" value="0" placeholder="请输入当前考试限制的最高报考人数，0则表示不限制" lay-verify="required|number" required />
                
@@ -43,7 +43,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">报名费用</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 报名费用</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="Expenses" value="0" placeholder="请输入当前考试的报名费用，0则表示没有费用" lay-verify="required|number" required />
             </div>
@@ -55,21 +55,21 @@
         </div>
 
         <div class="layui-form-item" >
-            <label class="layui-form-label">基础分数</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 基础分数</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="BaseScore" value="0" placeholder="请创建考试总分数，后续创建的试卷总分均基于此分数" lay-verify="required|number" required />
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">考试地点</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试地点</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="Address" placeholder="请创建考试标题，如xx年度xx活动第x次在线考试" lay-verify="required" required />
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">考试期限</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试期限</label>
             <div class="layui-input-block">
                 <input id="ExamDuration" class="layui-input" placeholder="请选择允许考试的起止日期"  autocomplete="off" lay-verify="required" required />
             </div>
@@ -79,14 +79,14 @@
 
 
         <div class="layui-form-item">
-            <label class="layui-form-label">考试时长</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试时长</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="BaseDuration" placeholder="开始答题后的考试时间，单位分钟" lay-verify="required|number" required />
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">考试类型</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试类型</label>
             <div class="layui-input-block">
                 <select asp-for="ExamType" lay-filter="ExamType">
                     <option value=0 selected>考试</option>
@@ -109,7 +109,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">状态</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 状态</label>
             <div class="layui-input-block">
                 <select asp-for="Status">
                     <option value=0 selected>开启</option>
@@ -119,7 +119,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">开启审核</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 开启审核</label>
             <div class="layui-input-block">
                 <select asp-for="Audit">
                     <option value=1 selected>开启</option>
@@ -129,7 +129,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">严格交卷</label>
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 严格交卷</label>
             <div class="layui-input-block">
                 <select asp-for="IsStrict">
                     <option value=0 selected>否</option>
@@ -150,7 +150,7 @@
             </div>
         </div>
 
-        <div class="layui-form-item">
+        <div class="layui-form-item" style="display:none">
             <label class="layui-form-label">聚合码</label>
             <div class="layui-input-block">
                 <input class="layui-input" asp-for="GroupCode" placeholder="聚合码相同的考试，可通过扫描同一个二维码进入" />

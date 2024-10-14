@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>为自己代盐考试管理系统</title>
+    <title> @ViewData["ProviderName"]</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
-    <script src="~/web/base.js"></script>
+    <script src="~/web/base.js?v=20241014"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
 
@@ -24,7 +24,7 @@
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header layui-bg-blue">
             <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
-                为自己代盐
+                @ViewData["ProviderName"]
             </div>
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
@@ -69,7 +69,7 @@
         </div>
         <div class="layui-footer" style="text-align:center">
             <!-- 底部固定区域 -->
-            为自己代盐 Copyright © 2024 By Tony
+            @ViewData["ProviderName"] Copyright © 2024 By @ViewData["FooterName"]
         </div>
         <div style="display:none" class="layui-bg-gray" id="rightMsgSide">
             <div class="layui-card" style="padding:10px;" id="rightMsgSide">
@@ -286,6 +286,7 @@
             renderTpl('timelineTpl', 'timelineView', jsonArr, false);
             openDiv('项目推进时间线', 'timelineView', '50%', '80%')
         }
+        
     </script>
 </body>
 </html>

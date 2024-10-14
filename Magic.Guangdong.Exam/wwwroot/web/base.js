@@ -331,7 +331,12 @@ function autoCheckLoginStatus() {
     if (isCookieExpired('userId') || !getCookie('userId')) {
         clearLoginInfo();
     }
-    
+    if (location.host.indexOf('localhost') > -1 ||
+        location.pathname == '/cert/certtemplate/make') {
+        checkEnv(false);
+    } else {
+        checkEnv(true);
+    }
 }
 
 function isCookieExpired(name) {
@@ -526,4 +531,38 @@ function accurateCountdown(seconds, elementId, callback) {
 
     updateElementContent(`${seconds} 秒`);
     countdown();
+}
+
+function checkEnv(isProduction) {
+    if (!isProduction)
+        return;
+    document.addEventListener('keydown', function (event) {
+        // 检测 F12 键
+        if (event.key === 'F12') {
+            event.preventDefault();
+            layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', { icon: 4 });
+        }
+
+        // 检测 Ctrl + Shift + I （Chrome 和 Firefox）
+        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'i') {
+            event.preventDefault();
+            layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', {icon:4});
+        }
+
+        // 检测 Ctrl + Shift + J （Chrome）
+        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'j') {
+            event.preventDefault();
+            layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', { icon: 4 });        }
+
+        // 检测 Ctrl + U （查看源代码）
+        if (event.ctrlKey && event.key.toLowerCase() === 'u') {
+            event.preventDefault();
+            layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', { icon: 4 });        }
+    });
+
+    // 防止右键菜单中的“检查”选项
+    document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', { icon: 4 });
+    });
 }

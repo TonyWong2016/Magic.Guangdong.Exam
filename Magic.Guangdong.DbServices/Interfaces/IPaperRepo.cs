@@ -32,6 +32,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <returns></returns>
         Task<int> GeneratePaper(Guid[] paperIds, string adminId);
 
+        Task<int> UpdatePaperExamDuration(Examination examId);
         /// <summary>
         /// 试卷预览
         /// </summary>

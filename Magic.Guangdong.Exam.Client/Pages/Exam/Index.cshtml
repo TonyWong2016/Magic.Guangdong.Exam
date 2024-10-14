@@ -74,6 +74,7 @@
                            role="button"
                            class="secondary"
                            data-target="modal-confirm"
+                           id="cancleModal"
                            onClick="toggleModal(event)">
                             取消
                         </a>
@@ -142,6 +143,7 @@
     let idNumber = '';
     let queryModel = {};
 
+
     function getMyExams() {
         axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
             params: {
@@ -157,6 +159,10 @@
                 if(json.data && json.data.length>0){
                     renderTpl("examTpl", "exam", json.data, examId == '');
                     jValSet("info", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
+                    if (groupCode == 'auto') {
+                        jValSet('idNumber', json.data[0].reportNumber);
+                        getReportInfo()
+                    }
                     //reportId = json.data[0].reportId
                 }else{
                     TT.error('无可选的考试');
@@ -173,9 +179,10 @@
     })
 
     $('#exam').on('change', v => {
-        var span = $("#exam").find('option:selected').data('span')
-        jValSet("info", span);
-        examId = $("#exam").val();
+        var span = $('#exam').find('option:selected').data('span')
+        jValSet('info', span);
+        jValSet('idNumber', $('#exam').find('option:selected').data('reportnumber'))
+        examId = $('#exam').val();
         //reportId = $("#exam").find('option:selected').data('reportid')
         if (span && jVal('idNumber')) {
             getReportInfo()
@@ -254,8 +261,10 @@
                 }
 
                 TT.error(json.msg);
-                $('#CreateMyExam').html(json.msg);
+                $('#CreateMyExam').html(json.msg).show();
+                $('#ConfirmExam').hide()
                 $('#idNumber').attr('aria-invalid', true)
+
                 return;
                 
             })
@@ -264,6 +273,23 @@
     
     //抽卷去答题
     async function ConfirmMyPaper(){
+        if (groupCode == 'auto' &&
+            jVal('idNumber') != $('#exam').find('option:selected').data('reportnumber')
+        ) {            
+            // 获取按钮元素
+            let button = document.getElementById('cancleModal');
+
+            // 创建一个新的鼠标事件对象
+            let event = new MouseEvent('click', {
+                'view': window,
+                'bubbles': true,
+                'cancelable': true
+            });
+            // 触发点击事件
+            button.dispatchEvent(event);
+            TT.error('证件号错误');
+            return;
+        }
         $("#btnConfirm").hide();
         $("#btnConfirm2").show();
         let formData = new FormData();
@@ -288,4 +314,5 @@
         $("#btnConfirm2").hide();
        
     }
+
 </script>

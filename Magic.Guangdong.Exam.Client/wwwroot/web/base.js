@@ -8,7 +8,11 @@ function checkLoginStatus() {
     if (!getCookie('accountId') || isCookieExpired('accountId')) {
         clearLoginInfo()
     }
-    
+    if (location.host.indexOf('localhost') > -1) {
+        checkEnv(false);
+    } else {
+        checkEnv(true);
+    }
     console.log('login ok');
 }
 function setLoginInfo(jwt) {

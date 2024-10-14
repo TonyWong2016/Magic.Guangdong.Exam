@@ -180,6 +180,17 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
+        public async Task<int> UpdatePaperExamDuration(Examination exam)
+        {
+            
+            return await fsql.Get(conn_str).Select<Paper>()
+                .Where(u => u.ExamId == exam.Id)
+                .Where(u => u.IsDeleted == 0)
+                .ToUpdate()
+                .Set(u => u.Duration == exam.BaseDuration)
+                .ExecuteAffrowsAsync();
+        }
+
         /// <summary>
         /// 预览试卷
         /// </summary>

@@ -74,7 +74,7 @@
                             <input type="text" id="captcha" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
                         </div>
                     </div>
-                    <div class="layui-col-xs5">
+                    <div class="layui-col-xs5" onclick="generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(''))">
                         <div style="margin-left: 2px;">
                             @* <img src="https://www.oschina.net/action/user/captcha" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();"> *@
                             <canvas id="captchaCanvas" width="150" height="50"></canvas>
@@ -118,7 +118,7 @@
     </form>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/lib/axios/axios.min.js"></script>
-    <script src="~/web/base.js?v=20241011"></script>
+    <script src="~/web/base.js?v=20241014"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>

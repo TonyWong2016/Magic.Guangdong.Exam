@@ -15,9 +15,9 @@
 
         <div class='layui-input-inline'>
             <select id='Status' lay-filter='status'>
-                <option value='0'>请选择考试状态</option>
-                <option value='1'>开启</option>
-                <option value='2'>关闭</option>
+                <option value="9">请选择考试状态</option>
+                <option value='0'>开启</option>
+                <option value='1'>关闭</option>
             </select>
         </div>
 
@@ -33,9 +33,9 @@
             <a href='javascript:;' class='layui-btn' id='btnAddExamination'><i class='layui-icon layui-icon-add-1'></i>新增考试</a>
         </div>
 
-        <div class='layui-input-inline'>
+       @*  <div class='layui-input-inline'>
             <a href='javascript:;' id='btnRefreshExamCount' onclick='RefreshExamCount()' class='layui-btn layui-btn-warm'>实时答题人数:@ViewBag.onlineExamer</a>
-        </div>
+        </div> *@
 
         <div class='layui-input-inline' style="display:none">
             <input type='checkbox' name='allowPure' id='allowPure' lay-filter='allowPure' title='允许免登录' lay-skin='tag'>
@@ -159,7 +159,7 @@
     let token = $('@Html.AntiForgeryToken()').val();
     
     let associationId = '0';
-    let status = '0';
+    let examStatus = '0';
     let examType = '';
     let cloneExamId = '';
 
@@ -190,8 +190,8 @@
     })
 
     form.on('select(status)', function (data) {
-        status = data.value;
-        getExamList();
+        examStatus = data.value;
+            getExamList();
     })
 
     form.on('select(examType)', function (data) {
@@ -298,11 +298,11 @@
             });
         }
 
-        if (status != '0') {
+        if (examStatus != '9') {
             whereJsonStr.Filters.push({
                 'Field': 'status',
                 'Operator': 'Equal',
-                'Value': status
+                'Value': examStatus
             });
         }
         if (examType) {
