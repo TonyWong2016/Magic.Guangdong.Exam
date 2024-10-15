@@ -205,13 +205,11 @@ namespace Magic.Guangdong.DbServices.Methods
                     var reportCheckHistoryRepo = fsql.Get(conn_str).GetRepository<ReportCheckHistory>();
                     reportCheckHistoryRepo.UnitOfWork = uow;
                     List<ReportCheckHistory> listHistory = new List<ReportCheckHistory>(dto.reportIds.Length);
-                    List<ReportProcess> listProcess = new List<ReportProcess>(dto.reportIds.Length);
                     foreach (var reportId in dto.reportIds)
                     {
                         var reportProcess = await reportProcessRepo.Where(x => x.ReportId == reportId).FirstAsync();
                         reportProcess.Status = dto.reportStatus;
                         reportProcess.UpdatedAt = DateTime.Now;
-                        listProcess.Add(reportProcess);
                         listHistory.Add(new ReportCheckHistory()
                         {
                             AdminId = dto.adminId.ToString(),
@@ -219,9 +217,8 @@ namespace Magic.Guangdong.DbServices.Methods
                             CheckStatus = dto.checkStatus,
                             CheckRemark = dto.checkRemark
                         });
-
+                        await reportProcessRepo.UpdateAsync(reportProcess);
                     }
-                    await reportProcessRepo.UpdateAsync(listProcess);
                     await reportCheckHistoryRepo.InsertAsync(listHistory);
 
                     uow.Commit();

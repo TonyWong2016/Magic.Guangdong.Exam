@@ -47,7 +47,7 @@ namespace Magic.Guangdong.Assistant
 
         }
 
-
+        
         public static async Task<bool> SendVerificationCodeEmailAsync(string subject, string content, string toAddress,string toName, TextFormat textFormat = TextFormat.Html)
         {
             IConfigurationSection[] emailCfgs = ConfigurationHelper.GetSections("emailPool");

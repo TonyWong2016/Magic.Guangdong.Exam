@@ -109,6 +109,36 @@ namespace Magic.Guangdong.Exam.Areas.Report.Controllers
             
         }
 
+        [RouteMark("审核报名信息")]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckReportInfoBatch(long[] reportIds, int checkResult, string checkRemark)
+        {
+            if (!await _reportInfoRepo.getAnyAsync(u => reportIds.Contains(u.Id)))
+            {
+                return Json(_resp.error("报名信息不存在"));
+            }
+
+
+            if (!Enum.IsDefined(typeof(CheckStatus), checkResult))
+            {
+                return Json(_resp.error("审核结果不正确"));
+            }
+            var dto = new ReportCheckHistoryDto()
+            {
+                reportIds = reportIds,
+                checkStatus = (CheckStatus)checkResult,
+                adminId = adminId,
+                checkRemark = checkRemark
+            };
+            if (await _reportInfoRepo.CheckReportInfo(dto))
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "ReportNotice", dto.reportIds);
+                return Json(_resp.success("审核成功"));
+            }
+            return Json(_resp.error("审核失败"));
+
+        }
+
         [RouteMark("脱敏报名信息")]
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> MaskReportInfo()

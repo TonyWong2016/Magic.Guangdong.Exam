@@ -54,6 +54,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     content = reader.ReadToEnd()
                         .Replace("**content**", "恭喜您，您在为自己代盐协会的提交的报名信息已<b style='color:#16b777'>通过审核</b>，请尽快登录网站完成后续步骤")
                         .Replace("**username**", "用户")
+                        .Replace("**provider**", ConfigurationHelper.GetSectionValue("providerName"))
                         .Replace("**url**",ConfigurationHelper.GetSectionValue("ExamClientHost"));
 
                 }

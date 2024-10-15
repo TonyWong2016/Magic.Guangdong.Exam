@@ -1,7 +1,7 @@
 ﻿@page
 @model Magic.Guangdong.Exam.Client.Pages.Account.MeModel
 @{
-    
+
 }
 
 <main class="container">
@@ -13,18 +13,27 @@
 </main>
 <input type="hidden" id="idToken" value="@Model.idToken" />
 <script>
-   axios.get('/account/getuserinfo',{
-       params:{
-            'accountId':accountId
-       }
-   }).then(data=>{
-       let json = data.data;
-       if(json.code==0){
-           jHtmlSet('userName',json.data.name)
-       } else{
-           TT.error('获取用户信息失败');
-       }
+    axios.get('/account/getuserinfo', {
+        params: {
+            'accountId': accountId
+        }
+    }).then(data => {
+        let json = data.data;
+        if (json.code == 0) {
+            jHtmlSet('userName', json.data.name)
+        } else {
+            TT.error('获取用户信息失败');
+        }
 
-   })
-   idToken = jVal('idToken');
+    })
+    idToken = jVal('idToken');
+    if (!getCookie('idToken')) {
+        setCookie('idToken', idToken, 0.25);
+
+        const aspnetCookies = filterCookies('.AspNetCore.OpenIdConnect.Nonce');
+        //直接过期这些玩意儿
+        const now = new Date();
+        now.setDate(now.getDate() - 1);
+        expireCookies(aspnetCookies, now);
+    }
 </script>

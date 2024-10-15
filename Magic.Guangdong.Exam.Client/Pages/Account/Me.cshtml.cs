@@ -48,7 +48,11 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
                     });
                 }
                 if (result.Properties.Items.Any(u => u.Key == ".Token.id_token"))
+                {
+                    ViewData.Add("idToken", idToken);
+
                     idToken = result.Properties.Items.Where(u => u.Key == ".Token.id_token").First().Value;
+                }
             }
         }
     }

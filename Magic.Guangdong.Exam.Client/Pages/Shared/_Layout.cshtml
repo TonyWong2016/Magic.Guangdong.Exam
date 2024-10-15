@@ -38,7 +38,7 @@
         let accountId = getCookie('accountId');
         const CT = { 'Content-Type': 'multipart/form-data' };
         let shouldSubmit = false;
-        let idToken='';
+        let idToken = getCookie('idToken');
     </script>
     <script type="text/html" id="selectTpl">
         <option value="0">请选择</option>
@@ -87,17 +87,16 @@
     <script>
         checkLoginStatus();
 
-        $("#btnLogout").click(function () {
-            deleteCookie("accountId");
-            deleteCookie("accountName");
-            location.href = "/account/Logout?idToken=" + idToken + "&redirectUrl=" + location.protocol + "//" + location.host + location.pathname;
+        $('#btnLogout').click(function () {
+            deleteCookie('accountId');
+            deleteCookie('accountName');
+            deleteCookie('idToken');
+            //location.href = '/account/Logout?idToken=' + idToken + '&redirectUrl=' + location.protocol + '//' + location.host + '/account/me';
+            location.href = `/account/Logout?idToken=${idToken}&redirectUrl=${location.protocol}//${location.host}/account/me`;
         });
         if (accountId)
             $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);
-        // else
-        //     location.href='/account/me';
-
-        
+  
         
     </script>
     @await RenderSectionAsync("Scripts", required: false)

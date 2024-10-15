@@ -155,7 +155,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     cb.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                     cb.HttpOnly = false;
                     cb.IsEssential = true;
-                    
+                    cb.Expiration = DateTime.Now.AddHours(6)-DateTime.Now;
                     //options.Authority = ConfigurationHelper.GetSectionValue("authHost");
                     options.Authority = "http://login.xiaoxiaotong.org";
                     //正是环境需要这两行⬇️

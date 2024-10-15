@@ -274,6 +274,18 @@ function isCookieExpired(name) {
     return expirationDate <= new Date();
 }
 
+//筛选cookie
+function filterCookies(prefix) {
+    const cookies = document.cookie.split('; ').map(cookie => cookie.split('='));
+    return cookies.filter(([name]) => name.startsWith(prefix));
+}
+//重置cookie过期时间
+function expireCookies(cookies, expirationDate) {
+    const date = new Date(expirationDate).toUTCString();
+    cookies.forEach(([name]) => {
+        document.cookie = `${name}=; expires=${date}; path=/`;
+    });
+}
 
 function getUrlQueryParams(parameterName = null, url = window.location.href) {
     const queryStart = url.indexOf('?') + 1;
@@ -465,31 +477,31 @@ function checkEnv(isProduction) {
         // 检测 F12 键
         if (event.key === 'F12') {
             event.preventDefault();
-            TT.error('嗯？干什么？');
+            TT.error('嗯？不让看！');
         }
 
         // 检测 Ctrl + Shift + I （Chrome 和 Firefox）
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'i') {
             event.preventDefault();
-            TT.error('嗯？干什么？');
+            TT.error('嗯？不让看！');
         }
 
         // 检测 Ctrl + Shift + J （Chrome）
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'j') {
             event.preventDefault();
-            TT.error('嗯？干什么？');
+            TT.error('嗯？不让看！');
         }
 
         // 检测 Ctrl + U （查看源代码）
         if (event.ctrlKey && event.key.toLowerCase() === 'u') {
             event.preventDefault();
-            TT.error('嗯？干什么？');
+            TT.error('嗯？不让看！');
         }
     });
 
     // 防止右键菜单中的“检查”选项
     document.addEventListener('contextmenu', function (event) {
         event.preventDefault();
-        alert('嗯？干什么？');
+        TT.error('嗯？不让看！');
     });
 }

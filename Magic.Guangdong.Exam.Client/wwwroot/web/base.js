@@ -33,6 +33,7 @@ function setLoginInfo(jwt) {
 function clearLoginInfo() {
     deleteCookie('accountId');
     deleteCookie('accessToken');
+    deleteCookie('idToken');
     //localStorage.removeItem('accessToken');
 
     //if (parent.location) {
