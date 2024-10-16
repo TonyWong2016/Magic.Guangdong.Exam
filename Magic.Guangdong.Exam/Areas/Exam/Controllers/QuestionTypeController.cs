@@ -78,7 +78,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(QuestionType questionType)
         {
-            if (await _typeRepo.getAnyAsync(u => u.Caption == questionType.Caption))
+            if (await _typeRepo.getAnyAsync(u => u.Caption == questionType.Caption ))
             {
                 return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】已存在"));
             }
@@ -114,7 +114,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             //{
             //    return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】不存在"));
             //}
-            if (await _typeRepo.getAnyAsync(u => u.Id != questionType.Id && u.Caption == questionType.Caption))
+            if (await _typeRepo.getAnyAsync(u => u.Id != questionType.Id && u.Caption == questionType.Caption && u.IsDeleted==0))
             {
                 return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】已存在"));
             }

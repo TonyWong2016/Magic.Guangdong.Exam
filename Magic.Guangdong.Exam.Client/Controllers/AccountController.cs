@@ -88,6 +88,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             string url = $"{ConfigurationHelper.GetSectionValue("authHost")}/connect/endsession?id_token_hint={idToken}&post_logout_redirect_uri={redirectUrl}&state={Guid.NewGuid().ToString("N")}&x-client-SKU=ID_NETSTANDARD2_0&x-client-ver=5.5.0.0";
             HttpContext.Response.Cookies.Delete("accountId");
             HttpContext.Response.Cookies.Delete("accountName");
+            HttpContext.Response.Cookies.Delete("idToken");
             HttpContext.Response.Cookies.Delete(".AspNetCore.Cookies");
             Console.WriteLine(url);
             return Redirect(url);

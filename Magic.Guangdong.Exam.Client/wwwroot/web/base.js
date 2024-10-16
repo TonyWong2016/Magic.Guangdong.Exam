@@ -5,7 +5,11 @@ function parseJwtPayload(jwt) {
     return JSON.parse(window.atob(base64));
 }
 function checkLoginStatus() {
-    if (!getCookie('accountId') || isCookieExpired('accountId')) {
+    if (!getCookie('accountId') || 
+        isCookieExpired('accountId') || 
+        !getCookie('idToken') ||
+        isCookieExpired('idToken')
+    ) {
         clearLoginInfo()
     }
     if (location.host.indexOf('localhost') > -1) {
@@ -34,6 +38,7 @@ function clearLoginInfo() {
     deleteCookie('accountId');
     deleteCookie('accessToken');
     deleteCookie('idToken');
+    
     //localStorage.removeItem('accessToken');
 
     //if (parent.location) {

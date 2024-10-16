@@ -49,5 +49,7 @@
   //单节点配置（redishelper）
   "CsredisStrSingle": {
     "ConnectionString": "10.185.3.130:6379,defaultDatabase=5,poolsize=50,ssl=false,writeBuffer=10240"
-  }
+  },
+
+  "RedisSentinelStr": "10.185.1.176:26379,10.185.1.178:26380,10.185.1.178:26381,serviceName=mymaster,password=magicloud666,defaultDatabase=5,allowAdmin=true"
 }

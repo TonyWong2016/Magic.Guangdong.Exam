@@ -185,14 +185,11 @@
                                             string answerContent = "";
                                             foreach (var subItem in item.Items)
                                             {
-                                                <textarea style="margin-top:10px" class="layui-textarea" name="@item.Id" placeholder="请输入正确答案"></textarea>
-                                                @if (subItem.IsAnswer == 1)
-                                                {
-                                                    answerContent += subItem.Code + "," + subItem.DescriptionTxt;
-                                                }
+                                                <textarea style="margin-top:10px" class="layui-textarea" name="@item.Id" id="text_@item.Id" placeholder="请输入正确答案" readonly></textarea>
+                                                
                                             }
                                             <blockquote class="layui-elem-quote answer" style="margin-top:5px">
-                                                <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">@answerContent</span></p>
+                                                <p style="color:#5FB878">正确答案：<span id="correctAnswer_@item.Id">参考解析</span></p>
                                                 <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
                                                 <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
                                             </blockquote>
@@ -328,6 +325,8 @@
                     $('.p_userAnswer').show();
                     let finalAnswer = answer.userAnswer.join('、');
                     $('#userAnswer_' + answer.questionId).html(finalAnswer)
+                    
+                    $('#text_' + answer.questionId).val(finalAnswer)
                     if ($('#userAnswer_' + answer.questionId) && $('#correctAnswer_' + answer.questionId) && $('#userAnswer_' + answer.questionId).html() == $('#correctAnswer_' + answer.questionId).html()) {
                         $('#userAnswer_' + answer.questionId).html(finalAnswer + ' <span class="layui-badge layui-bg-green">答对</span>');
                         correctPercent++

@@ -7,6 +7,7 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Exam.Filters;
 using Mapster;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
@@ -16,6 +17,7 @@ using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using SixLabors.ImageSharp.Web.Providers;
+using StackExchange.Redis;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Extensions
@@ -63,6 +65,8 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureMinIo(_configuration);
 
             builder.Services.ConfigureRateLimit(_configuration);
+
+            builder.Services.ConfigureDataProtection(_configuration);
             return builder;
         }
 
@@ -97,6 +101,8 @@ namespace Magic.Guangdong.Exam.Extensions
                 options.Providers.Add<BrotliCompressionProvider>();
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
             });
+
+           
 
         }
 
@@ -155,6 +161,19 @@ namespace Magic.Guangdong.Exam.Extensions
                 ConfigureRedisCluser(services, configuration);
             else
                 ConfigureRedisSingle(services, configuration);
+        }
+
+        private static void ConfigureDataProtection(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDataProtection()
+               .PersistKeysToStackExchangeRedis(
+               ConnectionMultiplexer.Connect(configuration.GetSection("RedisSentinelStr").Value),
+               "DataProtection-Keys");
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.Name = "XSRF-TOKEN";
+                options.Cookie.Path = "/";
+            });
         }
 
         /// <summary>

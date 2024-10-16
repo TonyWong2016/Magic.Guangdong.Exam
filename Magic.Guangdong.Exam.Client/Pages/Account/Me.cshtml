@@ -26,14 +26,9 @@
         }
 
     })
-    idToken = jVal('idToken');
-    if (!getCookie('idToken')) {
-        setCookie('idToken', idToken, 0.25);
-
-        const aspnetCookies = filterCookies('.AspNetCore.OpenIdConnect.Nonce');
-        //直接过期这些玩意儿
-        const now = new Date();
-        now.setDate(now.getDate() - 1);
-        expireCookies(aspnetCookies, now);
-    }
+    const aspnetCookies = filterCookies('.AspNetCore.OpenIdConnect.Nonce');
+    //直接过期这些玩意儿
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+    expireCookies(aspnetCookies, now);
 </script>
