@@ -77,7 +77,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subject subject)
         {
-            if (await _subjectRepo.getAnyAsync(u => u.Caption == subject.Caption))
+            if (await _subjectRepo.getAnyAsync(u => u.Caption == subject.Caption && u.IsDeleted==0))
             {
                 return Json(_resp.ret(-1, $"学科【{subject.Caption}】已存在"));
             }
@@ -113,7 +113,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             //{
             //    return Json(_resp.ret(-1, $"学科【{subject.Caption}】不存在"));
             //}
-            if (await _subjectRepo.getAnyAsync(u => u.Id != subject.Id && u.Caption == subject.Caption))
+            if (await _subjectRepo.getAnyAsync(u => u.Id != subject.Id && u.Caption == subject.Caption && u.IsDeleted==0))
             {
                 return Json(_resp.ret(-1, $"学科【{subject.Caption}】已存在"));
             }

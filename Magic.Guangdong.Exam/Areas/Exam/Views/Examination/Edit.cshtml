@@ -166,6 +166,39 @@
             </div>
         </div>
 
+
+        <div class="layui-row">
+            <div class="layui-form-item">
+                <label class="layui-form-label">页头配置</label>
+                <div class="layui-col-md4">
+                    <input class="layui-input" id="pageHeader" placeholder="页头" />
+                </div>
+                <div class="layui-col-md2" style="margin-left:5px">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderUp">
+                        <i class="layui-icon layui-icon-upload"></i> 上传
+                    </a>
+                    <a href="javascript:;"  class="layui-btn layui-btn-primary" id="pageHeaderPreview">
+                        <i class="layui-icon layui-icon-picture"></i> 预览
+                    </a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">页尾配置</label>
+                <div class="layui-col-md4">
+                    <input class="layui-input" id="pageFooter" placeholder="页尾" />
+                </div>
+                <div class="layui-col-md2" style="margin-left:5px">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterUp">
+                        <i class="layui-icon layui-icon-upload"></i> 上传
+                    </a>
+                    <a href="javascript:;"  class="layui-btn layui-btn-primary" id="pageFooterPreview">
+                        <i class="layui-icon layui-icon-picture"></i> 预览
+                    </a>
+                </div>
+            </div>
+            <input type="hidden" asp-for="PageConfig" />
+        </div>
+
         <div class="layui-form-item" style="margin-left:110px">
             <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
             <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
@@ -181,7 +214,7 @@
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/xm-select.js"></script>
 <script src="~/web/myxselect.js"></script>
-
+<script src="~/web/myfcup.js"></script>
 <script >
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();    
@@ -233,6 +266,10 @@
 
     form.on('submit(save)', async function (data) {     
         let formData = objectToFormData(data.field);
+        await submitExamChanges(formData);
+    })
+
+    async function submitExamChanges(formData){
         var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
             successMsg('保存成功', () => {
@@ -240,8 +277,16 @@
             });
             return;
         }
-        errorMsg(ret.msg)
-    })
+        if (ret.code == 1) {
+            layer.confirm(ret.msg + '是否继续', {icon:0},async (index) => {
+                formData.append('IsForce', 1);
+                await submitExamChanges(formData)
+            })
+            return;
+        }
+
+        errorMsg('保存失败，' + ret.msg)
+    }
 
     if (jVal('ExamType') == '1') {
         $('#divPractice').show();
@@ -303,4 +348,51 @@
         })
     }
 
+
+    let pageConfigJson = {
+        'pageHeader': '',
+        'pageFooter': '',
+        'pageHost': baseDownloadUrl
+    };
+
+    if ($('#PageConfig').val()) {
+        pageConfigJson = JSON.parse($('#PageConfig').val())
+        $('#pageHeader').val(pageConfigJson.pageHeader);
+        $('#pageFooter').val(pageConfigJson.pageFooter);
+
+    }
+
+    initUploadFilePro({
+        elemId: 'pageHeaderUp',
+        callback: (res) => {
+            //console.log(res)
+            $('#pageHeader').val(res.data);
+            pageConfigJson.pageHeader = res.data;
+            $('#PageConfig').val(JSON.stringify(pageConfigJson));
+        }
+    })
+
+    initUploadFilePro({
+        elemId: 'pageFooterUp',
+        callback: (res) => {
+            //console.log(res)
+            $('#pageFooter').val(res.data);
+            pageConfigJson.pageFooter = res.data;
+            $('#PageConfig').val(JSON.stringify(pageConfigJson));
+        }
+    })
+    
+    $('#pageHeaderPreview').click(() => {
+        if (pageConfigJson.pageHeader) {
+            window.open(pageConfigJson.pageHost + pageConfigJson.pageHeader)
+        } else
+            errorMsg('没有上传任何文件');
+    })
+
+    $('#pageFooterPreview').click(() => {
+        if (pageConfigJson.pageFooter) {
+            window.open(pageConfigJson.pageHost + pageConfigJson.pageFooter)
+        } else
+            errorMsg('没有上传任何文件');
+    })
 </script>

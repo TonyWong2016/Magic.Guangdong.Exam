@@ -57,7 +57,10 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(DbType = "varchar(2000)")]
 		public string ExtraInfo { get; set; }
 
-		[JsonProperty]
+        [JsonProperty]
+        public string PageConfig { get; set; }
+
+        [JsonProperty]
 		public long FileId { get; set; }
 
 		[JsonProperty, Column(DbType = "varchar(50)")]

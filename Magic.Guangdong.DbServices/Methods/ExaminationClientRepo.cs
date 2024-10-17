@@ -93,7 +93,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
             if (examReport.StartTime > DateTime.Now || examReport.EndTime < DateTime.Now)
             {
-                return "未在考试要求的时间范围内";
+                return "未到在线考试时间，请耐心等待";
             }
 
             if (examReport.Status != 0 || examReport.ReportStatus!=0 || examReport.ReportStep!=1)

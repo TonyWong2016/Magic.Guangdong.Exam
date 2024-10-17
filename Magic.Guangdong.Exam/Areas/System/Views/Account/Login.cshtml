@@ -7,115 +7,176 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>登录</title>
+    <link type="image/x-icon" rel="shortcut icon" href="/images/examination_logo-32.ico" />
 
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
 </head>
 <body>
     <style>
-        .exam-login-container {
-            width: 320px;
-            margin: 21px auto 0;
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('/images/loginbg_yunnan.jpg') no-repeat center center;
+            background-size: cover;
+            backdrop-filter: blur(10px);
         }
 
-        .exam-login-other .layui-icon {
-            position: relative;
-            display: inline-block;
-            margin: 0 2px;
-            top: 2px;
-            font-size: 26px;
+        .login-container {
+            display: flex;
+            width: 80%;
+            max-width: 1000px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-image {
+            width: 50%;
+            background: url('/images/loginbg_yunnan.jpg') no-repeat center center;
+            background-size: cover;
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+        }
+
+        .login-form {
+            width: 50%;
+            padding: 40px;
+            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+        }
+
+        .exam-login-logo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+            .exam-login-logo svg {
+                width: 100px;
+                height: 100px;
+                fill: #333;
+            }
+
+        .layui-form-item {
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: #999;
+            margin-top: 20px;
         }
     </style>
-    <form class="layui-form" id="mainForm">
-        <div class="exam-login-container" id="selfLogin">
-            <div class="layui-form-item">
-                <div class="layui-input-wrap">
-                    <div class="layui-input-prefix">
-                        <i class="layui-icon layui-icon-username"></i>
-                    </div>
-                    <input type="text" id="account" name="account" value="" lay-verify="required" placeholder="用户名或邮箱" lay-reqtext="请填写用户名或邮箱" autocomplete="off" class="layui-input" lay-affix="clear">
-                </div>
+    <div class="login-container">
+
+
+        <div class="login-image"></div>
+        <div class="login-form">
+            <div class="exam-login-logo">
+                <!-- 文字 -->
+                <h3 style="color:#16baaa">考试管理系统（云南）</h3>
+                <!-- 或者 SVG 图标 -->
+                @* <svg t="1729129503712" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3282" width="200" height="200"><path d="M0 0m76.8 0l870.4 0q76.8 0 76.8 76.8l0 870.4q0 76.8-76.8 76.8l-870.4 0q-76.8 0-76.8-76.8l0-870.4q0-76.8 76.8-76.8Z" fill="#1391F2" p-id="3283"></path><path d="M793.6 153.6a12.8 12.8 0 0 1 12.8 12.8v691.2a12.8 12.8 0 0 1-12.8 12.8H230.4a12.8 12.8 0 0 1-12.8-12.8V166.4a12.8 12.8 0 0 1 12.8-12.8h563.2zM313.6 750.9376a19.2 19.2 0 1 0 0 38.4 19.2 19.2 0 0 0 0-38.4z m128 12.8h-38.4a6.4 6.4 0 0 0-6.4 6.4v7.104a6.4 6.4 0 0 0 6.4 6.4h38.4a6.4 6.4 0 0 0 6.4-6.4v-7.104a6.4 6.4 0 0 0-6.4-6.4z m-128-132.2752a19.2 19.2 0 1 0 0 38.4 19.2 19.2 0 0 0 0-38.4z m192 12.8h-102.4a6.4 6.4 0 0 0-6.4 6.4v7.1168a6.4 6.4 0 0 0 6.4 6.4h102.4a6.4 6.4 0 0 0 6.4-6.4v-7.1168a6.4 6.4 0 0 0-6.4-6.4zM313.6 512a19.2 19.2 0 1 0 0 38.4 19.2 19.2 0 0 0 0-38.4z m384 12.8h-294.4a6.4 6.4 0 0 0-6.4 6.4v7.1168a6.4 6.4 0 0 0 6.4 6.4h294.4a6.4 6.4 0 0 0 6.4-6.4V531.2a6.4 6.4 0 0 0-6.4-6.4z m-384-132.2624a19.2 19.2 0 1 0 0 38.4 19.2 19.2 0 0 0 0-38.4z m384 12.8h-294.4a6.4 6.4 0 0 0-6.4 6.4v7.104a6.4 6.4 0 0 0 6.4 6.4h294.4a6.4 6.4 0 0 0 6.4-6.4v-7.104a6.4 6.4 0 0 0-6.4-6.4z m-384-132.2752a19.2 19.2 0 1 0 0 38.4 19.2 19.2 0 0 0 0-38.4z m384 12.8h-294.4a6.4 6.4 0 0 0-6.4 6.4v7.1168a6.4 6.4 0 0 0 6.4 6.4h294.4a6.4 6.4 0 0 0 6.4-6.4v-7.1168a6.4 6.4 0 0 0-6.4-6.4z" fill="#FFFFFF" p-id="3284"></path><path d="M627.2 588.8a76.8 76.8 0 0 1 25.6 149.2352L652.7872 768H768a12.8 12.8 0 0 1 12.8 12.8v64H473.6v-64a12.8 12.8 0 0 1 12.8-12.8h115.1872v-29.9776a76.8384 76.8384 0 0 1-51.136-69.5424L550.4 665.6a76.8 76.8 0 0 1 76.8-76.8z" fill="#1391F2" p-id="3285"></path></svg> *@
             </div>
-            <div class="layui-form-item byPassword">
-                <div class="layui-input-wrap">
-                    <div class="layui-input-prefix">
-                        <i class="layui-icon layui-icon-password"></i>
-                    </div>
-                    <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
-                </div>
-            </div>
-            
-            <div class="layui-form-item byVerifyCode" style="display:none">
-                <div class="row">
-                    <div class="layui-col-xs7">
+            <form class="layui-form" id="mainForm">
+                <div class="exam-login-container" id="selfLogin">
+                    <div class="layui-form-item">
                         <div class="layui-input-wrap">
                             <div class="layui-input-prefix">
-                                <i class="layui-icon layui-icon-email"></i>
+                                <i class="layui-icon layui-icon-username"></i>
                             </div>
-                            <input type="text" id="verifyCode" value="" placeholder="邮件验证码" lay-reqtext="邮件验证码" autocomplete="off" class="layui-input">
+                            <input type="text" id="account" name="account" value="" lay-verify="required" placeholder="用户名或邮箱" lay-reqtext="请填写用户名或邮箱" autocomplete="off" class="layui-input" lay-affix="clear">
                         </div>
                     </div>
-                    <div class="layui-col-xs5">
-                        <div style="margin-left: 2px;">
-                            <a href="javascript:;" id="fetchVerifyCode" class="layui-btn layui-btn-primary save" lay-on="get-vercode">获取验证码</a>
-                            <a href="javascript:;" id="fetchVerifyCodeDisabled" class="layui-btn layui-btn-primary layui-btn-disabled disabledsave" style="display:none">获取验证码</a>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <div class="layui-row">
-                    <div class="layui-col-xs7">
+                    <div class="layui-form-item byPassword">
                         <div class="layui-input-wrap">
                             <div class="layui-input-prefix">
-                                <i class="layui-icon layui-icon-vercode"></i>
+                                <i class="layui-icon layui-icon-password"></i>
                             </div>
-                            <input type="text" id="captcha" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
+                            <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
                         </div>
                     </div>
-                    <div class="layui-col-xs5" onclick="generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(''))">
-                        <div style="margin-left: 2px;">
-                            @* <img src="https://www.oschina.net/action/user/captcha" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();"> *@
-                            <canvas id="captchaCanvas" width="150" height="50"></canvas>
+
+                    <div class="layui-form-item byVerifyCode" style="display:none">
+                        <div class="row">
+                            <div class="layui-col-xs7">
+                                <div class="layui-input-wrap">
+                                    <div class="layui-input-prefix">
+                                        <i class="layui-icon layui-icon-email"></i>
+                                    </div>
+                                    <input type="text" id="verifyCode" value="" placeholder="邮件验证码" lay-reqtext="邮件验证码" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-col-xs5">
+                                <div style="margin-left: 2px;">
+                                    <a href="javascript:;" id="fetchVerifyCode" class="layui-btn layui-btn-primary save" lay-on="get-vercode">获取验证码</a>
+                                    <a href="javascript:;" id="fetchVerifyCodeDisabled" class="layui-btn layui-btn-primary layui-btn-disabled disabledsave" style="display:none">获取验证码</a>
+
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="layui-form-item byPassword">
-                <input type="checkbox"  name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="3天内免登录">
-                <a href="#" style="float: right; margin-top: 7px;" class="byPassword" id="loginByVerifyCode">验证码登录</a>
 
-            </div>
-            <div class="layui-form-item byVerifyCode">
-                <a href="#" style="float: right; margin-top: 7px;display:none" class="byVerifyCode" id="loginByPassword">账号密码登录</a>
-            </div>
-            <div class="layui-form-item">
-                <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
-                <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
+                    <div class="layui-form-item">
+                        <div class="layui-row">
+                            <div class="layui-col-xs7">
+                                <div class="layui-input-wrap">
+                                    <div class="layui-input-prefix">
+                                        <i class="layui-icon layui-icon-vercode"></i>
+                                    </div>
+                                    <input type="text" id="captcha" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
+                                </div>
+                            </div>
+                            <div class="layui-col-xs5" onclick="generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(''))">
+                                <div style="margin-left: 2px;">
+                                    @* <img src="https://www.oschina.net/action/user/captcha" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();"> *@
+                                    <canvas id="captchaCanvas" width="150" height="50"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item byPassword">
+                        <input type="checkbox" name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="3天内免登录">
+                        <a href="#" style="float: right; margin-top: 7px;" class="byPassword" id="loginByVerifyCode">验证码登录</a>
 
-            </div>
-        </div>
+                    </div>
+                    <div class="layui-form-item byVerifyCode">
+                        <a href="#" style="float: right; margin-top: 7px;display:none" class="byVerifyCode" id="loginByPassword">账号密码登录</a>
+                    </div>
+                    <div class="layui-form-item">
+                        <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
+                        <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
 
-        <div class="exam-login-container" id="autoAuth" style="display:none">
-            <div class="layui-form-item">
-                <div class="layui-panel">
-                    <div style="padding: 32px;">
-                        当前您（<span id="autoUserId"></span>）的登录凭证仍然有效
                     </div>
                 </div>
-            </div>
-            <div class="layui-form-item">
 
-                <a class="layui-btn layui-btn-normal layui-btn-fluid save" id="btnLoginAuto" lay-filter="exam-login-auto">进入系统</a>
-            </div>
-            <div class="layui-form-item">
-                <a class="layui-btn layui-btn-danger layui-btn-fluid save" id="btnLoginoutAuto" lay-filter="exam-loginout-auto">退出当前</a>
+                <div class="exam-login-container" id="autoAuth" style="display:none">
+                    <div class="layui-form-item">
+                        <div class="layui-panel">
+                            <div style="padding: 32px;">
+                                当前您（<span id="autoUserId"></span>）的登录凭证仍然有效
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
 
-            </div>
+                        <a class="layui-btn layui-btn-normal layui-btn-fluid save" id="btnLoginAuto" lay-filter="exam-login-auto">进入系统</a>
+                    </div>
+                    <div class="layui-form-item">
+                        <a class="layui-btn layui-btn-danger layui-btn-fluid save" id="btnLoginoutAuto" lay-filter="exam-loginout-auto">退出当前</a>
+
+                    </div>
+                </div>
+                @Html.AntiForgeryToken()
+            </form>
         </div>
-        @Html.AntiForgeryToken()
-    </form>
+    </div>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/lib/axios/axios.min.js"></script>
     <script src="~/web/base.js?v=20241014"></script>
@@ -137,9 +198,9 @@
                 parent.location.href = '/system/account/login';
             })
             //保险多增加一个计时~
-            setTimeout(()=>{
+            setTimeout(() => {
                 parent.location.href = '/system/account/login';
-            },5000)
+            }, 5000)
         }
 
         if (getCookie('examToken')) {
@@ -147,7 +208,7 @@
             $('#autoUserId').html(atob(userId));
             $('#selfLogin').hide();
             $('#autoAuth').show();
-            $('#btnLoginAuto').attr('href','/system/manage')
+            $('#btnLoginAuto').attr('href', '/system/manage')
             //$('#autoExpiredAt').html(getCookieExpiration('examToken'))
             $('#btnLoginoutAuto').click(() => {
                 clearLoginInfo();
@@ -168,7 +229,7 @@
             document.getElementById('mainForm').reset();
         })
         removeQueryParamFromCurrentUrl('msg');
-       
+
         let captchaRet = 0;
         layui.use(function () {
             let rememberme = false;
@@ -179,7 +240,7 @@
                 $('.save').hide();
                 $('.disabledsave').show();
                 var field = data.field; // 获取表单字段值
-               // console.log(JSON.stringify(field))
+                // console.log(JSON.stringify(field))
                 if (parseInt(field.captcha) != captchaRet) {
                     layer.alert('验证码错误', { icon: 2 })
                     $('.disabledsave').hide();
@@ -196,13 +257,13 @@
 
                 if (rememberme) {
                     field.remember = 1;
-                    //localStorage.setItem('rememberAccountInfo', {userName});                    
+                    //localStorage.setItem('rememberAccountInfo', {userName});
                 }
                 let requestParms = {
                     'url': '/system/account/login',
-                    'data':data.field
+                    'data': data.field
                 }
-                if (loginType == 'code'){
+                if (loginType == 'code') {
                     let formData = new FormData();
                     formData.append('email', field.account);
                     formData.append('captchaTsp', field.captchaTsp);
@@ -214,8 +275,8 @@
                     }
                 }
                 let result = await request('POST', requestParms.url, requestParms.data, { 'Content-Type': 'multipart/form-data' });
-                if (result.code == 0) {                    
-                    setLoginInfo(result.data.access_token);                    
+                if (result.code == 0) {
+                    setLoginInfo(result.data.access_token);
                     window.location.href = "/system/manage";
                     successMsg('登录成功');
                     $('.disabledsave').show();
@@ -224,7 +285,7 @@
                     errorMsg(result.msg);
                     $('.disabledsave').hide();
                     $('.save').show();
-                }                
+                }
                 generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split("")); // 生成验证码图片
 
                 return false; // 阻止默认 form 跳转
@@ -234,7 +295,7 @@
                 let elem = data.elem;
                 rememberme = elem.checked;
                 //if (rememberme)
-                    //layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
+                //layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
             })
         });
 
@@ -254,7 +315,7 @@
                 generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
                 return;
             }
-            
+
             let formData = new FormData();
             formData.append('to', email);
             formData.append('__RequestVerificationToken', $('@Html.AntiForgeryToken()').val())
@@ -267,7 +328,7 @@
                     $('#fetchVerifyCode').show();
                     $('#fetchVerifyCodeDisabled').hide();
                 })
-               
+
             } else {
                 errorMsg(result.msg);
                 $('#fetchVerifyCode').show();
@@ -379,7 +440,7 @@
                 }
             }
         }
-              
+
         generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
     </script>
 

@@ -98,5 +98,12 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
         /// 关闭后，教师的判分通道也会随之关闭
         /// </summary>、
         public ExamMarkStatus MarkStatus { get; set; } = ExamMarkStatus.Open;
+
+        public string PageConfig { get; set; }
+
+        /// <summary>
+        /// 是否强制修改
+        /// </summary>
+        public int IsForce { get; set; } = 0;
     }
 }

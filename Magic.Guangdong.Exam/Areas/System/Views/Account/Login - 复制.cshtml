@@ -1,0 +1,387 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录</title>
+
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+</head>
+<body>
+    <style>
+        .exam-login-container {
+            width: 320px;
+            margin: 21px auto 0;
+        }
+
+        .exam-login-other .layui-icon {
+            position: relative;
+            display: inline-block;
+            margin: 0 2px;
+            top: 2px;
+            font-size: 26px;
+        }
+    </style>
+    <form class="layui-form" id="mainForm">
+        <div class="exam-login-container" id="selfLogin">
+            <div class="layui-form-item">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-username"></i>
+                    </div>
+                    <input type="text" id="account" name="account" value="" lay-verify="required" placeholder="用户名或邮箱" lay-reqtext="请填写用户名或邮箱" autocomplete="off" class="layui-input" lay-affix="clear">
+                </div>
+            </div>
+            <div class="layui-form-item byPassword">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-password"></i>
+                    </div>
+                    <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
+                </div>
+            </div>
+            
+            <div class="layui-form-item byVerifyCode" style="display:none">
+                <div class="row">
+                    <div class="layui-col-xs7">
+                        <div class="layui-input-wrap">
+                            <div class="layui-input-prefix">
+                                <i class="layui-icon layui-icon-email"></i>
+                            </div>
+                            <input type="text" id="verifyCode" value="" placeholder="邮件验证码" lay-reqtext="邮件验证码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-col-xs5">
+                        <div style="margin-left: 2px;">
+                            <a href="javascript:;" id="fetchVerifyCode" class="layui-btn layui-btn-primary save" lay-on="get-vercode">获取验证码</a>
+                            <a href="javascript:;" id="fetchVerifyCodeDisabled" class="layui-btn layui-btn-primary layui-btn-disabled disabledsave" style="display:none">获取验证码</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-row">
+                    <div class="layui-col-xs7">
+                        <div class="layui-input-wrap">
+                            <div class="layui-input-prefix">
+                                <i class="layui-icon layui-icon-vercode"></i>
+                            </div>
+                            <input type="text" id="captcha" name="captcha" value="" lay-verify="required|number" placeholder="验证码" lay-reqtext="请填写验证码" autocomplete="off" class="layui-input" lay-affix="clear">
+                        </div>
+                    </div>
+                    <div class="layui-col-xs5" onclick="generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(''))">
+                        <div style="margin-left: 2px;">
+                            @* <img src="https://www.oschina.net/action/user/captcha" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();"> *@
+                            <canvas id="captchaCanvas" width="150" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item byPassword">
+                <input type="checkbox"  name="remember" id="rememberme" lay-filter="rememberme" lay-skin="primary" title="3天内免登录">
+                <a href="#" style="float: right; margin-top: 7px;" class="byPassword" id="loginByVerifyCode">验证码登录</a>
+
+            </div>
+            <div class="layui-form-item byVerifyCode">
+                <a href="#" style="float: right; margin-top: 7px;display:none" class="byVerifyCode" id="loginByPassword">账号密码登录</a>
+            </div>
+            <div class="layui-form-item">
+                <a class="layui-btn layui-btn-fluid save" id="btnLogin" lay-submit lay-filter="exam-login">登录</a>
+                <a class="layui-btn layui-btn-fluid layui-btn-disabled disabledsave" id="btnLoginDisabled" style="display:none">登录</a>
+
+            </div>
+        </div>
+
+        <div class="exam-login-container" id="autoAuth" style="display:none">
+            <div class="layui-form-item">
+                <div class="layui-panel">
+                    <div style="padding: 32px;">
+                        当前您（<span id="autoUserId"></span>）的登录凭证仍然有效
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+
+                <a class="layui-btn layui-btn-normal layui-btn-fluid save" id="btnLoginAuto" lay-filter="exam-login-auto">进入系统</a>
+            </div>
+            <div class="layui-form-item">
+                <a class="layui-btn layui-btn-danger layui-btn-fluid save" id="btnLoginoutAuto" lay-filter="exam-loginout-auto">退出当前</a>
+
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+    <script src="~/lib/layui/layui.js"></script>
+    <script src="~/lib/axios/axios.min.js"></script>
+    <script src="~/web/base.js?v=20241014"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/web/requestapi.js"></script>
+    <script src="~/web/layextend.js"></script>
+
+    <script src="~/plugins/js-md5/build/md5.min.js"></script>
+    <script>
+        let loginType = 'pwd';
+        let pageLoadMsg = getUrlQueryParams('msg');
+        if (pageLoadMsg == 'invalidtoken') {
+            errorMsg('身份凭证异常，请尝试重新登录');
+        } else if (pageLoadMsg == 'logout') {
+            clearLoginInfo();
+            warnMsg('已成功退出当前账号');
+        } else if (parent.location && parent.location.pathname != '/system/account/login') {
+            errorMsg('登录超时', () => {
+                parent.location.href = '/system/account/login';
+            })
+            //保险多增加一个计时~
+            setTimeout(()=>{
+                parent.location.href = '/system/account/login';
+            },5000)
+        }
+
+        if (getCookie('examToken')) {
+            let userId = getCookie('userId');
+            $('#autoUserId').html(atob(userId));
+            $('#selfLogin').hide();
+            $('#autoAuth').show();
+            $('#btnLoginAuto').attr('href','/system/manage')
+            //$('#autoExpiredAt').html(getCookieExpiration('examToken'))
+            $('#btnLoginoutAuto').click(() => {
+                clearLoginInfo();
+                location.reload();
+            })
+        }
+
+        $('#loginByVerifyCode').click(() => {
+            loginType = 'code';
+            $('.byPassword').hide();
+            $('.byVerifyCode').show();
+            $('#password').val('········');
+        })
+        $('#loginByPassword').click(() => {
+            loginType = 'pwd';
+            $('.byPassword').show();
+            $('.byVerifyCode').hide();
+            document.getElementById('mainForm').reset();
+        })
+        removeQueryParamFromCurrentUrl('msg');
+       
+        let captchaRet = 0;
+        layui.use(function () {
+            let rememberme = false;
+            var form = layui.form;
+            var layer = layui.layer;
+            // 提交事件
+            form.on('submit(exam-login)', async function (data) {
+                $('.save').hide();
+                $('.disabledsave').show();
+                var field = data.field; // 获取表单字段值
+               // console.log(JSON.stringify(field))
+                if (parseInt(field.captcha) != captchaRet) {
+                    layer.alert('验证码错误', { icon: 2 })
+                    $('.disabledsave').hide();
+                    $('.save').show();
+                    generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
+                    return;
+                }
+                layer.load(2);
+                field.captchaTsp = `${field.captcha}${Math.round(new Date() / 1000)}`
+                field.hashpwd = md5(`${field.password}${field.captchaTsp}`);
+                field.remember = 0;
+                delete field.password;
+                delete field.captcha;
+
+                if (rememberme) {
+                    field.remember = 1;
+                    //localStorage.setItem('rememberAccountInfo', {userName});                    
+                }
+                let requestParms = {
+                    'url': '/system/account/login',
+                    'data':data.field
+                }
+                if (loginType == 'code'){
+                    let formData = new FormData();
+                    formData.append('email', field.account);
+                    formData.append('captchaTsp', field.captchaTsp);
+                    formData.append('__RequestVerificationToken', field.__RequestVerificationToken);
+                    formData.append('hashVerifyCode', md5($('#verifyCode').val() + field.captchaTsp));
+                    requestParms = {
+                        'url': '/system/account/LoginByVarify',
+                        'data': formData
+                    }
+                }
+                let result = await request('POST', requestParms.url, requestParms.data, { 'Content-Type': 'multipart/form-data' });
+                if (result.code == 0) {                    
+                    setLoginInfo(result.data.access_token);                    
+                    window.location.href = "/system/manage";
+                    successMsg('登录成功');
+                    $('.disabledsave').show();
+                    $('.save').hide();
+                } else {
+                    errorMsg(result.msg);
+                    $('.disabledsave').hide();
+                    $('.save').show();
+                }                
+                generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split("")); // 生成验证码图片
+
+                return false; // 阻止默认 form 跳转
+            });
+
+            form.on('checkbox(rememberme)', function (data) {
+                let elem = data.elem;
+                rememberme = elem.checked;
+                //if (rememberme)
+                    //layer.msg('这里后续会使用浏览器指纹技术进行信息还原，可以确保隐私安全，后续支持', { icon: 0 });
+            })
+        });
+
+        //发送验证码
+        $('#fetchVerifyCode').click(async () => {
+            $('.save').hide();
+            $('.disabledsave').show();
+            let email = $('#account').val();
+            if (!email) {
+                layer.alert('请输入邮箱', { icon: 2 })
+                return;
+            }
+            if (parseInt($('#captcha').val()) != captchaRet) {
+                layer.alert('验证码错误', { icon: 2 })
+                $('.disabledsave').hide();
+                $('.save').show();
+                generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append('to', email);
+            formData.append('__RequestVerificationToken', $('@Html.AntiForgeryToken()').val())
+            let result = await request('POST', '/system/account/GenerateVerifyCode', formData, { 'Content-Type': 'multipart/form-data' });
+            if (result.code == 0) {
+                successMsg('发送成功');
+                $('#fetchVerifyCode').hide();
+                $('#fetchVerifyCodeDisabled').show();
+                accurateCountdown(60, 'fetchVerifyCodeDisabled', () => {
+                    $('#fetchVerifyCode').show();
+                    $('#fetchVerifyCodeDisabled').hide();
+                })
+               
+            } else {
+                errorMsg(result.msg);
+                $('#fetchVerifyCode').show();
+                $('#fetchVerifyCodeDisabled').hide();
+            }
+        })
+
+        var targetElement = document.getElementById('captcha');
+
+        // 添加键盘事件监听器，这里以 'keydown' 为例
+        targetElement.addEventListener('keydown', function (event) {
+            // 检查是否按下的是回车键（Enter键），其 keyCode 常数为 13（已弃用）
+            if (event.key === 'Enter') {
+                event.preventDefault(); // 可选，阻止默认行为，如表单提交或页面滚动
+
+                // 在这里编写回车键被按下后要执行的代码
+                handleEnterKeyPress();
+
+            }
+        });
+
+        function handleEnterKeyPress() {
+            console.log('Enter key was pressed!');
+            document.getElementById('btnLogin').click();
+        }
+
+
+
+        // 使用Canvas生成验证码图片的方法
+        function generateCaptcha(canvasId, chars) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !canvas.getContext) {
+                throw new Error('Canvas element not found');
+            }
+
+            const ctx = canvas.getContext('2d');
+
+            // 设置验证码的基本样式
+            const fontSize = 36;
+            const width = canvas.width;
+            const height = canvas.height;
+            const charsToDraw = chars || generateRandomString(4).split('');
+            const colorArr = ['#dddddd', '#ff5722', '#31bdec', '#16baaa', '#c2c2c2', '#a233c6', '#cccccc', '#ffb800', '#16b777', '#2f363c', '#1e9fff']
+            // 清除画布
+            ctx.clearRect(0, 0, width, height);
+
+            // 绘制背景噪声线
+            for (let i = 0; i < 10; i++) {
+                ctx.strokeStyle = colorArr[i];
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * width, Math.random() * height);
+                ctx.lineTo(Math.random() * width, Math.random() * height);
+                ctx.stroke();
+            }
+
+            // 验证码字体样式
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#16baaa';
+
+            // 随机偏移量和旋转角度
+            charsToDraw.forEach((char, index) => {
+
+                const x = (index + 1) * (width / (charsToDraw.length + 1));
+                const y = height / 2.2;
+                const angle = Math.random() * Math.PI / 4 - Math.PI / 8;
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.fillText(char, 0, 0);
+                ctx.restore();
+            });
+
+            // 将canvas转为Base64图片数据
+            return canvas.toDataURL();
+        }
+
+        //生成随机加减法
+        function generateSimpleMathCaptcha() {
+            // 随机生成两个单个数字
+            let num1 = Math.floor(Math.random() * 100) + 1; // 1到10之间的整数
+            let num2 = Math.floor(Math.random() * 100);
+            // 定义运算符集合与权重
+            const operators = ['加', '减'];
+            const operatorWeights = [0.5, 0.5]; // 加法和减法概率相同
+
+            // 随机选择一个运算符
+            const selectedOperatorIndex = getRandomByWeight(operators.length, operatorWeights);
+            const operator = operators[selectedOperatorIndex];
+            if (operator == '减' && num1 <= num2)
+                num1 += num2;
+            if (operator == '减')
+                captchaRet = num1 - num2;
+            else
+                captchaRet = num1 + num2;
+            // 返回算术表达式
+            return `${num1} ${operator} ${num2}`;
+        }
+
+        // 根据权重获取随机索引
+        function getRandomByWeight(length, weights) {
+            let totalWeight = weights.reduce((a, b) => a + b, 0);
+            let rand = Math.random() * totalWeight;
+            let sum = 0;
+            for (let i = 0; i < length; i++) {
+                sum += weights[i];
+                if (rand <= sum) {
+                    return i;
+                }
+            }
+        }
+              
+        generateCaptcha('captchaCanvas', generateSimpleMathCaptcha().split(""))
+    </script>
+
+</body>
+</html>

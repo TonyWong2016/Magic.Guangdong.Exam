@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易页面布局 - 毛玻璃效果</title>
+    <!-- 引入 PicoCSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+       body, html {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header, .main, .footer {
+    padding: 20px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0; /* 防止这些部分被压缩 */
+}
+
+.header, .main, .footer {
+    /* 添加毛玻璃效果 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+    background-color: rgba(255, 255, 255, 0.1); /* 背景颜色透明度 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    background: url('header-background.jpg') no-repeat center center/cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* 使 header 成为定位上下文 */
+    z-index: 1; /* 确保 header 在 main 上面 */
+}
+
+.header .top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.header .left-top {
+    padding: 10px;
+}
+
+.header .right-top {
+    padding: 10px;
+    text-align: right;
+}
+
+.header details {
+    position: relative;
+    z-index: 2; /* 确保下拉菜单在 header 上面 */
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
+    background: url('main-background.jpg') no-repeat center center/cover;
+    backdrop-filter: blur(10px); /* 轻微模糊效果 */
+    -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+    background-color: rgba(255, 255, 255, 0.3); /* 半透明背景色，增加朦胧感 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* 当内容超出时显示滚动条 */
+}
+
+.main article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* 让 article 尽可能占据剩余空间 */
+    padding: 20px;
+}
+
+.main form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.main form div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.main form label {
+    margin-bottom: 5px;
+}
+
+.main form input,
+.main form button {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.footer {
+    background: url('footer-background.jpg') no-repeat center center/cover;
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+	<h1>网站标题</h1>
+        <div class="top-section">
+            <div class="left-top">
+                <h2>小标题</h2>
+            </div>
+            <div class="right-top">
+                <details class="dropdown">
+                    <summary>下拉菜单</summary>
+                    <ul>
+                        <li><a href="#">选项1</a></li>
+                        <li><a href="#">选项2</a></li>
+                        <li><a href="#">选项3</a></li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+        
+    </header>
+    <main class="main">
+		<article>
+			<form action="#" method="post">
+				<div>
+					<label for="name">姓名:</label>
+					<input type="text" id="name" name="name" required>
+				</div>
+				<div>
+					<label for="email">邮箱:</label>
+					<input type="email" id="email" name="email" required>
+				</div>
+				<button type="submit">提交</button>
+			</form>
+		</article>
+	</main>
+    <footer class="footer">
+        <p>版权所有 &copy; 2024</p>
+    </footer>
+</body>
+</html>

@@ -122,6 +122,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
         [JsonProperty]
         public ExamMarkStatus MarkStatus { get; set; } = ExamMarkStatus.Open;
+
+		/// <summary>
+		/// 考试页面配置
+		/// </summary>
+		[JsonProperty]
+		public string PageConfig { get; set; }
     }
 
 	public enum ExamStatus

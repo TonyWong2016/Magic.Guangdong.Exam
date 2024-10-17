@@ -350,11 +350,11 @@
         formData.append('urid', urid);
         formData.append('notice', notice)
         let json = await request('POST', '@Url.Action("RemoveRecord")', formData, CT);
-        if (json.code == 1) {
+        if (json.code == 0) {
             successMsg('操作成功');
             getUserRecord();
         } else {
-            successMsg(json.msg)
+            errorMsg(json.msg)
         }
     }
 

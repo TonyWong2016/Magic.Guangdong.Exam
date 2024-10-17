@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["ProviderName"] @ViewData["SubTitle"]</title>
 
-    <link type="image/x-icon" rel="shortcut icon" href="/img/guangdong_logo-32.ico" />
+    <link type="image/x-icon" rel="shortcut icon" href="/img/examination_logo-32.ico" />
     @* <link href="~/lib/layui/css/layui.css" rel="stylesheet" /> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <link href="~/lib/pico2/css/pico.indigo.min.css" rel="stylesheet" />
@@ -19,19 +19,31 @@
     <script src="~/web/requestapi.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/web/layextend.js"></script>
+
+    @* <link type="text/css" href="~/css/client.css" rel="stylesheet"> *@
     <style>
-        .page-footer {
+        /* .page-footer {
             display: flex;
             flex-direction: column;
-            min-height: 560px; /* 或者使用具体的 height 或 max-height 值 */
-            overflow-y: auto; /* 使内容区可滚动，避免底部元素遮挡内容 */
-        }
+            min-height: 500px; 
+            overflow-y: auto; 
+        } */
 
         /* .content 内的其他元素样式，确保它们在内容区内正常显示，不被底部元素遮挡 */
 
         .bottom-element {
             margin-top: auto; /* 使底部元素自动推到底部 */
         }
+
+        .container{
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
+            padding:5px;
+            min-height: 51vh
+        }
+
+       
     </style>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
@@ -49,10 +61,10 @@
 </head>
 <body>
     
-    <header class="container">
+    <header class="container-fluid" id="headerBg" style="padding: 5px;">
         @* <img src="~/img/header-ht-high.jpg" /> *@
-
-        <nav>
+        <img src="~/img/header-background.jpg" alt="Header Image" />
+        <nav style="justify-content:space-content;width:76%;margin-left:12%">
             <ul>
                 <li><strong>@ViewData["ProviderName"]-@ViewData["PageKeyword1"]</strong></li>
             </ul>
@@ -77,9 +89,9 @@
     </header>
 
     @RenderBody()
-    <footer class="page-footer" style="padding: 0;">
+    <footer class="container-fluid" style="padding: 5px;">
         <div class="bottom-element">
-            <img src="~/img/footer-bg.jpg" />
+            <img src="~/img/footer-background.jpg" id="footerBg" />
         </div>
         
     </footer>

@@ -1,0 +1,122 @@
+﻿body, html {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 外层 header 样式 */
+.header {
+    padding: 20px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0; /* 防止这些部分被压缩 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+    background-color: rgba(255, 255, 255, 0.1); /* 背景颜色透明度 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: url('/img/header-background.jpg') no-repeat center center/cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* 使 header 成为定位上下文 */
+    z-index: 1; /* 确保 header 在 main 上面 */
+}
+
+    .header .top-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .header .left-top {
+        padding: 10px;
+    }
+
+    .header .right-top {
+        padding: 10px;
+        text-align: right;
+    }
+
+    .header details {
+        position: relative;
+        z-index: 2; /* 确保下拉菜单在 header 上面 */
+    }
+
+/* main 部位样式 */
+.main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
+    /*background: url('/img/main-background.jpg') no-repeat center center/cover;*/
+    backdrop-filter: blur(10px); /* 轻微模糊效果 */
+    -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+    background-color: rgba(255, 255, 255, 0.3); /* 半透明背景色，增加朦胧感 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* 当内容超出时显示滚动条 */
+}
+
+    .main article {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1; /* 让 article 尽可能占据剩余空间 */
+        padding: 20px;
+    }
+
+    .main form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+        .main form div {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .main form label {
+            margin-bottom: 5px;
+        }
+
+        .main form input,
+        .main form button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+/* footer 样式 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0; /* 防止这些部分被压缩 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+    background-color: rgba(255, 255, 255, 0.1); /* 背景颜色透明度 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: url('/img/footer-background.jpg') no-repeat center center/cover;
+}
+
+/* 确保 article 内部的 header 不受影响 */
+article header {
+    /* 重置或自定义 article 内部 header 的样式 */
+    padding: 10px;
+    text-align: left;
+    color: black;
+    background: none;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+}
