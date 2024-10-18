@@ -171,7 +171,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">页头配置</label>
                 <div class="layui-col-md4">
-                    <input class="layui-input" id="pageHeader" placeholder="页头" />
+                    <input class="layui-input" id="pageHeader" placeholder="页头，小图，180px<=height<=200px" />
                 </div>
                 <div class="layui-col-md2" style="margin-left:5px">
                     <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderUp">
@@ -182,10 +182,26 @@
                     </a>
                 </div>
             </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">页中配置</label>
+                <div class="layui-col-md4">
+                    <input class="layui-input" id="pageBody" placeholder="页中，背景图，大图" />
+                </div>
+                <div class="layui-col-md2" style="margin-left:5px">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageBodyUp">
+                        <i class="layui-icon layui-icon-upload"></i> 上传
+                    </a>
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageBodyPreview" style="margin-left:0">
+                        <i class="layui-icon layui-icon-picture"></i> 预览
+                    </a>
+                </div>
+            </div>
+
             <div class="layui-form-item">
                 <label class="layui-form-label">页尾配置</label>
                 <div class="layui-col-md4">
-                    <input class="layui-input" id="pageFooter" placeholder="页尾" />
+                    <input class="layui-input" id="pageFooter" placeholder="页尾，小图，180px<=height<=200px" />
                 </div>
                 <div class="layui-col-md2" style="margin-left:5px">
                     <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterUp">
@@ -351,6 +367,7 @@
 
     let pageConfigJson = {
         'pageHeader': '',
+        'pageBody': '',
         'pageFooter': '',
         'pageHost': baseDownloadUrl
     };
@@ -358,8 +375,9 @@
     if ($('#PageConfig').val()) {
         pageConfigJson = JSON.parse($('#PageConfig').val())
         $('#pageHeader').val(pageConfigJson.pageHeader);
+         $('#pageBody').val(pageConfigJson.pageBody);
         $('#pageFooter').val(pageConfigJson.pageFooter);
-
+        pageConfigJson.pageHost=baseDownloadUrl;
     }
 
     initUploadFilePro({
@@ -368,6 +386,16 @@
             //console.log(res)
             $('#pageHeader').val(res.data);
             pageConfigJson.pageHeader = res.data;
+            $('#PageConfig').val(JSON.stringify(pageConfigJson));
+        }
+    })
+
+     initUploadFilePro({
+        elemId: 'pageBodyUp',
+        callback: (res) => {
+            //console.log(res)
+            $('#pageBody').val(res.data);
+            pageConfigJson.pageBody = res.data;
             $('#PageConfig').val(JSON.stringify(pageConfigJson));
         }
     })
@@ -385,6 +413,14 @@
     $('#pageHeaderPreview').click(() => {
         if (pageConfigJson.pageHeader) {
             window.open(pageConfigJson.pageHost + pageConfigJson.pageHeader)
+        } else
+            errorMsg('没有上传任何文件');
+    })
+
+    
+    $('#pageBodyPreview').click(() => {
+        if (pageConfigJson.pageBody) {
+            window.open(pageConfigJson.pageHost + pageConfigJson.pageBody)
         } else
             errorMsg('没有上传任何文件');
     })

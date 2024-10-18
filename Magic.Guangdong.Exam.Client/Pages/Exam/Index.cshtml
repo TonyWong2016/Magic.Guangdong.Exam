@@ -2,6 +2,7 @@
 @model IndexModel
 @{
     ViewData["SubTitle"] = "信息认证";
+    Layout = "_LayoutExam";
 }
 <style>
     .flashing-element {
@@ -14,7 +15,7 @@
       100% { opacity: 1; }
     }
 </style>
-<main class="container">
+<main class="main container">
 
     <article id="mainBody">
         <header>
@@ -155,6 +156,10 @@
                     if (groupCode == 'auto') {
                         jValSet('idNumber', json.data[0].reportNumber);
                         getReportInfo()
+                    }
+                    if (json.data[0].pageConfig) {
+                        localStorage.setItem('examPageConfig', json.data[0].pageConfig);
+                         setExamPage();
                     }
                 }else{
                     TT.error('无可选的考试');
