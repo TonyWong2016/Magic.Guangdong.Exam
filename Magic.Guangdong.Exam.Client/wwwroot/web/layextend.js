@@ -44,7 +44,7 @@ function autoCheckFormRequired() {
     });
 }
 
-function renderTpl(tplid, viewid, data, append) {
+function renderTpl(tplid, viewid, data, append, callback='') {
     
     if (tplid && viewid) {
         var tpl = document.getElementById(tplid).innerHTML, view = document.getElementById(viewid);
@@ -60,6 +60,9 @@ function renderTpl(tplid, viewid, data, append) {
                 view.innerHTML += html;
             else
                 view.innerHTML = html;
+            if (typeof (callback) == 'function') {
+                callback();
+            }
         })
         
     }

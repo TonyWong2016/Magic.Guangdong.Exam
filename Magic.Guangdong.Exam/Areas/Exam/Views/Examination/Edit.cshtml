@@ -236,7 +236,14 @@
     let token = $('@Html.AntiForgeryToken()').val();    
     let laydate = layui.laydate;
     let base_ajax_url = '';
-    
+
+    let pageConfigJson = {
+        'pageHeader': '',
+        'pageBody': '',
+        'pageFooter': '',
+        'pageHost': baseDownloadUrl
+    };
+
     $('#UpdatedBy').val(atob(localStorage.getItem('userId')));
     InitTinymce('Description', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
   
@@ -280,8 +287,12 @@
         }
     });
 
-    form.on('submit(save)', async function (data) {     
+    form.on('submit(save)', async function (data) {
+        setPageConfig()
+        console.log(data.field.PageConfig)
+        
         let formData = objectToFormData(data.field);
+
         await submitExamChanges(formData);
     })
 
@@ -365,17 +376,18 @@
     }
 
 
-    let pageConfigJson = {
-        'pageHeader': '',
-        'pageBody': '',
-        'pageFooter': '',
-        'pageHost': baseDownloadUrl
-    };
+    function setPageConfig(){
+        pageConfigJson.pageHost = baseDownloadUrl;
+        pageConfigJson.pageHeader = $('#pageHeader').val();
+        pageConfigJson.pageFooter = $('#pageFooter').val();
+        pageConfigJson.pageBody = $('#pageBody').val();
+        $('#PageConfig').val(JSON.stringify(pageConfigJson))
+    }
 
     if ($('#PageConfig').val()) {
         pageConfigJson = JSON.parse($('#PageConfig').val())
         $('#pageHeader').val(pageConfigJson.pageHeader);
-         $('#pageBody').val(pageConfigJson.pageBody);
+        $('#pageBody').val(pageConfigJson.pageBody);
         $('#pageFooter').val(pageConfigJson.pageFooter);
         pageConfigJson.pageHost=baseDownloadUrl;
     }

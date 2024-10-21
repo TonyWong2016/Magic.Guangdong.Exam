@@ -1,0 +1,117 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* background: repeating-linear-gradient( -45deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.1) 20px );
+            color: white; */
+
+    z-index: -1
+}
+
+
+.main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
+    padding: 5px;
+    /* min-height: 51vh; */
+}
+
+.xxtMenu {
+    margin-left: 10px !important;
+}
+
+.xxtItem {
+    color: white;
+    text-decoration: none;
+}
+
+.xxtNavTop {
+    justify-content: flex-start;
+    background: url('/img/menuBg.jpg');
+}
+
+.xxtNavSub {
+    justify-content: flex-start;
+    justify-content: start;
+}
+
+.xxtSubItems {
+    width: 100%;
+    display: flex;
+    justify-content: space-between
+}
+
+    .xxtSubItems li:first-child {
+        margin-right: auto; /* 将第一个元素推到最左边 */
+    }
+
+.footer {
+    position: relative; /* 确保 footer 元素可以作为定位的上下文 */
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: flex-start; /* 垂直居中对齐 */
+    justify-content: space-around; /* 水平两端对齐 */
+    padding: 10px; /* 内边距，根据需要调整 */
+    min-height: 183px; /* 最小高度，根据需要调整 */
+    /* background: url('http://zb10.xiaoxiaotong.org/upfile/202410/3/footer-20241018164446.jpg') no-repeat scroll center; /* 背景图片覆盖整个 footer */ */
+}
+
+    .footer img {
+        position: absolute; /* 使背景图片绝对定位 */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 图片适应容器大小 */
+        z-index: -1; /* 确保背景图片在所有内容之下 */
+    }
+
+.overlay-content-left, .overlay-content-right {
+    position: relative; /* 相对于 footer 定位 */
+    color: white; /* 文字颜色，根据需要调整 */
+    /* background-color: rgba(0, 0, 0, 0.1); */
+    background-color: rgba(0, 0, 0, 0); /* 半透明背景色，增加文字可读性 */
+    padding: 10px; /* 内边距，使内容与边框之间有空隙 */
+    border-radius: 5px; /* 圆角边框 */
+    z-index: 1; /* 确保内容在背景图片之上 */
+    flex: 1; /* 使内容块灵活伸缩 */
+    max-width: 40%; /* 设置最大宽度，防止内容块过大 */
+}
+
+.overlay-content-left {
+    text-align: left; /* 文字左对齐 */
+    margin-left: 10%
+}
+
+.overlay-content-right {
+    text-align: right; /* 文字右对齐 */
+}
+
+    .overlay-content-right img {
+        max-width: 160px; /* 图片最大宽度为内容块的宽度 */
+        height: auto; /* 保持图片比例 */
+        margin-left: 12%;
+        margin-top: 10px;
+    }
+
+
+/* 可选：为不同的屏幕尺寸添加媒体查询 */
+@@media (max-width: 768px) {
+    .footer {
+        flex-direction: column; /* 在小屏幕上垂直堆叠内容块 */
+        align-items: flex-start; /* 垂直居中对齐 */
+        text-align: center; /* 文字居中对齐 */
+    }
+
+    .overlay-content-left, .overlay-content-right {
+        margin-bottom: 10px; /* 在小屏幕上添加底部间距 */
+    }
+}
