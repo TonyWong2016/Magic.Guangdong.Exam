@@ -7,7 +7,7 @@
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
         <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="UpdatedBy"/>
+        <input type="hidden" asp-for="UpdatedBy" />
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试标题</label>
             <div class="layui-input-block">
@@ -18,7 +18,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试详情</label>
             <div class="layui-input-block">
-                <textarea class="layui-textarea" asp-for="Description" placeholder="考试详情" lay-verify="required" required ></textarea>
+                <textarea class="layui-textarea" asp-for="Description" placeholder="考试详情" lay-verify="required" required></textarea>
             </div>
         </div>
 
@@ -32,14 +32,14 @@
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 关联活动</label>
             <div class="layui-input-block">
-               @* <select asp-for="AssociationId" lay-filter="AssociationId" lay-verify="required" required>
+                @* <select asp-for="AssociationId" lay-filter="AssociationId" lay-verify="required" required>
                 </select>*@
                 <div id="AssociationIdSelect">
                 </div>
             </div>
             <input type="hidden" asp-for="AssociationId" />
             <input type="hidden" asp-for="AssociationTitle" />
-            
+
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 报考名额</label>
@@ -64,7 +64,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试期限</label>
             <div class="layui-input-block">
-                <input id="ExamDuration" class="layui-input" placeholder="请选择允许考试的起止日期"  autocomplete="off" lay-verify="required" required />
+                <input id="ExamDuration" class="layui-input" placeholder="请选择允许考试的起止日期" autocomplete="off" lay-verify="required" required />
             </div>
             <input type="hidden" asp-for="StartTime" />
             <input type="hidden" asp-for="EndTime" />
@@ -162,13 +162,13 @@
         <div class="layui-form-item">
             <label class="layui-form-label">备注</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="Remark" placeholder="备注"  />
+                <input class="layui-input" asp-for="Remark" placeholder="备注" />
             </div>
         </div>
 
 
         <div class="layui-row">
-            <div class="layui-form-item">
+           @*  <div class="layui-form-item">
                 <label class="layui-form-label">页头配置</label>
                 <div class="layui-col-md4">
                     <input class="layui-input" id="pageHeader" placeholder="页头，小图，180px<=height<=200px" />
@@ -177,13 +177,13 @@
                     <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderUp">
                         <i class="layui-icon layui-icon-upload"></i> 上传
                     </a>
-                    <a href="javascript:;"  class="layui-btn layui-btn-primary" id="pageHeaderPreview">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderPreview">
                         <i class="layui-icon layui-icon-picture"></i> 预览
                     </a>
                 </div>
-            </div>
+            </div> *@
 
-            <div class="layui-form-item">
+           @*  <div class="layui-form-item">
                 <label class="layui-form-label">页中配置</label>
                 <div class="layui-col-md4">
                     <input class="layui-input" id="pageBody" placeholder="页中，背景图，大图" />
@@ -196,9 +196,9 @@
                         <i class="layui-icon layui-icon-picture"></i> 预览
                     </a>
                 </div>
-            </div>
+            </div> *@
 
-            <div class="layui-form-item">
+            @* <div class="layui-form-item">
                 <label class="layui-form-label">页尾配置</label>
                 <div class="layui-col-md4">
                     <input class="layui-input" id="pageFooter" placeholder="页尾，小图，180px<=height<=200px" />
@@ -207,12 +207,41 @@
                     <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterUp">
                         <i class="layui-icon layui-icon-upload"></i> 上传
                     </a>
-                    <a href="javascript:;"  class="layui-btn layui-btn-primary" id="pageFooterPreview">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterPreview">
                         <i class="layui-icon layui-icon-picture"></i> 预览
                     </a>
                 </div>
+            </div> *@
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">图片资源</label>
+                <div class="layui-col-md4">
+                    <input class="layui-input" id="imgResource" placeholder="请上传附件或者直接输入附件链接，页头或者页尾" />
+                </div>
+                <div class="layui-col-md2 layui-progress layui-progress-big" style="margin-top:8px;width:20%;display:none" id="attachBar" lay-filter="attachBar" lay-showPercent="true">
+                    <div class="layui-progress-bar  layui-bg-blue" lay-percent="0%"></div>
+                </div>
+                <div class="layui-col-md3" style="margin-left:5px">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageResourceUp">
+                        <i class="layui-icon layui-icon-upload"></i> 上传
+                    </a>
+                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageResourcePreview">
+                        <i class="layui-icon layui-icon-picture"></i> 预览
+                    </a>
+                    <a class="layui-btn layui-btn-warm" id="btnCopy"  data-clipboard-target="#imgResource"><i class="layui-icon layui-icon-template-1"></i>复制</a>
+
+                </div>
             </div>
+
             <input type="hidden" asp-for="PageConfig" />
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">页面参数</label>
+            <div class="layui-input-block">
+                <div class="codeDiv" id="codeDiv" style="height:500px;margin-top:10px">
+                </div>
+            </div>
         </div>
 
         <div class="layui-form-item" style="margin-left:110px">
@@ -231,26 +260,38 @@
 <script src="~/plugins/xm-select.js"></script>
 <script src="~/web/myxselect.js"></script>
 <script src="~/web/myfcup.js"></script>
-<script >
+<script src="~/plugins/monaco-editor/min/vs/loader.min.js" defer></script>
+<script src="~/plugins/clipboard/clipboard.min.js"></script>
+<script>
     let form = layui.form;
-    let token = $('@Html.AntiForgeryToken()').val();    
+    let token = $('@Html.AntiForgeryToken()').val();
     let laydate = layui.laydate;
     let base_ajax_url = '';
 
     let pageConfigJson = {
-        'pageHeader': '',
-        'pageBody': '',
-        'pageFooter': '',
-        'pageHost': baseDownloadUrl
+        'headerBackgroundImg': '',
+        'footerBackgroundImg': '',
+        'pageHost': baseDownloadUrl,
+        'topMenus': [
+            { 'url': '#', 'title': '首页' }
+        ],
+        'submenu_back':'',
+        'submenu_current': '#',
+        'submenu_profile': '#',
+        'theme': 'jade',
+        'footerRemarks': [
+            { 'title': '网站支持', 'hasLink':false,'description':'校校通'},
+            { 'title': '网站备案', 'hasLink': true, 'link': 'http://baidu.com', 'description': '网站备案' }
+        ],
     };
 
     $('#UpdatedBy').val(atob(localStorage.getItem('userId')));
     InitTinymce('Description', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
-  
-    
+
+
     let objType = {
         'url': '/report/activity/getactivitydrops'
-        , 'param': {  }
+        , 'param': {}
         , 'elem': 'AssociationIdSelect'
         , 'radio': true
         , 'tips': '请选择活动'
@@ -288,15 +329,17 @@
     });
 
     form.on('submit(save)', async function (data) {
-        setPageConfig()
-        console.log(data.field.PageConfig)
+        // setPageConfig()
+        console.log(editorManager.getCodeContent())
         
-        let formData = objectToFormData(data.field);
 
+        //return;
+        let formData = objectToFormData(data.field);
+        formData.set('PageConfig', JSON.stringify(editorManager.getCodeContent()));
         await submitExamChanges(formData);
     })
 
-    async function submitExamChanges(formData){
+    async function submitExamChanges(formData) {
         var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
             successMsg('保存成功', () => {
@@ -305,7 +348,7 @@
             return;
         }
         if (ret.code == 1) {
-            layer.confirm(ret.msg + '是否继续', {icon:0},async (index) => {
+            layer.confirm(ret.msg + '是否继续', { icon: 0 }, async (index) => {
                 formData.append('IsForce', 1);
                 await submitExamChanges(formData)
             })
@@ -363,7 +406,7 @@
             maxmin: true,
             zIndex: layer.zIndex,
             success: function (layero) {
-                
+
                 //弹出后回调
                 layer.setTop(layero);
             },
@@ -376,71 +419,151 @@
     }
 
 
-    function setPageConfig(){
-        pageConfigJson.pageHost = baseDownloadUrl;
-        pageConfigJson.pageHeader = $('#pageHeader').val();
-        pageConfigJson.pageFooter = $('#pageFooter').val();
-        pageConfigJson.pageBody = $('#pageBody').val();
-        $('#PageConfig').val(JSON.stringify(pageConfigJson))
-    }
+    function setPageConfig() {
+        }
 
-    if ($('#PageConfig').val()) {
-        pageConfigJson = JSON.parse($('#PageConfig').val())
-        $('#pageHeader').val(pageConfigJson.pageHeader);
-        $('#pageBody').val(pageConfigJson.pageBody);
-        $('#pageFooter').val(pageConfigJson.pageFooter);
-        pageConfigJson.pageHost=baseDownloadUrl;
-    }
 
     initUploadFilePro({
-        elemId: 'pageHeaderUp',
+        elemId: 'pageResourceUp',
         callback: (res) => {
             //console.log(res)
-            $('#pageHeader').val(res.data);
-            pageConfigJson.pageHeader = res.data;
-            $('#PageConfig').val(JSON.stringify(pageConfigJson));
+            $('#imgResource').val( res.data);
+            
         }
     })
 
-     initUploadFilePro({
-        elemId: 'pageBodyUp',
-        callback: (res) => {
-            //console.log(res)
-            $('#pageBody').val(res.data);
-            pageConfigJson.pageBody = res.data;
-            $('#PageConfig').val(JSON.stringify(pageConfigJson));
-        }
-    })
 
-    initUploadFilePro({
-        elemId: 'pageFooterUp',
-        callback: (res) => {
-            //console.log(res)
-            $('#pageFooter').val(res.data);
-            pageConfigJson.pageFooter = res.data;
-            $('#PageConfig').val(JSON.stringify(pageConfigJson));
-        }
-    })
-    
-    $('#pageHeaderPreview').click(() => {
+    $('#pageResourcePreview').click(() => {
         if (pageConfigJson.pageHeader) {
             window.open(pageConfigJson.pageHost + pageConfigJson.pageHeader)
         } else
             errorMsg('没有上传任何文件');
     })
 
-    
-    $('#pageBodyPreview').click(() => {
-        if (pageConfigJson.pageBody) {
-            window.open(pageConfigJson.pageHost + pageConfigJson.pageBody)
-        } else
-            errorMsg('没有上传任何文件');
-    })
 
-    $('#pageFooterPreview').click(() => {
-        if (pageConfigJson.pageFooter) {
-            window.open(pageConfigJson.pageHost + pageConfigJson.pageFooter)
-        } else
-            errorMsg('没有上传任何文件');
-    })
+    //renderCodeEditor()
+    let editorObj = {
+        containerId: 'codeDiv',
+        initialLanguage: 'json',
+        defaultCode: document.getElementById('PageConfig').value ? JSON.parse(document.getElementById('PageConfig').value) : pageConfigJson
+    }
+    //console.log(editorObj)
+    let editorManager = createMonacoEditor(editorObj)
+    setTimeout(async () => {
+        await editorManager.init();
+        console.log(1)
+    }, 100)
+
+    function createMonacoEditor(edtiorParmas) {
+        const container = document.getElementById(edtiorParmas.containerId);
+
+        if (!container) {
+            throw new Error(`Container with id "${edtiorParmas.containerId}" not found.`);
+        }
+
+        return {
+            async init() {
+                // 加载Monaco编辑器核心模块和语言包
+                await new Promise((resolve) => {
+                    require.config({ paths: { 'vs': '/plugins/monaco-editor/min/vs' } });
+                    require(['vs/editor/editor.main'], resolve);
+                });
+
+                // 初始化Monaco编辑器配置和默认值
+                const editorOptions = {
+                    language: edtiorParmas.initialLanguage || 'javascript',// 默认为JavaScript，若传入语言则使用传入的语言
+                    theme: edtiorParmas.theme || 'vs-dark',
+                    automaticLayout: true,
+                    // 配置格式化选项
+                    formatting: {
+                        insertSpaces: true,
+                        tabSize: 2,
+                        eol: '\n'
+                    }
+                };
+
+                // 创建Monaco编辑器实例
+                this.currentEditor = monaco.editor.create(container, editorOptions);
+                // 如果提供了默认代码，则写入编辑器
+                if (edtiorParmas.defaultCode) {
+                    this.currentEditor.setValue(edtiorParmas.defaultCode.replaceAll('\\r\\n', '\r\n'));
+
+                }
+
+
+            },
+
+            /**
+             * 获取编辑器内的代码内容
+             * returns {string} 编辑器内的代码文本
+             */
+            getCodeContent() {
+                if (!this.currentEditor) {
+                    throw new Error('Editor has not been initialized yet.');
+                }
+                return this.currentEditor.getValue();
+            },
+            /**
+             * 设置编辑器的语言
+             * param {string} language - 编辑器的新语言
+             */
+            setLanguage(language) {
+                const currentEditor = monaco.editor.getModels()[0];
+                //currentEditor.setModelLanguage(language);
+                monaco.editor.setModelLanguage(currentEditor, language);
+            },
+            /**
+             * 设置编辑器内的代码内容
+             * param {string} codeContent - 新的代码内容
+             */
+            setCodeContent(codeContent) {
+
+                this.currentEditor.setValue(codeContent);
+            },
+
+            /**
+             * 监听代码变化并保存到 sessionStorage
+             * param {string} id - 用于标识的唯一 ID
+             */
+            monitorCode(id) {
+                this.currentEditor.onDidChangeModelContent((e) => {
+
+                    sessionStorage.setItem("currCode_" + id, this.currentEditor.getValue());
+                });
+            },
+
+
+                /**
+                 * 格式化代码
+                 */
+                formatCode() {
+                if (!this.currentEditor) {
+                    throw new Error('Editor has not been initialized yet.');
+                }
+                const action = this.currentEditor.getAction('editor.action.formatDocument');
+                if (action) {
+                    action.run();
+                } else {
+                    console.error('Format action not found.');
+                }
+            }
+        };
+    }
+
+    var clipboard = new ClipboardJS('#btnCopy', {
+        text: function (trigger) {
+            if (!$("#imgResource").val()) {
+                errorMsg("附件为空");
+                return;
+            }
+            let partUrl = $("#imgResource").val();
+            //let attachUrl = `${baseDownloadUrl}${partUrl}`;
+            // 在这里根据文本框的内容生成要复制的完整文本
+            return partUrl;
+        }
+    });
+    clipboard.on('success', function (e) {
+        layer.alert(`复制成功，可在下方代码编辑器中输入设置页头或者页尾，注意保留引号<br />格式为,"pageHeader":"{复制的代码}"，或者"pageFooter":"{复制的代码}"`, { icon: 0 })
+        $("#imgResource").val('')
+    });
 </script>

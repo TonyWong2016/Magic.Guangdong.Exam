@@ -108,9 +108,11 @@
                 {{item.title}}
                 {{# if(item.hasLink){ }}
                     <a style="color:white" href="item.link" target="_blank">
-                        {{item.linkDescription}}
+                     {{item.description}}
                     </a>
-                {{# } }} 
+                {{# } else{ }} 
+                    {{item.description}}
+                {{# } }}
             </small><br />
             {{#  }); }}
            
@@ -148,7 +150,8 @@
             'submenu_back':'#',
             'submenu_current': '#',
             'submenu_profile': '#',
-            'theme':'jade'
+            'theme':'jade',
+            'footerBackgroundImg':'',
         }
         renderTpl("headerTpl", "headerBg", PageConfigData, false, function () {
             console.log('渲染完了');
