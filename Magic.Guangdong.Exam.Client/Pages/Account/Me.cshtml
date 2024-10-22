@@ -1,14 +1,17 @@
 ﻿@page
 @model Magic.Guangdong.Exam.Client.Pages.Account.MeModel
 @{
-    
+    Layout = "_LayoutExam";
 }
 
 <main class="container">
-    <article>
+    <article id="normal" style="display:none">
         <header>用户：<b id="userName"></b></header>
 
         <a role="button" href="/activity/index" class="outline">看看有什么活动</a>
+    </article>
+    <article id="consumer" style="justify-content:center">
+        <button aria-busy="true" class="outline">请通过考试入口进入本系统，即将跳转到活动首页，请稍候...</button>
     </article>
 </main>
 
@@ -32,4 +35,17 @@
     const now = new Date();
     now.setDate(now.getDate() - 1);
     expireCookies(aspnetCookies, now);
+    if (getCookie('loginRedicretUrl')) {
+        setTimeout(() => {
+            window.location.href = atob(getCookie('loginRedicretUrl'));
+
+        }, 1000)
+    }
+    if (getCookie('redirectfromexam')) {
+        setTimeout(() => {
+            window.location.href = atob(getCookie('redirectfromexam'));
+            
+        },1000)
+    }
+    
 </script>

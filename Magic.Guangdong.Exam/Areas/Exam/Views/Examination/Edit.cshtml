@@ -168,51 +168,6 @@
 
 
         <div class="layui-row">
-           @*  <div class="layui-form-item">
-                <label class="layui-form-label">页头配置</label>
-                <div class="layui-col-md4">
-                    <input class="layui-input" id="pageHeader" placeholder="页头，小图，180px<=height<=200px" />
-                </div>
-                <div class="layui-col-md2" style="margin-left:5px">
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderUp">
-                        <i class="layui-icon layui-icon-upload"></i> 上传
-                    </a>
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageHeaderPreview">
-                        <i class="layui-icon layui-icon-picture"></i> 预览
-                    </a>
-                </div>
-            </div> *@
-
-           @*  <div class="layui-form-item">
-                <label class="layui-form-label">页中配置</label>
-                <div class="layui-col-md4">
-                    <input class="layui-input" id="pageBody" placeholder="页中，背景图，大图" />
-                </div>
-                <div class="layui-col-md2" style="margin-left:5px">
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageBodyUp">
-                        <i class="layui-icon layui-icon-upload"></i> 上传
-                    </a>
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageBodyPreview" style="margin-left:0">
-                        <i class="layui-icon layui-icon-picture"></i> 预览
-                    </a>
-                </div>
-            </div> *@
-
-            @* <div class="layui-form-item">
-                <label class="layui-form-label">页尾配置</label>
-                <div class="layui-col-md4">
-                    <input class="layui-input" id="pageFooter" placeholder="页尾，小图，180px<=height<=200px" />
-                </div>
-                <div class="layui-col-md2" style="margin-left:5px">
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterUp">
-                        <i class="layui-icon layui-icon-upload"></i> 上传
-                    </a>
-                    <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageFooterPreview">
-                        <i class="layui-icon layui-icon-picture"></i> 预览
-                    </a>
-                </div>
-            </div> *@
-
             <div class="layui-form-item">
                 <label class="layui-form-label">图片资源</label>
                 <div class="layui-col-md4">
@@ -239,16 +194,40 @@
         <div class="layui-form-item">
             <label class="layui-form-label">页面参数</label>
             <div class="layui-input-block">
-                <div class="codeDiv" id="codeDiv" style="height:500px;margin-top:10px">
+                <div class="codeDiv" id="codeDiv" style="height:400px;margin-top:10px">
                 </div>
             </div>
         </div>
+        <blockquote class="layui-input-block layui-elem-quote">
+           页面参数目前仅支持以下字段，自行配置时可参照进行，该功能持续优化中<br />
+            <span class="layui-badge-dot layui-bg-green"></span> header：代表页面头部的配置<br />
+            <span class="layui-badge-dot layui-bg-green"></span> pageHost：代表页面头部链接的host<br />
+            <span class="layui-badge-dot layui-bg-green"></span> headerBackgroundImg：代表页面头部的背景图<br />
+            <span class="layui-badge-dot layui-bg-green"></span> topMenus：代表页面头部顶级菜单，数组对象，注意不要太多，10个以内为宜；url为地址，title为显示内容<br />
+            <span class="layui-badge-dot layui-bg-green"></span> noticeList：代表页面头部滚动通知，url为地址，title为显示内容，time为发布时间<br />
+            <span class="layui-badge-dot layui-bg-green"></span> noticeMore：代表页面头部通知的“更多”链接<br />
+            <span class="layui-badge-dot layui-bg-green"></span> submenu_back：代表页面头部二级菜单的返回首页<br />
+            <span class="layui-badge-dot layui-bg-green"></span> submenu_current：代表页面头部二级菜单的当前活动<br />
+            <span class="layui-badge-dot layui-bg-green"></span> submenu_profile：代表页面头部二级菜单的用户中心<br />
+            <span class="layui-badge-dot layui-bg-green"></span> topMenuBackgroundImg：代表页面头部顶级菜单背景图效果，必须配置<br />
+            <span class="layui-badge-dot layui-bg-green"></span> topMenuSelectedImg：代表页面头部顶级菜单选中后的背景图效果，没有可以不配置<br />
 
+            <hr />
+            <span class="layui-badge-dot layui-bg-green"></span> footer：代表页面底部的配置<br />
+            <span class="layui-badge-dot layui-bg-green"></span> pageHost：代表页面底部链接的host<br />
+            <span class="layui-badge-dot layui-bg-green"></span> footerBackgroundImg：代表页面底部的背景图<br />
+            <span class="layui-badge-dot layui-bg-green"></span> footerRemarks：代表页面底部的左侧相关声明，数组对象，不要超过5个，title为标题，description为内容，haslink为是否包含链接，haslink为true时，link为链接地址<br />
+            <span class="layui-badge-dot layui-bg-green"></span> footerThumbs：代表页面底部的右侧的配图，数组对象，不要超过2个，src为图片链接地址<br />
+
+            <hr />
+            <span class="layui-badge-dot layui-bg-green"></span> theme：代表页页面主题颜色，参照👉：<a href="https://picocss.com/docs/colors" target="_blank">主题</a><br />
+
+        </blockquote>
         <div class="layui-form-item" style="margin-left:110px">
             <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
             <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
 
-            <a class="layui-btn layui-btn-primary" href="@Url.Action("Index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+            <a class="layui-btn layui-btn-primary" href="javascript:;" onclick="layer.load(2);location.href='@Url.Action("Index")'" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
         </div>
         <input asp-for="CreatedAt" type="hidden" />
         @Html.AntiForgeryToken()
@@ -335,7 +314,7 @@
 
         //return;
         let formData = objectToFormData(data.field);
-        formData.set('PageConfig', JSON.stringify(editorManager.getCodeContent()));
+        formData.set('PageConfig', editorManager.getCodeContent());
         await submitExamChanges(formData);
     })
 
@@ -419,9 +398,6 @@
     }
 
 
-    function setPageConfig() {
-        }
-
 
     initUploadFilePro({
         elemId: 'pageResourceUp',
@@ -445,7 +421,7 @@
     let editorObj = {
         containerId: 'codeDiv',
         initialLanguage: 'json',
-        defaultCode: document.getElementById('PageConfig').value ? JSON.parse(document.getElementById('PageConfig').value) : pageConfigJson
+        defaultCode: document.getElementById('PageConfig').value ? document.getElementById('PageConfig').value : pageConfigJson
     }
     //console.log(editorObj)
     let editorManager = createMonacoEditor(editorObj)
@@ -486,8 +462,8 @@
                 this.currentEditor = monaco.editor.create(container, editorOptions);
                 // 如果提供了默认代码，则写入编辑器
                 if (edtiorParmas.defaultCode) {
-                    this.currentEditor.setValue(edtiorParmas.defaultCode.replaceAll('\\r\\n', '\r\n'));
-
+                    //this.currentEditor.setValue(edtiorParmas.defaultCode.replaceAll('\\r\\n', '\r\n'));
+                    this.currentEditor.setValue(edtiorParmas.defaultCode);
                 }
 
 
@@ -563,7 +539,7 @@
         }
     });
     clipboard.on('success', function (e) {
-        layer.alert(`复制成功，可在下方代码编辑器中输入设置页头或者页尾，注意保留引号<br />格式为,"pageHeader":"{复制的代码}"，或者"pageFooter":"{复制的代码}"`, { icon: 0 })
+        layer.alert(`复制成功，可在下方代码编辑器中输入设置页头或者页尾，注意保留引号<br />格式为,"{参数名}":"{复制的链接}"`, { icon: 0 })
         $("#imgResource").val('')
     });
 </script>

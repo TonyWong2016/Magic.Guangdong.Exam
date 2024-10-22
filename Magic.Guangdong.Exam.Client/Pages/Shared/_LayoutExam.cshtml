@@ -18,15 +18,16 @@
     <script src="~/web/base.js" asp-append-version="true"></script>
     <script src="~/web/requestapi.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js"></script>
-    <script src="~/web/layextend.js"></script>
-    <link href="~/web/xxtthemes/xxt.css" rel="stylesheet" />
-    <script src="~/web/xxtthemes/xxt.js"></script>
+    <script src="~/web/layextend.js" asp-append-version="true"></script>
+    <link href="~/web/xxtthemes/xxt.css" rel="stylesheet" asp-append-version="true" />
+    <script src="~/web/xxtthemes/xxt.js" asp-append-version="true"></script>
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
         let accountId = getCookie('accountId');
         const CT = { 'Content-Type': 'multipart/form-data' };
         let shouldSubmit = false;
         let idToken = getCookie('idToken');
+        let pageConfigRenderFlag=false;
     </script>
     <script type="text/html" id="selectTpl">
         <option value="0">请选择</option>
@@ -37,13 +38,13 @@
 </head>
 <body>
 
-    <header class="header container-fluid" id="headerBg" style="position: relative; padding: 0px;">
+    <header class="header container-fluid" id="headerView" style="position: relative; padding: 0px;">
        
     </header>
 
     @RenderBody()
-    <footer class="footer" style="padding: 0px;position: relative;">
-        <img src="~/img/footer-background.jpg" id="footerBgImg" style="width: 100%; height: 100%; object-fit: cover;" />
+    <footer class="footer" style="padding: 0px;position: relative;" id="footerView">
+        @* <img src="~/img/footer-background.jpg" id="footerBgImg" style="width: 100%; height: 100%; object-fit: cover;" />
         <!-- 左侧内容块 -->
         <div class="overlay-content-left">
             <small>主办单位：云南省青少年科技中心</small><br />
@@ -54,45 +55,51 @@
                 </a>
             </small><br />
             <small>联系我们：yunnan@xiaoxiaotong.org</small>
-            <!-- 或者是图片 -->
-            <!-- <img src="your-image-url-here" alt="Overlay Image"> -->
         </div>
         <!-- 右侧内容块 -->
         <div class="overlay-content-right">
             
             <!-- 或者是图片 -->
             <img src="" alt="" />
-        </div>
+        </div> *@
+
     </footer>
 
     <script type="text/html" id="headerTpl">
-        <img src="{{=d.headerBackgroundImg}}" id="headerBgImg" alt="" />
+        {{# if(d.headerBackgroundImg.startsWith('http')){ }}
+          <img src="{{=d.headerBackgroundImg}}" id="headerBgImg" alt="" />
+        {{# } else { }}
+        <img src="{{ d.pageHost + d.headerBackgroundImg }}" id="headerBgImg"  alt=""/>
+        {{# }  }}
         <div class="container" style="padding:5px">
             <nav class="xxtNavTop">
                 <ul id="xxtMenu" class="xxtMenu">
                     {{# layui.each(d.topMenus, function(index,item){ }}
-                    <li><a href="{{= item.url }}" class="xxtItem">{{= item.title }}</a></li>
+                    <li><a href="{{= item.url }}" target="_blank" class="xxtItem">{{= item.title }}</a></li>
                     {{#  }); }}
                 </ul>
             </nav>
             <nav class="xxtNavSub">
                 <ul class="xxtSubItems">
                     <li>
-                        <button class="outline" style="border-color:var(--pico-color-pumpkin-300);">
+                        <div role="button" class="outline" style="border-color:var(--pico-color-pumpkin-300);">
                             <svg t="1729473122492" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="13839" width="24" height="24" style="color:var(--pico-color-pumpkin-300)"><path d="M975.238095 473.35619v61.756953c-10.435048 116.004571-79.11619 215.235048-176.615619 268.239238l-32.548571-62.464a269.824 269.824 0 0 0 140.092952-236.641524 269.897143 269.897143 0 0 0-148.309333-240.981333l32.499809-62.512762c101.839238 51.809524 174.153143 153.35619 184.880762 272.579048z m-140.288 23.722667a210.627048 210.627048 0 0 1-101.766095 180.662857l-32.597333-62.659047a140.239238 140.239238 0 0 0 63.878095-118.00381 140.239238 140.239238 0 0 0-66.023619-119.369143l32.548571-62.634666a210.627048 210.627048 0 0 1 103.960381 182.003809zM649.752381 187.196952v600.81981c0 48.030476-59.294476 71.289905-92.525714 36.327619l-154.502096-164.376381-13.287619-0.024381v104.399238a70.460952 70.460952 0 0 1-70.460952 70.412191h-70.460952a70.460952 70.460952 0 0 1-70.460953-70.412191v-104.399238H143.60381A70.460952 70.460952 0 0 1 73.142857 589.58019v-211.675428a70.460952 70.460952 0 0 1 66.316191-70.290286l5.071238-0.097524 260.583619 3.413334 152.112762-160.012191c33.231238-34.962286 92.525714-11.702857 92.525714 36.327619z" p-id="13840"></path></svg>
-
-                            <small style="color:black" id="headerNotice">
-                                渲染后再动态获取，定时切换
+                            <small>
+                                <a style="color:black" id="noticeLink" class="notice" href="#" target="_blank">
+                                   渲染后再动态获取，定时切换
+                                </a>
+                                &nbsp;&nbsp;
+                                {{# if(d.noticeMore){ }}
+                                <a style="color:var(--pico-color-pumpkin-300)" target="_blank" href="{{ d.noticeMore }}">+ 更多</a>
+                                {{# } }}
                             </small>
-                            &nbsp;&nbsp;
-                            <small style="color:var(--pico-color-pumpkin-300)">+ 更多</small>
-                        </button>
+                        </div>
                     </li>
 
-                    <li><a href="{{=d.submenu_back}}" role="button" class="outline" style="border-color:var(--pico-color-blue-500);color:var(--pico-color-blue-500)"><svg t="1729472305932" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4269" width="24" height="24" style="margin-top:-5px"><path d="M950.6 526.9L579.8 156c-37.4-37.4-98.2-37.4-135.6 0L73.4 526.9c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l370.8-370.8c12.4-12.4 32.7-12.4 45.1 0l370.8 370.8c6.2 6.2 14.4 9.4 22.6 9.4s16.4-3.1 22.6-9.4c12.5-12.6 12.5-32.8 0-45.3z" p-id="4270"></path><path d="M800 512c-17.7 0-32 14.3-32 32v320c0 17.6-14.4 32-32 32h-96V608c0-52.9-43.1-96-96-96h-64c-52.9 0-96 43.1-96 96v288h-96c-17.6 0-32-14.4-32-32V544c0-17.7-14.3-32-32-32s-32 14.3-32 32v320c0 52.9 43.1 96 96 96h448c52.9 0 96-43.1 96-96V544c0-17.7-14.3-32-32-32zM448 896V608c0-17.6 14.4-32 32-32h64c17.6 0 32 14.4 32 32v288H448z" p-id="4271"></path></svg>返回首页</a></li>
-                    <li><a href="{{=d.submenu_current}}" role="button" class="outline" style="border-color:var(--pico-color-blue-500);color:var(--pico-color-blue-500)"><svg t="1729472664959" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7174" width="24" height="24" style="margin-top:-5px"><path d="M425.426 234.331L762.796 380l-333.5 146.991-3.87-0.889V234.331m-32-136.075c-17.673 0-32 14.327-32 32v762.993c0 17.673 14.327 32 32 32 17.673 0 32-14.327 32-32V591.77c2.302 0.529 4.677 0.806 7.088 0.806 4.263 0 8.634-0.868 12.898-2.747L855.729 408.98c25.563-11.267 25.427-47.586-0.221-58.661L441.129 171.401c-4.203-1.815-8.5-2.651-12.687-2.651a31.46 31.46 0 0 0-3.016 0.145v-38.639c0-17.673-14.327-32-32-32z" p-id="7175"></path></svg>当前活动</a></li>
-                    <li><a href="{{=d.submenu_profile}}" role="button" class="outline" style="border-color:var(--pico-color-blue-500);color:var(--pico-color-blue-500)"><svg t="1729472870146" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12574" width="24" height="24" style="margin-top:-5px"><path d="M858.5 763.6c-18.9-44.8-46.1-85-80.6-119.5-34.5-34.5-74.7-61.6-119.5-80.6-0.4-0.2-0.8-0.3-1.2-0.5C719.5 518 760 444.7 760 362c0-137-111-248-248-248S264 225 264 362c0 82.7 40.5 156 102.8 201.1-0.4 0.2-0.8 0.3-1.2 0.5-44.8 18.9-85 46-119.5 80.6-34.5 34.5-61.6 74.7-80.6 119.5C146.9 807.5 137 854 136 901.8c-0.1 4.5 3.5 8.2 8 8.2h60c4.4 0 7.9-3.5 8-7.8 2-77.2 33-149.5 87.8-204.3 56.7-56.7 132-87.9 212.2-87.9s155.5 31.2 212.2 87.9C779 752.7 810 825 812 902.2c0.1 4.4 3.6 7.8 8 7.8h60c4.5 0 8.1-3.7 8-8.2-1-47.8-10.9-94.3-29.5-138.2zM512 534c-45.9 0-89.1-17.9-121.6-50.4S340 407.9 340 362c0-45.9 17.9-89.1 50.4-121.6S466.1 190 512 190s89.1 17.9 121.6 50.4S684 316.1 684 362c0 45.9-17.9 89.1-50.4 121.6S557.9 534 512 534z" p-id="12575"></path></svg>用户中心</a></li>
-                    <li><a href="javascript::" id="btnLogout" role="button" onclick="xxtLogout()" class="outline" style="border-color:var(--pico-color-blue-500);color:var(--pico-color-blue-500)"><svg t="1729472736615" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9251" width="24" height="24" style="margin-top:-5px"><path d="M868 732h-70.3c-4.8 0-9.3 2.1-12.3 5.8-7 8.5-14.5 16.7-22.4 24.5-32.6 32.5-70.5 58.1-112.7 75.9-43.6 18.4-90 27.8-137.9 27.8-47.9 0-94.3-9.4-137.9-27.8-42.2-17.8-80.1-43.4-112.7-75.9-32.6-32.5-58.1-70.4-76-112.5C167.3 606.2 158 559.9 158 512s9.4-94.2 27.8-137.8c17.8-42.1 43.4-80 76-112.5s70.5-58.1 112.7-75.9c43.6-18.4 90-27.8 137.9-27.8 47.9 0 94.3 9.3 137.9 27.8 42.2 17.8 80.1 43.4 112.7 75.9 7.9 7.9 15.3 16.1 22.4 24.5 3 3.7 7.6 5.8 12.3 5.8H868c6.3 0 10.2-7 6.7-12.3C798 160.5 663.8 81.6 511.3 82 271.7 82.6 79.6 277.1 82 516.4 84.4 751.9 276.2 942 512.4 942c152.1 0 285.7-78.8 362.3-197.7 3.4-5.3-0.4-12.3-6.7-12.3z" p-id="9252"></path><path d="M956.9 505.7L815 393.7c-5.3-4.2-13-0.4-13 6.3v76H488c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h314v76c0 6.7 7.8 10.5 13 6.3l141.9-112c4.1-3.2 4.1-9.4 0-12.6z" p-id="9253"></path></svg>安全退出</a></li>
+                    <li><a href="{{=d.submenu_back}}" role="button" class="outline xxtSubItemsa" ><svg t="1729472305932" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4269" width="24" height="24" style="margin-top:-5px"><path d="M950.6 526.9L579.8 156c-37.4-37.4-98.2-37.4-135.6 0L73.4 526.9c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l370.8-370.8c12.4-12.4 32.7-12.4 45.1 0l370.8 370.8c6.2 6.2 14.4 9.4 22.6 9.4s16.4-3.1 22.6-9.4c12.5-12.6 12.5-32.8 0-45.3z" p-id="4270"></path><path d="M800 512c-17.7 0-32 14.3-32 32v320c0 17.6-14.4 32-32 32h-96V608c0-52.9-43.1-96-96-96h-64c-52.9 0-96 43.1-96 96v288h-96c-17.6 0-32-14.4-32-32V544c0-17.7-14.3-32-32-32s-32 14.3-32 32v320c0 52.9 43.1 96 96 96h448c52.9 0 96-43.1 96-96V544c0-17.7-14.3-32-32-32zM448 896V608c0-17.6 14.4-32 32-32h64c17.6 0 32 14.4 32 32v288H448z" p-id="4271"></path></svg>返回首页</a></li>
+                    <li><a href="{{=d.submenu_current}}" role="button" class="outline xxtSubItemsa"><svg t="1729472664959" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7174" width="24" height="24" style="margin-top:-5px"><path d="M425.426 234.331L762.796 380l-333.5 146.991-3.87-0.889V234.331m-32-136.075c-17.673 0-32 14.327-32 32v762.993c0 17.673 14.327 32 32 32 17.673 0 32-14.327 32-32V591.77c2.302 0.529 4.677 0.806 7.088 0.806 4.263 0 8.634-0.868 12.898-2.747L855.729 408.98c25.563-11.267 25.427-47.586-0.221-58.661L441.129 171.401c-4.203-1.815-8.5-2.651-12.687-2.651a31.46 31.46 0 0 0-3.016 0.145v-38.639c0-17.673-14.327-32-32-32z" p-id="7175"></path></svg>当前活动</a></li>
+                    <li><a href="{{=d.submenu_profile}}" role="button" class="outline xxtSubItemsa" ><svg t="1729472870146" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12574" width="24" height="24" style="margin-top:-5px"><path d="M858.5 763.6c-18.9-44.8-46.1-85-80.6-119.5-34.5-34.5-74.7-61.6-119.5-80.6-0.4-0.2-0.8-0.3-1.2-0.5C719.5 518 760 444.7 760 362c0-137-111-248-248-248S264 225 264 362c0 82.7 40.5 156 102.8 201.1-0.4 0.2-0.8 0.3-1.2 0.5-44.8 18.9-85 46-119.5 80.6-34.5 34.5-61.6 74.7-80.6 119.5C146.9 807.5 137 854 136 901.8c-0.1 4.5 3.5 8.2 8 8.2h60c4.4 0 7.9-3.5 8-7.8 2-77.2 33-149.5 87.8-204.3 56.7-56.7 132-87.9 212.2-87.9s155.5 31.2 212.2 87.9C779 752.7 810 825 812 902.2c0.1 4.4 3.6 7.8 8 7.8h60c4.5 0 8.1-3.7 8-8.2-1-47.8-10.9-94.3-29.5-138.2zM512 534c-45.9 0-89.1-17.9-121.6-50.4S340 407.9 340 362c0-45.9 17.9-89.1 50.4-121.6S466.1 190 512 190s89.1 17.9 121.6 50.4S684 316.1 684 362c0 45.9-17.9 89.1-50.4 121.6S557.9 534 512 534z" p-id="12575"></path></svg>用户中心</a></li>
+                    <li><a href="javascript::"  id="btnLogout" role="button" class="outline xxtSubItemsa"  onclick="xxtLogout('{{d.submenu_back}}')"><svg t="1729472736615" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9251" width="24" height="24" style="margin-top:-5px"><path d="M868 732h-70.3c-4.8 0-9.3 2.1-12.3 5.8-7 8.5-14.5 16.7-22.4 24.5-32.6 32.5-70.5 58.1-112.7 75.9-43.6 18.4-90 27.8-137.9 27.8-47.9 0-94.3-9.4-137.9-27.8-42.2-17.8-80.1-43.4-112.7-75.9-32.6-32.5-58.1-70.4-76-112.5C167.3 606.2 158 559.9 158 512s9.4-94.2 27.8-137.8c17.8-42.1 43.4-80 76-112.5s70.5-58.1 112.7-75.9c43.6-18.4 90-27.8 137.9-27.8 47.9 0 94.3 9.3 137.9 27.8 42.2 17.8 80.1 43.4 112.7 75.9 7.9 7.9 15.3 16.1 22.4 24.5 3 3.7 7.6 5.8 12.3 5.8H868c6.3 0 10.2-7 6.7-12.3C798 160.5 663.8 81.6 511.3 82 271.7 82.6 79.6 277.1 82 516.4 84.4 751.9 276.2 942 512.4 942c152.1 0 285.7-78.8 362.3-197.7 3.4-5.3-0.4-12.3-6.7-12.3z" p-id="9252"></path><path d="M956.9 505.7L815 393.7c-5.3-4.2-13-0.4-13 6.3v76H488c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h314v76c0 6.7 7.8 10.5 13 6.3l141.9-112c4.1-3.2 4.1-9.4 0-12.6z" p-id="9253"></path></svg>安全退出</a></li>
 
                 </ul>
             </nav>
@@ -100,64 +107,114 @@
     </script>
 
     <script type="text/html" id="footerTpl">
+        {{# if(d.footerBackgroundImg.startsWith('http')){ }}
          <img src="{{=d.footerBackgroundImg}}" id="footerBgImg" style="width: 100%; height: 100%; object-fit: cover;" />
-        <!-- 左侧内容块 -->
+        {{# } else { }}
+        <img src="{{ d.pageHost + d.footerBackgroundImg }}" id="footerBgImg" style="width: 100%; height: 100%; object-fit: cover;" />
+        {{# }  }}
+         <!-- 左侧内容块 -->
         <div class="overlay-content-left">
              {{# layui.each(d.footerRemarks, function(index,item){ }}
             <small>
                 {{item.title}}
                 {{# if(item.hasLink){ }}
-                    <a style="color:white" href="item.link" target="_blank">
+                    <a style="color:white" href="{{item.link}}" target="_blank">
                      {{item.description}}
                     </a>
-                {{# } else{ }} 
+                {{# } else if(item.description.indexOf('@@')>-1) { }} 
+                     <a style="color:white" title="点击发送邮件" href="mailto:{{item.description}}" target="_blank">
+                     {{item.description}}
+                    </a>
+                {{# } else{ }}
                     {{item.description}}
                 {{# } }}
             </small><br />
             {{#  }); }}
-           
-           @*  <small>服务保障：校校通（北京）教育科技有限公司</small><br />
-            <small>
-                网站备案：<a style="color:white" href="http://beian.miit.gov.cn" target="_blank">
-                    京ICP备11018462号-2    京公网安备：110108009524号
-                </a>
-            </small><br />
-            <small>联系我们：yunnan@xiaoxiaotong.org</small> *@
+
         </div>
         <!-- 右侧内容块 -->
         <div class="overlay-content-right">
-
-            <!-- 或者是图片 -->
-            <img src="" alt="" />
+            {{# layui.each(d.footerThumbs, function(index,item){ }}
+                <!-- 或者是图片 -->
+                {{# if(item.src.startsWith('http')){ }}
+                    <img src="{{ item.src }}" alt="" />
+                {{# } else { }}
+                    <img src="{{ d.pageHost + item.src }}" alt="" />
+                {{# }  }}
+            {{#  }); }}
         </div>
     </script>
 
     <script>
+        let pageHost='';
         let PageConfigData = {
-            'headerBackgroundImg': 'http://zb10.xiaoxiaotong.org/upfile/202410/3/header-20241018164443.jpg',
-            'topMenus':[
-                { 'url': '#', 'title':'首页' },
-                { 'url': '#', 'title': '关于我们' },
-                { 'url': '#', 'title': '品牌活动' },
-                { 'url': '#', 'title': '文件通知' },
-                { 'url': '#', 'title': '新闻报道' },
-                { 'url': '#', 'title': '在线展厅' },
-                { 'url': '#', 'title': '人才培养' },
-                { 'url': '#', 'title': '交流活动' },
-                { 'url': '#', 'title': '科教导航' },
-                { 'url': '#', 'title': '创新学院' },
-            ],
-            'submenu_back':'#',
-            'submenu_current': '#',
-            'submenu_profile': '#',
-            'theme':'jade',
-            'footerBackgroundImg':'',
+            'header': {
+                'headerBackgroundImg': 'http://zb10.xiaoxiaotong.org/recources/default/header-background.jpg',
+                'topMenus': [
+                    { 'url': '#', 'title': '首页' },
+                    { 'url': '#', 'title': '关于我们' },
+                    { 'url': '#', 'title': '品牌活动' },
+                    { 'url': '#', 'title': '文件通知' },
+                    { 'url': '#', 'title': '新闻报道' },
+                    { 'url': '#', 'title': '在线展厅' },
+                    { 'url': '#', 'title': '人才培养' },
+                    { 'url': '#', 'title': '交流活动' },
+                    { 'url': '#', 'title': '科教导航' },
+                    { 'url': '#', 'title': '创新学院' },
+                ],
+                'submenu_back': '#',
+                'submenu_current': '#',
+                'submenu_profile': '#',
+                'noticeList':[
+                    { 'url': '#', 'title': '通知1' },
+                    { 'url': '#', 'title': '通知2' },
+                    { 'url': '#', 'title': '通知3' },
+                    { 'url': '#', 'title': '通知4' }
+                ]
+            },
+            'footer': {
+                'footerBackgroundImg': 'http://zb10.xiaoxiaotong.org/recources/default/header-background.jpg',
+                "footerRemarks": [
+                    { "title": "网站支持", "hasLink": false, "description": "校校通" },
+                    { "title": "服务保障", "hasLink": false, "description": "校校通（北京）教育科技有限公司" },
+                    { "title": "网站备案", "hasLink": true, "link": "http://baidu.com", "description": "网站备案" },
+                    { "title": "联系我们", "hasLink": false, "description": "yunnan@xiaoxiaotong.org" }
+                ]
+            },
+            'theme': 'indigo',
+            "pageHost": "http://zb10.xiaoxiaotong.org"
+        };
+
+        setTimeout(()=>{            
+            if(!pageConfigRenderFlag)
+            renderPageConfig();
+        },50);
+
+        function renderPageConfig() {
+            if (localStorage.getItem('examPageConfig')) {
+                PageConfigData = JSON.parse(localStorage.getItem('examPageConfig'));
+            }
+            let headerJson = PageConfigData.header;
+
+            renderTpl("headerTpl", "headerView", headerJson, false, function () {
+                console.log('头渲染完了');
+                if (headerJson.topMenuSelectedImg && headerJson.pageHost && headerJson.topMenuBackgroundImg)
+                    headerTopMenuEvent(headerJson.pageHost+headerJson.topMenuSelectedImg,
+                        headerJson.pageHost + headerJson.topMenuBackgroundImg);
+                else
+                    headerTopMenuEvent();
+                changeTheme(PageConfigData.theme);
+                cycleNotices(PageConfigData.header.noticeList,'noticeLink', 5000);
+                if(PageConfigData.header.submenu_back)
+                setCookie('redirectfromexam',btoa(PageConfigData.header.submenu_back),0.5);
+            });
+
+            renderTpl("footerTpl", "footerView", PageConfigData.footer, false, function () {
+                console.log('尾渲染完了');
+            });
+            pageConfigRenderFlag = true;
         }
-        renderTpl("headerTpl", "headerBg", PageConfigData, false, function () {
-            console.log('渲染完了');
-            headerTopMenuEvent()
-            changeTheme(PageConfigData.theme)
-        });
+        
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

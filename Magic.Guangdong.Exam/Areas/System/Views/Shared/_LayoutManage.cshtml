@@ -283,9 +283,9 @@
                 { 'icon': 'note', 'title': '2024.10.11', 'author':'tony','content': '完善服务端登录，支持3天免登录，验证码登录' },
                 { 'icon': 'note', 'title': '2024.10.14', 'author':'tony','content': '处理修复反馈的问题，共计21条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.14</a>' },
                 { 'icon': 'note', 'title': '2024.10.18', 'author': 'tony', 'content': '处理修复反馈的问题，共计10条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.14</a>' },
-
+                { 'icon': 'face-surprised', 'title': '2024.10.22🚀', 'author': 'tony', 'content': '考试页面增加自定义配置参数，目前为第一版，后续仍有继续优化的空间' },
             ]
-            renderTpl('timelineTpl', 'timelineView', jsonArr, false);
+            renderTpl('timelineTpl', 'timelineView', jsonArr.reverse(), false);
             openDiv('项目推进时间线', 'timelineView', '50%', '80%')
         }
         

@@ -33,7 +33,7 @@
             <label for="info" class="examItem">考试时间</label>
             <input type="text" id="info" class="examItem" placeholder="请选择要参与的考试" disabled />
 
-            <label for="idNumber">选手证件号码</label>
+            <label for="idNumber">身份证件号码</label>
             <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
             <i style="font-size:smaller" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</i>
 
@@ -66,7 +66,7 @@
                     <p>
                         <small>
                             请核对信息是否正确，如无问题，请点击【去答题】；
-                            如有问题，请马上联系考场管理人员。<u style="color:#D93526">注意，使用手机测评的考生，测评开始后尽量不要锁屏，直到完成测评</u>，否则可能影响赛队在线测评成绩！
+                            如有问题，请马上联系考场管理人员。<u style="color:#D93526">注意，使用手机考试的考生，考试开始后尽量不要锁屏，直到完成考试</u>，否则可能影响在线考试成绩！
                             <u style="color:#D93526">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
                         </small>
                     </p>
@@ -159,7 +159,7 @@
                     }
                     if (json.data[0].pageConfig) {
                         localStorage.setItem('examPageConfig', json.data[0].pageConfig);
-                         setExamPage();
+                        renderPageConfig()
                     }
                 }else{
                     TT.error('无可选的考试');
@@ -222,7 +222,7 @@
             queryModel.reportNumber = idNumber;
             return true;
         }
-        $('#CreateMyExam').html('请输入规范的身份证号码或者准考证号');
+        $('#CreateMyExam').html('请输入正确的身份证件号码');
         $('#idNumber').attr('aria-invalid', true)
         return false;
     }

@@ -54,6 +54,18 @@ body, html {
         margin-right: auto; /* 将第一个元素推到最左边 */
     }
 
+.xxtSubItemsa {
+    border-color: var(--pico-color-blue-500);
+    color: var(--pico-color-blue-500);
+    transition: all 0.3s ease; /* 添加过渡效果，使变化平滑 */
+}
+
+    .xxtSubItemsa:hover {
+        background-color: var(--pico-color-blue-500); /* 鼠标悬停时背景色变为黑色 */
+        color: #fff; /* 鼠标悬停时文字颜色变为白色 */
+        border-color: #fff; /* 鼠标悬停时边框颜色变为白色 */
+    }
+
 .footer {
     position: relative; /* 确保 footer 元素可以作为定位的上下文 */
     display: flex; /* 使用 Flexbox 布局 */
@@ -84,6 +96,7 @@ body, html {
     z-index: 1; /* 确保内容在背景图片之上 */
     flex: 1; /* 使内容块灵活伸缩 */
     max-width: 40%; /* 设置最大宽度，防止内容块过大 */
+    margin-top: 16px;
 }
 
 .overlay-content-left {
@@ -93,18 +106,21 @@ body, html {
 
 .overlay-content-right {
     text-align: right; /* 文字右对齐 */
+    display:flex;
+    justify-content:space-between
 }
 
     .overlay-content-right img {
-        max-width: 160px; /* 图片最大宽度为内容块的宽度 */
+        /*max-width: 160px;*/ /* 图片最大宽度为内容块的宽度 */
         height: auto; /* 保持图片比例 */
-        margin-left: 12%;
-        margin-top: 10px;
+        width: auto;
+        margin-left: 15%;
+        
     }
 
 
 /* 可选：为不同的屏幕尺寸添加媒体查询 */
-@@media (max-width: 768px) {
+@media (max-width: 768px) {
     .footer {
         flex-direction: column; /* 在小屏幕上垂直堆叠内容块 */
         align-items: flex-start; /* 垂直居中对齐 */
@@ -115,3 +131,18 @@ body, html {
         margin-bottom: 10px; /* 在小屏幕上添加底部间距 */
     }
 }
+
+#noticeLink {
+    display: inline-block;
+    padding: 10px 20px;
+    /*background-color: #007bff;*/
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+}
+
+    #noticeLink.visible {
+        opacity: 1;
+    }
