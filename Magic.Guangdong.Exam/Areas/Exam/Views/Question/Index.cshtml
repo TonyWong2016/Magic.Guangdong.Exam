@@ -106,12 +106,12 @@
 
     
     getQuestions();
-    function getQuestions() {
+    function getQuestions(rd=0) {
         makeWhereJson();
         let params = {
             url: '@Url.Action("GetQuestions")',
             elem: '#table',
-            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            where: { 'whereJsonStr': JSON.stringify(whereJsonStr), 'rd': rd },
             size: 'lg',
             page: true,
             cols: [ //表头
@@ -152,7 +152,7 @@
         if (ret.code == 0) {
             successMsg('导入成功', () => {
                 layer.closeAll();
-                getQuestions();
+                getQuestions(new Date().getTime());
             });
             return;
         }
@@ -180,7 +180,7 @@
         if (ret.code == 0) {
             successMsg('导入成功', () => {
                 layer.closeAll();
-                getQuestions();
+                getQuestions(new Date().getTime());
             });
             return;
         }
@@ -257,17 +257,20 @@
         return whereJsonStr;
     }
 
-    function deleteQuestion(id){
-        layer.confirm('删除题目前，需要确保要删除的题目没有被试卷抽中。<br /><b style="color:red">注意：题目是宝贵的数据资源，应予以保护，并避免题目答案外泄，删除前请确保相关管理人员均已知晓！</b><br /> 确定要删除当前题目吗？',{icon:0},function(index){
+     function deleteQuestion(id){
+        layer.confirm('删除题目前，需要确保要删除的题目没有被试卷抽中。<br /><b style="color:red">注意：题目是宝贵的数据资源，应予以保护，并避免题目答案外泄，删除前请确保相关管理人员均已知晓！</b><br /> 确定要删除当前题目吗？', { icon: 0 }, async function (index) {
             layer.close(index);
-            $.post('@Url.Action("Delete")', { 'id': id, '__RequestVerificationToken': token }, function (json) {
-                if(json.code==1){
-                    getQuestions();
-                    successMsg('删除成功');
-                    return;
-                }
-                errorMsg('操作失败：'+json.msg);
-            })
+            let formData = new FormData();
+            formData.append('__RequestVerificationToken', requestToken);
+            formData.append('id', id);
+            var ret = await request('POST', '@Url.Action("Delete")', formData, { 'Content-Type': 'multipart/form-data' });
+            if (ret.code == 0) {
+                getQuestions(new Date().getTime());
+                successMsg('删除成功');
+                return;
+            }  
+            errorMsg('操作失败：' + ret.msg);
+
         })
         
     }

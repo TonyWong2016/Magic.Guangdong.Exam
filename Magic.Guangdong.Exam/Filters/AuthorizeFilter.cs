@@ -101,10 +101,11 @@ namespace Magic.Guangdong.Exam.Filters
                 string permissionCheckResult = await PermissionCheck(adminId.ToString(), router);
                 if (permissionCheckResult != "success")
                 {
-                    //var item = new JsonResult(new { code = 401, msg = permissionCheckResult });
-                    //var item = new RedirectResult("/error?msg="+ permissionCheckResult);
-                    var item = new ContentResult();
-                    item.Content = permissionCheckResult + "," + router;
+                    //var item = new ContentResult();
+                    //item.Content = permissionCheckResult + "," + router;
+                    //context.Result = item;
+
+                    var item = new RedirectResult("/system/account/login?msg="+ permissionCheckResult);
                     context.Result = item;
                     Assistant.Logger.Error("权限异常");
                     await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
@@ -230,7 +231,7 @@ namespace Magic.Guangdong.Exam.Filters
             string key = $"GD.Exam.Permissions_{adminId}";
             if(!_redisCachingProvider.KeyExists(key)) 
             {
-                return "登录异常";//
+                return "tokenlost";//服务端登录信息丢失
             }
             if (await _redisCachingProvider.HExistsAsync(key, "super") || 
                 await _redisCachingProvider.HExistsAsync(key, router))

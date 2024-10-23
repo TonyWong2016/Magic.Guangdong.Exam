@@ -14,34 +14,80 @@
 </style>
 <div class="layui-row">
     <form class="layui-form">
-        <div class="layui-row layui-col-space5">
-            <div class="layui-col-md1">
+        @* <div class="layui-row layui-col-space5">
+            <div class="layui-col-md2">
                 <a href="@Url.Action("papers")" class="layui-btn layui-btn-primary layui-border-purple layui-btn-fluid"><i class="layui-icon layui-icon-release"></i>去判分</a>
             </div>
            
             <div class="layui-col-md2">
-                <input class="layui-input" value="教师姓名：@Model.Name" />
+                <input class="layui-input" value="教师姓名：@Model.Name" readonly />
             </div>
             <div class="layui-col-md2">
-                <input class="layui-input" value="教师编号：@Model.TeachNo" />
+                <input class="layui-input" value="教师编号：@Model.TeachNo" readonly />
             </div>
             <div class="layui-col-md2">
-                <input class="layui-input" value="Email：@Model.Email" />
+                <input class="layui-input" value="Email：@Model.Email" readonly />
             </div>
             <div class="layui-col-md2">
-                <input class="layui-input" value="联系方式：@Model.Mobile" />
+                <input class="layui-input" value="联系方式：@Model.Mobile" readonly />
             </div>
+            
             <div class="layui-col-md2">
-                <input class="layui-input" value="简介：@Model.Intro" />
-            </div>
-            <div class="layui-col-md1">
                 <a href="/system/account/logout" class="layui-btn layui-btn-primary layui-border-red layui-btn-fluid"><i class="layui-icon layui-icon-logout"></i>退出登录</a>
             </div>
         </div>
-        
+        <div class="layui-row">
+            <textarea class="layui-textarea" readonly>教师简介： @Model.Intro</textarea>
+        </div> *@
+
+        <div class="layui-row layui-col-space10" style="max-height:225px;overflow-y:auto">
+            <div class="layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <h4>操作</h4>
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="layui-row" style="margin:22px">
+                            <a href="@Url.Action("papers")" class="layui-btn layui-btn-primary layui-border-purple layui-btn-fluid"><i class="layui-icon layui-icon-release"></i>去判分</a>
+                        </div>
+                        <div class="layui-row" style="margin:22px">
+                            <a href="/system/account/logout" class="layui-btn layui-btn-primary layui-border-red layui-btn-fluid"><i class="layui-icon layui-icon-logout"></i>退出登录</a>
+
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="layui-col-md9">
+                <div class="layui-card">
+                    <div class="layui-card-header"><h4>教师信息</h4></div>
+                    <div class="layui-card-body ">
+                        <div class="layui-row  layui-col-space5">
+                            <div class="layui-col-md3">
+                                <input class="layui-input" value="教师姓名：@Model.Name" readonly />
+                            </div>
+                            <div class="layui-col-md3">
+                                <input class="layui-input" value="教师编号：@Model.TeachNo" readonly />
+                            </div>
+                            <div class="layui-col-md3">
+                                <input class="layui-input" value="Email：@Model.Email" readonly />
+                            </div>
+                            <div class="layui-col-md3">
+                                <input class="layui-input" value="联系方式：@Model.Mobile" readonly />
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                            <textarea class="layui-textarea" readonly>教师简介： @Model.Intro</textarea>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
     </form>
     
 </div>
+<hr />
 <div class="layui-row layui-col-space16">
     <div class="layui-col-xs4">
         <div class="grid-demo grid-demo-bg1">

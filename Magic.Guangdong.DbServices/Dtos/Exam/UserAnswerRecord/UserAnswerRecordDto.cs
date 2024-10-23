@@ -14,6 +14,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord
 
         public string Name { get; set; }
 
+        public int Complated { get; set; }
+
         public string UserName
         {
             get

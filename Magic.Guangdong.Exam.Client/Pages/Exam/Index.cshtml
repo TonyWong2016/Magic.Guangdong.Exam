@@ -25,7 +25,7 @@
             </h5>
         </header>
         <form>
-            <label class="examItem" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">答题记录</u></label>
+            <label class="examItem" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">考试记录</u></label>
             <select id="exam" class="examItem" required>
                 <option value="">请选择</option>
             </select>
@@ -44,7 +44,7 @@
                     style="display:none;margin-top:12px"
                     data-target="modal-confirm"
                     onClick="toggleModal(event)">
-                验证通过，开始答题
+                验证通过，开始考试
             </button>
             <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;display:none">刷脸登录(beta)</a>
 
@@ -54,7 +54,7 @@
             <p style="text-align:center;color:#039be5;margin-top:20px;margin-bottom:-30px;font-size:smaller;display:none"><a id="detectiveLink" href="/apply/test"><u>页面显示有问题?</u></a></p>
             <dialog id="modal-confirm">
                 <article>
-                    <h3 style="text-align:center">该页面仅用于测试</h3>
+                    <h3 style="text-align:center">信息确认</h3>
                     <p id="userInfo">
                         选手姓名： <font class="pico-color-violet-500" id="name"> </font><br />
                         考试科目： <font class="pico-color-violet-500" id="examTitle"> </font><br />
@@ -65,9 +65,9 @@
                     <p class="pico-background-red-500 attention" style="display:none">注意，本场考试为正式考试，请仔细核对报考信息</p>
                     <p>
                         <small>
-                            请核对信息是否正确，如无问题，请点击【去答题】；
-                            如有问题，请马上联系考场管理人员。<u style="color:#D93526">注意，使用手机考试的考生，考试开始后尽量不要锁屏，直到完成考试</u>，否则可能影响在线考试成绩！
-                            <u style="color:#D93526">若答题过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
+                            请核对信息是否正确，如无问题，请点击【去考试】；
+                            如有问题，请马上联系考场管理人员。
+                            <u style="color:#D93526">若考试过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
                         </small>
                     </p>
                     <footer>
@@ -84,7 +84,7 @@
                            role="button"
                            data-target="modal-confirm"
                            onClick="ConfirmMyPaper()">
-                            去答题
+                            去考试
                         </a>
                         <a id="btnConfirm2"
                            style="display:none"
@@ -219,10 +219,12 @@
             $('#idNumber').attr('aria-invalid', false);
             $('#CreateMyExam').html('准考证号核验中...').attr('aria-busy', true);
             queryModel.securityIdCard = '';
+            queryModel.HashIdCard='';
             queryModel.reportNumber = idNumber;
             return true;
         }
-        $('#CreateMyExam').html('请输入正确的身份证件号码');
+        $('#CreateMyExam').html('请输入正确的身份证件号码').show();
+        $('#ConfirmExam').hide();
         $('#idNumber').attr('aria-invalid', true)
         return false;
     }
@@ -277,7 +279,7 @@
     }
     
     
-    //抽卷去答题
+    //抽卷去考试
     async function ConfirmMyPaper(){
         if (groupCode == 'auto' &&
             jVal('idNumber') != $('#exam').find('option:selected').data('reportnumber')

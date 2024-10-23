@@ -193,6 +193,10 @@
         } else if (pageLoadMsg == 'logout') {
             clearLoginInfo();
             warnMsg('已成功退出当前账号');
+
+        }else if (pageLoadMsg == 'tokenlost') {
+            clearLoginInfo();
+            warnMsg('登录信息丢失，请重新登录');
         } else if (parent.location && parent.location.pathname != '/system/account/login') {
             errorMsg('登录超时', () => {
                 parent.location.href = '/system/account/login';

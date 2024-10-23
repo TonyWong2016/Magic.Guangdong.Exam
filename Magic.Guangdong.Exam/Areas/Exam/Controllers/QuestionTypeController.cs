@@ -78,7 +78,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(QuestionType questionType)
         {
-            if (await _typeRepo.getAnyAsync(u => u.Caption == questionType.Caption ))
+            if (await _typeRepo.getAnyAsync(u => u.Caption == questionType.Caption && u.IsDeleted==0 ))
             {
                 return Json(_resp.ret(-1, $"题目类型【{questionType.Caption}】已存在"));
             }
@@ -94,7 +94,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("编辑题型")]
         public async Task<IActionResult> Edit(Guid id)
         {
-            if (!await _typeRepo.getAnyAsync(u => u.Id == id))
+            if (!await _typeRepo.getAnyAsync(u => u.Id == id && u.IsDeleted==0))
             {
                 return Content("题目类型不存在");
             }
@@ -132,7 +132,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("删除题型")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _typeRepo.getAnyAsync(u => u.Id == id))
+            if (!await _typeRepo.getAnyAsync(u => u.Id == id && u.IsDeleted==0))
             {
                 return Content("题目类型不存在");
             }

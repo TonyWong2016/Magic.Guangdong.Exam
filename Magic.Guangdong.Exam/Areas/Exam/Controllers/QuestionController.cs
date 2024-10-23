@@ -50,7 +50,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "whereJsonStr", "pageIndex", "pageSize", "orderby", "isAsc" })]
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "whereJsonStr", "pageIndex", "pageSize", "orderby", "isAsc","rd" })]
         public IActionResult GetQuestions(PageDto dto)
         {
             long total;
