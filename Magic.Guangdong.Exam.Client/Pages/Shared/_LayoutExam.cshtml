@@ -171,7 +171,7 @@
         setTimeout(()=>{            
             if(!pageConfigRenderFlag)
             renderPageConfig();
-        },50);
+        },150);
 
         function renderPageConfig() {
             if (localStorage.getItem('examPageConfig')) {
@@ -188,8 +188,8 @@
                     headerTopMenuEvent();
                 changeTheme(PageConfigData.theme);
                 cycleNotices(PageConfigData.header.noticeList,'noticeLink', 5000);
-                if(PageConfigData.header.submenu_back)
-                setCookie('redirectfromexam',btoa(PageConfigData.header.submenu_back),0.5);
+                if(PageConfigData.header.submenu_current)
+                    setCookie('redirectfromexam',btoa(PageConfigData.header.submenu_current),0.5);
             });
 
             renderTpl("footerTpl", "footerView", PageConfigData.footer, false, function () {

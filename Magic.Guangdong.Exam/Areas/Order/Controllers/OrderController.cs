@@ -76,7 +76,7 @@ namespace Magic.Guangdong.Exam.Areas.Order.Controllers
                 {
                      new MailboxAddress(reportInfo.Name, reportInfo.Email)
                 };
-                await EmailKitHelper.SendEMailAsync("退单通知", $"您在为自己代盐提交的申报信息已退单，订单号【{outTradeNo}】，退单号【{reportOrder.RefundNo}】,款项会原路退回到您的支付账号下，感谢您的参与。",
+                await EmailKitHelper.SendEMailAsync("退单通知", $"您在{ConfigurationHelper.GetSectionValue("providerName")}提交的申报信息已退单，订单号【{outTradeNo}】，退单号【{reportOrder.RefundNo}】,款项会原路退回到您的支付账号下，感谢您的参与。",
                     noticeTo);
             }
         }
