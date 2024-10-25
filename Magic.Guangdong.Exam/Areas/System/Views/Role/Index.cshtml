@@ -30,11 +30,11 @@
 
 <script type="text/html" id="typeTpl">
      {{# if(d.type==1){ }}
-    <span style="color:#a233c6">超级</span>
+    <span class="layui-badge layui-bg-purple">超级</span>
     {{# } else if(d.type==2) { }}
-    <span style="color:#1e9fff">普通</span>
+    <span class="layui-badge layui-bg-blue">普通</span>
     {{# } else { }}
-    <span style="color:#FF5722">其他</span>
+    <span class="layui-badge layui-bg-gray">其他</span>
     {{# } }}
 </script>
 
@@ -70,7 +70,7 @@
                 { field: 'id', title: '角色id',type:'checkbox' }
                 , { field: 'name', title: '角色名称' }
                 , { field: 'description', title: '描述' }
-                , { templet: '#typeTpl', title: '状态' }
+                , { templet: '#typeTpl', title: '类型' }
                 , { field: 'createdAt', title: '创建时间' }
                 , { title: '操作', templet: '#operationTpl', width: 260 }
             ],

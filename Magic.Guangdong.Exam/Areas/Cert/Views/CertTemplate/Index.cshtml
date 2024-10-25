@@ -57,7 +57,7 @@
 </script>
 <script type="text/html" id="statusTpl">
     {{# if(d.status==0){ }}
-    <span class="layui-badge layui-bg-blue">正常</span>
+    <span class="layui-badge layui-bg-green">正常</span>
     {{# } else { }}
     <span class="layui-badge">禁用</span>
     {{# } }}
@@ -65,7 +65,7 @@
 
 <script type="text/html" id="lockTpl">
     {{# if(d.isLock==0){ }}
-    <span class="layui-badge layui-bg-blue">未锁定</span>
+    <span class="layui-badge layui-bg-green">未锁定</span>
     {{# } else { }}
     <span class="layui-badge layui-bg-gray">锁定</span>
     {{# } }}
