@@ -120,7 +120,7 @@
             {{# layui.each(d.footerThumbs, function(index,item){ }}
                 <!-- 或者是图片 -->
                 {{# if(item.src.startsWith('http')){ }}
-                    <img src="{{ item.src }}" alt="" />
+                    <img src="{{ item.src }}" alt=""  style="margin-left:{{index*182}}px" />
                 {{# } else { }}
                     <img src="{{ d.pageHost + item.src }}" alt="" />
                 {{# }  }}

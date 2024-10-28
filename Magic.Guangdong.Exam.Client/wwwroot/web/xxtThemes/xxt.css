@@ -60,62 +60,54 @@ body, html {
     transition: all 0.3s ease; /* 添加过渡效果，使变化平滑 */
 }
 
-    .xxtSubItemsa:hover {
-        background-color: var(--pico-color-blue-500); /* 鼠标悬停时背景色变为黑色 */
-        color: #fff; /* 鼠标悬停时文字颜色变为白色 */
-        border-color: #fff; /* 鼠标悬停时边框颜色变为白色 */
-    }
-
 .footer {
-    position: relative; /* 确保 footer 元素可以作为定位的上下文 */
-    display: flex; /* 使用 Flexbox 布局 */
-    align-items: flex-start; /* 垂直居中对齐 */
-    justify-content: space-around; /* 水平两端对齐 */
-    padding: 10px; /* 内边距，根据需要调整 */
-    min-height: 183px; /* 最小高度，根据需要调整 */
-    /* background: url('http://zb10.xiaoxiaotong.org/upfile/202410/3/footer-20241018164446.jpg') no-repeat scroll center; /* 背景图片覆盖整个 footer */ */
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding: 10px;
+    min-height: 183px;
+    overflow: hidden; /* 确保内容不会溢出容器 */
 }
 
     .footer img {
-        position: absolute; /* 使背景图片绝对定位 */
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover; /* 图片适应容器大小 */
-        z-index: -1; /* 确保背景图片在所有内容之下 */
+        object-fit: cover;
+        z-index: -1; /* 确保背景图在所有内容之下 */
     }
 
 .overlay-content-left, .overlay-content-right {
-    position: relative; /* 相对于 footer 定位 */
-    color: white; /* 文字颜色，根据需要调整 */
-    /* background-color: rgba(0, 0, 0, 0.1); */
-    background-color: rgba(0, 0, 0, 0); /* 半透明背景色，增加文字可读性 */
-    padding: 10px; /* 内边距，使内容与边框之间有空隙 */
-    border-radius: 5px; /* 圆角边框 */
-    z-index: 1; /* 确保内容在背景图片之上 */
-    flex: 1; /* 使内容块灵活伸缩 */
-    max-width: 40%; /* 设置最大宽度，防止内容块过大 */
+    position: relative;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1; /* 确保内容在背景图之上 */
+    flex: 1;
+    max-width: 40%;
     margin-top: 16px;
 }
 
 .overlay-content-left {
-    text-align: left; /* 文字左对齐 */
-    margin-left: 10%
+    text-align: left;
+    margin-left: 10%;
 }
 
 .overlay-content-right {
-    text-align: right; /* 文字右对齐 */
-    display:flex;
-    justify-content:space-between
+    text-align: right;
+    display: flex;
+    justify-content: flex-end; /* 让图片靠右对齐 */
+    align-items: center; /* 垂直居中对齐 */
+    gap: 10px; /* 图片之间的间距 */
 }
 
     .overlay-content-right img {
-        /*max-width: 160px;*/ /* 图片最大宽度为内容块的宽度 */
-        height: auto; /* 保持图片比例 */
-        width: auto;
-        margin-left: 15%;
-        
+        width: 140px; /* 固定图片宽度 */
+        height: auto; /* 维持图片原始比例 */
+        margin-left: 0; /* 移除左边距，使用gap属性控制间距 */
     }
 
 
