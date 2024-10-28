@@ -245,22 +245,29 @@
             where: makeWhereJson(),
             size: 'lg',
             page: true,
+            tool: true,
+            defaultToolbar:[
+                  'filter', // 列筛选
+                 // 'exports', // 导出
+                  'print' // 打印
+                ],
             cols: [ //表头
                 { title: '序号', templet: '#indexTpl', width: '5%' }
                 , { field: 'id', title: 'id', hide: true }
-                , { field: 'title', title: '标题', width: '11%' }
-                , { field: 'associationTitle', title: '所属活动', width: '10%' }
-                , { field: 'startTime', title: '开始时间', width: '10%' }
-                , { field: 'endTime', title: '结束时间', width: '10%' }
+                , { field: 'title', title: '标题' }
+                , { field: 'associationTitle', title: '所属活动' }
+                , { field: 'startTime', title: '开始时间', width: '9%' }
+                , { field: 'endTime', title: '结束时间', width: '9%' }
                 // , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: '7%', edit: 'text' }
                
                 , { field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 </span>', width: '5%', edit: 'text' }
-                , { field: 'baseDuration', title: '考试时长', width: '7%' }
+                , { field: 'baseDuration', title: '考试时长', width: '6%' }
                 , { title: '考试类型', templet: '#examTypeTpl', width: '6%' }
                 , { title: '状态', templet: '#statusTpl', width: '6%' }
-                , { title: '操作', templet: '#operationTpl' }
+                , { title: '操作', templet: '#operationTpl', width: '25%' }
             ],
-            height: 630,
+            height: 'full-35',
+            lineStyle: 'height: 100px;', // 定义表格的多行样式
             nomsg: true //不在弹出提示
         };
         getTable(params);

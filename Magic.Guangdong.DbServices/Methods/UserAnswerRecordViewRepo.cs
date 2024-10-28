@@ -217,7 +217,10 @@ namespace Magic.Guangdong.DbServices.Methods
             //第一步：把提交的答案取出来
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecordView>();
             var record = await userAnswerRecordRepo.Where(u => u.Id == urid).ToOneAsync();
-
+            if (record.Complated == 1)
+            {
+                return record;
+            }
             double userObjectiveScore = 0;
             //如果是答卷空的，直接给0分,否则开始计算得分
             if (!string.IsNullOrEmpty(record.SubmitAnswer) && record.SubmitAnswer.Length > 2)

@@ -115,6 +115,22 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             return Json(_resp.success(record));
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForceMarkingBatch(long[] urids)
+        {
+            foreach (var urid in urids)
+            {
+
+                var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
+                await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
+                await _provider.KeyDelAsync("userRecord_" + record.Id);
+                await _provider.KeyDelAsync("myReportExamHistories_" + record.ReportId);
+                await _provider.KeyDelAsync("myAccountExamHistories_" + record.AccountId);
+                await _provider.KeyDelAsync("userPaper_" + record.Id);
+            }
+            return Json(_resp.success(urids.Length));
+        }
+
         /// <summary>
         /// 强制给分-指定考试下的所有考生
         /// </summary>

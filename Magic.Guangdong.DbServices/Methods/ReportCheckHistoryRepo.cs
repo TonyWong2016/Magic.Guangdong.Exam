@@ -46,15 +46,16 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             string templateFilePath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "web", "emailnotice.html");
             string content = "";
+            string providerName = ConfigurationHelper.GetSectionValue("providerName");
             if (toPassed.Count > 0)
             {
                 //templateFilePath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "web", "emailexamticket.html");
                 using (StreamReader reader = new StreamReader(templateFilePath))
                 {
                     content = reader.ReadToEnd()
-                        .Replace("**content**", "恭喜您，您在为自己代盐协会的提交的报名信息已<b style='color:#16b777'>通过审核</b>，请尽快登录网站完成后续步骤")
+                        .Replace("**content**", $"恭喜您，您在【{providerName}】的提交的报名信息已<b style='color:#16b777'>通过审核</b>，请尽快登录网站完成后续步骤")
                         .Replace("**username**", "用户")
-                        .Replace("**provider**", ConfigurationHelper.GetSectionValue("providerName"))
+                        .Replace("**provider**", providerName)
                         .Replace("**url**",ConfigurationHelper.GetSectionValue("ExamClientHost"));
 
                 }
@@ -65,8 +66,9 @@ namespace Magic.Guangdong.DbServices.Methods
                 using (StreamReader reader = new StreamReader(templateFilePath))
                 {
                     content = reader.ReadToEnd()
-                        .Replace("**content**", "很遗憾，您在为自己代盐协会的提交的报名信息<b style='color:#ff5722'>没有通过审核</b>，如有疑问请联系协会相关人员")
+                        .Replace("**content**", $"很遗憾，您在{providerName}协会的提交的报名信息<b style='color:#ff5722'>没有通过审核</b>，如有疑问请联系协会相关人员")
                         .Replace("**username**", "用户")
+                        .Replace("**provider**", providerName)
                         .Replace("**url**", ConfigurationHelper.GetSectionValue("ExamClientHost"));
 
                 }

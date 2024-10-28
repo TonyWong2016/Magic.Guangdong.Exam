@@ -557,6 +557,31 @@
                 $('.submitEnabled').show();
                 $('.submitDisabled').hide();
             })
+            return;
+        } 
+        
+        if(json.data && JSON.parse(json.data)){
+            let jsonData=JSON.parse(json.data);
+
+            if(jsonData.Complated==0)
+                return;
+            let errMsg = '您的试卷出现异常，请联系本场监考老师或相关管理人员';
+            if(jsonData.Complated==1 && jsonData.ComplatedMode==2){
+                errMsg = '您的试卷已被后台管理员强制提交，如有疑问请联系本场监考老师或相关管理人员';
+            } else if(jsonData.Complated==1){
+                errMsg = '您的试卷已提交，如有疑问请联系本场监考老师或相关管理人员';
+            }
+
+            TT.error(errMsg);
+            setTimeout(()=>{
+                location.href = '/exam/result?urid=' + urid;
+                $('.submitEnabled').show();
+                $('.submitDisabled').hide();
+            },2000);
+            return;
+        } 
+        if(json.code<0) {
+            TT.error('交卷失败,'+json.msg);
         }
     }
 

@@ -137,6 +137,7 @@
     let idNumber = '';
     let queryModel = {};
 
+    let verificationResult = false;
 
     function getMyExams() {
         axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
@@ -232,6 +233,7 @@
     //身份验证
     function getReportInfo() {
         $('#CreateMyExam').removeAttr('aria-busy')
+        
         if (!formatVerification()) {
             return;
         }
@@ -281,41 +283,46 @@
     
     //抽卷去考试
     async function ConfirmMyPaper(){
-        if (groupCode == 'auto' &&
-            jVal('idNumber') != $('#exam').find('option:selected').data('reportnumber')
-        ) {            
-            // 获取按钮元素
-            let button = document.getElementById('cancleModal');
+        // if (
+        //     //groupCode == 'auto' &&
+        //     //jVal('idNumber') != $('#exam').find('option:selected').data('reportnumber') &&
+        //     !formatVerification()
+        // ) {            
+        //     // 获取按钮元素
+        //     let button = document.getElementById('cancleModal');
 
-            // 创建一个新的鼠标事件对象
-            let event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            // 触发点击事件
-            button.dispatchEvent(event);
-            TT.error('证件号错误');
-            return;
-        }
+        //     // 创建一个新的鼠标事件对象
+        //     let event = new MouseEvent('click', {
+        //         'view': window,
+        //         'bubbles': true,
+        //         'cancelable': true
+        //     });
+        //     // 触发点击事件
+        //     button.dispatchEvent(event);
+        //     TT.error('证件号错误');
+        //     return;
+        // }
         $("#btnConfirm").hide();
         $("#btnConfirm2").show();
         let formData = new FormData();
         formData.append('__RequestVerificationToken', requestToken);
         formData.append('examId', examId);
         formData.append('reportId', reportId);
-        
+        formData.append('idNumber', jVal('idNumber'))
         let ret = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
         let json = ret.data;
+        
         if (json.code == 1 && json.data) {
             TT.warning(json.msg);
             json.data.complated == 1 ? location.href = `/exam/result?urid=${json.data.id}` : location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`;
             return;
         }
         if (json.code == 0) {
+            sessionStorage.clear();
             location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`
             return;
         }
+
         closeModal(document.getElementById('modal-confirm'));
         TT.error(json.msg);
         $("#btnConfirm").show();

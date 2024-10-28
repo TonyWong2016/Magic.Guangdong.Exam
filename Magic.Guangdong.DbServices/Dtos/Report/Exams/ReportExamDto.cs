@@ -51,5 +51,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Exams
 
         public long reportId { get; set; }
 
+        public string idNumber { get; set; }
+
     }
 }

@@ -281,6 +281,7 @@ function getTable(params) {
         , defaultToolbar: params.defaultToolbar
         , size: params.size
         , where: params.where
+        , lineStyle: params.lineStyle // 定义表格的多行样式
         , parseData: function (res) { //res 即为原始返回的数据
             //console.log(res)
             if (res.code == 0) {

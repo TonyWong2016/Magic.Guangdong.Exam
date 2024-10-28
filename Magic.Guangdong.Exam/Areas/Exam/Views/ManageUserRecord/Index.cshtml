@@ -50,7 +50,7 @@
         <div class="layui-btn-container">
             <a href="javascript:;" onclick="exportRecord()" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
            
-            <a href="javascript:;" onclick="ForceMarkingAll()" class="layui-btn layui-btn-danger"><i class="layui-icon layui-icon-fire"></i>强制交卷</a>
+            <a href="javascript:;" onclick="ForceMarkingBatch()" class="layui-btn layui-btn-danger"><i class="layui-icon layui-icon-fire"></i>强制交卷</a>
         </div>
         @* <blockquote class="layui-elem-quote">注意，【同步成绩】和【强制交卷】的操作必须在对应的考试结束后执行。</blockquote> *@
 
@@ -227,8 +227,8 @@
             size: 'lg',
             page: true,
             cols: [ //表头
-                { title: '序号', templet: '#indexTpl', width: '6%' }
-                , { field: 'id', title: 'id', hide: true }
+                // { title: '序号', templet: '#indexTpl', width: '6%' }
+                 { field: 'id', title: 'id',  type: 'checkbox' }                
                 , { templet: '#userNameTpl', title: '答题账号', width: '8%' }
                 , { field: 'idNumber', title: '证件号/考号', width: '15%' }
                 // , { field: 'examTitle', title: '考试', width: '12%' }
@@ -392,35 +392,28 @@
         })
     }
 
-    function ForceMarkingAll() {
-        //if (!TestGuid(examId)){
-        //    errorMsg('请先选择一场考试');
-        //    return;
-        //}
-
-        if (!examValues || examValues.length == 0) {
+    function ForceMarkingBatch() {
+        let _table = layui.table;
+        let checkedRows = _table.checkStatus('table');
+        examValues = checkedRows.data.map(u=>u.id);
+        if ( examValues.length == 0) {
             errorMsg('请先选择一场考试');
             return;
         }
 
-        layer.confirm('强制提交后，该考试下所有未提交的试卷均会被设置为提交状态，且判定相应分数。确定要继续执行吗？', { icon: 0 }, (index) => {
-            let cnt = 0;
-            examValues.forEach(v => {
-                console.log(v)
+        layer.confirm('强制提交后，勾选的试卷均会被设置为提交状态，且<b style="color:orange">客观题</b>部分会被判定相应分数。<br/>若试卷已经提交，该操作不会进行任何操作。<br/>确定要继续执行吗？', { icon: 0 }, async (index) => {
 
-                let formData = new FormData();
-                formData.append('examId', v);
-                formData.append('__RequestVerificationToken', token);
-                var ret = request('POST', '@Url.Action("ForceMarkingAll")', formData, { 'Content-Type': 'multipart/form-data' });
-                if (ret.code == 0) {
-                    cnt++;
-                    successMsg('第' + cnt + '场考试提交成功');
-                } else {
-                    errorMsg(ret.msg);
-                }
-                errorMsg('创建失败')
-            })
-            layer.close(index);
+            let formData = new FormData();
+            formData.append('urids', examValues);
+            formData.append('__RequestVerificationToken', token);
+            var ret = await request('POST', '@Url.Action("ForceMarkingBatch")', formData, { 'Content-Type': 'multipart/form-data' });
+            layer.close(index)
+            if (ret.code == 0) {
+                successMsg('操作成功');
+            } else {
+                errorMsg('操作失败'+ret.msg);
+            }
+
         })
     }
 

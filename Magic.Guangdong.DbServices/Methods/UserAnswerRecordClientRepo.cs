@@ -77,6 +77,14 @@ namespace Magic.Guangdong.DbServices.Methods
             {
                 try
                 {
+                    var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
+                    reportInfoRepo.UnitOfWork = uow;
+                    var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
+                    if(reportInfo.ReportNumber!=dto.idNumber && reportInfo.HashIdcard != Security.GenerateMD5Hash(dto.idNumber)) 
+                    {
+                        return new { code = -1, msg = "请输入正确的身份证件号码" };
+                    }
+
                     var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
                     examRepo.UnitOfWork = uow;
                     var exam = await examRepo.Where(u => u.Id == dto.examId).FirstAsync();
@@ -121,9 +129,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     var myPaper = papers[rd];
 
 
-                    var reportInfoRepo = fsql.Get(conn_str).GetRepository<ReportInfo>();
-                    reportInfoRepo.UnitOfWork = uow;
-                    var reportInfo = await reportInfoRepo.Where(u => u.Id == dto.reportId).ToOneAsync();
+                    
                     DateTime limitedTime = DateTimeOffset.UtcNow.AddMinutes(myPaper.Duration).LocalDateTime;
                     //Logger.Debug("试卷时间：" + myPaper.Duration);
                     //Logger.Debug("限定时间：" + limitedTime);
