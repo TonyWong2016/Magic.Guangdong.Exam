@@ -346,8 +346,7 @@
     }, 2000);
 
     function forceSubmit() {
-        layer.confirm('该操作建议在考试结束后执行，避免造成必要的错误，确定要强制交卷吗？', { icon: 0 }, async function (index) {
-
+        layer.confirm('该操作建议在考试结束后执行，避免造成不必要的错误，确定要强制交卷吗？', { icon: 0 }, async function (index) {
 
             let formData = new FormData();
             formData.append('__RequestVerificationToken', requestToken);

@@ -482,14 +482,20 @@ namespace Magic.Guangdong.DbServices.Methods
                     }
                     var record = await userAnswerRecordRepo.Where(u => u.Id == dto.recordId).ToOneAsync();
 
+                    if (record.IsDeleted == 1)
+                    {
+                        return new { code = -1, msg = "答题记录已被清除，请重新登录进行答题" };
+                    }
+
                     if (record.IdNumber != dto.idNumber || record.ReportId != dto.reportId)
                     {
                         return new { code = -2, msg = "提交记录和之前初始化时的信息不一致，请联系管理人员" };//提交记录和之前初始化时的信息不一致，这种情况常规也不会出现，就是避免一些特殊情况，比如后台偷偷给人家该信息，暗箱操作，但如果做的太天衣无缝也没招。。
                     }
-
+                    
                     if (record.Complated == ExamComplated.Yes)
                     {
-                        return new { code = -3, msg = "测评已正常提交并完成，不用再次提交", data = record };//考试已经完成，不能再提交
+                        string errmsg = record.ComplatedMode == 0 ? "已正常交卷，不用再次提交" : "您的试卷已被强制提交，如有疑问请联系管理人员";
+                        return new { code = -3, msg = errmsg, data = record };//考试已经完成，不能再提交
                     }
                     //不管是不是严格模式，超时就不能提交答案了
                     if (record.LimitedTime.AddMinutes(2) < DateTime.Now)

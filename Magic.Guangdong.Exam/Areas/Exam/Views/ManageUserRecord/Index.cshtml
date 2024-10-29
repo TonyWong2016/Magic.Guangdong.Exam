@@ -401,15 +401,19 @@
             return;
         }
 
-        layer.confirm('强制提交后，勾选的试卷均会被设置为提交状态，且<b style="color:orange">客观题</b>部分会被判定相应分数。<br/>若试卷已经提交，该操作不会进行任何操作。<br/>确定要继续执行吗？', { icon: 0 }, async (index) => {
+        layer.confirm('批量执行强制交卷，不会检查用户当前的答题情况，而是直接将勾选试卷被设置为提交状态，且<b style="color:orange">客观题</b>部分会被判定相应分数。<br/>若本场考试尚未结束，建议在考试结束后统一执行；<br/>若试卷已经提交，该操作不会进行任何修改。<br/>确定要继续执行吗？', { icon: 0 }, async (index) => {
 
             let formData = new FormData();
-            formData.append('urids', examValues);
+            examValues.forEach(urid => {
+                formData.append('urids[]', urid);
+            })
             formData.append('__RequestVerificationToken', token);
+            
             var ret = await request('POST', '@Url.Action("ForceMarkingBatch")', formData, { 'Content-Type': 'multipart/form-data' });
             layer.close(index)
             if (ret.code == 0) {
                 successMsg('操作成功');
+                getUserRecord();
             } else {
                 errorMsg('操作失败'+ret.msg);
             }

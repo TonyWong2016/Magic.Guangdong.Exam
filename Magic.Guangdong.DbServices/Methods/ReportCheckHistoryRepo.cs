@@ -56,6 +56,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         .Replace("**content**", $"恭喜您，您在【{providerName}】的提交的报名信息已<b style='color:#16b777'>通过审核</b>，请尽快登录网站完成后续步骤")
                         .Replace("**username**", "用户")
                         .Replace("**provider**", providerName)
+                        .Replace("**logosrc**", ConfigurationHelper.GetSectionValue("baseHost") + "/images/examination_logo.png")
                         .Replace("**url**",ConfigurationHelper.GetSectionValue("ExamClientHost"));
 
                 }

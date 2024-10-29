@@ -288,12 +288,15 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 adminId = "api",
                 checkRemark = checkParam.checkRemark
             };
-            if (await _reportInfoRepo.CheckReportInfo(dto))
-            {
+            bool result = await _reportInfoRepo.CheckReportInfo(dto);
+            if (checkParam.notice == 1)
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "ReportNotice", dto.reportIds);
+            if (result)
+            {
                 return Json(_resp.success("审核成功"));
             }
             return Json(_resp.error("审核失败"));
+            
 
         }
 
@@ -355,5 +358,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         public long reportId { get; set; }
         public int checkResult { get; set; }
         public string checkRemark { get; set; }
+
+        public int notice { get; set; } = 1;
     }
 }

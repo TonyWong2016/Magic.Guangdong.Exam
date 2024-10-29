@@ -548,18 +548,29 @@
         }
 
         let json = await request('POST', '/examclient/SubmitMyPaper', params, CT);
+        closeModal(document.getElementById('modal-submit'));
+
+        if (json.code < 0) {
+            TT.error(json.msg);
+            setTimeout(() => {
+                location.reload();
+            }, 3500);
+            return;
+        }
 
         //console.log(json);
         if (json.code == 0 && complatedMode != 4) {
-            closeModal(document.getElementById('modal-submit'));
+            //closeModal(document.getElementById('modal-submit'));
             TT.success('交卷成功', () => {
                 location.href = '/exam/result?urid=' + urid;
                 $('.submitEnabled').show();
                 $('.submitDisabled').hide();
             })
             return;
-        } 
+        }
         
+
+       
         if(json.data && JSON.parse(json.data)){
             let jsonData=JSON.parse(json.data);
 
@@ -577,12 +588,10 @@
                 location.href = '/exam/result?urid=' + urid;
                 $('.submitEnabled').show();
                 $('.submitDisabled').hide();
-            },2000);
+            },3500);
             return;
         } 
-        if(json.code<0) {
-            TT.error('交卷失败,'+json.msg);
-        }
+        
     }
 
 

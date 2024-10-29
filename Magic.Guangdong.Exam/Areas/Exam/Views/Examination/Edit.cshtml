@@ -403,17 +403,24 @@
         elemId: 'pageResourceUp',
         callback: (res) => {
             //console.log(res)
-            $('#imgResource').val( res.data);
+            $('#imgResource').val(res.data);
             
         }
     })
 
 
     $('#pageResourcePreview').click(() => {
-        if (pageConfigJson.pageHeader) {
-            window.open(pageConfigJson.pageHost + pageConfigJson.pageHeader)
-        } else
+        
+        if (!jVal('imgResource')) {
             errorMsg('没有上传任何文件');
+            return;
+            //window.open(pageConfigJson.pageHost + pageConfigJson.pageHeader)
+        } 
+        if (jVal('imgResource').startsWith('http')) {
+            window.open(jVal('imgResource'));
+            return;
+        }
+        window.open(window.location.origin + jVal('imgResource'))
     })
 
 
