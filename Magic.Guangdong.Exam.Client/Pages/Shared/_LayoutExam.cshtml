@@ -177,8 +177,10 @@
             if (localStorage.getItem('examPageConfig')) {
                 PageConfigData = JSON.parse(localStorage.getItem('examPageConfig'));
             }
+            if(PageConfigData.pageTitle){
+                document.title=PageConfigData.pageTitle;
+            }
             let headerJson = PageConfigData.header;
-
             renderTpl("headerTpl", "headerView", headerJson, false, function () {
                 console.log('头渲染完了');
                 if (headerJson.topMenuSelectedImg && headerJson.pageHost && headerJson.topMenuBackgroundImg)

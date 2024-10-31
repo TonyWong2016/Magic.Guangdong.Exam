@@ -2,7 +2,7 @@
     Layout = "../Shared/_LayoutContent.cshtml";
 }
 <div class='layui-row' style='padding:15px'>
-    <form class='layui-form' lay-filter='formFilter'>
+    <form class='layui-form' lay-filter='formFilter' style="max-height:40px">
         <div class='layui-input-inline' style='width:360px'>
             <select id='AssociationId' lay-filter='AssociationId'>
                 <option value='0'>请选择关联活动</option>
@@ -239,6 +239,8 @@
     })
 
     function getExamList() {
+        let tableWidth = $('#table').width()
+        console.log(tableWidth)
         let params = {
             url: '@Url.Action("GetExamList")',
             elem: '#table',
@@ -252,22 +254,22 @@
                   'print' // 打印
                 ],
             cols: [ //表头
-                { title: '序号', templet: '#indexTpl', width: '5%' }
+                { title: '序号', templet: '#indexTpl', width: (tableWidth > 1000 ? tableWidth * 0.05 : 80) }
                 , { field: 'id', title: 'id', hide: true }
-                , { field: 'title', title: '标题' }
-                , { field: 'associationTitle', title: '所属活动' }
-                , { field: 'startTime', title: '开始时间', width: '9%' }
-                , { field: 'endTime', title: '结束时间', width: '9%' }
+                , { field: 'title', title: '考试标题', width: (tableWidth > 1000 ? tableWidth * 0.24 : 360) }
+                , { field: 'associationTitle', title: '所属活动', width: (tableWidth > 1000 ? tableWidth * 0.05 : 100), hide: true }
+                , { field: 'startTime', title: '开始时间', width: (tableWidth > 1000 ? tableWidth * 0.1 : 150) }
+                , { field: 'endTime', title: '结束时间', width: (tableWidth > 1000 ? tableWidth * 0.1 : 100) }
                 // , { field: 'groupCode', title: '<span style="color:#00acc1">聚合码</span>', width: '7%', edit: 'text' }
                
-                , { field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 </span>', width: '5%', edit: 'text' }
-                , { field: 'baseDuration', title: '考试时长', width: '6%' }
-                , { title: '考试类型', templet: '#examTypeTpl', width: '6%' }
-                , { title: '状态', templet: '#statusTpl', width: '6%' }
-                , { title: '操作', templet: '#operationTpl', width: '25%' }
+                , { field: 'orderIndex', title: '<span style="color:#00acc1"> 排序 </span>', width: (tableWidth > 1000 ? tableWidth * 0.05 : 100), edit: 'text' }
+                , { field: 'baseDuration', title: '时长', width: (tableWidth > 1000 ? tableWidth * 0.06 : 100) }
+                , { title: '类型', templet: '#examTypeTpl', width: (tableWidth > 1000 ? tableWidth * 0.06 : 100) }
+                , { title: '状态', templet: '#statusTpl', width: (tableWidth > 1000 ? tableWidth * 0.06 : 100) }
+                , { fixed: 'right', title: '操作', templet: '#operationTpl',  minWidth: 360 }
             ],
-            height: 'full-35',
-            lineStyle: 'height: 100px;', // 定义表格的多行样式
+            height: window.outerHeight>1000 ? 'full-160':'655',
+            //lineStyle: 'height: 100px;', // 定义表格的多行样式
             nomsg: true //不在弹出提示
         };
         getTable(params);
