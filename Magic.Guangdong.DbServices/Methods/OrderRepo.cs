@@ -129,6 +129,7 @@ namespace Magic.Guangdong.DbServices.Methods
             return query
                 .Count(out total)
                 .OrderByPropertyNameIf(!string.IsNullOrEmpty(pageDto.orderby), pageDto.orderby, pageDto.isAsc)
+                .OrderByPropertyNameIf(string.IsNullOrEmpty(pageDto.orderby), "CreatedAt",false)
                 .Page(pageDto.pageindex, pageDto.pagesize)
                 .ToList((o, r) => new
                 {

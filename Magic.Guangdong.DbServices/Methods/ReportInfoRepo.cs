@@ -91,6 +91,7 @@ namespace Magic.Guangdong.DbServices.Methods
                         order.Status = OrderStatus.Paid;//考试不需要交费的话，报名的同时就将缴费状态设置为已缴费
                         reportProcessModel.Step = ReportStep.Paied;
                         order.PayType = PayType.None;
+                        order.PayTime = Utils.DateTimeToTimeStamp(DateTime.Now).ToString();
                     }
                     //else
                     //{

@@ -6,17 +6,12 @@ using FreeSql;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Exam.Filters;
-using Mapster;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
 using Minio;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Web.Caching;
-using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.DependencyInjection;
-using SixLabors.ImageSharp.Web.Providers;
 using StackExchange.Redis;
 using Yitter.IdGenerator;
 
