@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Newtonsoft.Json;
 
 namespace Magic.Guangdong.Exam.Areas.WebApi.Models
 {
@@ -52,5 +53,15 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Models
         public Guid AttachmentId { get; set; } = Guid.Empty;
 
         public int MarkStatus {  get; set; } = 0;
+
+        /// <summary>
+		/// 是否允许独立访问
+		/// </summary>
+        public int IndependentAccess { get; set; } = 0;
+
+        /// <summary>
+        /// 绑定的评分标准
+        /// </summary>
+        public long SchemeId { get; set; } = 0;
     }
 }

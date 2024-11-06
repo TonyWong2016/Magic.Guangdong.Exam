@@ -24,7 +24,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         private IRoleRepo _roleRepo;
         private IRolePermissionRepo _rolePermissionRepo;
         private IResponseHelper _resp;
-        public SeedController(IResponseHelper responseHelper, IMenuRepo menuRepo, IAdminRepo adminRepo, IAdminRoleRepo adminRoleRepo, IPermissionRepo permissionRepo,IRolePermissionRepo rolePermissionRepo,IRoleRepo roleRepo)
+        public SeedController(IResponseHelper responseHelper, IMenuRepo menuRepo, IAdminRepo adminRepo, IAdminRoleRepo adminRoleRepo, IPermissionRepo permissionRepo, IRolePermissionRepo rolePermissionRepo, IRoleRepo roleRepo)
         {
             // _menuRepo = menuRepo;
             _resp = responseHelper;
@@ -48,7 +48,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <returns></returns>
         public async Task<IActionResult> InitTopMenuData()
         {
-            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId==0))
+            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId == 0))
             {
                 return Json(_resp.success("success", "无需插入"));
             }
@@ -109,17 +109,17 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <returns></returns>
         public async Task<IActionResult> InitSubMenuData()
         {
-            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId!=0))
+            if (await _menuRepo.getAnyAsync(u => u.IsDeleted == 0 && u.ParentId != 0))
             {
                 return Json(_resp.success("success", "无需插入"));
             }
             var tops = await _menuRepo.getListAsync(u => u.ParentId == 0);
             var subMenus = new List<DbServices.Entities.Menu>();
-           
+
             foreach (var item in tops)
             {
                 int cnt = 0;
-                while (cnt <3)
+                while (cnt < 3)
                 {
                     string name = $"{item.Name}-子菜单{cnt + 1}";
                     subMenus.Add(new DbServices.Entities.Menu()
@@ -134,9 +134,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                     });
                     cnt++;
                 }
-                
+
             }
-            
+
             await _menuRepo.addItemsBulkAsync(subMenus);
             return Json(_resp.success("success", "种子数据插入完成"));
         }
@@ -147,7 +147,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <returns></returns>
         public async Task<IActionResult> InitAdminData()
         {
-            if(await _adminrepo.getAnyAsync(u=>u.IsDeleted==0))
+            if (await _adminrepo.getAnyAsync(u => u.IsDeleted == 0))
             {
                 return Json(_resp.success("success", "无需插入"));
             }
@@ -220,28 +220,31 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                             .Where(u => u.AttributeType.Name.StartsWith("Http"))
                             .First()
                             .AttributeType
-                            .Name.Replace("Http","").Replace("Attribute", "").ToLower();
+                            .Name.Replace("Http", "").Replace("Attribute", "").ToLower();
                     }
+                    var existPermissions = await _permissionRepo.getListAsync(u=>u.IsDeleted==0);
                     foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
                     {
-                        
+
                         if (attribute is RouteMark routeMark)
                         {
-                            if(await _permissionRepo.getAnyAsync(u=>u.Name==routeMark.Module.ToLower() && 
-                            u.Area==area.ToLower() && 
-                            u.Controller==type.Name.Replace("Controller", "").ToLower() &&
-                            u.Action == methodInfo.Name.ToLower() && 
-                            u.Method == method))
+                            if (
+                                existPermissions.Any(
+                                    u => u.Name == routeMark.Module.ToLower() &&
+                                    u.Area == area.ToLower() &&
+                                    u.Controller == type.Name.Replace("Controller", "").ToLower() &&
+                                    u.Action == methodInfo.Name.ToLower() &&
+                                    u.Method == method))
                             {
                                 continue;
                             }
-                            
+
                             string router = $"/{area}/{type.Name.Replace("Controller", "").ToLower()}/{methodInfo.Name}";
                             if (string.IsNullOrEmpty(area))
                                 router = router.Substring(1);
                             permissions.Add(new Permission()
                             {
-                                Id=YitIdHelper.NextId(),
+                                Id = YitIdHelper.NextId(),
                                 Name = routeMark.Module,
                                 Controller = type.Name.Replace("Controller", "").ToLower(),
                                 Action = methodInfo.Name.ToLower(),
@@ -254,6 +257,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                 }
 
             }
+            
             if (permissions.Any())
             {
                 await _permissionRepo.addItemsBulkAsync(permissions);
@@ -262,9 +266,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         }
 
-        public async Task<IActionResult> InitActivityData([FromServices]IActivityRepo activityRepo)
+        public async Task<IActionResult> InitActivityData([FromServices] IActivityRepo activityRepo)
         {
-            if(await activityRepo.getCountAsync(u => u.Id > 0) != 0)
+            if (await activityRepo.getCountAsync(u => u.Id > 0) != 0)
             {
                 return Json(_resp.error("已有数据"));
             }
@@ -290,10 +294,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
 
         }
-    
-        public async Task<IActionResult> InitUnitInfoData([FromServices]IUnitInfoRepo unitInfoRepo)
+
+        public async Task<IActionResult> InitUnitInfoData([FromServices] IUnitInfoRepo unitInfoRepo)
         {
-            if(await unitInfoRepo.getCountAsync(u => u.Id > 0) > 0)
+            if (await unitInfoRepo.getCountAsync(u => u.Id > 0) > 0)
             {
                 return Json(_resp.error("已有数据"));
             }
