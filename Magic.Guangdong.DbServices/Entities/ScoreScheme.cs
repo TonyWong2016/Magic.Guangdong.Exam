@@ -25,6 +25,9 @@ namespace Magic.Guangdong.DbServices.Entities
         public string CreatedBy { get; set; } = "system";
 
         [JsonProperty, Column(StringLength = 500)]
+        public string Title { get; set; }
+
+        [JsonProperty, Column(StringLength = 500)]
         public string Description { get; set; }
 
         /// <summary>
@@ -45,6 +48,8 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public double WrongAction { get; set; } = 0d;
 
+        [JsonProperty]
+        public int? IsDeleted { get; set; } = 0;
     }
 
 }

@@ -1,0 +1,125 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form" lay-filter="formFilter">
+        <div class="layui-row layui-col-space10 layui-form-item">
+            <div class="layui-col-md4">
+                <input class="layui-input" id="keyword" placeholder="输入标准关键字" />
+
+            </div>
+            <div class="layui-col-md4">
+                <a class="layui-btn" href="@Url.Action("Create")"><i class="layui-icon layui-icon-add-1"></i> 新增</a>
+            </div>
+        </div>
+    </form>
+
+    <table class="layui-table" id="table" lay-filter="table"></table>
+
+</div>
+
+<script type="text/html" id="action1Tpl">
+    {{# if(d.correctAction==1){ }}
+        <span class="layui-badge layui-bg-blue"> × {{ d.correctAction }}</span>
+    {{# } else { }}
+        <span class="layui-badge layui-bg-purple"> × {{ d.correctAction }}</span>
+    {{# } }}
+
+</script>
+
+<script type="text/html" id="action2Tpl">
+    {{# if(d.wrongAction == 0){ }}
+        <span class="layui-badge layui-bg-blue"> × {{ d.wrongAction }}</span>
+
+    {{# } else{ }}
+        <span class="layui-badge layui-bg-purple"> × {{ d.wrongAction }}</span>
+
+    {{# } }}
+
+</script>
+
+<script type="text/html" id="action3Tpl">
+    {{# if(d.emptyAction == 0 ){ }}
+        <span class="layui-badge layui-bg-blue"> × {{ d.emptyAction }}</span>
+    {{# } else { }}
+        <span class="layui-badge layui-bg-purple"> × {{ d.wrongAction }}</span>
+    {{# } }}
+
+</script>
+
+<script type="text/html" id="operationTpl">
+
+     <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>修改</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deleteScheme('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+
+<script>
+    let form = layui.form;
+    let whereJsonStr = '';
+    getList();
+    autoSearch('keyword', function () {
+        getList();
+    })
+    function getList() {
+        layer.load();
+        let params = {
+            url: '@Url.Action("GetList")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                { title: '序号', templet: '#indexTpl', width: '6%' }
+                // { field: 'id', title: 'id', type: 'checkbox' }
+                , { field: 'title', title: '标准名', width: '25%' }
+                // , { field: 'examTitle', title: '考试', width: '12%' }
+                , { templet: '#action1Tpl', title: '答对动作', width: '15%' }
+                , { templet: '#action2Tpl', title: '答错动作', width: '15%' }
+                , { templet: '#action3Tpl', title: '未作答动作', width: '15%' }
+                , { title: '操作', templet: '#operationTpl' }
+            ],
+            height: 630,
+            nomsg: true //不在弹出提示
+        };
+        getTable(params);
+    }
+
+    function makeWhereJson() {
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if (jVal('keyword')) {
+            whereJsonStr.Filters.push({
+                'Field': 'Title',
+                'Operator': 'Equal',
+                'Value': jVal('keyword')
+            });
+        }
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'createdAt', 'isAsc': false, 'rd': randomInt }
+    }
+
+    function deleteScheme(id) {
+        layer.confirm('确定要删除当前评分标准吗？若当前标准已被考试绑定，则需要先到【考试管理】处进行解绑后再删除。<br />需要注意的是，如果已经使用该标准产生了判分行为，则无法解绑，否则会产生公平问题', { icon: 0 }, async function (index) {
+            layer.close(index);
+            let formData = new FormData();
+            formData.append('id', id);
+            formData.append('__RequestVerificationToken', requestToken);
+            var ret = await request('POST', '@Url.Action("Delete")', formData, { 'Content-Type': 'multipart/form-data' });
+            if (ret.code == 0) {
+                randomInt = randomInt + 1;
+                successMsg('删除成功', () => {
+                    getList();
+                });
+                return;
+            }
+            errorMsg('操作失败：' + json.msg);
+        })
+
+    }
+</script>

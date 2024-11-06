@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+@model Magic.Guangdong.DbServices.Dtos.Exam.Examinations.ScoreSchemeDto
+<div class="layui-row" style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 评分标准</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Title" placeholder="请创建评分标准，如2倍加分标准，错题扣分标准等" lay-verify="required" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 回答正确</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="CorrectAction" placeholder="回答正确后的加分政策，这里填入倍数，如1，2，2.5等" lay-verify="required|number" required />
+            </div>
+
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 回答错误</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="WrongAction" placeholder="回答错误后的得分政策，这里填入倍数，如0，1，2，2.5等，注意，这里如果输入大于0的数字，则相应扣除对应倍数的分数" lay-verify="required|number" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 没有做答</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="EmptyAction" placeholder="没有提交任何答案时的评分标准，默认不给分，这里填入倍数，如1，2，2.5等" lay-verify="required|number" required />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <blockquote class="layui-elem-quote" style="color:red">
+               <i class="layui-icon layui-icon-notice"></i>  注意
+                <br />
+                【回答正确】这里如果填写非1的数字，将会对应的给与指定倍数的分数，如这里填2，判分时，如果题目是2分，则答错后会得4分（2*2）；此时，用户最终成绩可能高于试卷原有总分数！
+                <br/>
+                【回答错误】或【没有做答】处如果填写非0的数字，将会对应的扣除指定倍数的分数，如这里填1，判分时，如果题目是2分，则答错后会扣2分（2*1）; 此时，用户最终成绩可能低于0分！
+                <br />
+                举例，假定某题分值设定为2分，3个不同的评分标准如下
+                <br />
+                评分标准1：【回答正确】设为1，【回答错误】设为0，【没有作答】设为0，此时用户答对该题目得2分，答错或者不答不得分；
+                <br />评分标准2：【回答正确】设为1，【回答错误】设为1，【没有作答】设为0，此时用户答对该题目得2分，答错会扣2分（2*1），不答不得分；
+                <br /> 评分标准3：【回答正确】设为2，【回答错误】设为1，【没有作答】设为0，此时用户答对该题目得4分（2*2），答错会扣2分（2*1），不答不得分；
+                <br /> 以此类推，实际上动作后面的数字为倍数，正确为正数，错误或不答为负数，但表单里统一写绝对值；
+            </blockquote>
+        </div>
+        <div class="layui-form-item" style="margin-left:110px">
+            <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+            <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+
+<script>
+    let form = layui.form;
+    let token = $('@Html.AntiForgeryToken()').val();
+
+    form.on("submit(save)", async function (data) {
+        let formData = objectToFormData(data.field);
+        var ret = await request('POST', '@Url.Action("Create")', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            successMsg('创建成功', () => {
+                window.location.href = '@Url.Action("Index")';
+            });
+            return;
+        }
+        errorMsg('创建失败')
+    })
+</script>

@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
 {
     public class ScoreSchemeDto
     {
+        public long Id { get; set; } = YitIdHelper.NextId();
         /// <summary>
          /// 答对后评分动作，正数代表得分基础上正向相乘，比如这里给1，题目分数是2分，那答对后就得2分（1*2），给2就是得4分（2*2），以此类推
          /// </summary>
@@ -32,5 +34,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
         /// </summary>
         [JsonProperty]
         public double WrongAction { get; set; } = 0d;
+
+        public string Title { get; set; }
+
+        public int? IsDeleted { get; set; } = 0;
     }
 }
