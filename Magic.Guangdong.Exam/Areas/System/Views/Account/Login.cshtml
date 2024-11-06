@@ -310,6 +310,8 @@
             let email = $('#account').val();
             if (!email) {
                 layer.alert('请输入邮箱', { icon: 2 })
+                 $('.disabledsave').hide();
+                $('.save').show();
                 return;
             }
             if (parseInt($('#captcha').val()) != captchaRet) {

@@ -6,6 +6,7 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Microsoft.Identity.Client;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
@@ -571,30 +572,37 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return File(memoryStream, "text/plain", Path.GetFileName(encodeUri));
         }
 
-        public async Task<IActionResult> BuildConnWithFile(long fileId, string connId, string connName)
-        {
-            if (!await _fileRepo.getAnyAsync(u => u.Id == fileId))
-            {
-                return Json(resp.error("文件不存在"));
-            }
-            var file = await _fileRepo.getOneAsync(u => u.Id == fileId);
-            file.ConnId = connId;
-            file.ConnName = connName;
-            await _capPublisher.PublishAsync("InsertOrUpdateFileModel", file);
-            return Json(resp.success("修改请求提交成功"));
-        }
+        //public async Task<IActionResult> BuildConnWithFile(long fileId, string connId, string connName)
+        //{
+        //    if (!await _fileRepo.getAnyAsync(u => u.Id == fileId))
+        //    {
+        //        return Json(resp.error("文件不存在"));
+        //    }
+        //    var file = await _fileRepo.getOneAsync(u => u.Id == fileId);
+        //    file.ConnId = connId;
+        //    file.ConnName = connName;
+        //    //await _capPublisher.PublishAsync("InsertOrUpdateFileModel", file);
+        //    return Json(resp.success("修改请求提交成功"));
+        //}
 
         /// <summary>
         /// 修改文件
         /// </summary>
         /// <param name="paperIds"></param>
         /// <returns></returns>
-        [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "InsertOrUpdateFileModel")]
-        public async Task InsertOrUpdateFileModel(DbServices.Entities.File dto)
-        {
-            await _fileRepo.insertOrUpdateAsync(dto);
-        }
+        //[NonAction]
+        //[CapSubscribe(CapConsts.PREFIX + "BuildFileConnection")]
+        //public async Task UpdateFileModel(BuildFileConnectionDto dto)
+        //{
+        //    if (!await _fileRepo.getAnyAsync(u => u.Id == dto.fileId))
+        //    {
+        //        return;
+        //    }
+        //    var file = await _fileRepo.getOneAsync(u => u.Id == dto.fileId);
+        //    file.ConnId = dto.connId;
+        //    file.ConnName = dto.connName;
+        //    await _fileRepo.updateItemAsync(file);
+        //}
 
     }
 
@@ -674,5 +682,12 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             }
             return list_path;
         }
+    }
+
+    public class BuildFileConnectionDto
+    {
+        public long fileId { get; set; }
+        public string connId { get; set; }
+        public string connName { get; set; }
     }
 }

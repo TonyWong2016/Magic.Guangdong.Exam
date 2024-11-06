@@ -42,23 +42,23 @@ namespace Magic.Guangdong.Assistant.Dto
         public string Title { get; set; }
 
         [ImporterHeader(Name = "选项内容1", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容，若是判断题，则只能再选项1和2种出现‘对’，‘错’，‘正确’，‘错误’等字眼")]
-        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        [MaxLength(10000, ErrorMessage = "字数超出最大限制,请修改!")]
         public string Option1 { get; set; }
 
         [ImporterHeader(Name = "选项内容2", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容，若是判断题，则只能再选项1和2种出现‘对’，‘错’，‘正确’，‘错误’等字眼")]
-        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        [MaxLength(10000, ErrorMessage = "字数超出最大限制,请修改!")]
         public string Option2 { get; set; }
 
         [ImporterHeader(Name = "选项内容3", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容")]
-        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        [MaxLength(10000, ErrorMessage = "字数超出最大限制,请修改!")]
         public string Option3 { get; set; }
 
         [ImporterHeader(Name = "选项内容4", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容")]
-        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        [MaxLength(10000, ErrorMessage = "字数超出最大限制,请修改!")]
         public string Option4 { get; set; }
 
         [ImporterHeader(Name = "选项内容5", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容")]
-        [MaxLength(500, ErrorMessage = "字数超出最大限制,请修改!")]
+        [MaxLength(10000, ErrorMessage = "字数超出最大限制,请修改!")]
         public string Option5 { get; set; }
 
         [ImporterHeader(Name = "选项内容6", Format = "@", Description = "选项内容，由字目A-Z开头，并包含具体内容")]

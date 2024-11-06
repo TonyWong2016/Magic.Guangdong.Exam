@@ -191,10 +191,12 @@
                 {{# let optionContent = item.Code }}
                 {{# if(item.DescriptionTxt) optionContent+="、"+item.DescriptionTxt; }}
                 {{# if(currItems.length==1&&currItems[0].userAnswer.includes(item.Id.toString()) ){ }}
-                    <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{ optionContent }}</a>
-                {{#} else { }}
-                     <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{optionContent}}">{{optionContent}}</a>
+                    <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent }}</a>
+        @* <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{- optionContent }}</a> *@
 
+                    {{#} else { }}
+                     <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent}}</a>
+                     @* <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{- optionContent}}</a> *@
                 {{#} }}
             {{# }) }}
         </div>
@@ -251,372 +253,372 @@
 <script src="~/plugins/monaco-editor/min/vs/loader.min.js"></script>
 <script>
 
-    let urid = '@Model.urid';
-    let paperId = '@Model.PaperId';
-    let answerArr = [];
-    let createdAtStr = '@Model.CreatedAt';
-    let RemainSecond = '@Model.RemainSecond';
-    let paperDetail;
-    let questionObj = {
-        total: 0
-    };
-    let countdown;//倒计时
-    let stopExecution;//定时执行动动作
-    let editorManager;//代码编辑器
-    let typeNames = [];
+     let urid = '@Model.urid';
+     let paperId = '@Model.PaperId';
+     let answerArr = [];
+     let createdAtStr = '@Model.CreatedAt';
+     let RemainSecond = '@Model.RemainSecond';
+     let paperDetail;
+     let questionObj = {
+         total: 0
+     };
+     let countdown;//倒计时
+     let stopExecution;//定时执行动动作
+     let editorManager;//代码编辑器
+     let typeNames = [];
 
-    if (jVal('lastAnswer'))
-        answerArr = JSON.parse(jVal('lastAnswer'));
+     if (jVal('lastAnswer'))
+         answerArr = JSON.parse(jVal('lastAnswer'));
 
-    if (sessionStorage.getItem("answerArr"))
-        answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
-
-
-    executeFunctions([generationPaper, renderPaper]);
-
-    //生成试卷
-    async function generationPaper() {
-        if (sessionStorage.getItem('paperDetail')) {
-            paperDetail = JSON.parse(sessionStorage.getItem("paperDetail"));
-        } else {
-            let formData = new FormData();
-            formData.append('paperId', paperId);
-            formData.append('__RequestVerificationToken', requestToken);
-            let ret = await request('POST', '/examclient/GetMyPaper', formData, CT);
-
-            if (ret.code != 0) {
-                toggleError(true, "获取考卷信息异常，请刷新重试");
-                return;
-            }
-            sessionStorage.setItem('paperDetail', ret.data);
-            paperDetail = JSON.parse(ret.data);
-        }
-        //renderPaper();
-    }
-
-    //渲染基本信息
-    function renderPaper() {
-        toggleError(false);
-
-        if (paperDetail && paperDetail.Questions) {
-            questionObj.total = paperDetail.Questions.length;
-            countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
-            renderQuestion(0);
-            renderAnswerSheet();
-            stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
-
-            executeAtInterval(2000, () => {
-                let leftTime = countdown.getRemainingTime();
-                if (leftTime > 60 && leftTime < 300) {
-                    $('#countdownTimer').addClass('pico-color-amber-200');
-                } else if (leftTime > 0 && leftTime < 60) {
-                    $('#countdownTimer').addClass('pico-color-red-500');
-                }
-                
-            });
-        }
-    }
-
-    function listenLastObjective(elemId){
-
-        autoSearch(elemId, (data) => {
-            console.log('有输入变化');
-            console.log(data)
-        })
-    }
-
-    //渲染答题卡
-    function renderAnswerSheet() {
-        typeNames = [];
-        if (confirmAnswerArr())
-            answerArr = JSON.parse(confirmAnswerArr());
-        //renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
-        renderTpl("answerWarpTpl", "answerWarp", paperDetail.Questions, false)
-
-        jHtmlSet("questionCnt", questionObj.total)
-        jHtmlSet("submitCnt", answerArr.length);
-        if (questionObj.total == answerArr.length) {
-            $("#submitCnt").css("color", "#1e88e5")
-        } else {
-            $("#submitCnt").css("color", "#f4511e")
-        }
-            //  ||
-            // (questionObj.total == answerArr.length + 1 &&
-            //     currQuestion.orderIndex == questionObj.total &&
-            //     $('#content_' + currQuestion.id).val()
-            // )
-    }
-
-    //渲染题目
-    function renderQuestion(index) {
-        if (index >= paperDetail.Questions.length)
-            return;
-        currQuestion = paperDetail.Questions[index];
-        currQuestion.orderIndex = index + 1;
-        renderTpl("mainTpl", "main", currQuestion, false);
-
-        //选择题会执行下面
-        makeOption(currQuestion.SingleAnswer);
-
-        if (currQuestion.IsObjective == 0) {
-
-            listenSubjectiveInput(currQuestion.Id)
-        }
-        $('.contentDiv article').css('min-height', '768px')
-        if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
-            $('.contentDiv article').css('min-height', '1100px')
-            renderCodeQuestion()
-        }
-
-    }
-
-    //渲染选项(选择题会执行)
-    function makeOption(isSingle) {
-        $(".option").click(obj => {
-            let elem = $(obj.currentTarget);
-            if (isSingle == 1 && elem.hasClass("secondary outline")) {
-                $(".option").addClass("secondary outline").removeClass("correct")
-            }
-            let choice = {
-                "questionId": elem.data("questionid"),
-                "itemId": elem.data("itemid"),
-                "isSingle": elem.data("single")
-            }
-            if (elem.hasClass("secondary outline")) {
-                elem
-                    .removeClass("secondary outline")
-                    .addClass("correct");
-                makeChoice(choice);
-            }
-            else {
-                elem
-                    .addClass("secondary outline")
-                    .removeClass("correct");
-                cancleChoice(choice);
-            }
-
-        })
-        // footerPosition();
-        // $(window).resize(footerPosition);
-    }
-
-    //选中，并构造数组（选择题会执行）
-    function makeChoice(obj) {
-        let userAnswer = [];
-        let answerArrItem = {};
-        if (obj.isSingle) {
-            //如果是单选题，且列表里已经有选项，就清空重置
-            let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
-            // console.log(index)
-            if (index > -1)
-                answerArr.splice(index, 1);
-        } else if (answerArr.filter(u => u.questionId == obj.questionId).length > 0) {
-            answerArrItem = answerArr.filter(u => u.questionId == obj.questionId)[0];
-
-            userAnswer = answerArrItem.userAnswer;
-            answerArr.splice(answerArr.indexOf(answerArrItem), 1);
-
-        }
-        userAnswer.push(obj.itemId.toString())
-        answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
-
-        sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
-        renderAnswerSheet();
-    }
-
-    //取消选中，并构造数组（选择题执行）
-    function cancleChoice(obj) {
-        if (answerArr.filter(u => u.questionId == obj.questionId).length == 0) {
-            return;
-        }
-
-        let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
-
-        let userAnswer = answerArr.filter(u => u.questionId == obj.questionId)[0].userAnswer;
-        let itemIndex = userAnswer.indexOf(obj.itemId.toString());
-
-        if (itemIndex > -1) {
-            userAnswer.splice(itemIndex, 1)
-        }
-        answerArr.splice(index, 1);
-        if (userAnswer.length > 0) {
-            answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
-        }
-
-        sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
-        renderAnswerSheet();
-    }
-
-    //监听主观题输入
-    function listenSubjectiveInput(questionId) {
-        let elemId = 'content_' + questionId;
-        let answerArrItem = {};
-        if (answerArr.filter(u => u.questionId == questionId).length > 0) {
-            jValSet(elemId, answerArr.filter(u => u.questionId == questionId)[0].userAnswer)
-        }
-        monitorAswer(elemId, () => {
-            let userAnswer = [];
-            let elemValue = jVal(elemId);
-            if (answerArr.filter(u => u.questionId == questionId).length > 0) {
-                answerArrItem = answerArr.filter(u => u.questionId == questionId)[0];
-                userAnswer = answerArrItem.userAnswer;
-                answerArr.splice(answerArr.indexOf(answerArrItem), 1);
-            }
-
-            if (elemValue) {
-                userAnswer = [];
-                userAnswer.push(elemValue)
-                answerArr.push({ "questionId": questionId, "userAnswer": userAnswer })
-            }
-            sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
-        })
-        renderAnswerSheet();
-    }
-
-    //渲染编程题
-    function renderCodeQuestion() {
-        let lastCode = sessionStorage.getItem('currCode_' + currQuestion.Id);
-
-        //如果缓存里没有代码记录，且已提交的答案里包含了编程题答案，更新代码缓存
-        if (!lastCode &&
-            answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 &&
-            answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer
-        ) {
-            sessionStorage.setItem('currCode_' + currQuestion.Id, answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer[0])
-        }
-
-        setTimeout(async () => {
-            let editorObj = {
-                containerId: 'code_' + currQuestion.Id,
-                defaultCode: sessionStorage.getItem('currCode_' + currQuestion.Id)
-            }
-
-            editorManager = createMonacoEditor(editorObj);
-            await editorManager.init();
-
-            listenChange('codelanguage', (data) => {
-                console.log($(data.target).val())
-                editorManager.setLanguage($(data.target).val())
-            })
-
-            editorManager.monitorCode(currQuestion.Id);
-
-        }, 50)
-    }
-
-    function togglePicoModal(event){
-        renderAnswerSheet()
-        toggleModal(event)
-    }
-
-    //错误提示
-    function toggleError(show, msg = '') {
-        jHtmlSet("errMsg", msg);
-        if (show) {
-            $("#main").hide();
-            $("#backup").show();
-        } else {
-            $("#backup").hide();
-            $("#main").show();
-        }
-    }
+     if (sessionStorage.getItem("answerArr"))
+         answerArr = JSON.parse(sessionStorage.getItem("answerArr"));
 
 
-    // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
-    function countdownEnded() {
-        TT.error('考试时间到，系统将为您自动提交考试结果');
-        SubmitMyPaper(1)
-        console.log('Countdown has ended!');
-    }
+     executeFunctions([generationPaper, renderPaper]);
 
-    async function SubmitMyPaper(complatedMode) {
-        let myCurrAnswer = confirmAnswerArr();
-        sessionStorage.setItem("answerArr", myCurrAnswer);
-        let params = new FormData();
-        params.append("recordId", urid);
-        params.append("reportId", '@Model.ReportId');
-        params.append("idNumber", '@Model.ReportNumber');
-        params.append("userId", accountId);
-        params.append("complatedMode", complatedMode);
-        params.append("submitAnswerStr", myCurrAnswer);
-        params.append("isPractice", 0);
-        params.append("__RequestVerificationToken", requestToken);
-        if (complatedMode != 4) {
-            sessionStorage.clear();
-            $('.submitEnabled').hide();
-            $('.submitDisabled').show();
-        }
+     //生成试卷
+     async function generationPaper() {
+         if (sessionStorage.getItem('paperDetail')) {
+             paperDetail = JSON.parse(sessionStorage.getItem("paperDetail"));
+         } else {
+             let formData = new FormData();
+             formData.append('paperId', paperId);
+             formData.append('__RequestVerificationToken', requestToken);
+             let ret = await request('POST', '/examclient/GetMyPaper', formData, CT);
 
-        let json = await request('POST', '/examclient/SubmitMyPaper', params, CT);
-        closeModal(document.getElementById('modal-submit'));
+             if (ret.code != 0) {
+                 toggleError(true, "获取考卷信息异常，请刷新重试");
+                 return;
+             }
+             sessionStorage.setItem('paperDetail', ret.data);
+             paperDetail = JSON.parse(ret.data);
+         }
+         //renderPaper();
+     }
 
-        if (json.code < 0) {
-            TT.error(json.msg);
-            setTimeout(() => {
-                location.reload();
-            }, 3500);
-            return;
-        }
+     //渲染基本信息
+     function renderPaper() {
+         toggleError(false);
 
-        //console.log(json);
-        if (json.code == 0 && complatedMode != 4) {
-            //closeModal(document.getElementById('modal-submit'));
-            TT.success('交卷成功', () => {
-                location.href = '/exam/result?urid=' + urid;
-                $('.submitEnabled').show();
-                $('.submitDisabled').hide();
-            })
-            return;
-        }
-        
+         if (paperDetail && paperDetail.Questions) {
+             questionObj.total = paperDetail.Questions.length;
+             countdown = startCountdown(RemainSecond, 'countdownTimer', countdownEnded);
+             renderQuestion(0);
+             renderAnswerSheet();
+             stopExecution = executeAtInterval(60000, async () => { await SubmitMyPaper(4) }); // 每隔分钟执行一次 myCallback
 
-       
-        if(json.data && JSON.parse(json.data)){
-            let jsonData=JSON.parse(json.data);
+             executeAtInterval(2000, () => {
+                 let leftTime = countdown.getRemainingTime();
+                 if (leftTime > 60 && leftTime < 300) {
+                     $('#countdownTimer').addClass('pico-color-amber-200');
+                 } else if (leftTime > 0 && leftTime < 60) {
+                     $('#countdownTimer').addClass('pico-color-red-500');
+                 }
 
-            if(jsonData.Complated==0)
-                return;
-            let errMsg = '您的试卷出现异常，请联系本场监考老师或相关管理人员';
-            if(jsonData.Complated==1 && jsonData.ComplatedMode==2){
-                errMsg = '您的试卷已被后台管理员强制提交，如有疑问请联系本场监考老师或相关管理人员';
-            } else if(jsonData.Complated==1){
-                errMsg = '您的试卷已提交，如有疑问请联系本场监考老师或相关管理人员';
-            }
+             });
+         }
+     }
 
-            TT.error(errMsg);
-            setTimeout(()=>{
-                location.href = '/exam/result?urid=' + urid;
-                $('.submitEnabled').show();
-                $('.submitDisabled').hide();
-            },3500);
-            return;
-        } 
-        
-    }
+     function listenLastObjective(elemId){
+
+         autoSearch(elemId, (data) => {
+             console.log('有输入变化');
+             console.log(data)
+         })
+     }
+
+     //渲染答题卡
+     function renderAnswerSheet() {
+         typeNames = [];
+         if (confirmAnswerArr())
+             answerArr = JSON.parse(confirmAnswerArr());
+         //renderTpl("answerSheetTpl", "answerSheet", paperDetail.Questions, false)
+         renderTpl("answerWarpTpl", "answerWarp", paperDetail.Questions, false)
+
+         jHtmlSet("questionCnt", questionObj.total)
+         jHtmlSet("submitCnt", answerArr.length);
+         if (questionObj.total == answerArr.length) {
+             $("#submitCnt").css("color", "#1e88e5")
+         } else {
+             $("#submitCnt").css("color", "#f4511e")
+         }
+             //  ||
+             // (questionObj.total == answerArr.length + 1 &&
+             //     currQuestion.orderIndex == questionObj.total &&
+             //     $('#content_' + currQuestion.id).val()
+             // )
+     }
+
+     //渲染题目
+     function renderQuestion(index) {
+         if (index >= paperDetail.Questions.length)
+             return;
+         currQuestion = paperDetail.Questions[index];
+         currQuestion.orderIndex = index + 1;
+         renderTpl("mainTpl", "main", currQuestion, false);
+
+         //选择题会执行下面
+         makeOption(currQuestion.SingleAnswer);
+
+         if (currQuestion.IsObjective == 0) {
+
+             listenSubjectiveInput(currQuestion.Id)
+         }
+         $('.contentDiv article').css('min-height', '768px')
+         if (currQuestion.TypeName.indexOf('编程') > -1 || currQuestion.TypeName.indexOf('代码') > -1) {
+             $('.contentDiv article').css('min-height', '1100px')
+             renderCodeQuestion()
+         }
+
+     }
+
+     //渲染选项(选择题会执行)
+     function makeOption(isSingle) {
+         $(".option").click(obj => {
+             let elem = $(obj.currentTarget);
+             if (isSingle == 1 && elem.hasClass("secondary outline")) {
+                 $(".option").addClass("secondary outline").removeClass("correct")
+             }
+             let choice = {
+                 "questionId": elem.data("questionid"),
+                 "itemId": elem.data("itemid"),
+                 "isSingle": elem.data("single")
+             }
+             if (elem.hasClass("secondary outline")) {
+                 elem
+                     .removeClass("secondary outline")
+                     .addClass("correct");
+                 makeChoice(choice);
+             }
+             else {
+                 elem
+                     .addClass("secondary outline")
+                     .removeClass("correct");
+                 cancleChoice(choice);
+             }
+
+         })
+         // footerPosition();
+         // $(window).resize(footerPosition);
+     }
+
+     //选中，并构造数组（选择题会执行）
+     function makeChoice(obj) {
+         let userAnswer = [];
+         let answerArrItem = {};
+         if (obj.isSingle) {
+             //如果是单选题，且列表里已经有选项，就清空重置
+             let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
+             // console.log(index)
+             if (index > -1)
+                 answerArr.splice(index, 1);
+         } else if (answerArr.filter(u => u.questionId == obj.questionId).length > 0) {
+             answerArrItem = answerArr.filter(u => u.questionId == obj.questionId)[0];
+
+             userAnswer = answerArrItem.userAnswer;
+             answerArr.splice(answerArr.indexOf(answerArrItem), 1);
+
+         }
+         userAnswer.push(obj.itemId.toString())
+         answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
+
+         sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
+         renderAnswerSheet();
+     }
+
+     //取消选中，并构造数组（选择题执行）
+     function cancleChoice(obj) {
+         if (answerArr.filter(u => u.questionId == obj.questionId).length == 0) {
+             return;
+         }
+
+         let index = answerArr.indexOf(answerArr.filter(u => u.questionId == obj.questionId)[0]);
+
+         let userAnswer = answerArr.filter(u => u.questionId == obj.questionId)[0].userAnswer;
+         let itemIndex = userAnswer.indexOf(obj.itemId.toString());
+
+         if (itemIndex > -1) {
+             userAnswer.splice(itemIndex, 1)
+         }
+         answerArr.splice(index, 1);
+         if (userAnswer.length > 0) {
+             answerArr.push({ "questionId": obj.questionId, "userAnswer": userAnswer })
+         }
+
+         sessionStorage.setItem("answerArr", JSON.stringify(answerArr))
+         renderAnswerSheet();
+     }
+
+     //监听主观题输入
+     function listenSubjectiveInput(questionId) {
+         let elemId = 'content_' + questionId;
+         let answerArrItem = {};
+         if (answerArr.filter(u => u.questionId == questionId).length > 0) {
+             jValSet(elemId, answerArr.filter(u => u.questionId == questionId)[0].userAnswer)
+         }
+         monitorAswer(elemId, () => {
+             let userAnswer = [];
+             let elemValue = jVal(elemId);
+             if (answerArr.filter(u => u.questionId == questionId).length > 0) {
+                 answerArrItem = answerArr.filter(u => u.questionId == questionId)[0];
+                 userAnswer = answerArrItem.userAnswer;
+                 answerArr.splice(answerArr.indexOf(answerArrItem), 1);
+             }
+
+             if (elemValue) {
+                 userAnswer = [];
+                 userAnswer.push(elemValue)
+                 answerArr.push({ "questionId": questionId, "userAnswer": userAnswer })
+             }
+             sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
+         })
+         renderAnswerSheet();
+     }
+
+     //渲染编程题
+     function renderCodeQuestion() {
+         let lastCode = sessionStorage.getItem('currCode_' + currQuestion.Id);
+
+         //如果缓存里没有代码记录，且已提交的答案里包含了编程题答案，更新代码缓存
+         if (!lastCode &&
+             answerArr.filter(u => u.questionId == currQuestion.Id).length > 0 &&
+             answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer
+         ) {
+             sessionStorage.setItem('currCode_' + currQuestion.Id, answerArr.filter(u => u.questionId == currQuestion.Id)[0].userAnswer[0])
+         }
+
+         setTimeout(async () => {
+             let editorObj = {
+                 containerId: 'code_' + currQuestion.Id,
+                 defaultCode: sessionStorage.getItem('currCode_' + currQuestion.Id)
+             }
+
+             editorManager = createMonacoEditor(editorObj);
+             await editorManager.init();
+
+             listenChange('codelanguage', (data) => {
+                 console.log($(data.target).val())
+                 editorManager.setLanguage($(data.target).val())
+             })
+
+             editorManager.monitorCode(currQuestion.Id);
+
+         }, 50)
+     }
+
+     function togglePicoModal(event){
+         renderAnswerSheet()
+         toggleModal(event)
+     }
+
+     //错误提示
+     function toggleError(show, msg = '') {
+         jHtmlSet("errMsg", msg);
+         if (show) {
+             $("#main").hide();
+             $("#backup").show();
+         } else {
+             $("#backup").hide();
+             $("#main").show();
+         }
+     }
 
 
-   function checkWindowSize() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        console.log("宽："+width)
-        console.log("高："+height)
-        if (width < 1024 || height < 500) {
-            alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
-        }
-    }
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
+     // 使用示例：传入剩余秒数、倒计时标签ID和结束时的回调函数
+     function countdownEnded() {
+         TT.error('考试时间到，系统将为您自动提交考试结果');
+         SubmitMyPaper(1)
+         console.log('Countdown has ended!');
+     }
 
-    const debouncedCheckWindowSize = debounce(checkWindowSize, 300);
+     async function SubmitMyPaper(complatedMode) {
+         let myCurrAnswer = confirmAnswerArr();
+         sessionStorage.setItem("answerArr", myCurrAnswer);
+         let params = new FormData();
+         params.append("recordId", urid);
+         params.append("reportId", '@Model.ReportId');
+         params.append("idNumber", '@Model.ReportNumber');
+         params.append("userId", accountId);
+         params.append("complatedMode", complatedMode);
+         params.append("submitAnswerStr", myCurrAnswer);
+         params.append("isPractice", 0);
+         params.append("__RequestVerificationToken", requestToken);
+         if (complatedMode != 4) {
+             sessionStorage.clear();
+             $('.submitEnabled').hide();
+             $('.submitDisabled').show();
+         }
 
-    // 初始化检查
-    checkWindowSize();
+         let json = await request('POST', '/examclient/SubmitMyPaper', params, CT);
+         closeModal(document.getElementById('modal-submit'));
 
-    // 监听窗口大小变化
-   window.addEventListener('resize', debouncedCheckWindowSize);
+         if (json.code < 0) {
+             TT.error(json.msg);
+             setTimeout(() => {
+                 location.reload();
+             }, 3500);
+             return;
+         }
+
+         //console.log(json);
+         if (json.code == 0 && complatedMode != 4) {
+             //closeModal(document.getElementById('modal-submit'));
+             TT.success('交卷成功', () => {
+                 location.href = '/exam/result?urid=' + urid;
+                 $('.submitEnabled').show();
+                 $('.submitDisabled').hide();
+             })
+             return;
+         }
+
+
+
+         if(json.data && JSON.parse(json.data)){
+             let jsonData=JSON.parse(json.data);
+
+             if(jsonData.Complated==0)
+                 return;
+             let errMsg = '您的试卷出现异常，请联系本场监考老师或相关管理人员';
+             if(jsonData.Complated==1 && jsonData.ComplatedMode==2){
+                 errMsg = '您的试卷已被后台管理员强制提交，如有疑问请联系本场监考老师或相关管理人员';
+             } else if(jsonData.Complated==1){
+                 errMsg = '您的试卷已提交，如有疑问请联系本场监考老师或相关管理人员';
+             }
+
+             TT.error(errMsg);
+             setTimeout(()=>{
+                 location.href = '/exam/result?urid=' + urid;
+                 $('.submitEnabled').show();
+                 $('.submitDisabled').hide();
+             },3500);
+             return;
+         }
+
+     }
+
+
+    function checkWindowSize() {
+         const width = window.innerWidth;
+         const height = window.innerHeight;
+         console.log("宽："+width)
+         console.log("高："+height)
+         if (width < 1024 || height < 500) {
+             alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
+         }
+     }
+     function debounce(func, wait) {
+         let timeout;
+         return function(...args) {
+             clearTimeout(timeout);
+             timeout = setTimeout(() => func.apply(this, args), wait);
+         };
+     }
+
+     const debouncedCheckWindowSize = debounce(checkWindowSize, 300);
+
+     // 初始化检查
+     checkWindowSize();
+
+     // 监听窗口大小变化
+    window.addEventListener('resize', debouncedCheckWindowSize);
 </script>

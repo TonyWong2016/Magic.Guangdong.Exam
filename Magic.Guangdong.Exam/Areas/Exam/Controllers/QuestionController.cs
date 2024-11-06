@@ -145,7 +145,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("移除试题")]
         public async Task<IActionResult> Delete([FromServices] IRelationRepo relationRepo, long id)
         {
-            if (await relationRepo.getAnyAsync(u => u.QuestionId == id))
+            if (await relationRepo.getAnyAsync(u => u.QuestionId == id && u.IsDeleted==0))
             {
                 return Json(_resp.ret(-1, "当前题目已被某些试卷抽中，若要删除题目，请先删除抽中该题目的试卷。若无法知晓具体哪套试卷抽中该题，建议禁用该题目，避免后续的组卷仍然抽中该题。"));
             }

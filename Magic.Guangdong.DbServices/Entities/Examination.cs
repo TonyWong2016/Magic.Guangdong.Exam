@@ -128,6 +128,18 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
 		[JsonProperty]
 		public string PageConfig { get; set; }
+
+		/// <summary>
+		/// 是否允许独立访问
+		/// </summary>
+		[JsonProperty]
+		public int IndependentAccess { get; set; } = 0;
+
+		/// <summary>
+		/// 绑定的评分标准
+		/// </summary>
+		[JsonProperty]
+		public long SchemeId { get; set; } = 0;
     }
 
 	public enum ExamStatus

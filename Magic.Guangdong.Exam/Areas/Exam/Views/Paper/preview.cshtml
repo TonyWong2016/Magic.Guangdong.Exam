@@ -128,7 +128,19 @@
                                                 }
                                                 else
                                                 {
-                                                    <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+                                                    if (@subItem.DescriptionTxt.Contains("<") && @subItem.DescriptionTxt.Contains(">"))
+                                                   {
+                                                       <div class="layui-inline">
+                                                            <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、">
+
+                                                            <span style="margin-left:-20px;vertical-align:sub">@Html.Raw(subItem.DescriptionTxt)</span>
+                                                       </div>
+                                                        
+                                                   }
+                                                    else{
+                                                        <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
+
+                                                    }
                                                 }
 
                                                 
@@ -156,6 +168,7 @@
                                             string answerCode = "";
                                             foreach (var subItem in item.Items)
                                             {
+                                                
                                                 <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
 
                                                 @if(subItem.IsAnswer==1){
