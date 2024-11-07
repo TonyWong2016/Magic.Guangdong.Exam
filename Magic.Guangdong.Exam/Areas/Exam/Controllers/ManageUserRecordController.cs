@@ -104,9 +104,14 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="urid"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForceMarking(long urid)
+        public async Task<IActionResult> ForceMarking([FromServices] IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo, long urid)
         {
-            var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
+            //var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
+            if( await userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, 2) != 1)
+            {
+                return Json(_resp.error("强制交卷失败"));
+            }
+            var record = await _userAnswerRecordViewRepo.getOneAsync(u => u.Id == urid);
             await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
             await _provider.KeyDelAsync("userRecord_" + record.Id);
             await _provider.KeyDelAsync("myReportExamHistories_" + record.ReportId);
@@ -116,12 +121,18 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForceMarkingBatch(long[] urids)
+        public async Task<IActionResult> ForceMarkingBatch([FromServices] IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo,long[] urids)
         {
-            foreach (var urid in urids)
+            var records = await _userAnswerRecordViewRepo.getListAsync(u => urids.Contains(u.Id));
+            foreach (var record in records)
             {
 
-                var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
+                //var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
+                if (await userAnswerSubmitRecordRepo.ScoreObjectivePart(record.Id, 2) != 1)
+                {
+                    return Json(_resp.error("强制交卷失败"));
+                }
+
                 await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
                 await _provider.KeyDelAsync("userRecord_" + record.Id);
                 await _provider.KeyDelAsync("myReportExamHistories_" + record.ReportId);
@@ -137,7 +148,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="examId"></param>
         /// <returns></returns>
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForceMarkingAll(Guid examId)
+        public async Task<IActionResult> ForceMarkingAll([FromServices] IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo, Guid examId)
         {
             try
             {
@@ -146,11 +157,13 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 {
                     return Json(_resp.ret(0, "没有需要强制提交的记录，请确认当前考试是否未严格交卷类型"));
                 }
-                foreach (var item in notComplatedRecords)
+                foreach (var recordId in notComplatedRecords)
                 {
-                    var record = await _userAnswerRecordViewRepo.ForceMarking(item);
+                    //var record = await _userAnswerRecordViewRepo.ForceMarking(item);
 
-                    await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
+                    //await _provider.HDelAsync("UserExamLog", new List<string>() { record.ReportId });
+                    await userAnswerSubmitRecordRepo.ScoreObjectivePart(recordId, 2);
+                    await _provider.KeyExpireAsync("UserExamLog", TimeSpan.FromMinutes(30).Seconds);
                 }
                 return Json(_resp.success(true, "操作成功"));
             }

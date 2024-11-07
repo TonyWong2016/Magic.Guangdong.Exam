@@ -212,6 +212,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="urid"></param>
         /// <returns></returns>
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         public async Task<UserAnswerRecordView> ForceMarking(long urid)
         {
             //第一步：把提交的答案取出来

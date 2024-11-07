@@ -145,7 +145,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         }
 
         /// <summary>
-        /// 判分
+        /// 判分,好像已经作废了
         /// </summary>
         /// <param name="idNumber"></param>
         /// <param name="paperId"></param>
@@ -153,7 +153,9 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("试卷判分")]
         public async Task<IActionResult> PaperMarking(string idNumber, Guid paperId)
         {
-            return Json(_resp.success(await _paperRepo.Marking(idNumber, paperId, adminId)));
+            await Task.Delay(10);
+            //return Json(_resp.success(await _paperRepo.Marking(idNumber, paperId, adminId)));
+            return Json(_resp.ret(0, "使用常规方法判分"));
         }
 
         /// <summary>

@@ -42,6 +42,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<dynamic> SubmitMyPracticePaper(SubmitMyAnswerDto dto);
 
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         Task<UserAnswerRecordView> Marking(long urid, bool submit = false);
 
     }

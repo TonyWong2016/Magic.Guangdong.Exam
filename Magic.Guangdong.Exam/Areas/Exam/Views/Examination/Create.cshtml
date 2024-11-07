@@ -30,6 +30,19 @@
             <input type="hidden" asp-for="AssociationId" />
             <input type="hidden" asp-for="AssociationTitle" />
         </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 评分标准</label>
+            <div class="layui-input-block">
+                <select asp-for="SchemeId">
+                </select>
+            </div>
+            <br />
+            <blockquote class=" layui-elem-quote layui-input-block">
+                关联一个评分标准，系统会根据评分标准的计分规则计算出用户的总分。
+            </blockquote>
+        </div>
+
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 报考名额</label>
             <div class="layui-input-block">
@@ -266,6 +279,14 @@
             return;
         }
         getSelectItems('@Url.Action("GetExamMini")', { id: activityId, type: 0, examType: 0 }, 'selectTpl', 'AttachmentId', false);
+    }
+
+    getSchemes()
+    function getSchemes(){
+         getSelectItems('/exam/scorescheme/GetSelectItems', { rd:randomInt }, 'selectTplInit', 'SchemeId', true)
+            .then(() => {
+                form.render('select')
+            })
     }
 
     function setValidate(){

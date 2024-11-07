@@ -26,6 +26,11 @@
         <option value="{{ item.value }}">{{item.text}}</option>
         {{# }) }}
     </script>
+    <script type="text/html" id="selectTplInit">
+        {{# layui.each(d,function(index,item){}}
+        <option value="{{ item.value }}">{{item.text}}</option>
+        {{# }) }}
+    </script>
     <script type="text/html" id="indexTpl">
         @* {{ d.LAY_INDEX+1 }} *@
         {{ d.LAY_NUM }}

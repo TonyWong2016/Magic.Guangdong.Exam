@@ -105,5 +105,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
         /// 是否强制修改
         /// </summary>
         public int IsForce { get; set; } = 0;
+
+        public long SchemeId { get; set; }
+
+        public int IsDependentAccess { get; set; } = 0;
     }
 }

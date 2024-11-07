@@ -426,6 +426,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="idNumber"></param>
         /// <returns></returns>
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         public async Task<dynamic> Marking(string idNumber, Guid paperId, string adminId)
         {
             //第一步：把提交的答案取出来

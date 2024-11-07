@@ -256,6 +256,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </summary>
         /// <param name="idNumber"></param>
         /// <returns></returns>
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         public async Task<UserAnswerRecord> Marking(long urid, bool submit = false)
         {
             using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
@@ -319,6 +320,9 @@ namespace Magic.Guangdong.DbServices.Methods
                     var correctItems = questionItems.Where(u => u.IsAnswer == 1);
                     //string lastQuestionId = "";
 
+                    //第三点五步，获取评分标准
+                    var schoreScheme = await GetScoreSchemeByExamId(record.ExamId);
+
                     //第四步，开始判分，客观题直接给，主观题撂着...
                     double userObjectiveScore = 0;
                     foreach (var answer in Answers)
@@ -342,8 +346,18 @@ namespace Magic.Guangdong.DbServices.Methods
                             //且答案正确
                             if (answer.userAnswer.Length == 1 && (answer.userAnswer[0] == currItem.Id.ToString() || answer.userAnswer[0] == currItem.Code))
                             {
-                                userObjectiveScore += relation.ItemScore;//得分
+                                userObjectiveScore += relation.ItemScore*schoreScheme.CorrectAction;//得分
                                 questionRecord.IsCorrect = 1;
+                            }
+                            //题目没作答
+                            else if(answer.userAnswer.Length==0)
+                            {
+                                userObjectiveScore += relation.ItemScore * schoreScheme.EmptyAction;
+                            }
+                            //回答错误
+                            else
+                            {
+                                userObjectiveScore += relation.ItemScore * schoreScheme.WrongAction;
                             }
                         }
                         //如果是多选
@@ -352,9 +366,19 @@ namespace Magic.Guangdong.DbServices.Methods
                             var currItems = correctItems.Where(u => u.QuestionId == answer.questionId).ToList();
                             questionRecord.IsCorrect = 2;
                             questionRecord.UserAnswerId = string.Join(",", answer.userAnswer) ;
-                            if (answer.userAnswer.Length != currItems.Count)
+                            
+                            //没作答
+                            if (answer.userAnswer.Length == 0)
                             {
-                                continue;//首先答案数量得一致，不一致就直接跳过
+                                
+                                userObjectiveScore += relation.ItemScore * schoreScheme.EmptyAction;
+                                continue;
+                            }
+                            //否则判断答案数量，不一致直接错
+                            else if (answer.userAnswer.Length != currItems.Count)
+                            {
+                                userObjectiveScore += relation.ItemScore * schoreScheme.WrongAction;
+                                continue;
                             }
                             int correctCnt = 0;
                             foreach (var currItem in currItems)
@@ -370,8 +394,12 @@ namespace Magic.Guangdong.DbServices.Methods
                             }
                             if (correctCnt == currItems.Count)
                             {
-                                userObjectiveScore += relation.ItemScore;
+                                userObjectiveScore += relation.ItemScore * schoreScheme.CorrectAction;
                                 questionRecord.IsCorrect = 1;
+                            }
+                            else
+                            {
+                                userObjectiveScore += relation.ItemScore * schoreScheme.WrongAction;
                             }
                         }
                     }
@@ -403,8 +431,13 @@ namespace Magic.Guangdong.DbServices.Methods
         
         #endregion
 
-        #region For ClientSide
+        public async Task<ScoreScheme> GetScoreSchemeByExamId(Guid examId)
+        {
+            return await fsql.Get(conn_str).Select<Examination, ScoreScheme>()
+                .LeftJoin((a, b) => a.SchemeId == b.Id)
+                .Where((a, b) => a.Id == examId)
+                .ToOneAsync((a, b) => b);
+        }
 
-        #endregion
     }
 }

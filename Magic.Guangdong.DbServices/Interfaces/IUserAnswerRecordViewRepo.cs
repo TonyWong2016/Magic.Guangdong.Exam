@@ -16,6 +16,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<bool> RemoveUserRecord(long urid, string adminId);
 
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         Task<UserAnswerRecordView> ForceMarking(long urid);
 
         Task<bool> AddQuestionRecord(long urid);

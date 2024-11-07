@@ -57,11 +57,11 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Models
         /// <summary>
 		/// 是否允许独立访问
 		/// </summary>
-        public int IndependentAccess { get; set; } = 0;
+        public int? IndependentAccess { get; set; } = 0;
 
         /// <summary>
         /// 绑定的评分标准
         /// </summary>
-        public long SchemeId { get; set; } = 0;
+        public long? SchemeId { get; set; } = 0;
     }
 }

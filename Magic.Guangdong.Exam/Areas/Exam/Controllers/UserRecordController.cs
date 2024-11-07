@@ -239,13 +239,18 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         /// <param name="urid"></param>
         /// <param name="force"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Result(long urid, int force = 0)
+        public async Task<IActionResult> Result([FromServices]IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo,long urid, int force = 0)
         {
             if (!await _userAnswerRecordRepo.getAnyAsync(u => u.Id == urid))
                 return Redirect("/examination/index");
 
             ViewBag.AttachBase = ConfigurationHelper.GetSectionValue("attachBase");
-            var record = await _userAnswerRecordRepo.Marking(urid, force == 1);
+            if(await userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, force) < 0)
+            {
+                return Content("操作失败");
+            }
+            //var record = await _userAnswerRecordRepo.Marking(urid, force == 1);
+            var record = await _userAnswerRecordRepo.getOneAsync(u=>u.Id==urid);
             return View(record);
         }
 

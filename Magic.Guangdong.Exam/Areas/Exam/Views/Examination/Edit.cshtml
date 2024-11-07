@@ -41,6 +41,19 @@
             <input type="hidden" asp-for="AssociationTitle" />
 
         </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"><span class="layui-badge-dot"></span> 评分标准</label>
+            <div class="layui-input-block">
+                <select asp-for="SchemeId">
+                </select>
+            </div>
+            <br />
+            <blockquote class=" layui-elem-quote layui-input-block">
+               关联一个评分标准，系统会根据评分标准的计分规则计算出用户的总分。
+            </blockquote>
+        </div>
+
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 报考名额</label>
             <div class="layui-input-block">
@@ -54,6 +67,7 @@
                 <input class="layui-input" asp-for="Expenses" readonly placeholder="请输入当前考试的报名费用，0则表示没有费用" lay-verify="required|number" required />
             </div>
         </div>
+
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 基础分数</label>
             <div class="layui-input-block">
@@ -69,7 +83,6 @@
             <input type="hidden" asp-for="StartTime" />
             <input type="hidden" asp-for="EndTime" />
         </div>
-
 
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 考试时长</label>
@@ -165,7 +178,7 @@
                 <input class="layui-input" asp-for="Remark" placeholder="备注" />
             </div>
         </div>
-
+        
 
         <div class="layui-row">
             <div class="layui-form-item">
@@ -366,8 +379,21 @@
             .then(() => {
                 if (initAttachmentId) {
                     $('#AttachmentId').val(initAttachmentId);
-                    form.render('select')
+                    
                 }
+                form.render('select')
+            })
+    }
+
+    getSchemes()
+    function getSchemes(){
+         let initSchemeId = '@Model.SchemeId';
+         getSelectItems('/exam/scorescheme/GetSelectItems', { rd:randomInt }, 'selectTplInit', 'SchemeId', true)
+            .then(() => {
+                 if (initSchemeId) {
+                    $('#SchemeId').val(initSchemeId);                   
+                }
+                form.render('select')
             })
     }
 
@@ -397,14 +423,11 @@
         })
     }
 
-
-
     initUploadFilePro({
         elemId: 'pageResourceUp',
         callback: (res) => {
             //console.log(res)
-            $('#imgResource').val(res.data);
-            
+            $('#imgResource').val(res.data);            
         }
     })
 

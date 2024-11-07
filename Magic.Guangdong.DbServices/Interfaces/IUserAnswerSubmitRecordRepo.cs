@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public interface IUserAnswerSubmitRecordRepo : IExaminationRepository<UserAnswerSubmitRecord>
     {
+        Task<int> ScoreObjectivePart(long recordId, int markingType = 0);
     }
 }

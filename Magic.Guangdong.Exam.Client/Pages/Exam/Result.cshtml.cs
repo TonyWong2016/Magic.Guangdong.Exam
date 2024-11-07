@@ -13,11 +13,13 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         private readonly IUserAnswerRecordClientRepo _userAnswerRecordClientRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IFileRepo _fileRepo;
-        public ResultModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IFileRepo fileRepo, IRedisCachingProvider redisCachingProvider)
+        private readonly IUserAnswerSubmitRecordRepo _userAnswerSubmitRecordRepo;
+        public ResultModel(IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IFileRepo fileRepo, IRedisCachingProvider redisCachingProvider,IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo)
         {
             _userAnswerRecordClientRepo = userAnswerRecordClientRepo;
             _fileRepo = fileRepo;
             _redisCachingProvider = redisCachingProvider;
+            _userAnswerSubmitRecordRepo = userAnswerSubmitRecordRepo;
         }
 
         [BindProperty]
@@ -69,8 +71,17 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             {
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("答题记录不存在或已失效"));
             }
-            var record = await _userAnswerRecordClientRepo.Marking(urid, force == 1);
-
+            if(!await _redisCachingProvider.KeyExistsAsync("markingProcess"))
+            {
+                await _redisCachingProvider.StringSetAsync("markingProcess", urid.ToString(), TimeSpan.FromSeconds(10));
+                if (await _userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, force) < 0)
+                {
+                    return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("评分失败"));
+                }
+            }
+            
+            //var record = await _userAnswerRecordClientRepo.Marking(urid, force == 1);
+            var record = await _userAnswerRecordClientRepo.GetUserRecordDetailById(urid);
             Urid = urid;
             Force = force;
             ExamId = record.ExamId;

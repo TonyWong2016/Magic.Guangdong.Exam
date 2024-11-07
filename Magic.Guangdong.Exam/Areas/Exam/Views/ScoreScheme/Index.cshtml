@@ -49,9 +49,14 @@
 </script>
 
 <script type="text/html" id="operationTpl">
+    {{# if(d.id == 0 ){ }}
+        <a class="layui-btn layui-btn-primary layui-disabled" href="javascript:;"><i class="layui-icon layui-icon-lock"></i>默认标准不可删改！</a>
 
-     <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>修改</a>
+    {{# } else { }}
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>修改</a>
+
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deleteScheme('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    {{# } }}
 </script>
 
 <script>
@@ -101,7 +106,7 @@
                 'Value': jVal('keyword')
             });
         }
-        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'createdAt', 'isAsc': false, 'rd': randomInt }
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'createdAt', 'isAsc': true, 'rd': randomInt }
     }
 
     function deleteScheme(id) {

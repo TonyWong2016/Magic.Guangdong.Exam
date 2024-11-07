@@ -40,11 +40,8 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "rd" })]
         public async Task<IActionResult> GetSelectItems()
         {
-            return Json(_resp.success(new
-            {
-                items = (await _scoreSchemeRepo.getListAsync(u => u.IsDeleted == 0))
-                .Select(u => new { u.Id, u.Title })
-            }));
+            return Json(_resp.success((await _scoreSchemeRepo.getListAsync(u => u.IsDeleted == 0))
+                .Select(u => new { value = u.Id, text = u.Title })));
         }
 
         public IActionResult Create()
@@ -93,6 +90,10 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             if (scheme == null)
             {
                 return Json(_resp.error("标准不存在"));
+            }
+            if (scheme.Id == 0)
+            {
+                return Json(_resp.error("默认标准不可删除"));
             }
             scheme.IsDeleted = 1;
             return Json(_resp.success(await _scoreSchemeRepo.updateItemAsync(scheme)));

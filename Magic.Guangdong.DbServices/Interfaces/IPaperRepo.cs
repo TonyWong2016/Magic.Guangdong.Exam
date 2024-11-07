@@ -60,6 +60,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="idNumber"></param>
         /// <param name="adminId"></param>
         /// <returns></returns>
+        [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         Task<dynamic> Marking(string idNumber, Guid paperId, string adminId);
     }
 }
