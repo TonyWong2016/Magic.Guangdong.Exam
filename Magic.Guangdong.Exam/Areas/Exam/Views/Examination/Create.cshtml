@@ -156,6 +156,27 @@
                 <br />否-超时后也会给予相应的成绩
             </blockquote>
         </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">独立访问</label>
+            <div class="layui-input-block">
+                <select asp-for="IndependentAccess">
+                    <option value=0 selected>不允许</option>
+                    <option value=1>允许</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">免登录</label>
+            <div class="layui-input-block">
+                <select asp-for="LoginRequired">
+                    <option value=0 selected>不允许</option>
+                    <option value=1>允许</option>
+                </select>
+            </div>
+        </div>
+
         <div class="layui-form-item" style="display:none">
             <label class="layui-form-label">答题条件（双击）</label>
             <div class="layui-input-block">

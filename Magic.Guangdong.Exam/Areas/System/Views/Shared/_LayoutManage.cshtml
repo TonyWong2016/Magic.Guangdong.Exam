@@ -18,11 +18,56 @@
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
+        function mainTheme(bg){
+           if(bg){
+            localStorage.setItem('main-bg-color',bg);
+           }
+            //$('.main-bg-color').attr('style:background-color','#'+bg+'!important');
+            $('.main-bg').each((item,elem)=>{
+               $(elem)
+               .removeClass('main-bg-color')
+               .removeClass('main-bg-blue-normal')
+               .removeClass('main-bg-blue-activity')
+               .removeClass('main-bg-blue-black')
+               .removeClass('main-bg-jade')
+               .addClass(bg);
+            })
+        }
+        setTimeout(()=>{
+                    mainTheme(localStorage.getItem('main-bg-color'));
+
+        },200)
     </script>
+    <style>
+        .main-bg-color {
+            background-color: #0F3888 !important;
+            color: #fff !important;
+        }
+
+        .main-bg-blue-normal {
+            background-color: #3C71F7 !important;
+            color: #fff !important;
+        }
+
+        .main-bg-blue-activity {
+            background-color: #1e9fff !important;
+            color: #fff !important;
+        }
+
+        .main-bg-blue-black {
+            background-color: #080F2D !important;
+            color: #fff !important;
+        }
+
+        .main-bg-jade {
+            background-color: #00895A !important;
+            color: #fff !important;
+        }
+    </style>
 </head>
 <body>
     <div class="layui-layout layui-layout-admin">
-        <div class="layui-header layui-bg-blue">
+        <div class="layui-header layui-bg-blue main-bg main-bg-color">
             <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
                 @ViewData["ProviderName"]
             </div>
@@ -34,8 +79,20 @@
                 </li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="$('#main-container').attr('src', '/system/dashboard/index');">Dashboard</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中！该特性为SaaS类软件产品的核心概念，通过开通不同的租户来管理不同的客户数据，使租户数据在物理隔离的前提下仍能实现业务的一致性。',{icon:4})">租户管理</a></li>
-                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="openTimeLine()" style="color:yellow">🌕更新记录</a></li>
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" id="releaseLog" onclick="openTimeLine()" style="color:yellow">🌕更新记录</a></li>
+                <li class="layui-nav-item layui-hide-xs layui-show-sm-inline-block">
+                    <a href="javascript:;">
+                        <font>主题配色</font>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick="mainTheme('main-bg-color')" href="javascript:;" style="font-weight:bolder;color:#0F3888">干部蓝</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-blue-normal')" href="javascript:;" style="font-weight:bolder;color:#1e9fff">经典蓝</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-blue-activity')" href="javascript:;" style="font-weight:bolder;color:#3C71F7">活力蓝</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-blue-black')" href="javascript:;" style="font-weight:bolder;color:#080F2D">蓝黑</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-jade')" href="javascript:;" style="font-weight:bolder;color:#00895A">宝石绿</a></dd>
 
+                    </dl>
+                </li>
             </ul>
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
@@ -56,9 +113,9 @@
                 </li>
             </ul>
         </div>
-        <div class="layui-side layui-bg-blue">
+        <div class="layui-side layui-bg-blue main-bg main-bg-color">
             <div class="layui-side-scroll">
-                <ul class="layui-nav layui-nav-tree layui-bg-blue" lay-filter="sideNav" id="sideNav">
+                <ul class="layui-nav layui-nav-tree layui-bg-blue main-bg main-bg-color" lay-filter="sideNav" id="sideNav">
                 </ul>
             </div>
         </div>
@@ -270,8 +327,7 @@
 
         jHtmlSet('adminName', localStorage.getItem('userName'))
 
-        function openTimeLine() {
-            let jsonArr = [
+        const releasejsonArr = [
                 { 'icon': 'flag', 'title': '2024.03','author':'tony,miao', 'content': '立项，总结需求文档，分别为：<br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/psgtdd04r47tfa50?singleDoc#"> 《广东省教协在线考试系统设计草案》</a><br /><a target="_blank" href="https://www.yuque.com/yuqueyonghuhz99ts/iw926p/re57l9zvs1g5o7ek?singleDoc#">《广东教育协会考试系统项目整理》 密码：lan1</a>' },
                 { 'icon': 'github', 'title': '2024.04','author':'tony', 'content': '开始搭建项目框架，以及各类基础设施，消息队列，缓存，日志，支付中心等' },
                 { 'icon': 'release', 'title': '2024.05','author':'tony', 'content': '第一个版本开发完成，包含管理后台，客户端答题' },
@@ -287,12 +343,26 @@
                 { 'icon': 'note', 'title': '2024.10.23', 'author': 'tony', 'content': '处理修复反馈的问题，共计10条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.22</a>' },
                 { 'icon': 'note', 'title': '2024.10.24', 'author': 'tony', 'content': '处理修复反馈的问题，共计4条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.24</a>' },
                 { 'icon': 'note', 'title': '2024.10.28', 'author': 'tony', 'content': '处理修复反馈的问题，共计7条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.28</a>' },
-                { 'icon': 'tree', 'title': '2024.11.07🌳', 'author': 'tony', 'content': '增加评分标准模型，判分时读取新的标准' },
+                { 'icon': 'tree', 'title': '2024.11.07🌳', 'author': 'tony', 'content': '增加评分标准模型，判分时读取新的标准；<br/> 考试模型可以绑定指定的评分模型，需要注意考试产生了答题记录，就不可以修改评分模型了；<br/>重构客观题判分方法，采用统一的判分入口，且优化了数据结构，比如把原来的大值传递改为引用传递，性能提升明显，且增加了粗粒度的并发控制🔥' },
+                { 'icon': 'star', 'title': '2024.11.08', 'author': 'tony', 'content': '增加主题配色' },
 
-            ]
-            renderTpl('timelineTpl', 'timelineView', jsonArr.reverse(), false);
+            ];
+        
+        function openTimeLine() {
+            renderTpl('timelineTpl', 'timelineView', releasejsonArr, false);
             openDiv('项目推进时间线', 'timelineView', '50%', '80%')
+            localStorage.setItem('releaseVersion', releasejsonArr[0].title);
         }
+
+        setTimeout(()=>{
+            let releaseVersion = releasejsonArr.reverse()[0].title;
+            let localReleaseVersion=localStorage.getItem('releaseVersion');
+            if(releaseVersion !== localReleaseVersion ){
+                layer.tips('有新的更新，点击查看', '#releaseLog', {
+                    tips: [1, '#16b777']
+                })
+            }
+        },100)
         
     </script>
 </body>

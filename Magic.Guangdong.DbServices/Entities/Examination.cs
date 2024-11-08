@@ -140,6 +140,12 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
 		[JsonProperty]
 		public long SchemeId { get; set; } = 0;
+
+		/// <summary>
+		/// 是否需要登录
+		/// </summary>
+		[JsonProperty]
+		public int LoginRequired { get; set; } = 1;
     }
 
 	public enum ExamStatus

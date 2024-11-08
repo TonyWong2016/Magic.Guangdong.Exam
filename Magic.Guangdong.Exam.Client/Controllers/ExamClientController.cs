@@ -36,7 +36,29 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return View();
         }
 
-
+        #region 主动提供reportid的验证相关接口，需要先登录
+        /// <summary>
+        /// 获取报名的考试记录
+        /// 注意，该接口的前提是，先登录，且已经报名了
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> GetReportExamsForClient(ReportExamDto dto)
+        {            
+            var items = await _examRepo.GetReportExamsForClient(dto);
+            if (items == null || items.Count == 0)
+            {
+                return Json(_resp.error("没有报名的考试记录"));
+            }
+            return Json(_resp.success(items));
+        }
+        
+        /// <summary>
+        /// 验证报考信息
+        /// 注意，这个是主动验证，搭配的接口是GetReportExamsForClient，即需要提供reportid
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public async Task<IActionResult> InfoVerificationAuto(ReportExamDto dto)
         {
             var result = await _examRepo.InfoVerificationAuto(dto);
@@ -47,16 +69,37 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             return Json(_resp.error(result));
         }
 
+        #endregion
 
-        public async Task<IActionResult> GetReportExamsForClient(ReportExamDto dto)
-        {            
-            var items = await _examRepo.GetReportExamsForClient(dto);
-            if (items.Count == 0)
+
+        #region 不主动提供reportid相关接口，不需要先登录
+        /// <summary>
+        /// 获取考试列表
+        /// 这个就是单纯的获取考试列表，和报名无关
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> GetExamsForClient(OnlyGetExamDto dto)
+        {
+            var items = await _examRepo.GetExamsForClient(dto);
+            if (items == null || items.Count == 0)
             {
-                return Json(_resp.error("没有报名的考试记录"));
+                return Json(_resp.error("没有可用的考试记录"));
             }
             return Json(_resp.success(items));
         }
+
+        /// <summary>
+        /// 验证考试信息
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> InfoVerificationByNumber(OnlyGetExamDto dto)
+        {
+            var result = await _examRepo.InfoVerificationByNumber(dto);
+            return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
+        }
+        #endregion
 
         /// <summary>
         /// 抽卷

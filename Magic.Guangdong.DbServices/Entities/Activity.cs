@@ -70,6 +70,12 @@ namespace Magic.Guangdong.DbServices.Entities {
 		/// </summary>
 		[JsonProperty]
 		public string Remark { get; set; } = "";
+
+		/// <summary>
+		/// 是否允许独立报名（不依托申报系统）
+		/// </summary>
+		[JsonProperty]
+		public int IndependentReport { get; set; } = 0;
     }
 
 }

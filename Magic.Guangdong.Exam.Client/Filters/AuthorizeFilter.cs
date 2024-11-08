@@ -35,7 +35,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             Assistant.Logger.Info("访问：" + page);
 
             //var descriptor = context.ActionDescriptor;
-            if (page.Contains("error") || page.Contains("open"))
+            if (page.Contains("error") || page.Contains("open") || page.ToLower().Equals("/exam/verify"))
             {
                 Assistant.Logger.Debug("访问公开接口");
                 return;

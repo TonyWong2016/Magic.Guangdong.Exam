@@ -1,7 +1,6 @@
 ﻿@page
-@model IndexModel
+@model VerifyModel
 @{
-    ViewData["SubTitle"] = "信息认证";
     Layout = "_LayoutExam";
 }
 <style>
@@ -10,9 +9,17 @@
     }
 
     @@keyframes blink {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
     }
 </style>
 <main class="main container">
@@ -112,7 +119,7 @@
 <script type="text/html" id="examTpl">
     {{# layui.each(d,function(index,item){ }}
         {{# if(item.status==0){ }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}"  data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">
                 {{# if(item.associationTitle == item.title) { }}
                     {{item.title}}
                 {{# } else { }}
@@ -120,7 +127,7 @@
                 {{# } }}
             </option>
         {{# } else { }}
-            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}"data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(未到考试时间)</option>
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}"  data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(未到考试时间)</option>
         {{# } }}
     {{# }) }}
 </script>
@@ -138,12 +145,10 @@
     let verificationResult = false;
 
     function getMyExams() {
-        axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
+        axios.get('@Url.Action("GetExamsForClient", "ExamClient")', {
             params: {
                 examId: examId,
                 groupCode: groupCode,
-                accountId: accountId,
-                reportId: reportId,
                 examType: 0
             }
         })
@@ -152,10 +157,7 @@
                 if(json.data && json.data.length>0){
                     renderTpl("examTpl", "exam", json.data, examId == '');
                     jValSet("examTimeSpan", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
-                    if (groupCode == 'auto' && examId && reportId) {
-                        jValSet('idNumber', json.data[0].reportNumber);
-                        getReportInfo()
-                    }
+                    
                     if (json.data[0].pageConfig) {
                         localStorage.setItem('examPageConfig', json.data[0].pageConfig);
                         renderPageConfig()
@@ -167,12 +169,13 @@
     }
 
 
+
     function configExamPage(cfg){
         let pageJson = JSON.parse(cfg);
-        
+
         if(pageJson.headerPg)
             $('#headerPg').attr('src',pageJson.headerPg);
-        
+
         if(pageJson.footerPg)
             $('#footerPg').attr('src',pageJson.footerPg);
 
@@ -210,7 +213,7 @@
             $('#CreateMyExam').html(result);
             $('#idNumber').attr('aria-invalid', false)
             $('#CreateMyExam').html('身份证号码核验中...').attr('aria-busy', true);
-            queryModel.HashIdCard = md5(idNumber);
+            queryModel.hashIdCard = md5(idNumber);
             queryModel.reportNumber = '';
             return true;
         }
@@ -218,8 +221,7 @@
             //idNumberType = 'reportNumber';
             $('#idNumber').attr('aria-invalid', false);
             $('#CreateMyExam').html('准考证号核验中...').attr('aria-busy', true);
-            queryModel.securityIdCard = '';
-            queryModel.HashIdCard='';
+            queryModel.hashIdCard='';
             queryModel.reportNumber = idNumber;
             return true;
         }
@@ -229,16 +231,16 @@
         return false;
     }
 
-    //身份验证
+    //身份验证(写到这了！！20241108)
     function getReportInfo() {
         $('#CreateMyExam').removeAttr('aria-busy')
-        
+
         if (!formatVerification()) {
             return;
         }
         queryModel.examId = examId;
-        queryModel.reportId = reportId;
-        axios.get('@Url.Action("InfoVerificationAuto", "ExamClient")',
+        //queryModel.reportId = reportId;
+        axios.get('@Url.Action("InfoVerificationByNumber", "ExamClient")',
             {
                 params:
                     queryModel
@@ -275,11 +277,11 @@
                 $('#idNumber').attr('aria-invalid', true)
 
                 return;
-                
+
             })
     }
-    
-    
+
+
     //抽卷去考试
     async function ConfirmMyPaper(){
         $("#btnConfirm").hide();
@@ -291,7 +293,7 @@
         formData.append('idNumber', jVal('idNumber'))
         let ret = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
         let json = ret.data;
-        
+
         if (json.code == 1 && json.data) {
             TT.warning(json.msg);
             json.data.complated == 1 ? location.href = `/exam/result?urid=${json.data.id}` : location.href = `/exam/paper?urid=${json.data.id}&pid=${json.data.paperId}`;
@@ -307,7 +309,7 @@
         TT.error(json.msg);
         $("#btnConfirm").show();
         $("#btnConfirm2").hide();
-       
+
     }
 
 </script>

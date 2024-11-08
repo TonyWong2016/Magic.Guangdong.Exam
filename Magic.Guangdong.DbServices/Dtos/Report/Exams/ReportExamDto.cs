@@ -54,4 +54,17 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Exams
         public string idNumber { get; set; }
 
     }
+
+    public class OnlyGetExamDto
+    {
+        public Guid? examId { get; set; }
+
+        public string groupCode { get; set; }
+
+        public int examType { get; set; } = -1;
+
+        public string hashIdcard { get; set; }
+
+        public string reportNumber { get; set; }
+    }
 }

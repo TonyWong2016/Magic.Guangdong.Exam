@@ -58,6 +58,17 @@
                     </select>
                 </div>
             </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">独立申报</label>
+                <div class="layui-input-block">
+                    <select asp-for="IndependentReport">
+                        <option value=0 selected>不允许（需要对接公司原有申报系统）</option>
+                        <option value=1>允许（使用考试系统自有流程完成报名，不依赖申报系统）</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="layui-form-item" style="margin-left:110px">
                 <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
                 <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>

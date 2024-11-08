@@ -141,4 +141,18 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
         public string ReportNumber { get; set; }
     }
+
+    public class ReturnVerifyResult
+    {
+        public long reportId { get; set; }
+
+        public long recordId { get; set; }
+
+        public ExamComplated complated { get; set; } = ExamComplated.No;
+
+
+        public int verifyCode { get; set; } = 0;
+
+        public string verifyMsg { get; set; }
+    }
 }

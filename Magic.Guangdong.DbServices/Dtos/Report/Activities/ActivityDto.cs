@@ -28,6 +28,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
         //public decimal Expenses { get; set; } = 0;
 
         public string FieldJson { get; set; } = "{}";
+
+        public int IndependentReport { get; set; } = 0;
     }
 
     public class ActivityReportDto()

@@ -1,56 +1,49 @@
-using Magic.Guangdong.Assistant;
-using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos;
-using Magic.Guangdong.DbServices.Entities;
-using Magic.Guangdong.DbServices.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
+using FreeSql.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Tokens;
-using System.Linq.Expressions;
 
 namespace Magic.Guangdong.Exam.Client.Pages.Exam
 {
-    public class IndexModel : PageModel
+    public class VerifyModel : PageModel
     {
-        private readonly IResponseHelper _resp;
-        //private readonly IExaminationClientRepo _examRepo;
         public string examId { get; set; } = "";
         public string groupCode { get; set; } = "";
 
         public long reportId { get; set; }
 
         public string reportNumber { get; set; }
-        public IndexModel(IResponseHelper responseHelper)
+        public IActionResult OnGet(string examId, string groupCode, long? reportId)
         {
-            _resp = responseHelper;
-        }
-
-        public IActionResult OnGet(string examId,string groupCode,long? reportId)
-        {
-            if(string.IsNullOrEmpty(examId) && reportId==null)
+            if (string.IsNullOrEmpty(examId) && reportId == null)
             {
                 Assistant.Logger.Error("非法请求");
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("非法请求"));
 
             }
             //后面那个条件是为了兼容旧版，真的我当时脑残了用这个参数做判断~
-            if(!string.IsNullOrEmpty(groupCode) && groupCode!="auto" && !Request.Cookies.Where(u=>u.Key=="accountId").Any())
+            if (!string.IsNullOrEmpty(groupCode) 
+                && groupCode != "auto" 
+                && !Request.Cookies.Where(u => u.Key == "accountId").Any())
             {
                 Response.Cookies.Append("accountId", "nologinrequired-" + groupCode, new CookieOptions()
                 {
                     Expires = DateTimeOffset.Now.AddDays(1),
                     HttpOnly = false,
-                    SameSite=SameSiteMode.Lax
+                    SameSite = SameSiteMode.Lax
+                });
+                Response.Cookies.Append("idToken", "nologinrequired-" + Assistant.Utils.DateTimeToTimeStamp(DateTime.Now), new CookieOptions()
+                {
+                    Expires = DateTimeOffset.Now.AddDays(1),
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.Lax
                 });
             }
             this.examId = examId;
             this.groupCode = groupCode;
             if (reportId != null)
                 this.reportId = (long)reportId;
-            
+            //return Redirect($"/Exam/Index?examId={examId}&groupCode={groupCode}&reportId={reportId}");
             return Page();
         }
-
     }
 }

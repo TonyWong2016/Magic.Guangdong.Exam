@@ -108,6 +108,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
 
         public long SchemeId { get; set; }
 
-        public int IsDependentAccess { get; set; } = 0;
+        public int IndependentAccess { get; set; } = 0;
+
+        public int LoginRequired { get; set; }
     }
 }

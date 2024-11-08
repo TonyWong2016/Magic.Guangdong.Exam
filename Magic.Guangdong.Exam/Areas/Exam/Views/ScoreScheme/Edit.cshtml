@@ -15,7 +15,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 回答正确</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="CorrectAction" placeholder="回答正确后的加分政策，这里填入倍数，如1，2，2.5等" lay-verify="required|number" required />
+                <input class="layui-input" asp-for="CorrectAction" placeholder="回答正确后的加分政策，这里填入倍数，如1，2，2.5等" lay-verify="required|number|abs" required />
             </div>
 
         </div>
@@ -23,14 +23,14 @@
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 回答错误</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="WrongAction" placeholder="回答错误后的得分政策，这里填入倍数，如0，1，2，2.5等，注意，这里如果输入大于0的数字，则相应扣除对应倍数的分数" lay-verify="required|number" required />
+                <input class="layui-input" asp-for="WrongAction" placeholder="回答错误后的得分政策，这里填入倍数，如0，1，2，2.5等" lay-verify="required|number|abs" required />
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label"><span class="layui-badge-dot"></span> 没有做答</label>
             <div class="layui-input-block">
-                <input class="layui-input" asp-for="EmptyAction" placeholder="没有提交任何答案时的评分标准，默认不给分，这里填入倍数，如1，2，2.5等" lay-verify="required|number" required />
+                <input class="layui-input" asp-for="EmptyAction" placeholder="没有提交任何答案时的评分标准，默认不给分，这里填入倍数，如1，2，2.5等" lay-verify="required|number|abs" required />
             </div>
         </div>
 
@@ -38,7 +38,7 @@
             <blockquote class="layui-elem-quote" style="color:red">
                 <i class="layui-icon layui-icon-notice"></i>  注意
                 <br />
-                【回答正确】这里如果填写非1的数字，将会对应的给与指定倍数的分数，如这里填2，判分时，如果题目是2分，则答错后会得4分（2*2）；此时，用户最终成绩可能高于试卷原有总分数！
+                【回答正确】这里如果填写非1的数字，将会对应的给与指定倍数的分数，如这里填2，判分时，如果题目是2分，则答对后会得4分（2*2）；此时，用户最终成绩可能高于试卷原有总分数！
                 <br />
                 【回答错误】或【没有做答】处如果填写非0的数字，将会对应的扣除指定倍数的分数，如这里填1，判分时，如果题目是2分，则答错后会扣2分（2*1）; 此时，用户最终成绩可能低于0分！
                 <br />
@@ -63,6 +63,14 @@
 <script>
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
+
+    form.verify({
+        abs: function (value) {
+            if (value < 0) {
+                return '请输入非负数，即大于等于0的数字';
+            }
+        }
+    });
 
     form.on("submit(save)", async function (data) {
         let formData = objectToFormData(data.field);
