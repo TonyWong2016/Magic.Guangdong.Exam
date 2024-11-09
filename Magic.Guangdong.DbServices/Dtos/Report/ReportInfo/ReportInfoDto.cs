@@ -150,9 +150,23 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
         public ExamComplated complated { get; set; } = ExamComplated.No;
 
-
         public int verifyCode { get; set; } = 0;
 
         public string verifyMsg { get; set; }
+
+        public VerifyReportInfo verifyReportInfo { get; set; }
+    }
+
+    public class VerifyReportInfo
+    {
+        public string name { get; set;  }
+
+        public string secruityIdCard { get; set;  }
+
+        public string mobile { get; set; }
+
+        public string email { get; set; } 
+
+        public string reportNumber { get; set; }
     }
 }

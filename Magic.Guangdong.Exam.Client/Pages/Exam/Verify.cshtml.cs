@@ -1,4 +1,5 @@
 using FreeSql.Internal;
+using Magic.Guangdong.Assistant;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -25,17 +26,24 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
                 && groupCode != "auto" 
                 && !Request.Cookies.Where(u => u.Key == "accountId").Any())
             {
-                Response.Cookies.Append("accountId", "nologinrequired-" + groupCode, new CookieOptions()
+                string accountId = "nologinrequired-" + groupCode;
+                Response.Cookies.Append("accountId", accountId, new CookieOptions()
                 {
                     Expires = DateTimeOffset.Now.AddDays(1),
                     HttpOnly = false,
                     SameSite = SameSiteMode.Lax
                 });
-                Response.Cookies.Append("idToken", "nologinrequired-" + Assistant.Utils.DateTimeToTimeStamp(DateTime.Now), new CookieOptions()
+                string idToken = "nologinrequired-" + Assistant.Utils.DateTimeToTimeStamp(DateTime.Now);
+                Response.Cookies.Append("idToken", idToken, new CookieOptions()
                 {
                     Expires = DateTimeOffset.Now.AddDays(1),
                     HttpOnly = false,
                     SameSite = SameSiteMode.Lax
+                });
+                Response.Cookies.Append("clientsign",Security.GenerateMD5Hash(accountId+idToken+ConfigurationHelper.GetSectionValue("SecretPwd")), new CookieOptions()
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.Now.AddHours(6)
                 });
             }
             this.examId = examId;

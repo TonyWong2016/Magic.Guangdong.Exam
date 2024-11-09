@@ -18,6 +18,33 @@ axiosInstance.interceptors.request.use(function (config) {
     }
     return config;
 }, function (error) {
+    const { response } = error;
+    if (response && response.status === 401) {
+        try {
+            const data = response.data;
+            alert(data.message); // 显示错误信息
+            window.location.href = data.redirectTo; // 重定向到指定地址
+        } catch (e) {
+            console.error('Failed to parse response:', e);
+        }
+    }
+    return Promise.reject(error);
+});
+
+axios.interceptors.response.use(function (response) {
+    // 对响应数据做点什么
+    return response;
+}, function (error) {
+    const { response } = error;
+    if (response && response.status === 401) {
+        try {
+            const data = response.data;
+            alert(data.message); // 显示错误信息
+            window.location.href = data.redirectTo; // 重定向到指定地址
+        } catch (e) {
+            console.error('Failed to parse response:', e);
+        }
+    }
     return Promise.reject(error);
 });
 

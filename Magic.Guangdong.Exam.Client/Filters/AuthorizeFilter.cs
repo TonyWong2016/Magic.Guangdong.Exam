@@ -35,35 +35,79 @@ namespace Magic.Guangdong.Exam.Client.Filters
             Assistant.Logger.Info("访问：" + page);
 
             //var descriptor = context.ActionDescriptor;
-            if (page.Contains("error") || page.Contains("open") || page.ToLower().Equals("/exam/verify"))
+            if (page.ToLower().Contains("error") || page.Contains("open"))
             {
                 Assistant.Logger.Debug("访问公开接口");
                 return;
             }
+
+
             var cookies = context.HttpContext.Request.Cookies;
-            if (!cookies.Where(u => u.Key == "accountId").Any() && !page.Contains("account") )
+            
+            if (page.ToLower().Equals("/exam/verify"))
             {
-                var item = new RedirectResult("/account/me");
-                context.Result = item;
-                Assistant.Logger.Error("登录信息已注销~");
+                Assistant.Logger.Debug("免登录答题");
+                return;
+            }
+            if (!cookies.Where(u => u.Key == "accountId").Any() 
+                && !cookies.Where(u => u.Key == "idToken").Any()
+                && !page.Contains("account") )
+            {
+                //var item = new RedirectResult("/account/me");
+                //context.Result = item;
+                //Assistant.Logger.Error("登录信息已注销~");
+                contextHandle(context, "登录信息已注销~", "/account/me");
+                return;
+            }
+
+            if(!cookies.Where(u=>u.Key== "clientsign").Any())
+            {
+                contextHandle(context, "非法登录");
+
+                return;
+            }
+
+            string sign = cookies.Where(u => u.Key == "clientsign").FirstOrDefault().Value;
+            string accountId = cookies.Where(u => u.Key == "accountId").FirstOrDefault().Value;
+            string idToken = cookies.Where(u => u.Key == "idToken").FirstOrDefault().Value;
+            if(sign != Assistant.Security.GenerateMD5Hash(accountId+idToken+ Assistant.ConfigurationHelper.GetSectionValue("SecretPwd")))
+            {
+
+                contextHandle(context, "非法登录");
+
                 return;
             }
             return;
-            ////cookie身份验证
-            //Guid accountId;
-            //if (!CookieCheck(context, out accountId))
-            //{
-            //    return;
-            //}
+            
 
-            ////非get请求，请求头验证
-            //if (!HeaderCheck(context))
-            //{                
-            //    return;
-            //}
+        }
 
-            ////string header = context.HttpContext.Request.Headers["Authorization"];
-            //Assistant.Logger.Info("page:" + page);
+        public void contextHandle(AuthorizationFilterContext context,string msg="非法登录",string url="/error")
+        {
+            // 检查是否为 AJAX 请求
+            // 检查是否为 AJAX 请求
+            bool isAjaxRequest = context.HttpContext.Request.Headers.ContainsKey("X-Requested-With") &&
+                                 context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                                 context.HttpContext.Request.Headers.ContainsKey("Accept") &&
+                                 context.HttpContext.Request.Headers["Accept"].ToString().Contains("application/json");
+            if (isAjaxRequest)
+            {
+                // 对于 AJAX 请求，返回一个 JSON 格式的结果
+                var result = new ContentResult
+                {
+                    Content = "{\"message\": \"" + msg+ "\", \"redirectTo\":\"" + url+"?msg="+Assistant.Utils.EncodeUrlParam(msg)+ "\"}",
+                    ContentType = "application/json",
+                    StatusCode = 401 // 可以设置状态码为 401 表示未授权
+                };
+                context.Result = result;
+            }
+            else
+            {
+                // 对于非 AJAX 请求，可以正常重定向
+                var item = new RedirectToPageResult(url+"?" + Assistant.Utils.EncodeUrlParam(msg));
+                context.Result = item;
+            }
+            Assistant.Logger.Error(msg);
 
         }
 

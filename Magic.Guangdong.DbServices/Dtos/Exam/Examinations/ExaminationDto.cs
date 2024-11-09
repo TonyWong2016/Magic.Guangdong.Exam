@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.DbServices.Entities;
+﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.DbServices.Entities;
 using MassTransit;
 using Newtonsoft.Json;
 using System;
@@ -45,6 +46,14 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
         /// 聚合码，设置之后，可以生成聚合多个考试的二维码
         /// </summary>
         public string GroupCode { get; set; } = "";
+
+        public string RandomGroupCode 
+        { 
+            get
+            {
+                return DateTime.Now.ToString("yyMMdd") + Utils.GenerateRandomCodePro(4, 3);
+            } 
+        }
 
         public int IsDeleted { get; set; } = 0;
 

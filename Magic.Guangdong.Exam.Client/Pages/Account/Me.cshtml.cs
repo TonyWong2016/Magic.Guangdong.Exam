@@ -29,7 +29,8 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
             var requestCookies = _httpContextAccessor.HttpContext.Request.Cookies;
             if (requestCookies.Any(u => u.Key == "accountId") &&
                 requestCookies.Any(u => u.Key == "idToken") &&
-                !string.IsNullOrEmpty(requestCookies.Where(u => u.Key == "idToken").FirstOrDefault().Value)
+                !string.IsNullOrEmpty(requestCookies.Where(u => u.Key == "idToken").FirstOrDefault().Value) &&
+                requestCookies.Any(u=>u.Key== "clientsign") 
                 )
             {
                 Assistant.Logger.Debug($"凭证仍然有效" +
@@ -44,6 +45,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
             {
                 return;
             }
+            string unsignstr = "";
             if (result.Principal.Claims.Any(u => u.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
             {
                 var accountId = result.Principal.Claims.Where(u => u.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").FirstOrDefault().Value;
@@ -52,6 +54,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
                 {
                     Expires = DateTimeOffset.Now.AddHours(6)
                 });
+                unsignstr += accountId;
             }
             if (result.Properties.Items.Any(u => u.Key == ".Token.id_token"))
             {
@@ -65,9 +68,19 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
                 {
                     Expires = DateTimeOffset.Now.AddHours(6)
                 });
-            }
+                unsignstr += idToken;
 
+            }
+            string sign = Assistant.Security.GenerateMD5Hash(unsignstr + Assistant.ConfigurationHelper.GetSectionValue("SecretPwd"));
+
+            Response.Cookies.Append("clientsign", sign, new CookieOptions()
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.Now.AddHours(6)
+            });
             Assistant.Logger.Debug("登录完成");
         }
+
+
     }
 }

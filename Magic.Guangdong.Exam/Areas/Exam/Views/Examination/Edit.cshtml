@@ -164,7 +164,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">免登录</label>
             <div class="layui-input-inline">
-                <select asp-for="LoginRequired">
+                <select asp-for="LoginRequired" lay-filter="LoginRequired">
                     <option value=0 selected>不允许</option>
                     <option value=1>允许</option>
                 </select>
@@ -288,7 +288,6 @@
     let token = $('@Html.AntiForgeryToken()').val();
     let laydate = layui.laydate;
     let base_ajax_url = '';
-
     let pageConfigJson = {
         'headerBackgroundImg': '',
         'footerBackgroundImg': '',
@@ -395,7 +394,13 @@
         }
     })
 
-
+    form.on('select(LoginRequired)', (data)=>{
+        if (data.value == 1) {
+            $('#GroupCode').val('@Model.RandomGroupCode');
+        }else{
+            $('#GroupCode').val('');
+        }
+    })
 
     function getExamMini() {
         let initAttachmentId = '@Model.AttachmentId';

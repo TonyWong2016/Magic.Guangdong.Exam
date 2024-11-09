@@ -94,6 +94,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
+        //[ResponseCache(Duration = 100,VaryByQueryKeys =new string[] { "examId", "groupCode", "examType", "hashIdcard", "reportNumber" })]
         public async Task<IActionResult> InfoVerificationByNumber(OnlyGetExamDto dto)
         {
             var result = await _examRepo.InfoVerificationByNumber(dto);

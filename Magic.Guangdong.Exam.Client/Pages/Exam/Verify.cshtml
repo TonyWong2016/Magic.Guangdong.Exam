@@ -248,14 +248,16 @@
             .then(data => {
                 $('#CreateMyExam').removeAttr('aria-busy')
                 let json = data.data;
+                reportId = json.data.reportId;
+                let verifyResult = json.data.verifyReportInfo;
                 if (json.code == 0) {
                     let item = $("#exam").find('option:selected');
-                    jHtmlSet('name', item.data('name'));
+                    jHtmlSet('name', verifyResult.name);
                     jHtmlSet('examTitle', item.text());
                     //jHtmlSet('idCard', item.data('idcard'));
-                    jHtmlSet('idCard', item.data('securityidcard'));
-                    jHtmlSet('reportNumber', item.data('reportnumber'));
-                    jHtmlSet('email', item.data('email'));
+                    jHtmlSet('idCard', verifyResult.secruityIdCard);
+                    jHtmlSet('reportNumber', verifyResult.reportNumber);
+                    jHtmlSet('email', verifyResult.email);
                     $('#CreateMyExam').hide();
                     $('#ConfirmExam').show();
                     if (item.data('examtype') == '0') {
@@ -265,8 +267,9 @@
                 }
                 if (json.code == 1) {
                     $('#CreateMyExam').html(json.msg+"，即将跳转到考试界面");
+                    
                     setTimeout(() => {
-                        location.href = `/exam/paper?urid=${json.data}`
+                        location.href = `/exam/paper?urid=${json.data.recordId}`
                     },2000)
                     return;
                 }

@@ -198,12 +198,20 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.Stage == 0)
                 .Where(u => u.IsDeleted == 0)
                 .Where(u => u.ExamId == dto.examId && u.ReportId == reportInfo.ReportId);
-
+          
+            returnVerifyResult.reportId = reportInfo.ReportId;
+            returnVerifyResult.verifyReportInfo = new VerifyReportInfo()
+            {
+                reportNumber = reportInfo.ReportNumber,
+                email = reportInfo.Email,
+                mobile = reportInfo.SecurityMobile,
+                secruityIdCard = reportInfo.SecurityIdCard,
+                name = reportInfo.Name,
+            };
             if (!await recordCheckQuery.AnyAsync())
             {
                 returnVerifyResult.verifyMsg = "ok";
                 returnVerifyResult.verifyCode = 0;
-                returnVerifyResult.recordId = 0;
                 returnVerifyResult.recordId = 0;
                 return returnVerifyResult;
             }
@@ -212,7 +220,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //return "已参加过考试|" + (await recordCheckQuery.ToOneAsync()).Id.ToString();
             returnVerifyResult.verifyMsg = "已经参加过当前考试";
             returnVerifyResult.verifyCode = 1;
-            returnVerifyResult.recordId = record.ReportId;
+            
             returnVerifyResult.complated = record.Complated;
             returnVerifyResult.recordId = record.Id;
             return returnVerifyResult;
