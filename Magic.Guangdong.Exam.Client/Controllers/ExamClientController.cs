@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
@@ -62,6 +63,13 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task<IActionResult> InfoVerificationAuto(ReportExamDto dto)
         {
             var result = await _examRepo.InfoVerificationAuto(dto);
+            if (!await _redisCachingProvider.HExistsAsync("clientsigns", dto.reportId.ToString())
+                      && _contextAccessor.HttpContext != null
+                      && _contextAccessor.HttpContext.Request.Cookies.Any(u => u.Key == "clientsign")) { }
+            {
+                string sign = _contextAccessor.HttpContext.Request.Cookies["clientsign"];
+                await _redisCachingProvider.HSetAsync("clientsigns", sign, dto.reportId.ToString());
+            }
             if (result == "ok")
                 return Json(_resp.success(result));
             else if (result.StartsWith("已参加过考试"))
@@ -97,8 +105,25 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         //[ResponseCache(Duration = 100,VaryByQueryKeys =new string[] { "examId", "groupCode", "examType", "hashIdcard", "reportNumber" })]
         public async Task<IActionResult> InfoVerificationByNumber(OnlyGetExamDto dto)
         {
-            var result = await _examRepo.InfoVerificationByNumber(dto);
-            return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
+            try
+            {
+                var result = await _examRepo.InfoVerificationByNumber(dto);
+                if (result.verifyCode > -1
+                      && !await _redisCachingProvider.HExistsAsync("clientsigns", result.reportId.ToString())
+                      && _contextAccessor.HttpContext != null
+                      && _contextAccessor.HttpContext.Request.Cookies.Any(u => u.Key == "clientsign")) { }
+                {
+                    string sign = _contextAccessor.HttpContext.Request.Cookies["clientsign"];
+                    await _redisCachingProvider.HSetAsync("clientsigns", result.reportId.ToString(),sign);
+                }
+                return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
+            }
+            catch (Exception ex) 
+            {
+                Assistant.Logger.Error(ex);
+                return Json(_resp.error("认证服务异常"));
+            }
+           
         }
         #endregion
 
@@ -141,13 +166,6 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 JsonHelper.JsonSerialize(paper),
                 DateTime.Now.AddMinutes(paper.Duration) - DateTime.Now);
             }
-            //return Json(
-            //       _resp.success(
-            //           JsonHelper
-            //           .JsonDeserialize<FinalPaperDto>(
-            //               await _redisCachingProvider
-            //               .StringGetAsync(paperId.ToString()
-            //               ))));
             return Json(
                    _resp.success(
                        await _redisCachingProvider
@@ -166,17 +184,32 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 dto.submitAnswerStr = "";
 
             if (dto.complatedMode != (int)ExamComplatedMode.Auto)
-            {
+            {               
+
                 await _redisCachingProvider.HDelAsync("UserExamLog", new List<string>() { dto.reportId.ToString() });
                 await _redisCachingProvider.KeyDelAsync("userRecord_" + dto.recordId);
                 await _redisCachingProvider.KeyDelAsync("myReportExamHistories_" + dto.reportId);
                 await _redisCachingProvider.KeyDelAsync("myAccountExamHistories_" + dto.userId);
                 await _redisCachingProvider.KeyDelAsync("userPaper_" + dto.recordId);
+                #region 这里还可以加一个判定，验证用户的sign是否和redis里保存的一致不一致就把它踢走或者标记到服务端，有作弊嫌疑
+                //if (_contextAccessor.HttpContext == null
+                //         || !_contextAccessor.HttpContext.Request.Cookies.Any(u => u.Key == "clientsign"))
+                //{
+                //    return Json(_resp.error("交卷失败，令牌丢失"));
+                //}
+                //string sign = _contextAccessor.HttpContext.Request.Cookies["clientsign"];
+                //if (await _redisCachingProvider.HGetAsync("clientsigns", dto.reportId.ToString()) != sign)
+                //{
+                //    return Json(_resp.error("交卷失败，令牌不一致，请确保使用首次验证的设备进行答题"));
+                //}
+                #endregion
                 //这样写实非我愿啊/(ㄒoㄒ)/~~~
                 if (dto.isPractice == 0)
                     return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPracticePaper(dto));
             }
+
+           
 
             Console.WriteLine($"{DateTime.Now}:发布事务--保存答案");
             await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitMyAnswer", dto);

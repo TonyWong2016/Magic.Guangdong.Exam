@@ -47,13 +47,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
         /// </summary>
         public string GroupCode { get; set; } = "";
 
-        public string RandomGroupCode 
-        { 
-            get
-            {
-                return DateTime.Now.ToString("yyMMdd") + Utils.GenerateRandomCodePro(4, 3);
-            } 
-        }
+        public string RandomGroupCode { get; set; }= DateTime.Now.ToString("yyMMdd") + Utils.GenerateRandomCodePro(4, 3);
+
 
         public int IsDeleted { get; set; } = 0;
 

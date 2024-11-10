@@ -52,8 +52,8 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 string requestMethod = context.HttpContext.Request.Method.ToLower();
                 if (context.HttpContext.Request.Cookies.Where(u => u.Key == "accountId").Any())
                 {
-                    accountId = Utils.FromBase64Str(context.HttpContext.Request.Cookies["accountId"]);
-
+                    //accountId = Utils.FromBase64Str(context.HttpContext.Request.Cookies["accountId"]);
+                    accountId = context.HttpContext.Request.Cookies["accountId"];
                 }
 
                 string router = context.HttpContext.Request.Path.Value;

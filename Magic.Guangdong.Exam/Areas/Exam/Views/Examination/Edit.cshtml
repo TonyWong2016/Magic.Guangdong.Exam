@@ -170,12 +170,12 @@
                 </select>
             </div>
 
-            <div class="layui-input-inline">
-               <input class="layui-input" value="" placeholder="设定允许后生成"/>
+            <div class="layui-input-inline" style="width:30%">
+               <input class="layui-input" id="directUrl" value="" placeholder="设定允许后生成"/>
             </div>
 
             <div class="layui-input-inline">
-                <a href="javascript:;" id="btnQrcode" class="layui-btn layui-border layui-btn-primary"><i class="layui-icon layui-icon-website"></i> 二维码</a>
+                <a href="javascript:;" id="btnQrcode" onclick="makeQrcode()" class="layui-btn layui-border layui-btn-primary"><i class="layui-icon layui-icon-website"></i> 二维码</a>
             </div>
         </div>
 
@@ -276,6 +276,19 @@
     </form>
 </div>
 
+<div class="layui-layer-notice" id="divQrcode" style="display:none;">
+    <div class="layui-card" style="margin-top:10px">
+        <div class="layui-card-body layui-row layui-col-space10">
+            <div id="qrcodeGroupPure" class="layui-col-md5" style="margin-left:10px"></div>
+            <blockquote class="layui-elem-quote layui-col-md6">
+                <p>注意：用户扫码后，需要自行选择要参加的靠考试，输入身份证或者准考证件号码完成验证</p>
+                <p>若二维码尺寸、风格等条件不合适，可复制该链接使用第三方二维码合成工具自行合成。</p>
+            </blockquote>
+        </div>
+    </div>
+
+</div>
+
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/xm-select.js"></script>
@@ -283,6 +296,7 @@
 <script src="~/web/myfcup.js"></script>
 <script src="~/plugins/monaco-editor/min/vs/loader.min.js" defer></script>
 <script src="~/plugins/clipboard/clipboard.min.js"></script>
+<script src="~/plugins/qrcodejs/qrcode.min.js"></script>
 <script>
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
@@ -382,6 +396,10 @@
         $('#divPractice').show();
         getExamMini()
     }
+    if(jVal('LoginRequired') == '1'){
+        
+        $('#directUrl').val('@ViewData["cilentaddr"]&groupcode=@Model.GroupCode')
+    }
 
     form.on('select(ExamType)', (data) => {
         console.log(data.value)
@@ -397,8 +415,10 @@
     form.on('select(LoginRequired)', (data)=>{
         if (data.value == 1) {
             $('#GroupCode').val('@Model.RandomGroupCode');
+            $('#directUrl').val('@ViewData["cilentaddr"]&groupcode=@Model.RandomGroupCode')
         }else{
             $('#GroupCode').val('');
+            $('#directUrl').val('');
         }
     })
 
@@ -417,6 +437,23 @@
                 }
                 form.render('select')
             })
+    }
+
+    function makeQrcode(){
+        jHtmlSet("qrcodeGroupPure", "")
+        if (jVal('LoginRequired') == '1' && $('#directUrl').val()) {
+            var qrcode = new QRCode(document.getElementById("qrcodeGroupPure"), {
+                text: $('#directUrl').val(),
+                width: 260,
+                height: 260,
+                colorDark: "#0F3888",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            openDiv(`二维码地址`, "divQrcode", '720px', '400px', false)
+        } else {
+            warnMsg('不符合创建条件')
+        }
     }
 
     getSchemes()

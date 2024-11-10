@@ -96,7 +96,9 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("创建考试")]
         public IActionResult Create()
         {
-            return View();
+            ViewData["cilentaddr"] = $"{ConfigurationHelper.GetSectionValue("ExamClientHost")}/exam/verify";
+            ViewData["randomCode"] = DateTime.Now.ToString("yyMMdd") +Assistant.Utils.GenerateRandomCodePro(4, 3);
+            return View(new Examination());
         }
 
         /// <summary>
@@ -126,8 +128,11 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         {
             if (await _examinationRepo.getAnyAsync(u => u.Id == id))
             {
-                var exam = await _examinationRepo.getOneAsync(u => u.Id == id);
-                return View(exam.Adapt<ExaminationDto>());
+                var exam =( await _examinationRepo.getOneAsync(u => u.Id == id)).Adapt<ExaminationDto>();
+                if (exam.LoginRequired == 1 && !string.IsNullOrEmpty(exam.GroupCode))
+                    exam.RandomGroupCode = exam.GroupCode;
+                ViewData["cilentaddr"] =$"{ConfigurationHelper.GetSectionValue("ExamClientHost")}/exam/verify?examId={exam.Id}";
+                return View(exam);
             }
             return Redirect("/error?msg=考试不存在");
         }

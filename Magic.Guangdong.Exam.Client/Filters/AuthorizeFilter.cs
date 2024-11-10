@@ -44,9 +44,9 @@ namespace Magic.Guangdong.Exam.Client.Filters
 
             var cookies = context.HttpContext.Request.Cookies;
             
-            if (page.ToLower().Equals("/exam/verify"))
+            if (page.ToLower().Equals("/exam/verify")|| page.ToLower().Equals("/account/me"))
             {
-                Assistant.Logger.Debug("免登录答题");
+                Assistant.Logger.Debug("免登录");
                 return;
             }
             if (!cookies.Where(u => u.Key == "accountId").Any() 
@@ -72,11 +72,10 @@ namespace Magic.Guangdong.Exam.Client.Filters
             string idToken = cookies.Where(u => u.Key == "idToken").FirstOrDefault().Value;
             if(sign != Assistant.Security.GenerateMD5Hash(accountId+idToken+ Assistant.ConfigurationHelper.GetSectionValue("SecretPwd")))
             {
-
-                contextHandle(context, "非法登录");
-
+                contextHandle(context, "未授权");
                 return;
             }
+            
             return;
             
 
@@ -104,7 +103,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             else
             {
                 // 对于非 AJAX 请求，可以正常重定向
-                var item = new RedirectToPageResult(url+"?" + Assistant.Utils.EncodeUrlParam(msg));
+                var item = new RedirectResult(url+"?msg=" + Assistant.Utils.EncodeUrlParam(msg));
                 context.Result = item;
             }
             Assistant.Logger.Error(msg);

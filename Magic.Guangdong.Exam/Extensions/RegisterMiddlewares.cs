@@ -1,6 +1,7 @@
 ﻿using AspNetCoreRateLimit;
 using Autofac.Extensions.DependencyInjection;
 using Coravel;
+using Magic.Guangdong.Exam.AutoJobs.MiddleWare;
 using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
 using Microsoft.AspNetCore.Builder;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -30,12 +31,12 @@ namespace Magic.Guangdong.Exam.Extensions
             app.UseCors("any");
             //app.UseCors();           
             app.UseCookiePolicy();
-            
+
             app.UseResponseCompression();
             app.UseDefaultFiles();
             app.UseResponseCaching();
             app.MapRazorPages();
-            
+
             //注入ip限流中间件
             app.UseIpRateLimiting();
 
@@ -62,13 +63,20 @@ namespace Magic.Guangdong.Exam.Extensions
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(SyncUnitDataFromXXT))
                 ;
+
+                scheduler.OnWorker(nameof(CacheHandle));
+                scheduler
+                    .Schedule<CacheHandle>()
+                    .DailyAt(3, 0)// 每天3点整执行一次
+                    .Zoned(TimeZoneInfo.Local)
+                    .PreventOverlapping(nameof(CacheHandle));
             });
 
             return app;
         }
 
 
-        
+
     }
-   
+
 }

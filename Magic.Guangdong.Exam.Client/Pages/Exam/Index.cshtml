@@ -137,6 +137,14 @@
 
     let verificationResult = false;
 
+    if(accountId && accountId.indexOf('nologin')>-1){
+        clearLoginInfo();
+        xxtLogout();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        getMyExams();
+    });
     function getMyExams() {
         axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
             params: {
@@ -178,7 +186,7 @@
 
     }
 
-    getMyExams();
+    
 
     autoSearch('idNumber', () => {
         getReportInfo()

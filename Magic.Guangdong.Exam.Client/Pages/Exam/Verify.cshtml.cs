@@ -29,14 +29,14 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
                 string accountId = "nologinrequired-" + groupCode;
                 Response.Cookies.Append("accountId", accountId, new CookieOptions()
                 {
-                    Expires = DateTimeOffset.Now.AddDays(1),
+                    Expires = DateTimeOffset.Now.AddHours(6),
                     HttpOnly = false,
                     SameSite = SameSiteMode.Lax
                 });
                 string idToken = "nologinrequired-" + Assistant.Utils.DateTimeToTimeStamp(DateTime.Now);
                 Response.Cookies.Append("idToken", idToken, new CookieOptions()
                 {
-                    Expires = DateTimeOffset.Now.AddDays(1),
+                    Expires = DateTimeOffset.Now.AddHours(6),
                     HttpOnly = false,
                     SameSite = SameSiteMode.Lax
                 });

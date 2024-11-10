@@ -46,7 +46,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .WhereIf(dto.examId != null, u => u.ExamId == dto.examId)
                 .WhereIf(dto.reportId != null && dto.reportId>0, u => u.ReportId == dto.reportId)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.accountId), u => u.AccountId == dto.accountId)
-                .WhereIf(!string.IsNullOrWhiteSpace(dto.groupCode), u => u.GroupCode == dto.groupCode)
+                .WhereIf(!string.IsNullOrWhiteSpace(dto.groupCode) && dto.groupCode!="auto", u => u.GroupCode == dto.groupCode)
                 //.WhereIf(!string.IsNullOrWhiteSpace(dto.idCard), u => u.IdCard == dto.idCard)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.HashIdcard), u => u.HashIdcard == dto.HashIdcard)
                 .WhereIf(!string.IsNullOrWhiteSpace(dto.reportNumber), u => u.ReportNumber == dto.reportNumber)

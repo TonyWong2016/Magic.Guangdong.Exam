@@ -5,22 +5,17 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Dtos.Account;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using NPOI.SS.Formula.Functions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Magic.Passport.DbServices.Interfaces;
 using Mapster;
-using Magic.Guangdong.DbServices.Dtos.Account;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {
@@ -90,6 +85,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             HttpContext.Response.Cookies.Delete("accountName");
             HttpContext.Response.Cookies.Delete("idToken");
             HttpContext.Response.Cookies.Delete(".AspNetCore.Cookies");
+            HttpContext.Response.Cookies.Delete("clientsign");
             Console.WriteLine(url);
             return Redirect(url);
             //return Content("已退出");

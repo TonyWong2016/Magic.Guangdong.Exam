@@ -32,7 +32,7 @@
             </h5>
         </header>
         <form>
-            <label class="examItem" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">考试记录</u></label>
+            <label  class="examItem" id="labelExam" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">考试记录</u></label>
             <select id="exam" class="examItem" required>
                 <option value="">请选择</option>
             </select>
@@ -44,7 +44,7 @@
             <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
             <i style="font-size:smaller" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</i>
 
-            <a id="CreateMyExam" href="javascript:;" aria-busy="false" role="button" style="width:100%;margin-top:12px" class="secondary">提交</a>
+            <a id="CreateMyExam" href="javascript:;" aria-busy="true" role="button" style="width:100%;margin-top:12px" class="secondary">Loading...</a>
 
             <button id="ConfirmExam"
                     class="primary container-fluid"
@@ -144,6 +144,10 @@
 
     let verificationResult = false;
 
+    document.addEventListener('DOMContentLoaded', function () {
+        getMyExams();
+    })
+
     function getMyExams() {
         axios.get('@Url.Action("GetExamsForClient", "ExamClient")', {
             params: {
@@ -153,6 +157,7 @@
             }
         })
             .then(data => {
+                $('#CreateMyExam').attr('aria-busy', false).text('提交')
                 let json = data.data;
                 if(json.data && json.data.length>0){
                     renderTpl("examTpl", "exam", json.data, examId == '');
@@ -181,7 +186,7 @@
 
     }
 
-    getMyExams();
+    
 
     autoSearch('idNumber', () => {
         getReportInfo()

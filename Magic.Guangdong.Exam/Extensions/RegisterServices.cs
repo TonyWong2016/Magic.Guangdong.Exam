@@ -283,6 +283,7 @@ namespace Magic.Guangdong.Exam.Extensions
             
             services.AddScheduler();
             services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
+            services.AddTransient<AutoJobs.MiddleWare.CacheHandle>();
         }
 
         private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)
