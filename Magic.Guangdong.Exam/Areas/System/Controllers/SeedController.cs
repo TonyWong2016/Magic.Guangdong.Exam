@@ -201,6 +201,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         {
             var assembly = Assembly.GetExecutingAssembly();
             var types = assembly.GetTypes().Where(u => u.Namespace != null).Where(u => u.Namespace.StartsWith("Magic.Guangdong.Exam.") && u.Name.EndsWith("Controller"));
+            var existPermissions = await _permissionRepo.getListAsync(u => u.IsDeleted == 0);
 
             List<Permission> permissions = new List<Permission>();
             foreach (var type in types)
@@ -222,7 +223,6 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                             .AttributeType
                             .Name.Replace("Http", "").Replace("Attribute", "").ToLower();
                     }
-                    var existPermissions = await _permissionRepo.getListAsync(u=>u.IsDeleted==0);
                     foreach (Attribute attribute in methodInfo.GetCustomAttributes(false))
                     {
 

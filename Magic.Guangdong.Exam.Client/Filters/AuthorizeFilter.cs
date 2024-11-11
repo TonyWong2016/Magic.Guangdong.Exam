@@ -44,7 +44,9 @@ namespace Magic.Guangdong.Exam.Client.Filters
 
             var cookies = context.HttpContext.Request.Cookies;
             
-            if (page.ToLower().Equals("/exam/verify")|| page.ToLower().Equals("/account/me"))
+            if (page.ToLower().Equals("/exam/verify") ||
+                page.ToLower().Contains("account/me") ||
+                page.ToLower().Contains("account/logout"))
             {
                 Assistant.Logger.Debug("免登录");
                 return;
@@ -83,7 +85,6 @@ namespace Magic.Guangdong.Exam.Client.Filters
 
         public void contextHandle(AuthorizationFilterContext context,string msg="非法登录",string url="/error")
         {
-            // 检查是否为 AJAX 请求
             // 检查是否为 AJAX 请求
             bool isAjaxRequest = context.HttpContext.Request.Headers.ContainsKey("X-Requested-With") &&
                                  context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||

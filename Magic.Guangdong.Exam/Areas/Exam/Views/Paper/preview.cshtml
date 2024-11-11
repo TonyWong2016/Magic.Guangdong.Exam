@@ -4,85 +4,92 @@
 @model Magic.Guangdong.DbServices.Dtos.Exam.Papers.FinalPaperDto
 <div class="layui-row" style="padding:15px">
     <a href="javascript:;" id="btnBack" class="layui-btn layui-btn-primary" style="margin-bottom:15px"><i class="layui-icon layui-icon-left"></i>返回</a>
-    
+
     <fieldset class="layui-elem-field">
         <legend>考卷信息</legend>
         <div class="layui-field-box">
             <form class="layui-form" lay-filter="baseForm">
-                <div class="layui-form-item">
-                    <div class="layui-inline">
+                <div class="layui-form-item layui-row layui-col-space10">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">归属考试</label>
-                        <div class="layui-input-inline" style="width:300px">
+                        <div class="layui-input-inline">
                             <input class="layui-input" readonly asp-for="@Model.ExamTitle" style="background-color:#f6f6f6" />
                         </div>
                     </div>
 
-                    <div class="layui-inline">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">关联活动</label>
-                        <div class="layui-input-inline" style="width:300px">
+                        <div class="layui-input-inline">
                             <input class="layui-input" readonly asp-for="@Model.AssociationTitle" style="background-color:#f6f6f6" />
                         </div>
                     </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">考试日期</label>
-                        <div class="layui-input-inline" style="width: 225px;">
+                    <div class="layui-col-md3">
+                        <label class="layui-form-label">开始日期</label>
+                        <div class="layui-input-inline">
                             <input type="text" asp-for="@Model.StartTime" readonly style="background-color:#f6f6f6" autocomplete="off" class="layui-input">
                         </div>
-                        <div class="layui-form-mid">-</div>
-                        <div class="layui-input-inline" style="width: 225px;">
+                    </div>
+                    <div class="layui-col-md3">
+                        <label class="layui-form-label">截止日期</label>
+
+                        <div class="layui-input-inline">
                             <input type="text" asp-for="@Model.EndTime" readonly style="background-color:#f6f6f6" autocomplete="off" class="layui-input">
                         </div>
                     </div>
-                    
-                    
                 </div>
-                <div class="layui-form-item">
-                    <div class="layui-inline">
+                <div class="layui-form-item layui-row layui-col-space10">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">考卷信息</label>
-                        <div class="layui-input-inline" style="width:300px">
+                        <div class="layui-input-inline">
                             <input class="layui-input" asp-for="@Model.PaperTitle" />
                         </div>
                     </div>
-                    <div class="layui-inline">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">时长(分钟)</label>
-                        <div class="layui-input-inline" style="width:300px">
-                            <input class="layui-input"  asp-for="@Model.Duration" />
+                        <div class="layui-input-inline">
+                            <input class="layui-input" asp-for="@Model.Duration" />
                         </div>
                     </div>
-                    <div class="layui-inline">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">卷面总分</label>
-                        <div class="layui-input-inline" style="width:171px">
+                        <div class="layui-input-inline">
                             <input class="layui-input" readonly asp-for="@Model.PaperScore" style="background-color:#f6f6f6" />
                         </div>
                     </div>
-                    <div class="layui-inline">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">试卷类型</label>
-                        <div class="layui-input-inline" style="width:171px">
+                        <div class="layui-input-inline">
                             <input class="layui-input" readonly asp-for="@Model.PaperTypeStr" style="background-color:#f6f6f6" />
                         </div>
                     </div>
-                    
+
                 </div>
-                <div class="layui-form-item">
-                    <div class="layui-inline" >
+                <div class="layui-form-item layui-row layui-col-space10">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">状态</label>
-                        <div class="layui-input-inline" style="width: 300px;">
+                        <div class="layui-input-inline">
                             <select asp-for="@Model.Status">
                                 <option value=0>正常</option>
                                 <option value=1>禁用（禁用后抽题时会避开该卷）</option>
                             </select>
                         </div>
                     </div>
-                    <div class="layui-inline">
+                    <div class="layui-col-md3">
                         <label class="layui-form-label">成绩查询</label>
-                        <div class="layui-input-inline" style="width: 300px;">
+                        <div class="layui-input-inline">
                             <select asp-for="@Model.OpenResult">
                                 <option value=0>不开放（不允许查看成绩）</option>
                                 <option value=1>开放（允许查看成绩）</option>
                             </select>
-                            
+
                         </div>
-                        
+
+                    </div>
+                    <div class="layui-col-md6">
+                        <label class="layui-form-label">标签</label>
+                        <div class="layui-input-inline">
+                            <div id="paperTags" style="font-size:x-large"></div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -101,7 +108,7 @@
                         if (item.Title.StartsWith("<p>"))
                         {
                             title = item.Title.Replace("<p>", $"<p>{index}、").Replace("</p>", "<span class=\"layui-badge\" style=\"margin-left:10px\"> " + item.ItemScore + " 分</span></p>");
-                             
+
                         }
                         else
                         {
@@ -112,7 +119,7 @@
                             title += "（如果有多个空需要填写，请使用分隔符|分割不同答案）";
                         }
                         <div class="layui-form-item">
-                            
+
                             @Html.Raw(title)
                             @{
                                 if (item.IsObjective == 1 && item.SingleAnswer == 1)
@@ -129,21 +136,22 @@
                                                 else
                                                 {
                                                     if (@subItem.DescriptionTxt.Contains("<") && @subItem.DescriptionTxt.Contains(">"))
-                                                   {
-                                                       <div class="layui-inline">
+                                                    {
+                                                        <div class="layui-inline">
                                                             <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、">
 
                                                             <span style="margin-left:-20px;vertical-align:sub">@Html.Raw(subItem.DescriptionTxt)</span>
-                                                       </div>
-                                                        
-                                                   }
-                                                    else{
+                                                        </div>
+
+                                                    }
+                                                    else
+                                                    {
                                                         <input type="radio" name="@item.Id" value="@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
 
                                                     }
                                                 }
 
-                                                
+
                                                 if (subItem.IsAnswer == 1)
                                                 {
                                                     answerCode = subItem.Code;
@@ -153,7 +161,7 @@
                                             <blockquote class="layui-elem-quote answer" style="margin-top:5px">
                                                 <p style="color:#5FB878">
                                                     正确答案：@answerCode
-                                                    
+
                                                 </p>
 
                                                 <p>题目解析：@item.AnalysisTxt</p>
@@ -168,10 +176,11 @@
                                             string answerCode = "";
                                             foreach (var subItem in item.Items)
                                             {
-                                                
+
                                                 <input style="margin-top:10px" type="checkbox" id="@item.Id|@subItem.Id" lay-filter="@subItem.Id" value="@item.Id|@subItem.Id" title="@subItem.Code、@subItem.DescriptionTxt">
 
-                                                @if(subItem.IsAnswer==1){
+                                                @if (subItem.IsAnswer == 1)
+                                                {
                                                     answerCode += subItem.Code + "、";
                                                 }
                                             }
@@ -179,7 +188,7 @@
                                             <blockquote class="layui-elem-quote answer" style="margin-top:5px">
                                                 <p style="color:#5FB878">正确答案：@answerCode</p>
 
-                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
                                             </blockquote>
                                             <input type="hidden" name="@item.Id" id="@item.Id" value="" />
                                         }
@@ -189,7 +198,7 @@
                                 {
                                     <div class="layui-input-block" style="margin-left:5px">
                                         @{
-                                            
+
                                             string answerContent = "";
                                             foreach (var subItem in item.Items)
                                             {
@@ -202,7 +211,7 @@
                                             <blockquote class="layui-elem-quote answer" style="margin-top:5px">
                                                 <p style="color:#5FB878">正确答案：@answerContent</p>
 
-                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：","")</p>
+                                                <p>题目解析：@item.AnalysisTxt.Replace("解析：", "")</p>
                                             </blockquote>
                                         }
                                     </div>
@@ -222,7 +231,7 @@
 
         </div>
     </fieldset>
-    
+
 
 </div>
 
@@ -230,7 +239,7 @@
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
     let answerArr=[];
-    
+
     $('#btnBack').attr('href', `@Url.Action("Index")?examId=@Model.ExamId&associationId=@Model.AssociationId`)
 
     form.render('radio');
@@ -283,7 +292,7 @@
             //'answers': answerArr
             'answersStr': JSON.stringify(answerArr)
         }
-        
+
 
         let formData = objectToFormData(dto);
         formData.append('__RequestVerificationToken', requestToken)
@@ -297,5 +306,18 @@
         errorMsg('操作失败,' + ret.msg);
     }
 
-
+    paperTags()
+    function paperTags(){
+        let paperId = '@Model.PaperId';
+        axios.get('/system/tags/GetPaperTags?paperId='+paperId).then(res => {
+            if (res.data.code == 0) {
+                let tags = res.data.data;
+                let html = '';
+                tags.forEach(tag => {
+                    html += `<span class="layui-badge layui-bg-green" style="margin-right: 5px;height:30px;line-height:28px">${tag.title} <i class="layui-icon layui-icon-note" style="font-size:14px"></i> </span>`;
+                });
+                $('#paperTags').html(html);
+            }
+        });
+    }
 </script>

@@ -154,30 +154,39 @@
         <div class="layui-form-item">
             <label class="layui-form-label">独立访问</label>
             <div class="layui-input-block">
-                <select asp-for="IndependentAccess">
-                    <option value=0 selected>不允许</option>
+                <select asp-for="IndependentAccess" lay-filter="IndependentAccess">
+                    <option value=0>不允许</option>
+
                     <option value=1>允许</option>
+
                 </select>
             </div>
         </div>
 
-        <div class="layui-form-item">
-            <label class="layui-form-label">免登录</label>
-            <div class="layui-input-inline">
-                <select asp-for="LoginRequired" lay-filter="LoginRequired">
-                    <option value=0 selected>不允许</option>
-                    <option value=1>允许</option>
-                </select>
-            </div>
+        <div class="layui-row independentsub" style="display:none">
+            <div class="layui-form-item">
+                <label class="layui-form-label">免登录</label>
+                <div class="layui-col-md2">
+                    <select asp-for="LoginRequired" lay-filter="LoginRequired">
+                        <option value=0>不允许</option>
 
-            <div class="layui-input-inline" style="width:30%">
-               <input class="layui-input" id="directUrl" value="" placeholder="设定允许后生成"/>
-            </div>
+                        <option value=1>允许</option>
 
-            <div class="layui-input-inline">
-                <a href="javascript:;" id="btnQrcode" onclick="makeQrcode()" class="layui-btn layui-border layui-btn-primary"><i class="layui-icon layui-icon-website"></i> 二维码</a>
+                    </select>
+                </div>
+
+                <div class="layui-col-md6">
+                    <input class="layui-input" id="directUrl" value="" placeholder="设定允许后生成" />
+                </div>
+
+                <div class="layui-col-md3" style="margin-left:15px">
+                    <a href="javascript:;" id="btnQrcode" onclick="makeQrcode()" class="layui-btn layui-border layui-btn-primary"><i class="layui-icon layui-icon-website"></i> 二维码</a>
+                    <a class="layui-btn layui-btn-primary layui-border-orange" style="margin-left:10px" id="btnCopyDirectUrl" data-clipboard-target="#directUrl"><i class="layui-icon layui-icon-template-1"></i>复制地址</a>
+
+                </div>
             </div>
         </div>
+        
 
 
         <div class="layui-form-item" style="display:none">
@@ -225,7 +234,7 @@
                     <a href="javascript:;" class="layui-btn layui-btn-primary" id="pageResourcePreview">
                         <i class="layui-icon layui-icon-picture"></i> 预览
                     </a>
-                    <a class="layui-btn layui-btn-warm" id="btnCopy"  data-clipboard-target="#imgResource"><i class="layui-icon layui-icon-template-1"></i>复制</a>
+                    <a class="layui-btn layui-btn-primary layui-border-orange" id="btnCopy"  data-clipboard-target="#imgResource"><i class="layui-icon layui-icon-template-1"></i>复制</a>
 
                 </div>
             </div>
@@ -283,6 +292,7 @@
             <blockquote class="layui-elem-quote layui-col-md6">
                 <p>注意：用户扫码后，需要自行选择要参加的靠考试，输入身份证或者准考证件号码完成验证</p>
                 <p>若二维码尺寸、风格等条件不合适，可复制该链接使用第三方二维码合成工具自行合成。</p>
+                <p style="font-weight:bold;color:red">目前，客户端答题的移动端界面还不支持，二维码功能为预制功能，后续支持手机端后可以扫码使用，现阶段请先使用链接进行pc端访问</p>
             </blockquote>
         </div>
     </div>
@@ -396,8 +406,14 @@
         $('#divPractice').show();
         getExamMini()
     }
-    if(jVal('LoginRequired') == '1'){
+
+    if(jVal('IndependentAccess') == 1){
+        $('.independentsub').show();
         
+    }
+
+    if(jVal('LoginRequired') == 1){
+        $('.independentsub').show();
         $('#directUrl').val('@ViewData["cilentaddr"]&groupcode=@Model.GroupCode')
     }
 
@@ -410,6 +426,19 @@
             $('#divPractice').hide();
             $('#AttachmentId').val('');
         }
+    })
+    
+    form.on('select(IndependentAccess)', (data) => {
+        console.log(data.value)
+        if (data.value == 1) {
+            $('.independentsub').show();
+        } else{
+            $('#GroupCode').val('');
+            $('#directUrl').val('');
+            $('#LoginRequired').val(0);
+            $('.independentsub').hide();
+        }
+        form.render('select');
     })
 
     form.on('select(LoginRequired)', (data)=>{
@@ -522,14 +551,20 @@
     let editorObj = {
         containerId: 'codeDiv',
         initialLanguage: 'json',
-        defaultCode: document.getElementById('PageConfig').value ? document.getElementById('PageConfig').value : pageConfigJson
+        defaultCode: document.getElementById('PageConfig').value ? document.getElementById('PageConfig').value : JSON.stringify(pageConfigJson)
     }
-    //console.log(editorObj)
-    let editorManager = createMonacoEditor(editorObj)
-    setTimeout(async () => {
-        await editorManager.init();
-        console.log(1)
-    }, 100)
+    let editorManager ={};
+    document.addEventListener('DOMContentLoaded',()=>{
+        editorManager = createMonacoEditor(editorObj)
+        setTimeout(async () => {
+            await editorManager.init();
+            if(!document.getElementById('PageConfig').value){
+                layer.alert('已经对【页面参数】进行了初始化操作，若感觉观感不好或者想要自行修改参数，可以尝试右击编辑后选择【Format Document】选项；<br />注意，格式化操作只是在观感上更加美观，也能避免输入错误，并不会影响实际保持的结果。',{icon:0});
+            }
+        }, 100)
+    })
+
+    
 
     function createMonacoEditor(edtiorParmas) {
         const container = document.getElementById(edtiorParmas.containerId);
@@ -627,7 +662,7 @@
         };
     }
 
-    var clipboard = new ClipboardJS('#btnCopy', {
+    var clipboard1 = new ClipboardJS('#btnCopy', {
         text: function (trigger) {
             if (!$("#imgResource").val()) {
                 errorMsg("附件为空");
@@ -639,8 +674,24 @@
             return partUrl;
         }
     });
-    clipboard.on('success', function (e) {
+    clipboard1.on('success', function (e) {
         layer.alert(`复制成功，可在下方代码编辑器中输入设置页头或者页尾，注意保留引号<br />格式为,"{参数名}":"{复制的链接}"`, { icon: 0 })
         $("#imgResource").val('')
+    });
+
+    var clipboard2 = new ClipboardJS('#btnCopyDirectUrl', {
+        text: function (trigger) {
+            if (!$("#directUrl").val()) {
+                errorMsg("地址为空");
+                return;
+            }
+            let partUrl = $("#directUrl").val();
+            //let attachUrl = `${baseDownloadUrl}${partUrl}`;
+            // 在这里根据文本框的内容生成要复制的完整文本
+            return partUrl;
+        }
+    });
+    clipboard2.on('success', function (e) {
+        successMsg("复制成功,请粘贴到浏览器地址栏进行访问")
     });
 </script>

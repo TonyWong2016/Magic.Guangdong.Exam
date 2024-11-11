@@ -35,17 +35,15 @@
     const now = new Date();
     now.setDate(now.getDate() - 1);
     expireCookies(aspnetCookies, now);
-    if (getCookie('loginRedicretUrl')) {
-        setTimeout(() => {
-            window.location.href = atob(getCookie('loginRedicretUrl'));
 
-        }, 1000)
-    }
-    if (getCookie('redirectfromexam')) {
+    document.addEventListener('DOMContentLoaded',()=>{
         setTimeout(() => {
-            window.location.href = atob(getCookie('redirectfromexam'));
-            
-        },1000)
-    }
-    
+            if (getCookie('loginRedicretUrl'))
+                window.location.href = atob(getCookie('loginRedicretUrl'));
+            else if (getCookie('redirectfromexam'))
+                window.location.href = atob(getCookie('redirectfromexam'));
+            }, 100)
+    });
+
+
 </script>

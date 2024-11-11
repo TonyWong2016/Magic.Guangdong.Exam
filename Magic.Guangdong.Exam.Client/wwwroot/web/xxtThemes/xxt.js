@@ -5,11 +5,15 @@ function xxtLogout(loginRedicretUrl) {
     deleteCookie('accountId');
     deleteCookie('accountName');
     deleteCookie('idToken');
+
     //location.href = '/account/Logout?idToken=' + idToken + '&redirectUrl=' + location.protocol + '//' + location.host + '/account/me';
+    //if (!loginRedicretUrl)
+    //    loginRedicretUrl = `${location.protocol}//${location.host}/account/me`;
+
     location.href = `/account/Logout?idToken=${idToken}&redirectUrl=${location.protocol}//${location.host}/account/me`;
 
     if (redirecturl)
-        setCooie('loginRedicretUrl', btoa(loginRedicretUrl), 0.25);
+        setCookie('loginRedicretUrl', btoa(loginRedicretUrl), 0.25);
 }
 //if (accountId)
 //    $('#examHistoryHref').attr('href', '/exam/history?accountId=' + accountId);

@@ -1,12 +1,16 @@
 ﻿using DotNetCore.CAP;
 using FreeSql.Internal;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
+using Magic.Guangdong.DbServices.Dtos.System.Tags;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
 {
@@ -46,11 +50,23 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         {
             model.adminId = adminId;
             Guid[] paperIds = await _paperRepo.SetPaperRule(model);
+
+            if (!string.IsNullOrEmpty(model.tags) && paperIds != null)
+            {
+                TagPaperDto dto = new TagPaperDto()
+                {
+                    PaperIds = paperIds,
+                    Tags = model.tags
+                };                
+                await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
+            }
+
             if (paperIds != null)
             {
-                _capBus.Publish(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
+                await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
                 return Json(_resp.success(paperIds));
             }
+            
             return Json(_resp.ret(-1, "抽题失败，请检查题库里符合所选题型，科目，难度条件的题目总量是否满足设定的题目数量"));
         }
 

@@ -78,14 +78,20 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         public async Task<IActionResult> Logout(string idToken, string redirectUrl)
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectDefaults.AuthenticationScheme);
-            string url = $"{ConfigurationHelper.GetSectionValue("authHost")}/connect/endsession?id_token_hint={idToken}&post_logout_redirect_uri={redirectUrl}&state={Guid.NewGuid().ToString("N")}&x-client-SKU=ID_NETSTANDARD2_0&x-client-ver=5.5.0.0";
             HttpContext.Response.Cookies.Delete("accountId");
             HttpContext.Response.Cookies.Delete("accountName");
             HttpContext.Response.Cookies.Delete("idToken");
             HttpContext.Response.Cookies.Delete(".AspNetCore.Cookies");
             HttpContext.Response.Cookies.Delete("clientsign");
+            string url = redirectUrl;
+            if (!string.IsNullOrEmpty(idToken) && !idToken.StartsWith("nologin"))
+            {
+                url = $"{ConfigurationHelper.GetSectionValue("authHost")}/connect/endsession?id_token_hint={idToken}&post_logout_redirect_uri={redirectUrl}&state={Guid.NewGuid().ToString("N")}&x-client-SKU=ID_NETSTANDARD2_0&x-client-ver=5.5.0.0";
+
+            }
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectDefaults.AuthenticationScheme);
+
             Console.WriteLine(url);
             return Redirect(url);
             //return Content("已退出");

@@ -114,10 +114,24 @@ namespace Magic.Guangdong.DbServices.Methods
                         return new { code = 1, msg = "您已经抽过题，请直接进入答题或者查看成绩", data = record };
                     }
 
+                    List<Guid> tagPaperIds = new List<Guid>();
+                    if (reportInfo.TagId != 0)
+                    {
+                        var tagRelationsRepo = fsql.Get(conn_str).GetRepository<TagRelations>();
+                        tagPaperIds = (await tagRelationsRepo.Where(
+                            u => u.TagId == reportInfo.TagId
+                        && u.IsDeleted == 0
+                        && u.TableName == "Paper").ToListAsync(u => new
+                        {
+                            paperId = Guid.Parse(u.AssociationId)
+                        })).Select(u=>u.paperId).ToList();
+                    }
+
                     var papers = await paperRepo
                         .Where(u => u.ExamId == dto.examId)
                         .Where(u => u.Status == ExamStatus.Enabled)
                         .Where(u => u.IsDeleted == 0)
+                        .WhereIf(tagPaperIds.Count>0,u=>tagPaperIds.Contains(u.Id))
                         .ToListAsync(u => new
                         {
                             u.Id,
@@ -125,6 +139,12 @@ namespace Magic.Guangdong.DbServices.Methods
                             u.Score,
                             u.Duration
                         });
+
+                    if (papers.Count == 0)
+                    {
+                        return new { code = -1, msg = "没有找到符合条件的试卷，请联系管理员！" };
+                    }
+
                     int rd = new Random().Next(papers.Count);
                     var myPaper = papers[rd];
 

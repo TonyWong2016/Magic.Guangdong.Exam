@@ -75,6 +75,14 @@
                     </div>
 
                     <div class="layui-form-item">
+                        <label class="layui-form-label">资源标签</label>
+                        <div class="layui-input-block">
+                            <div id="tags">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
                         <label class="layui-form-label">题目难度</label>
                         <div class="layui-input-block">
                             <div id="degree">
@@ -160,6 +168,8 @@
     let token = $('@Html.AntiForgeryToken()').val();
     let typeModelList = [];
     let selectedSubjectArr = [];
+    let tags ;
+
     form.render('select');
 
     let examId = getUrlQueryParams('examId');
@@ -175,6 +185,7 @@
         }
         generateModel.degrees = degreeSelect.getValue('valueStr');
         generateModel.paperScore = parseFloat(jText('currScore'));
+        generateModel.tags = tags.getValue('valueStr');
         generateModel.generateQuestionTypeModelsStr = JSON.stringify(typeModelList);
         console.log(generateModel);
 
@@ -190,6 +201,21 @@
         errorMsg('操作失败,' + ret.msg);
     })
 
+    //获取资源标签
+    axios.get('/system/tags/getitems').then(data=>{
+            let json = data.data;
+            console.log(json)
+            //渲染
+           tags = xmSelect.render({
+                el: '#tags',
+                toolbar: {
+                    show: true,
+                },
+                data: json.data
+            })
+        });
+
+    //试卷难度，静态数据，目前看纯纯多余
     var degreeSelect = xmSelect.render({
         el: '#degree',
         toolbar: {
@@ -202,7 +228,7 @@
         ]
     })
 
-
+    //获取题型列表
     let objType = {
         'url': '/exam/questiontype/GetQuestionTypeSelects'
         , 'param': {}
@@ -227,8 +253,7 @@
     }
     makeXmSelect(objType);
 
-
-
+    //获取考试标题
     getSelectItems('/exam/Examination/GetExamMini', { 'id': examId, 'type': 1 }, 'selectTpl', 'examId', false)
         .then(v => {
             let exam = selectRet[0];
@@ -237,28 +262,6 @@
             form.render('select')
         })
 
-
-    // axios.get('/exam/Examination/GetExamMini', {
-    //     params: { 'id': examId, 'type': 1 }
-    // })
-    //     .then(function (data) {
-    //         console.log(1)
-    //         var json = data.data;
-    //         if (document.getElementById('examId')) {
-    //             renderTpl('selectTpl', 'examId', json.data, false)
-    //             console.log(2)
-    //         }
-
-    //         selectRet = json.data;
-    //         console.log(3)
-    //     }).then(function (){
-    //         console.log(4)
-    //         let exam = selectRet[0];
-    //         jValSet('examScore', exam.score);
-    //         jValSet('examId', examId);
-    //         form.render('select');
-            
-    //         })
 
     //生成题型块
     function makeQuestionBlock(model) {
@@ -345,9 +348,7 @@
 
             i++
         }
-
-        console.log(typeModelList);
-        //return typeModelList;
+        //console.log(typeModelList);
     }
 
     //计算已经组成的题目总分
@@ -406,6 +407,6 @@
 
     setInterval(function () {
         calScores()
-    }, 5000);
+    }, 3000);
 
 </script>

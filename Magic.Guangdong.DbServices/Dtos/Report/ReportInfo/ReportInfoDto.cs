@@ -52,6 +52,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         public string Photo { get; set; }
 
         public string ReportNumber { get; set; }
+
+        public long TagId { get; set; }
     }
 
     public class GetReportListDto
@@ -140,6 +142,12 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         public string Photo { get; set; }
 
         public string ReportNumber { get; set; }
+
+        public string Tag { get; set; }
+        /// <summary>
+        /// 标签ID，如果该id存在，则优先使用TagId
+        /// </summary>
+        public long TagId { get; set; } = 0;
     }
 
     public class ReturnVerifyResult

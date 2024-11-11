@@ -30,6 +30,7 @@
                .removeClass('main-bg-blue-activity')
                .removeClass('main-bg-blue-black')
                .removeClass('main-bg-jade')
+               .removeClass('main-bg-purple')
                .addClass(bg);
             })
         }
@@ -63,6 +64,11 @@
             background-color: #00895A !important;
             color: #fff !important;
         }
+
+        .main-bg-purple {
+            background-color: #a233c6 !important;
+            color: #fff !important;
+        }
     </style>
 </head>
 <body>
@@ -86,11 +92,13 @@
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a onclick="mainTheme('main-bg-color')" href="javascript:;" style="font-weight:bolder;color:#0F3888">干部蓝</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-blue-normal')" href="javascript:;" style="font-weight:bolder;color:#1e9fff">经典蓝</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-blue-activity')" href="javascript:;" style="font-weight:bolder;color:#3C71F7">活力蓝</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-blue-activity')" href="javascript:;" style="font-weight:bolder;color:#1e9fff">活力蓝</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-blue-normal')" href="javascript:;" style="font-weight:bolder;color:#3C71F7">经典蓝</a></dd>
                         <dd><a onclick="mainTheme('main-bg-blue-black')" href="javascript:;" style="font-weight:bolder;color:#080F2D">蓝黑</a></dd>
                         <dd><a onclick="mainTheme('main-bg-jade')" href="javascript:;" style="font-weight:bolder;color:#00895A">宝石绿</a></dd>
+                        <dd><a onclick="mainTheme('main-bg-purple')" href="javascript:;" style="font-weight:bolder;color:#a233c6">丁香紫</a></dd>
 
+                        
                     </dl>
                 </li>
             </ul>
@@ -345,7 +353,7 @@
                 { 'icon': 'note', 'title': '2024.10.28', 'author': 'tony', 'content': '处理修复反馈的问题，共计7条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-10.28</a>' },
                 { 'icon': 'tree', 'title': '2024.11.07🌳', 'author': 'tony', 'content': '增加评分标准模型，判分时读取新的标准；<br/> 考试模型可以绑定指定的评分模型，需要注意考试产生了答题记录，就不可以修改评分模型了；<br/>重构客观题判分方法，采用统一的判分入口，且优化了数据结构，比如把原来的大值传递改为引用传递，性能提升明显，且增加了粗粒度的并发控制🔥' },
                 { 'icon': 'star', 'title': '2024.11.08', 'author': 'tony', 'content': '增加主题配色' },
-                { 'icon': 'auz', 'title': '2024.11.10', 'author': 'tony', 'content': '支持考试独立访问；<br/>支持生成快速访问二维码 <br/>客户端增加统一认证机制，提高安全性；<br />' },
+                { 'icon': 'auz', 'title': '2024.11.10', 'author': 'tony', 'content': '支持考试独立访问；<br/>支持生成快速访问二维码 <br/>客户端增加统一签名认证机制，提高安全性（质量属性优化，用户操作无感知）；<br />' },
     
             ];
         

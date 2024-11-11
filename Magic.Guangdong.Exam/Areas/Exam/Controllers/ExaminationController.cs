@@ -151,11 +151,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 model.Expenses!=exam.Expenses ||
                 model.AssociationId!=exam.AssociationId ||
                 model.BaseScore !=exam.BaseScore ||
+                model.SchemeId != exam.SchemeId ||
                 model.BaseDuration != exam.BaseDuration) &&
-                await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id) &&
+                await _reportInfoRepo.getAnyAsync(u => u.ExamId == model.Id && u.IsDeleted==0) &&
                 model.IsForce==0 )
             {
-                return Json(_resp.ret(1,"该考试下已经产生了用户报名记录，再对关键信息（起止时间，考试时长，分数，费用，关联活动等）进行修改，可能会引发意想不到的异常。"));
+                return Json(_resp.ret(1,"该考试下已经产生了用户报名记录，再对关键信息（起止时间，考试时长，分数，费用，评分模型，关联活动等）进行修改，可能会引发意想不到的异常。"));
             }
             model.UpdatedAt = DateTime.Now;
             var finalModel = model.Adapt<Examination>();

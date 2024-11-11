@@ -106,7 +106,8 @@ namespace Magic.Guangdong.DbServices.Entities
 
 		[JsonProperty]
 		public int IsSecurity { get; set; } = 0;
-
+        [JsonProperty]
+        public long TagId { get; set; } = 0;
     }
 
 	public enum CardType

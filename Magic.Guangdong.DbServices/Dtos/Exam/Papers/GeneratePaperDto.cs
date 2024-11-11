@@ -44,6 +44,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         }
 
         public string generateQuestionTypeModelsStr {  get; set; }
+
+        public string tags { get; set; }
     }
 
     public class GenerateQuestionTypeDto

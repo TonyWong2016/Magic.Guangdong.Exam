@@ -68,7 +68,7 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
             return (await examRepo
-                 .Where(u => u.IsDeleted == 0 && u.Status == ExamStatus.Enabled)
+                 .Where(u => u.IsDeleted == 0 && u.Status == ExamStatus.Enabled && u.IndependentAccess==1 && u.LoginRequired==1)
                  .WhereIf(dto.examId != null, u => u.Id == dto.examId)
                  .WhereIf(!string.IsNullOrEmpty(dto.groupCode), u => u.GroupCode == dto.groupCode)
                  .ToListAsync())
@@ -164,7 +164,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //到这里，就必须要提供examid了
             if (dto.examId == null)
             {
-                returnVerifyResult.verifyMsg = "参数不合法";
+                returnVerifyResult.verifyMsg = "没有可参加的考试信息";
                 returnVerifyResult.verifyCode = -1;
                 return returnVerifyResult;
             }

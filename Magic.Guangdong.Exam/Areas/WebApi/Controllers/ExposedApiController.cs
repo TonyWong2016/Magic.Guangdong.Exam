@@ -33,6 +33,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IExaminationRepo _examinationRepo;
         private readonly IUserBaseRepo _userBaseRepo;
         private readonly IReportInfoRepo _reportInfoRepo;
+        private readonly ITagsRepo _tagsRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider,
@@ -45,6 +46,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             IExaminationRepo examinationRepo,
             IUserBaseRepo userBaseRepo,
             IReportInfoRepo reportInfoRepo,
+            ITagsRepo tagsRepo,
             IUserAnswerRecordViewRepo userAnswerRecordViewRepo,
             IJwtService jwtService)
         {
@@ -60,6 +62,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _userBaseRepo = userBaseRepo;
             _reportInfoRepo = reportInfoRepo;
             _jwtService = jwtService;
+            _tagsRepo = tagsRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
         }
         [HttpPost]
@@ -222,12 +225,26 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
                 //准考证号：身份证后4位+10位时间戳+考试id4位+随机字符2位（如果考试id为空，则随机字符为6位）
                 dto.ReportNumber =
-                            dto.ReportNumber =
                                 dto.IdCard.Substring(dto.IdCard.Length - 4, 4) +
                                 Utils.DateTimeToTimeStamp(DateTime.Now) +
                                (dto.ExamId == Guid.Empty ? Utils.GenerateRandomCodePro(6) : dto.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
+                var reportModel = dto.Adapt<ReportInfoDto>();
 
-                if (await _reportInfoRepo.ReportActivity(dto.Adapt<ReportInfoDto>()))
+                if (!string.IsNullOrEmpty(dto.Tag) && !await _tagsRepo.getAnyAsync(u=>u.Title==dto.Tag))
+                {
+                    var newTag = new Tags()
+                    {
+                        Title = dto.Tag,                        
+                    };
+                    await _tagsRepo.addItemAsync(newTag);
+                    reportModel.TagId = newTag.Id;
+                }
+                if(dto.TagId > 0 && await _tagsRepo.getAnyAsync(u => u.Id == dto.TagId))
+                {
+                    reportModel.TagId= dto.TagId;
+                }
+
+                if (await _reportInfoRepo.ReportActivity(reportModel))
                 {
                     await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
                     return Json(_resp.success(new
