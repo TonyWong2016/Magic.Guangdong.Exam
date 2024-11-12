@@ -24,7 +24,8 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             //后面那个条件是为了兼容旧版，真的我当时脑残了用这个参数做判断~
             if (!string.IsNullOrEmpty(groupCode) 
                 && groupCode != "auto" 
-                && !Request.Cookies.Where(u => u.Key == "accountId").Any())
+                && (!Request.Cookies.Where(u => u.Key == "accountId").Any()
+                || Request.Cookies.Where(u => u.Key == "accountId").First().Value.StartsWith("nologinrequired")))
             {
                 string accountId = "nologinrequired-" + groupCode;
                 Response.Cookies.Append("accountId", accountId, new CookieOptions()

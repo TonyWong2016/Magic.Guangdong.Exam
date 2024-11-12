@@ -169,12 +169,12 @@
                         localStorage.setItem('examPageConfig', json.data[0].pageConfig);
                         renderPageConfig()
                     }
-                    // if(json.data[0].loginRequired==0){
-                    //     clearLoginInfo();
-                    //     //xxtLogout(`{location.protocol}//{location.host}/exam/verify?examId=${examId}&groupCode=${groupCode}`);
-                    //     location.href=`/exam/verify?examId=${examId}&groupCode=${groupCode}`
-                    // }
-                }else{
+                    if(json.data[0].loginRequired==0){
+                        //clearLoginInfo();
+                        //xxtLogout(`{location.protocol}//{location.host}/exam/verify?examId=${examId}&groupCode=${groupCode}`);
+                        location.href=`/exam/verify?examId=${examId}&groupCode=${json.data[0].groupCode}`
+                    }
+                } else {
                     TT.error('无可选的考试');
                 }
             })

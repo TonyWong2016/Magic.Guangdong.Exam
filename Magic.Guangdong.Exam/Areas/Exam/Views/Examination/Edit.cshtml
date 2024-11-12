@@ -470,7 +470,7 @@
 
     function makeQrcode(){
         jHtmlSet("qrcodeGroupPure", "")
-        if (jVal('LoginRequired') == '1' && $('#directUrl').val()) {
+        if (jVal('LoginRequired') == '0' && $('#directUrl').val()) {
             var qrcode = new QRCode(document.getElementById("qrcodeGroupPure"), {
                 text: $('#directUrl').val(),
                 width: 260,

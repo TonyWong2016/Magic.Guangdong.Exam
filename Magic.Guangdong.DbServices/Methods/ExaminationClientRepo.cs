@@ -68,7 +68,10 @@ namespace Magic.Guangdong.DbServices.Methods
             }
             var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
             return (await examRepo
-                 .Where(u => u.IsDeleted == 0 && u.Status == ExamStatus.Enabled && u.IndependentAccess==1 && u.LoginRequired==1)
+                 .Where(u => u.IsDeleted == 0 
+                 && u.Status == ExamStatus.Enabled
+                 && u.IndependentAccess==1
+                 && u.LoginRequired==0)
                  .WhereIf(dto.examId != null, u => u.Id == dto.examId)
                  .WhereIf(!string.IsNullOrEmpty(dto.groupCode), u => u.GroupCode == dto.groupCode)
                  .ToListAsync())
@@ -181,7 +184,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Where(u => u.Status == 0 && u.ReportStatus == (int)ReportStatus.Succeed && u.ReportStep == (int)ReportStep.Paied)
                 .Where(u => u.ExamId == dto.examId)
                 .Where(u => u.ExamType == (int)ExamType.Examination)
-                .WhereIf(!string.IsNullOrEmpty(dto.hashIdcard), u => u.HashIdcard == dto.reportNumber)
+                .WhereIf(!string.IsNullOrEmpty(dto.hashIdcard), u => u.HashIdcard == dto.hashIdcard)
                 .WhereIf(!string.IsNullOrEmpty(dto.reportNumber), u => u.ReportNumber == dto.reportNumber)
                 ;
 
