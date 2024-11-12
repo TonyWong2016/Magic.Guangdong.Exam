@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using Essensoft.Paylink.Alipay.Domain;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -55,10 +56,8 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 && !cookies.Where(u => u.Key == "idToken").Any()
                 && !page.Contains("account") )
             {
-                //var item = new RedirectResult("/account/me");
-                //context.Result = item;
-                //Assistant.Logger.Error("登录信息已注销~");
-                contextHandle(context, "登录信息已注销~", "/account/me");
+                string redict = Utils.EncodeUrlParam(context.HttpContext.Request.Path + context.HttpContext.Request.QueryString.Value);
+                contextHandle(context, "登录信息已注销~", "/account/me?redict="+ redict);
                 return;
             }
 
@@ -90,12 +89,21 @@ namespace Magic.Guangdong.Exam.Client.Filters
                                  context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
                                  context.HttpContext.Request.Headers.ContainsKey("Accept") &&
                                  context.HttpContext.Request.Headers["Accept"].ToString().Contains("application/json");
-            if (isAjaxRequest)
+            string finalUrl = url;
+            if (url.Contains("?"))
             {
+                finalUrl = $"{url}&msg={Assistant.Utils.EncodeUrlParam(msg)}";
+            }
+            else
+            {
+                finalUrl = $"{url}?msg={Assistant.Utils.EncodeUrlParam(msg)}";
+            }
+            if (isAjaxRequest)
+            {                
                 // 对于 AJAX 请求，返回一个 JSON 格式的结果
                 var result = new ContentResult
                 {
-                    Content = "{\"message\": \"" + msg+ "\", \"redirectTo\":\"" + url+"?msg="+Assistant.Utils.EncodeUrlParam(msg)+ "\"}",
+                    Content = "{\"message\": \"" + msg+ "\", \"redirectTo\":\"" + finalUrl + "\"}",
                     ContentType = "application/json",
                     StatusCode = 401 // 可以设置状态码为 401 表示未授权
                 };
@@ -104,7 +112,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             else
             {
                 // 对于非 AJAX 请求，可以正常重定向
-                var item = new RedirectResult(url+"?msg=" + Assistant.Utils.EncodeUrlParam(msg));
+                var item = new RedirectResult(finalUrl);
                 context.Result = item;
             }
             Assistant.Logger.Error(msg);

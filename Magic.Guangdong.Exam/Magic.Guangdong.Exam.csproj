@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Magic.Guangdong.Assistant\Magic.Guangdong.Assistant.csproj" />
     <ProjectReference Include="..\Magic.Guangdong.DbServices\Magic.Guangdong.DbServices.csproj" />
+    <ProjectReference Include="..\Magic.Passport.DbServices\Magic.Passport.DbServices.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -172,8 +172,8 @@
             <label class="layui-form-label">免登录</label>
             <div class="layui-input-inline">
                 <select asp-for="LoginRequired" lay-filter="LoginRequired">
-                    <option value=0 selected>不允许</option>
-                    <option value=1>允许</option>
+                    <option value=0 selected>允许</option>
+                    <option value=1>不允许</option>
                 </select>
             </div>
 
@@ -312,7 +312,7 @@
     })
 
     form.on('select(LoginRequired)', (data) => {
-        if (data.value == 1) {
+        if (data.value == 0) {
             $('#GroupCode').val('@ViewData["randomCode"]');
             $('#directUrl').val('@ViewData["cilentaddr"]?examId=@Model.Id&groupcode=@ViewData["randomCode"]')
         } else {

@@ -315,3 +315,25 @@ function executeFunctions(funcs) {
     }, Promise.resolve())
         .then(() => results);
 }
+
+function getUrlQueryParams(parameterName = null, url = window.location.href) {
+    const queryStart = url.indexOf('?') + 1;
+    const queryEnd = url.indexOf('#') > 0 ? url.indexOf('#') : url.length;
+
+    const rawQuery = url.slice(queryStart, queryEnd);
+    const queryParams = {};
+
+    if (rawQuery.length > 0) {
+        rawQuery.split('&').forEach(param => {
+            const [key, value] = param.split('=');
+            queryParams[decodeURIComponent(key)] = decodeURIComponent(value);
+        });
+    }
+
+    // 如果指定了参数名称，直接返回该参数的值
+    if (parameterName !== null) {
+        return queryParams[decodeURIComponent(parameterName)] || null;
+    }
+
+    return queryParams;
+}

@@ -125,6 +125,10 @@ namespace Magic.Guangdong.DbServices.Methods
                         {
                             paperId = Guid.Parse(u.AssociationId)
                         })).Select(u=>u.paperId).ToList();
+                        if (tagPaperIds.Count == 0)
+                        {
+                            return new { code = -1, msg = "没有找到符合条件的试卷，请联系管理员！" };
+                        }
                     }
 
                     var papers = await paperRepo
@@ -139,7 +143,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             u.Score,
                             u.Duration
                         });
-
+                    
                     if (papers.Count == 0)
                     {
                         return new { code = -1, msg = "没有找到符合条件的试卷，请联系管理员！" };

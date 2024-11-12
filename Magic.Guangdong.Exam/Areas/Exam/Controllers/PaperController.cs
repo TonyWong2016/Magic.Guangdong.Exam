@@ -95,7 +95,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         public IActionResult GetPaperList(PageDto dto)
         {
             long total;
-            return Json(_resp.success(new { items = _paperRepo.getList(dto, out total), total }));
+            return Json(_resp.success(new { items = _paperRepo.GetPaperList(dto, out total), total }));
         }
 
         /// <summary>

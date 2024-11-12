@@ -42,9 +42,13 @@
                     <option value='3'>已退款</option>
                 </select>
             </div>
-            <div class="layui-input-inline layui-col-md5">
+            <div class="layui-input-inline layui-col-md3">
                 <input class='layui-input' id='keyword' placeholder='考生信息关键字，考号,姓名，邮箱，手机，证件号(大陆证件/手机号支持后四位查询)' />
 
+            </div>
+
+            <div class="layui-input-inline layui-col-md2">
+                <div id="tags"></div>
             </div>
             <div class="layui-input-inline layui-col-md3">
                 <a href="javascript:;" class="layui-btn layui-btn-normal" onclick="checkReportBatch()"><i class="layui-icon layui-icon-senior"></i>批量审核</a>
@@ -214,6 +218,8 @@
 
 </script>
 <script src="~/plugins/js-md5/build/md5.min.js"></script>
+<script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js?v=20241112"></script>
 <script>
     let form = layui.form;
     let activityId = '0';
@@ -224,6 +230,25 @@
     let districtId = 0;
     let _table = layui.table;
     let reportIds =[];
+    let tagId=0;
+
+    let tagObj={
+        elem:'tags',
+        tips:'请选择标签',
+        url:'/system/tags/getitems',
+        radio:true,
+        result:{},
+        func:function(data){
+            tagId=0;
+            if(data.isAdd)
+                tagId = data.change[0].value;
+            getReportInfoTable();
+        }
+    }
+    setTimeout(()=>{
+        makeXmSelect(tagObj);
+    },100)
+    
 
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
 
@@ -367,6 +392,13 @@
                 'Field': 'a.DistrictId',
                 'Operator': 'Equal',
                 'Value': districtId
+            });
+        }
+        if (tagId > 0) {
+            whereJsonStr.Filters.push({
+                'Field': 'a.TagId',
+                'Operator': 'Equal',
+                'Value': tagId
             });
         }
         let keyword = jVal('keyword');

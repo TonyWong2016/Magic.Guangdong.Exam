@@ -77,7 +77,7 @@ namespace Magic.Guangdong.DbServices.Methods
             if (string.IsNullOrWhiteSpace(pageDto.whereJsonStr))
                 return fsql.Get(conn_str)
                     .Select<T>()
-                    //.OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
+                    .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
                     .Count(out total)
                     .Page(pageDto.pageindex, pageDto.pagesize)
                     .ToList();
@@ -85,6 +85,7 @@ namespace Magic.Guangdong.DbServices.Methods
             DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
             //string sql = fsql.Get(conn_str).Select<T>().WhereDynamicFilter(dyfilter).Count(out total).Page(pageDto.pageindex, pageDto.pagesize).ToSql();
             //Console.Write(sql);
+           
             return fsql.Get(conn_str)
                 .Select<T>()
                 .WhereDynamicFilter(dyfilter)

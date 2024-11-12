@@ -17,6 +17,15 @@ namespace Magic.Guangdong.DbServices.Interfaces
         /// <param name="examId"></param>
         /// <returns></returns>
         Task<dynamic> GetPaperMini(Guid? examId);
+
+        /// <summary>
+        /// 获取试卷列表
+        /// </summary>
+        /// <param name="pageDto"></param>
+        /// <param name="total"></param>
+        /// <returns></returns>
+        dynamic GetPaperList(PageDto pageDto, out long total);
+
         /// <summary>
         /// 设定组卷规则
         /// </summary>

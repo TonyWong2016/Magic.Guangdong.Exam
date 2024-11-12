@@ -29,6 +29,10 @@ namespace Magic.Guangdong.Exam.Extensions
                 .Where(u => u.Name.EndsWith("Repository") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
                 .AsImplementedInterfaces();
 
+            var assemblyDbPasswardServices = Assembly.Load("Magic.Passport.DbServices");
+            builder.RegisterAssemblyTypes(assemblyDbPasswardServices)
+                .Where(u => u.Name.EndsWith("Repository") || u.Name.EndsWith("Repo") || u.Name.EndsWith("Base"))
+                .AsImplementedInterfaces();
             #endregion
 
             #region 在控制器中使用属性依赖注入，其中注入属性必须标注为public
@@ -42,7 +46,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //var controllersTypesInAssembly = typeof(Program).Assembly.GetExportedTypes().Where(type => typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(type)).ToArray();
             //builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
             #endregion
-            
+
         }
     }
 }

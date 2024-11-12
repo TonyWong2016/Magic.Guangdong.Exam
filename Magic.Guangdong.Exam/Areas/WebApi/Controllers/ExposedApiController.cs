@@ -3,13 +3,14 @@ using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Account;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Areas.WebApi.Models;
 using Magic.Guangdong.Exam.Extensions;
+using Magic.Passport.DbServices.Interfaces;
 using Mapster;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IReportInfoRepo _reportInfoRepo;
         private readonly ITagsRepo _tagsRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
+        private readonly IUserCenterRepo _userCenterRepo;
+
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider,
             IWebHostEnvironment webHostEnvironment,
@@ -48,6 +51,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             IReportInfoRepo reportInfoRepo,
             ITagsRepo tagsRepo,
             IUserAnswerRecordViewRepo userAnswerRecordViewRepo,
+            IUserCenterRepo userCenterRepo,
             IJwtService jwtService)
         {
             _resp = resp;
@@ -63,6 +67,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _reportInfoRepo = reportInfoRepo;
             _jwtService = jwtService;
             _tagsRepo = tagsRepo;
+            _userCenterRepo = userCenterRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
         }
         [HttpPost]
@@ -205,7 +210,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 {
                     return Json(_resp.error("关键信息不可为空，且中国大陆的证件号和手机号要符合格式要求"));
                 }
-                if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId))
+
+                if (!await _userBaseRepo.getAnyAsync(u => u.AccountId == dto.AccountId)
+                    && !await SyncAccountFromUserCenter(Convert.ToInt32(dto.AccountId)))
                 {
                     return Json(_resp.error("用户不存在"));
                 }
@@ -261,6 +268,49 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 Console.WriteLine(ex.Message);
                 return Json(_resp.error("报名失败"));
             }
+        }
+
+        /// <summary>
+        /// 绑定标签
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        [WebApiModule]
+        [HttpPost]
+        public async Task<IActionResult> BindTagForReporter([FromBody]BindTagForReportParam dto)
+        {
+            try
+            {
+                if (!await _reportInfoRepo.getAnyAsync(u => u.Id == dto.reportId && u.IsDeleted == 0))
+                {
+                    return Json(_resp.error("报名信息不存在"));
+                }
+                long tagId = 0;
+                if (!await _tagsRepo.getAnyAsync(u => u.Title == dto.tagName))
+                {
+                    var newTag = new Tags()
+                    {
+                        Title = dto.tagName
+                    };
+                    await _tagsRepo.addItemAsync(newTag);
+                    tagId = newTag.Id;
+                }
+                var tag = await _tagsRepo.getOneAsync(u => u.Title == dto.tagName);
+                tagId = tag.Id;
+
+                var reportInfo = await _reportInfoRepo.getOneAsync(u => u.Id == dto.reportId);
+                reportInfo.TagId = tagId;
+                reportInfo.UpdatedAt = DateTime.Now;
+                await _reportInfoRepo.updateItemAsync(reportInfo);
+                return Json(_resp.success(true));
+
+            }
+            catch (Exception ex)
+            {
+                Assistant.Logger.Error(ex);
+                return Json(_resp.error("绑定失败，"+ex.Message));
+            }
+            
         }
 
         /// <summary>
@@ -350,6 +400,36 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             }
             await _redisCachingProvider.KeyExpireAsync("GD.Exam.Permissions_" + dto.adminId.ToString(), Convert.ToInt32((dto.exp - DateTime.Now).TotalSeconds));
         }
+
+        private async Task<bool> SyncAccountFromUserCenter(int uid)
+        {
+            if (!await _userCenterRepo.getAnyAsync(u => u.UID == uid))
+            {
+                return false;
+            }
+            Assistant.Logger.Debug("获取成功");
+            var passportUser = await _userCenterRepo.getOneAsync(u => u.UID == uid);
+            if (await _userBaseRepo.getAnyAsync(u => u.AccountId == uid.ToString()))
+            {
+                var userBase = await _userBaseRepo.getOneAsync(u => u.AccountId == uid.ToString());
+                return Json(_resp.success(userBase.Adapt<AccountDto>()));
+            }
+            var newUserBase = new UserBase()
+            {
+                AccountId = uid.ToString(),
+                Name = passportUser.Name,
+                Password = Utils.GenerateRandomCodePro(8, 2),
+                IdCard = passportUser.IdentityNo,
+                Sex = string.IsNullOrEmpty(passportUser.IdentityNo) ? 0
+                : passportUser.IdentityNo.Length == 18 ? Convert.ToInt32(passportUser.IdentityNo.Substring(16, 1)) % 2 : 0,
+                Email = passportUser.Email,
+                Mobile = passportUser.Mobile,
+            };
+
+            //await _userBaseRepo.addItemAsync(newUserBase);
+            await _userBaseRepo.InsertUserBaseSecurity(newUserBase);
+            return true;
+        }
     }
 
     public class TokenParam
@@ -377,5 +457,12 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         public string checkRemark { get; set; }
 
         public int notice { get; set; } = 1;
+    }
+
+    public class  BindTagForReportParam
+    {
+        public long reportId { get; set; }
+
+        public string tagName { get; set; }
     }
 }

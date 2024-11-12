@@ -18,6 +18,8 @@ namespace Magic.Guangdong.DbServices.Dtos
         public bool isAsc { get; set; } = true;
 
         public string orderby { get; set; } = "id";
+
+        public long tagId { get; set; } = 0;
     }
 
     public class AdminListPageDto : PageDto

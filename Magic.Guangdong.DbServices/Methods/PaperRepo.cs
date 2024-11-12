@@ -1,8 +1,11 @@
-﻿using Magic.Guangdong.Assistant;
+﻿using FreeSql.Internal.Model;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Newtonsoft.Json;
+using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -29,6 +32,49 @@ namespace Magic.Guangdong.DbServices.Methods
                     //u.OpenResult,
                     //u.Duration
                 });
+        }
+
+        public dynamic GetPaperList(PageDto pageDto, out long total)
+        {
+            List<Guid> paperIds = new List<Guid>();
+            bool tagAdd = false;
+            if (pageDto.tagId > 0)
+            {
+                tagAdd = true;
+                var tagRelations = fsql.Get(conn_str).Select<TagRelations>()
+                   .Where(u => u.TagId == pageDto.tagId && u.TableName == "Paper")
+                   .ToList(u => new
+                   {
+                       paperId = Guid.Parse(u.AssociationId)
+                   });
+
+                if (tagRelations.Count > 0)
+                {
+                    paperIds = tagRelations.Select(u => u.paperId).ToList();
+                    
+                }
+            }
+            
+            if (string.IsNullOrWhiteSpace(pageDto.whereJsonStr))
+                return fsql.Get(conn_str)
+                    .Select<Paper>()
+                    .WhereIf(tagAdd, u => paperIds.Contains(u.Id))
+                    .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
+                    .Count(out total)
+                    .Page(pageDto.pageindex, pageDto.pagesize)
+                    .ToList();
+
+            DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(pageDto.whereJsonStr);
+
+           
+            return fsql.Get(conn_str)
+                .Select<Paper>()
+                .WhereDynamicFilter(dyfilter)
+                .WhereIf(tagAdd, u => paperIds.Contains(u.Id))
+
+                .OrderByPropertyName(pageDto.orderby, pageDto.isAsc)
+                .Count(out total)
+                .Page(pageDto.pageindex, pageDto.pagesize).ToList();
         }
 
         /// <summary>

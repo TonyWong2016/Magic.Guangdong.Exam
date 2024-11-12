@@ -37,6 +37,14 @@
     expireCookies(aspnetCookies, now);
 
     document.addEventListener('DOMContentLoaded',()=>{
+        let redict = getUrlQueryParams('redict');
+
+        if(redict){
+           
+            redict = window.location.protocol+"//"+ window.location.host+decodeURIComponent(atob(redict));
+            window.location.href = redict;
+        }
+
         setTimeout(() => {
             if (getCookie('loginRedicretUrl'))
                 window.location.href = atob(getCookie('loginRedicretUrl'));

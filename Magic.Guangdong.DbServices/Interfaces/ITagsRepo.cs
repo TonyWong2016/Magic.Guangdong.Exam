@@ -10,6 +10,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
     public interface ITagsRepo : IExaminationRepository<Tags>
     {
         Task<bool> CreateTagRelations(List<Dtos.System.Tags.TagDto> dtos);
-        Task<bool> RemoveRelationsByTagId(long id);
+        Task<int> RemoveRelationsByTagId(long id, bool force = false);
     }
 }

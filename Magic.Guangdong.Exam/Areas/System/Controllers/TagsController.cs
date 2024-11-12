@@ -76,13 +76,19 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove(long id)
+        public async Task<IActionResult> Remove(long id,bool force=false)
         {
-            if (await _tagsRepo.RemoveRelationsByTagId(id))
+            int ret = await _tagsRepo.RemoveRelationsByTagId(id, force);
+            if (ret < 0)
             {
-                return Json(_resp.success(true));
+                return Json(_resp.error("删除失败"));
+               
             }
-            return Json(_resp.error("删除失败"));
+            else if(ret == 1)
+            {
+                return Json(_resp.ret(ret, "删除失败，已存在绑定的标签资源"));
+            }
+            return Json(_resp.success(true));
             //var relations = await _tagsRelationsRepo.getListAsync(u => u.TagId == id);
 
         }

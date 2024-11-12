@@ -119,6 +119,9 @@ namespace Magic.Guangdong.DbServices.Entities {
         public string SuffixIdCard { get; set; }
         [JsonProperty]
         public string SuffixMobile { get; set; }
+
+		[JsonProperty]
+		public long TagId { get; set; } = 0;
     }
 
 }

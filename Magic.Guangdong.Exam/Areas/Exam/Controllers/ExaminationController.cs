@@ -129,7 +129,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             if (await _examinationRepo.getAnyAsync(u => u.Id == id))
             {
                 var exam =( await _examinationRepo.getOneAsync(u => u.Id == id)).Adapt<ExaminationDto>();
-                if (exam.LoginRequired == 1 && !string.IsNullOrEmpty(exam.GroupCode))
+                if (exam.LoginRequired == 0 && !string.IsNullOrEmpty(exam.GroupCode))
                     exam.RandomGroupCode = exam.GroupCode;
                 ViewData["cilentaddr"] =$"{ConfigurationHelper.GetSectionValue("ExamClientHost")}/exam/verify?examId={exam.Id}";
                 return View(exam);

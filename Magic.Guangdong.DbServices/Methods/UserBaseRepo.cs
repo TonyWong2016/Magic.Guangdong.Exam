@@ -29,6 +29,8 @@ namespace Magic.Guangdong.DbServices.Methods
             user.IsSecurity = 0;
             maskIdCard.keyId = user.KeyId;
             maskIdCard.keySecret = user.KeySecret;
+            if (string.IsNullOrEmpty(user.IdCard)) 
+            { return true; } 
             maskIdCard.text = user.IdCard.Trim();
             if (user.CardType == 0)
             {                
@@ -53,8 +55,10 @@ namespace Magic.Guangdong.DbServices.Methods
             var maskPhone = new MaskDataDto();
             maskPhone.keyId = user.KeyId;
             maskPhone.keySecret = user.KeySecret;
+
             maskPhone.text = user.Mobile.Trim();
-            
+            if (string.IsNullOrEmpty(user.Mobile))
+            { return true; }
             if (user.CardType == 0)
             {
                 maskPhone.maskDataType = MaskDataType.ChinaCellPhone;

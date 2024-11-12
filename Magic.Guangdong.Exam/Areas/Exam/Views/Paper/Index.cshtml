@@ -1,22 +1,26 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-<div class="layui-row" style="padding:15px">
-    <form class="layui-form">
-        <div class="layui-input-inline" style="width:360px">
+<div  style="padding:15px">
+    <form class="layui-form layui-row layui-col-space12">
+        <div class="layui-col-md3">
             <select id="examId" name="examId" class="layui-select" disabled></select>
         </div>
-        <div class="layui-input-inline" style="width:300px">
+        <div class="layui-col-md3">
             <input class="layui-input" id="keyword" placeholder="输入关键字检索" />
         </div>
-        <div class="layui-input-inline">
-            <a href="javascript:;" class="layui-btn" id="btnAddPaper"><i class="layui-icon layui-icon-add-1"></i>新增考卷</a>
+        <div class="layui-col-md2">
+            <div id="tags"></div>
         </div>
-        <div class="layui-input-inline">
-            <a href="/exam/examination/index" class="layui-btn layui-btn-primary" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        <div class="layui-col-md2 layui-btn-container">
+            <a href="javascript:;" class="layui-btn" id="btnAddPaper"><i class="layui-icon layui-icon-add-1"></i>新增考卷</a>
+            <a href="/exam/examination/index"  class="layui-btn layui-btn-primary" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+
+        </div>
+        <div class="layui-col-md1">
         </div>
     </form>
-    <table class="layui-table" id="table" lay-filter="table"></table>
+    <table class="layui-table  layui-row"  id="table" lay-filter="table"></table>
 
 </div>
 
@@ -68,13 +72,29 @@
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/exam/paper/preview?paperId={{d.id}}"><i class="layui-icon layui-icon-file"></i>预览试卷</a>
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deletePaper('{{d.id}}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
-
+<script src="~/plugins/xm-select.js"></script>
+<script src="~/web/myxselect.js?v=20241112"></script>
 <script>
     let table = layui.table;
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
-    let whereJsonStr = ''
+    let whereJsonStr = {}
     let examId=getUrlQueryParams('examId');
+    let tagId=0;
+    let tagObj={
+        elem:'tags',
+        tips:'请选择标签',
+        url:'/system/tags/getitems',
+        radio:true,
+        result:{},
+        func:function(data){
+            tagId=0;
+            if(data.isAdd)
+                tagId = data.change[0].value;
+            getPaperList()
+        }
+    }
+    makeXmSelect(tagObj);
 
     $('#btnAddPaper').attr('href', `/exam/paper/create?examId=${examId}`)
     getSelectItems('/exam/Examination/GetExamMini', { 'id': examId, 'type': 1 }, 'selectTpl', 'examId', false)
@@ -87,14 +107,17 @@
         getPaperList();
     })
 
-    getPaperList()
+    document.addEventListener('DOMContentLoaded',()=>{
+         setTimeout(()=>{
+             getPaperList()
+         },100);         
+    })
+   
     function getPaperList() {
-        
-        makeWhereJson();
         let params = {
             url: '@Url.Action("GetPaperList")',
             elem: '#table',
-            where: { 'whereJsonStr': JSON.stringify(whereJsonStr) },
+            where: makeWhereJson(),
             size: 'lg',
             page: true,
             cols: [ //表头
@@ -137,9 +160,11 @@
                 }]
             });
         }
-        
-
-        return whereJsonStr;
+        let whereObj = { 'whereJsonStr': JSON.stringify(whereJsonStr),'orderby': 'createdAt','tagId':0};
+        if(tagId>0) {
+           whereObj.tagId=tagId;
+        }
+        return whereObj
     }
         
     function deletePaper(paperId){
@@ -162,4 +187,21 @@
 
 
     }
+
+    //获取资源标签
+    // axios.get('/system/tags/getitems').then(data=>{
+    //         let json = data.data;
+    //         console.log(json)
+    //         //渲染
+    //        tags = xmSelect.render({
+    //             el: '#tags',
+    //             toolbar: {
+    //                 show: true,
+    //             },
+    //             data: json.data
+    //         })
+    //     });
+
+    
+
 </script>

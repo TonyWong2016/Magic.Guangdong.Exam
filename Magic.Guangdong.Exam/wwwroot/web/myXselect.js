@@ -2,6 +2,12 @@
 function makeXmSelect(obj) {
     $.getJSON(obj.url, obj.param, function (json) {
         if (json.code == 0) {
+            if (!obj.prop) {
+                obj.prop = {
+                    name: 'name',
+                    value: 'value'
+                };
+            }
             return obj.result = xmSelect.render({
                 el: `#${obj.elem}`,
                 filterable: obj.filter ? obj.filter : true,

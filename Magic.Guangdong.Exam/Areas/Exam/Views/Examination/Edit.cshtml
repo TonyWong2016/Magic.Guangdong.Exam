@@ -168,9 +168,9 @@
                 <label class="layui-form-label">免登录</label>
                 <div class="layui-col-md2">
                     <select asp-for="LoginRequired" lay-filter="LoginRequired">
-                        <option value=0>不允许</option>
+                        <option value=0>允许</option>
 
-                        <option value=1>允许</option>
+                        <option value=1>不允许</option>
 
                     </select>
                 </div>
@@ -412,7 +412,7 @@
         
     }
 
-    if(jVal('LoginRequired') == 1){
+    if(jVal('LoginRequired') == 0){
         $('.independentsub').show();
         $('#directUrl').val('@ViewData["cilentaddr"]&groupcode=@Model.GroupCode')
     }
@@ -435,14 +435,14 @@
         } else{
             $('#GroupCode').val('');
             $('#directUrl').val('');
-            $('#LoginRequired').val(0);
+            $('#LoginRequired').val(1);
             $('.independentsub').hide();
         }
         form.render('select');
     })
 
     form.on('select(LoginRequired)', (data)=>{
-        if (data.value == 1) {
+        if (data.value == 0) {
             $('#GroupCode').val('@Model.RandomGroupCode');
             $('#directUrl').val('@ViewData["cilentaddr"]&groupcode=@Model.RandomGroupCode')
         }else{

@@ -130,7 +130,17 @@ namespace Magic.Guangdong.Exam.Extensions
                         })//监听SQL语句
                     .Build()
                 );
-                
+                ib.Register("db_passport", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("PassportConnString"))
+                    .UseMonitorCommand(cmd =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"Sql：{cmd.CommandText}");
+                        Console.ResetColor();
+                    })//监听SQL语句
+                    .Build()
+                );
             }
             else
             {
@@ -139,8 +149,11 @@ namespace Magic.Guangdong.Exam.Extensions
                     .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("ExamConnString"))
                     .Build()
                 );
-
-                
+                ib.Register("db_passport", () =>
+                    new FreeSqlBuilder()
+                    .UseConnectionString(DataType.SqlServer, configuration.GetConnectionString("PassportConnString"))                 
+                    .Build()
+                );
             }
             
 
