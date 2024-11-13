@@ -1,0 +1,140 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* background: repeating-linear-gradient( -45deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.1) 20px );
+            color: white; */
+
+    z-index: -1
+}
+
+
+.main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
+    /*padding: 5px;*/
+    /* min-height: 51vh; */
+}
+
+.xxtMenu {
+    margin-left: 10px !important;
+}
+
+.xxtItem {
+    color: white;
+    text-decoration: none;
+}
+
+.xxtNavTop {
+    justify-content: flex-start;
+    background: url('/img/menuBg.jpg');
+}
+
+.xxtNavSub {
+    justify-content: flex-start;
+    justify-content: start;
+}
+
+.xxtSubItems {
+    width: 100%;
+    display: flex;
+    justify-content: space-between
+}
+
+    .xxtSubItems li:first-child {
+        margin-right: auto; /* 将第一个元素推到最左边 */
+    }
+
+.xxtSubItemsa {
+    border-color: var(--pico-color-blue-500);
+    color: var(--pico-color-blue-500);
+    transition: all 0.3s ease; /* 添加过渡效果，使变化平滑 */
+}
+
+.footer {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding: 10px;
+    min-height: 183px;
+    overflow: hidden; /* 确保内容不会溢出容器 */
+}
+
+    .footer img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1; /* 确保背景图在所有内容之下 */
+    }
+
+.overlay-content-left, .overlay-content-right {
+    position: relative;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1; /* 确保内容在背景图之上 */
+    flex: 1;
+    max-width: 40%;
+    margin-top: 16px;
+}
+
+.overlay-content-left {
+    text-align: left;
+    margin-left: 10%;
+}
+
+.overlay-content-right {
+    text-align: right;
+    display: flex;
+    justify-content: flex-end; /* 让图片靠右对齐 */
+    align-items: center; /* 垂直居中对齐 */
+    gap: 10px; /* 图片之间的间距 */
+}
+
+    .overlay-content-right img {
+        width: 140px; /* 固定图片宽度 */
+        height: auto; /* 维持图片原始比例 */
+        margin-left: 0; /* 移除左边距，使用gap属性控制间距 */
+    }
+
+
+/* 可选：为不同的屏幕尺寸添加媒体查询 */
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column; /* 在小屏幕上垂直堆叠内容块 */
+        align-items: flex-start; /* 垂直居中对齐 */
+        text-align: center; /* 文字居中对齐 */
+    }
+
+    .overlay-content-left, .overlay-content-right {
+        margin-bottom: 10px; /* 在小屏幕上添加底部间距 */
+    }
+}
+
+#noticeLink {
+    display: inline-block;
+    padding: 10px 20px;
+    /*background-color: #007bff;*/
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+}
+
+    #noticeLink.visible {
+        opacity: 1;
+    }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicoCSS Drawer Example</title>
+    <link rel="stylesheet" href="https://unpkg.com/picocss/dist/pico.min.css">
+    <style>
+        /* 抽屉框样式 */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -250px; /* 初始位置在屏幕左侧外 */
+            width: 250px;
+            height: 100%;
+            background-color: #333;
+            color: white;
+            transition: left 0.3s ease;
+            z-index: 1001; /* 确保抽屉框的 z-index 比按钮高 */
+        }
+
+        .drawer.open {
+            left: 0; /* 显示抽屉框 */
+        }
+
+        .drawer-content {
+            padding: 20px;
+        }
+
+        .toggle-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000; /* 按钮的 z-index */
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000; /* 覆盖层的 z-index */
+        }
+
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 抽屉框 -->
+<div id="drawer" class="drawer">
+    <div class="drawer-content">
+        <h2>Drawer Content</h2>
+        <p>This is the content of the drawer.</p>
+    </div>
+</div>
+
+<!-- 切换按钮 -->
+<button class="toggle-button" onclick="toggleDrawer()">Toggle Drawer</button>
+
+<!-- 主要内容区域 -->
+<main class="container">
+    <h1>Main Content</h1>
+    <p>This is the main content area of the page.</p>
+</main>
+
+<!-- 覆盖层 -->
+<div id="overlay" class="overlay"></div>
+
+<script>
+    function toggleDrawer() {
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('overlay');
+        drawer.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
+
+    // 监听覆盖层的点击事件来关闭抽屉框
+    document.getElementById('overlay').addEventListener('click', function() {
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('overlay');
+        if (drawer.classList.contains('open')) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('open');
+        }
+    });
+</script>
+
+</body>
+</html>

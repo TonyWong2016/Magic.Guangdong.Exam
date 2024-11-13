@@ -1,0 +1,326 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["SubTitle"] = "信息认证";
+    
+    Layout = "_LayoutExamMobile";
+}
+<style>
+    .flashing-element {
+        animation: blink 2s linear infinite;
+    }
+
+    @@keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+</style>
+<main class="main container">
+
+    <article id="mainBody">
+        <header>
+            <h5 style="text-align:center" class="gradient-text">
+                @ViewData["ActivityName"] <br />
+                信息认证<span id="currStage"></span>
+            </h5>
+        </header>
+        <form>
+            <label class="examItem" for="exam">请选择要参与的在线考试 <u id="examRecords" style="float:right;color:#039be5;display:none">考试记录</u></label>
+            <select id="exam" class="examItem" required>
+                <option value="">请选择</option>
+            </select>
+
+            <label for="examTimeSpan" class="examItem">考试时间</label>
+            <input type="text" id="examTimeSpan" class="examItem" placeholder="请选择要参与的考试" disabled />
+
+            <label for="idNumber">身份证件号码</label>
+            <input type="text" id="idNumber" name="idNumber" autocomplete="off" placeholder="请输入证件号码或准考证号" required>
+            <i style="font-size:smaller" class="pico-color-orange-450">注意：非中国大陆身份证号码，请统一使用准考证号进行提交。</i>
+
+            <a id="CreateMyExam" href="javascript:;" aria-busy="false" role="button" style="width:100%;margin-top:12px" class="secondary">提交</a>
+
+            <button id="ConfirmExam"
+                    class="primary container-fluid"
+                    style="display:none;margin-top:12px"
+                    data-target="modal-confirm"
+                    onClick="toggleModal(event)">
+                验证通过，开始考试
+            </button>
+            <a id="facelogin" href="javascript:;" role="button" class="outline" style="width:100%;margin-top:12px;margin-bottom:12px;display:none">刷脸登录(beta)</a>
+
+            <a id="btnLogout" onclick="Logout()" href="javascript:;" role="button" style="width:100%;margin-top:12px;margin-bottom:12px;background-color:#e53935;border-color:#e53935;display:none">退出登录</a>
+
+            <small>活动组委会保证输入的身份证件号码仅用于在线考试的验证。</small>
+            <p style="text-align:center;color:#039be5;margin-top:20px;margin-bottom:-30px;font-size:smaller;display:none"><a id="detectiveLink" href="/apply/test"><u>页面显示有问题?</u></a></p>
+            <dialog id="modal-confirm">
+                <article>
+                    <h3 style="text-align:center">信息确认</h3>
+                    <p id="userInfo">
+                        选手姓名： <font class="pico-color-violet-500" id="name"> </font><br />
+                        考试科目： <font class="pico-color-violet-500" id="examTitle"> </font><br />
+                        证件号码： <font class="pico-color-violet-500" id="idCard"></font><br />
+                        准考证号： <font class="pico-color-violet-500" id="reportNumber"></font><br />
+                        电子邮箱： <font class="pico-color-violet-500" id="email"></font>
+                    </p>
+                    <p class="pico-background-red-500 attention" style="display:none">注意，本场考试为正式考试，请仔细核对报考信息</p>
+                    <p>
+                        <small>
+                            请核对信息是否正确，如无问题，请点击【去考试】；
+                            如有问题，请马上联系考场管理人员。
+                            <u style="color:#D93526">若考试过程中出现无法保存，无法交卷等情况，请尝试及时刷新页面.</u>
+                        </small>
+                    </p>
+                    <footer>
+                        <a href="#cancel"
+                           role="button"
+                           class="secondary"
+                           data-target="modal-confirm"
+                           id="cancleModal"
+                           onClick="toggleModal(event)">
+                            取消
+                        </a>
+                        <a id="btnConfirm"
+                           href="#confirm"
+                           role="button"
+                           data-target="modal-confirm"
+                           onClick="ConfirmMyPaper()">
+                            去考试
+                        </a>
+                        <a id="btnConfirm2"
+                           style="display:none"
+                           href="#confirm"
+                           role="button"
+                           aria-busy="true"
+                           data-target="modal-confirm">
+                            抽卷中
+                        </a>
+                    </footer>
+                </article>
+            </dialog>
+        </form>
+    </article>
+
+    <article id="tipsBody" style="display:none">
+        <div id="tipsContent">
+        </div>
+        <footer>
+            <a href="javascript:;" id="btnRefresh" role="button" class="outline" style="width:100%">刷新</a>
+        </footer>
+    </article>
+</main>
+
+<script type="text/html" id="examTpl">
+    {{# layui.each(d,function(index,item){ }}
+        {{# if(item.status==0){ }}
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}" data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}">
+                {{# if(item.associationTitle == item.title) { }}
+                    {{item.title}}
+                {{# } else { }}
+                    {{item.associationTitle}}-{{item.title}}
+                {{# } }}
+            </option>
+        {{# } else { }}
+            <option value="{{ item.examId }}" data-examtype="{{item.examType}}" data-reportid="{{item.reportId}}" data-name="{{item.name}}"data-loginrequired="{{item.loginRequired}}" data-independentAccess="{{item.independentAccess}}" data-securityIdCard="{{item.securityIdCard}}" data-reportnumber="{{item.reportNumber}}" data-email="{{item.email}}" data-span="{{ convertDateFormat(item.startTime)}} - {{convertDateFormat(item.endTime)}}" disabled>{{item.title}}(未到考试时间)</option>
+        {{# } }}
+    {{# }) }}
+</script>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/plugins/js-md5/build/md5.min.js"></script>
+<script>
+    let examId = '@Model.examId';
+    let groupCode = '@Model.groupCode';
+
+    let reportId = '@Model.reportId';
+    let idNumber = '';
+    let queryModel = {};
+
+    let verificationResult = false;
+
+    if(accountId && accountId.indexOf('nologin')>-1){
+        clearLoginInfo();
+        xxtLogout(location.href.replace('index','verify'));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        getMyExams();
+    });
+
+    function getMyExams() {
+        axios.get('@Url.Action("GetReportExamsForClient","ExamClient")', {
+            params: {
+                examId: examId,
+                groupCode: groupCode,
+                accountId: accountId,
+                reportId: reportId,
+                examType: 0
+            }
+        })
+            .then(data => {
+                let json = data.data;
+                if(json.data && json.data.length>0){
+                    renderTpl("examTpl", "exam", json.data, examId == '');
+                    jValSet("examTimeSpan", convertDateFormat(json.data[0].startTime)+' - '+convertDateFormat(json.data[0].endTime))
+                    if (groupCode == 'auto' && examId && reportId) {
+                        jValSet('idNumber', json.data[0].reportNumber);
+                        getReportInfo()
+                    }
+                    if (json.data[0].pageConfig) {
+                        localStorage.setItem('examPageConfig', json.data[0].pageConfig);
+                        renderPageConfig()
+                    }
+                    if(json.data[0].loginRequired==0){
+                        //clearLoginInfo();
+                        //xxtLogout(`{location.protocol}//{location.host}verify?examId=${examId}&groupCode=${groupCode}`);
+                        location.href=`verify?examId=${examId}&groupCode=${json.data[0].groupCode}`
+                    }
+                } else {
+                    TT.error('无可选的考试');
+                }
+            })
+    }
+
+    function configExamPage(cfg){
+        let pageJson = JSON.parse(cfg);
+        
+        if(pageJson.headerPg)
+            $('#headerPg').attr('src',pageJson.headerPg);
+        
+        if(pageJson.footerPg)
+            $('#footerPg').attr('src',pageJson.footerPg);
+
+    }    
+
+    autoSearch('idNumber', () => {
+        getReportInfo()
+    })
+
+    $('#exam').on('change', v => {
+        var span = $('#exam').find('option:selected').data('span')
+        jValSet('examTimeSpan', span);
+        jValSet('idNumber', $('#exam').find('option:selected').data('reportnumber'))
+        examId = $('#exam').val();
+        //reportId = $("#exam").find('option:selected').data('reportid')
+        if (span && jVal('idNumber')) {
+            getReportInfo()
+        }
+    })
+
+    //格式验证
+    function formatVerification() {
+        idNumber = jVal('idNumber');
+        //idNumberType = 'idCard';
+        let result = SFID(idNumber);
+        if (!idNumber) return;
+        if (idNumber.length == 18 && result != 'OK') {
+            $('#CreateMyExam').html(result);
+            $('#idNumber').attr('aria-invalid', true)
+            return false;
+        }
+        if (idNumber.length == 18 && result == 'OK') {
+            //idNumberType = 'idCard';
+            $('#CreateMyExam').html(result);
+            $('#idNumber').attr('aria-invalid', false)
+            $('#CreateMyExam').html('身份证号码核验中...').attr('aria-busy', true);
+            queryModel.HashIdCard = md5(idNumber);
+            queryModel.reportNumber = '';
+            return true;
+        }
+        if (idNumber.length > 18) {
+            //idNumberType = 'reportNumber';
+            $('#idNumber').attr('aria-invalid', false);
+            $('#CreateMyExam').html('准考证号核验中...').attr('aria-busy', true);
+            queryModel.securityIdCard = '';
+            queryModel.HashIdCard='';
+            queryModel.reportNumber = idNumber;
+            return true;
+        }
+        $('#CreateMyExam').html('请输入正确的身份证件号码').show();
+        $('#ConfirmExam').hide();
+        $('#idNumber').attr('aria-invalid', true)
+        return false;
+    }
+
+    //身份验证
+    function getReportInfo() {
+        $('#CreateMyExam').removeAttr('aria-busy')
+        
+        if (!formatVerification()) {
+            return;
+        }
+        queryModel.examId = examId;
+        queryModel.reportId = reportId;
+        axios.get('@Url.Action("InfoVerificationAuto", "ExamClient")',
+            {
+                params:
+                    queryModel
+            })
+            .then(data => {
+                $('#CreateMyExam').removeAttr('aria-busy')
+                let json = data.data;
+                if (json.code == 0) {
+                    let item = $("#exam").find('option:selected');
+                    jHtmlSet('name', item.data('name'));
+                    jHtmlSet('examTitle', item.text());
+                    //jHtmlSet('idCard', item.data('idcard'));
+                    jHtmlSet('idCard', item.data('securityidcard'));
+                    jHtmlSet('reportNumber', item.data('reportnumber'));
+                    jHtmlSet('email', item.data('email'));
+                    $('#CreateMyExam').hide();
+                    $('#ConfirmExam').show();
+                    if (item.data('examtype') == '0') {
+                        $('.attention').addClass('flashing-element').show()
+                    }
+                    return;
+                }
+                if (json.code == 1) {
+                    $('#CreateMyExam').html(json.msg+"，即将跳转到考试界面");
+                    setTimeout(() => {
+                        location.href = `paper?urid=${json.data}`
+                    },2000)
+                    return;
+                }
+
+                TT.error(json.msg);
+                $('#CreateMyExam').html(json.msg).show();
+                $('#ConfirmExam').hide()
+                $('#idNumber').attr('aria-invalid', true)
+
+                return;
+                
+            })
+    }
+    
+    
+    //抽卷去考试
+    async function ConfirmMyPaper(){
+        $("#btnConfirm").hide();
+        $("#btnConfirm2").show();
+        let formData = new FormData();
+        formData.append('__RequestVerificationToken', requestToken);
+        formData.append('examId', examId);
+        formData.append('reportId', reportId);
+        formData.append('idNumber', jVal('idNumber'))
+        let ret = await request('POST', '/examclient/ConfirmMyPaper', formData, CT);
+        let json = ret.data;
+        
+        if (json.code == 1 && json.data) {
+            TT.warning(json.msg);
+            json.data.complated == 1 ? location.href = `result?urid=${json.data.id}` : location.href = `paper?urid=${json.data.id}&pid=${json.data.paperId}`;
+            return;
+        }
+        if (json.code == 0) {
+            sessionStorage.clear();
+            location.href = `paper?urid=${json.data.id}&pid=${json.data.paperId}`
+            return;
+        }
+
+        closeModal(document.getElementById('modal-confirm'));
+        TT.error(json.msg);
+        $("#btnConfirm").show();
+        $("#btnConfirm2").hide();
+       
+    }
+
+</script>

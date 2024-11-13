@@ -34,9 +34,9 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 page = (routeValues["area"].ToString()+"/" +routeValues["controller"].ToString()+"/" + routeValues["action"].ToString()).ToLower();
 
             Assistant.Logger.Info("访问：" + page);
-
+            page = page.ToLower();
             //var descriptor = context.ActionDescriptor;
-            if (page.ToLower().Contains("error") || page.Contains("open"))
+            if (page.Contains("error") || page.Contains("open"))
             {
                 Assistant.Logger.Debug("访问公开接口");
                 return;
@@ -45,9 +45,10 @@ namespace Magic.Guangdong.Exam.Client.Filters
 
             var cookies = context.HttpContext.Request.Cookies;
             
-            if (page.ToLower().Equals("/exam/verify") ||
-                page.ToLower().Contains("account/me") ||
-                page.ToLower().Contains("account/logout"))
+            if (page.Equals("/exam/verify") ||
+                page.Equals("/exammobile/verify")||
+                page.Equals("/account/me") ||
+                page.Equals("/account/logout"))
             {
                 Assistant.Logger.Debug("免登录");
                 return;

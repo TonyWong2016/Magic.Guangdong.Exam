@@ -1,14 +1,35 @@
-  delete from [ReportInfo] where id=541595064160645
-  delete from ReportProcess where ReportId=541595064160645
-  delete from [Magic.Guangdong.Exam].[dbo].[Order] where  ReportId=541595064160645
-  delete from ReportCheckHistory where ReportId=541595064160645  
+--定义特殊变量
+DECLARE @examid VARCHAR(100) = '49D90000-4C24-00FF-3AF2-08DCFE30776D';  
+DECLARE @activityid bigint = 592495397974405;
+DECLARE @reportId bigint = 609133267636613;
+--清理报名信息
   
-  
-  
-delete from [ReportInfo]
-delete from ReportProcess
-delete from [Magic.Guangdong.Exam].[dbo].[Order] 
-delete from ReportCheckHistory
-delete from UserAnswerRecord
+delete from [ReportInfo] where id!=@reportId
+delete from ReportProcess where reportid!=@reportId
+
+delete from [Magic.Guangdong.Exam].[dbo].[Order] where reportid!=@reportId
+
+delete from ReportCheckHistorywhere reportid!=@reportId
+
+--清理考试、活动信息
+
+delete from Relation where examId != @examid
+
+delete from paper where examId !=  @examid
+
+delete from examination where id != @examid
+
+delete from activity where id != @activityid
+
+--清理判分，答题记录
+delete from teacherexamassign
+
+delete from [TeacherRecordScoreLog]
+
+delete from [TeacherRecordScoring]
+
+delete from UserAnswerRecord 
+
 delete from [UserAnswerSubmitRecord]
+
 delete from [UserAnswerSubmitLog]
