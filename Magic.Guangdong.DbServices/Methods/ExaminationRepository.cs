@@ -294,12 +294,22 @@ namespace Magic.Guangdong.DbServices.Methods
             return fsql.Get(conn_str).Update<T>().SetSource(t).ExecuteAffrows();
         }
 
+        public int updateItems(List<T> t)
+        {
+            return fsql.Get(conn_str).Update<T>().SetSource(t).ExecuteAffrows();
+        }
+
         /// <summary>
         /// 更新单条条目(异步)
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
         public async Task<int> updateItemAsync(T t)
+        {
+            return await fsql.Get(conn_str).Update<T>().SetSource(t).ExecuteAffrowsAsync();
+        }
+
+        public async Task<int> updateItemsAsync(List<T> t)
         {
             return await fsql.Get(conn_str).Update<T>().SetSource(t).ExecuteAffrowsAsync();
         }

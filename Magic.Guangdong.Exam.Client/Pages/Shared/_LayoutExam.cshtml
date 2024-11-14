@@ -169,6 +169,10 @@
         };
 
         setTimeout(()=>{            
+            if(detectDeviceType()!='PC'){
+                const url = location.href;
+                location.href = url.replace('exam','exammobile');
+            }
             if(!pageConfigRenderFlag)
             renderPageConfig();
         },150);

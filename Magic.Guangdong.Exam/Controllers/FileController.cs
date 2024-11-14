@@ -51,9 +51,9 @@ namespace Magic.Guangdong.Exam.Controllers
                 else if (files.Count == 1)
                 {
                     bool isDel = del == 0 ? false : true;
-                    string path = await UploadFile(files[0], userId, isDel);
+                    var file = await UploadFile(files[0], userId, isDel);
 
-                    return Json(resp.success(path));
+                    return Json(resp.successPlus(file.Path, file));
                 }
             }
             catch (Exception ex)
@@ -344,7 +344,7 @@ namespace Magic.Guangdong.Exam.Controllers
         /// <param name="file"></param>
         /// <param name="isDel">是否删除原文件</param>
         /// <returns></returns>
-        public async Task<string> UploadFile(IFormFile file, string userId, bool isDel = false)
+        public async Task<DbServices.Entities.File> UploadFile(IFormFile file, string userId, bool isDel = false)
         {
             string uploadFileName = file.FileName.Replace(".", $"-{DateTime.Now.ToString("yyyyMMddHHmmss")}.");//a.jpg-->a-20220216161309.jpg
             string basepath = en.WebRootPath;
@@ -366,7 +366,7 @@ namespace Magic.Guangdong.Exam.Controllers
             FileInfo fi = new FileInfo(save_file);
             string fileMd5 = await Security.GetFileMD5(save_file);
             string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
-            await _fileRepo.addItemAsync(new DbServices.Entities.File()
+            var newfile = new DbServices.Entities.File()
             {
                 AccountId = userId,
                 ShortUrl = returnPath,
@@ -375,9 +375,10 @@ namespace Magic.Guangdong.Exam.Controllers
                 Ext = fi.Extension,
                 Name = fi.Name,
                 Md5 = fileMd5
-            });
+            };
+            await _fileRepo.addItemAsync(newfile);
             
-            return returnPath;
+            return newfile;
 
         }
 

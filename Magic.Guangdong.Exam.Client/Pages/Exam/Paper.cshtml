@@ -603,7 +603,10 @@
          console.log("宽："+width)
          console.log("高："+height)
          if (width < 1024 || height < 500) {
-             alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
+             //alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
+            TT.success("检测到您正在使用小尺寸的屏幕进行答题，系统即将自动跳转！",()=>{
+                location.href = location.href.replace('/exam','/exammobile')
+            });
          }
      }
      function debounce(func, wait) {

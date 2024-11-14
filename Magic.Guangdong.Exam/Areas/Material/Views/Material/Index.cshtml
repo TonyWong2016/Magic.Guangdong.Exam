@@ -1,0 +1,159 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<div class="layui-row" style='padding:15px'>
+    <form class='layui-form layui-col-space15' lay-filter='formFilter'>
+        <div class="layui-col-md2">
+            <select id='Ext' lay-filter='Ext'>
+                <option value=''>请选择文件类型</option>
+                <option value='photo'>图片</option>
+                <option value='video'>视频</option>
+                <option value='file'>其他文件(excel，word等)</option>
+            </select>
+        </div>
+        <div class="layui-col-md2">
+            <select id='ConnName' lay-filter='ConnName'>
+                <option value=''>请选择绑定模型</option>
+                <option value='question'>题目配图</option>
+                <option value='questionItem'>选项配图</option>
+                <option value='file'>其他</option>
+            </select>
+        </div>
+        <div class='layui-col-md3'>
+            <input class='layui-input' id='keyword' placeholder='文件名' />
+        </div>
+    </form>
+    <table class="layui-table" lay-filter="table" id="table"></table>
+
+</div>
+<script type="text/html" id="extTpl">
+    {{# if(d.ext=='.jpg'||d.ext=='jpg'||d.ext=='.png'||d.ext=='png'||d.ext=='.jpeg'||d.ext=='jpeg'){ }}
+    <span class="layui-badge layui-bg-blue">图片</span>
+    {{# } else if(d.ext=='mp4'||d.ext=='.mp4'||d.ext=='flv'||d.ext=='.flv'){ }}
+    <span class="layui-badge layui-bg-purple">视频</span>   
+    {{# } else { }}
+    <span class="layui-badge layui-bg-green">其他</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="operationTpl">
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="preview('{{ d.id }}')"><i class="layui-icon layui-icon-eye"></i>预览</a>
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="delete('{{ d.id }}')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+   
+</script>
+
+
+<script>
+    let form = layui.form;
+
+    let ext = '';
+    getFileTable();
+    function getFileTable() {
+        var params = {
+            url: '@Url.Action("Getlist")',
+            elem: '#table',
+            where: makeWhereJson(),
+            size: 'lg',
+            page: true,
+            cols: [ //表头
+                //{ title: '序号', templet: '#indexTpl', width: 120 }
+                { field: 'id', title: '订单id', type: 'checkbox', width: '5%' }
+                , { field: 'name', title: '文件名', width: '35%' }
+                // , { field: 'tradeNo', title: '支付平台订单号', width: 300 }
+                , { field: 'size', title: '文件大小（字节）', width: '10%' }
+                // , { field: 'expenses', title: '金额', width: 120 }
+                 , { templet: '#extTpl', title: '文件类型', width: '10%' }
+                // , { templet: '#statusTpl', title: '支付状态', width: 120 }
+                , { field: 'createdAt', title: '创建时间' , width: '13%'}
+                , { title: '操作', templet: '#operationTpl'}
+            ],
+            height: 630
+        }
+        getTable(params);
+    }
+    form.on('select(Ext)', (data) => {
+        ext = data.value;
+        getFileTable();
+    })
+    function makeWhereJson() {
+        let keyword = jVal('keyword');
+        whereJsonStr = {
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
+            }]
+        };
+        if (ext == 'photo') {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'jpg'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'png'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'jpeg'
+                }]
+            });
+        }
+        if (ext == 'video') {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'mp4'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'flv'
+                }]
+            });
+        }
+        if (ext == 'file') {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'xls'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'doc'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'pdf'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'ppt'
+                },{
+                    'Field': 'Ext',
+                    'Operator': 'Contains',
+                    'Value': 'txt'
+                }]
+            });
+        }
+        if (keyword && keyword.length > 0) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'Name',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                }]
+            });
+        }
+
+        return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'createdAt', 'isAsc': false, 'rd': randomInt };
+    }
+</script>

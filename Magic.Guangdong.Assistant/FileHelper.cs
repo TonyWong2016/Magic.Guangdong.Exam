@@ -220,6 +220,7 @@ namespace Magic.Guangdong.Assistant
                             File.Delete(i.FullName);      //删除指定文件
                         }
                     }
+                    
                 }
             }
             catch (Exception e)
@@ -228,6 +229,7 @@ namespace Magic.Guangdong.Assistant
                 throw;
             }
         }
+
 
         public static bool FileExist(string path)
         {
@@ -238,6 +240,16 @@ namespace Magic.Guangdong.Assistant
                 string target_path = $"{theFolder}{path}";
                 if (File.Exists(target_path))
                     return true;
+            }
+            return false;
+        }
+
+        public static bool FileRemove(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                return true;
             }
             return false;
         }

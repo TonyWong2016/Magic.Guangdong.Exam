@@ -81,6 +81,9 @@ namespace Magic.Guangdong.DbServices.Entities
 
         [JsonProperty]
         public string Md5 { get; set; } = "";
+
+        [JsonProperty]
+        public string Remark { get; set; } = "";
     }
 
 }

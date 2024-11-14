@@ -217,6 +217,20 @@ namespace Magic.Guangdong.DbServices.Interfaces
         Task<int> updateItemAsync(T t);
 
         /// <summary>
+        /// 更新多条条目
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        int updateItems(List<T> t);
+
+        /// <summary>
+        /// 更新多条条目(异步)
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        Task<int> updateItemsAsync(List<T> t);
+
+        /// <summary>
         /// 更新或删除
         /// </summary>
         /// <param name="t"></param>

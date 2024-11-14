@@ -92,6 +92,13 @@ namespace Magic.Guangdong.Assistant
             return new { code = 0, msg = _message, data = _data };
         }
 
+        public dynamic successPlus(dynamic data, dynamic extenddata, string msg = "success")
+        {
+            _message = msg;
+            _data = data;
+            return new { code = 0, msg = _message, data = _data, extenddata };
+        }
+
         public dynamic error(string msg, dynamic? data)
         {
             _message = msg;

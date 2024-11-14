@@ -505,3 +505,19 @@ function checkEnv(isProduction) {
         TT.error('嗯？不让看！');
     });
 }
+
+//chance当前设备类型
+function detectDeviceType() {
+    // 获取用户的UserAgent字符串
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // 检查UserAgent字符串中是否包含某些特定的关键词，这些关键词通常出现在移动设备的UserAgent中
+    if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)) {
+        return 'Mobile'; // 如果匹配，则认为是移动设备
+    } else {
+        return 'PC'; // 否则，默认为PC
+    }
+}
+
+// 使用函数并输出结果
+//console.log(detectDeviceType());

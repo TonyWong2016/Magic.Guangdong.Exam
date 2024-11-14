@@ -34,6 +34,17 @@
                             <textarea class="layui-textarea" asp-for="Title" placeholder="请输入题目内容" required lay-verify="required"></textarea>
                         </div>
                     </div>
+                    <div class="layui-form-item  layui-col-space10">
+                        <label class="layui-form-label">配图</label>
+                        <div class="layui-col-md5">
+                            <input type="text" class="layui-input" id="fileurl" placeholder="题目配图（如果有）"/>
+                        </div>
+                        <div class="layui-col-md3">
+                            <a class="layui-btn layui-btn-primary layui-border-blue" href="">上传</a>
+                            <a class="layui-btn layui-btn-primary layui-border-blue" href="">预览</a>
+
+                        </div>
+                    </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label"><span class="layui-badge-dot"></span> 解析</label>
                         <div class="layui-input-block">
@@ -157,7 +168,7 @@
         </div>
         <div class="layui-form-item" style="margin-bottom:0px;margin-top:10px;text-align:right">
             @*<a class="layui-btn layui-btn-normal" onclick="addItem({{ orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-add-1"></i>新增选项块</a>*@
-            <a class="layui-btn layui-btn-danger" onclick="removeItem({{ item.orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-delete"></i>删除当前块</a>
+            <a class="layui-btn layui-btn-primary layui-border-red" onclick="removeItem({{ item.orderIndex }})" href="javascript:;"><i class="layui-icon layui-icon-delete"></i>删除当前块</a>
 
         </div>
     </div>

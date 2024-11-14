@@ -141,7 +141,12 @@
             "pageHost": "http://zb10.xiaoxiaotong.org"
         };
 
-        setTimeout(()=>{            
+        setTimeout(()=>{
+            
+            if(detectDeviceType()=='PC'){
+                const url = location.href;
+                location.href = url.replace('exammobile','exam');
+            }
             if(!pageConfigRenderFlag)
             renderPageConfig();
         },150);
