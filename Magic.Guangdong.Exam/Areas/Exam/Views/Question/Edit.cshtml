@@ -34,17 +34,18 @@
                             <textarea class="layui-textarea" asp-for="Title" placeholder="请输入题目内容" required lay-verify="required"></textarea>
                         </div>
                     </div>
-                    <div class="layui-form-item  layui-col-space10">
+                    <div class="layui-form-item">
                         <label class="layui-form-label">配图</label>
-                        <div class="layui-col-md5">
-                            <input type="text" class="layui-input" id="fileurl" placeholder="题目配图（如果有）"/>
+                        <div class="layui-input-block layui-btn-container" id="divMaterials">
+                            <input class="layui-btn layui-btn-primary layui-border-purple" value="待上传" />                            
                         </div>
-                        <div class="layui-col-md3">
-                            <a class="layui-btn layui-btn-primary layui-border-blue" href="">上传</a>
-                            <a class="layui-btn layui-btn-primary layui-border-blue" href="">预览</a>
+                        <div class="layui-input-block">
+                            <a class="layui-btn layui-btn-primary" href="javascript:;" onclick="openDiv('素材管理', 'divUpload', '70%', '70%',false)"><i class="layui-icon layui-icon-add-1"></i>添加</a>
 
                         </div>
+
                     </div>
+                    
                     <div class="layui-form-item">
                         <label class="layui-form-label"><span class="layui-badge-dot"></span> 解析</label>
                         <div class="layui-input-block">
@@ -61,8 +62,6 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label"><span class="layui-badge-dot"></span> 类型</label>
                         <div class="layui-input-block">
-                            @*<select asp-for="TypeId" lay-filter="typeId" lay-verify="required" required>
-                            </select>*@
                             <div id="TypeIdSelect">
                             </div>
                             <input type="hidden" asp-for="TypeId" />
@@ -140,6 +139,42 @@
     </div>
 </div>
 
+<div class="layui-panel  layui-bg-gray" id="divUpload" style="display:none;padding:30px;">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" lay-filter="uploadForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">素材归属</label>
+                    <div class="layui-input-block">
+                        <select id="materialSelectView" lay-filter="materialSelectView">
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item  layui-col-space10">
+                    <label class="layui-form-label">路径</label>
+                    <div class="layui-col-md5">
+                        <input type="text" class="layui-input" id="fileUrl" placeholder="题目配图（如果有）" />
+                        <input type="hidden" id="fileId" />
+                    </div>
+                    <div class="layui-col-md4">
+                        <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" id="btnUpload">上传</a>
+                        <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" id="btnAddMaterial" onclick="AddMaterial()">确定添加</a>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="layui-card-body">
+            <div class="layui-row" style="text-align:center" id="materialItemView">
+                
+                
+            </div>
+        </div>
+   </div>
+   
+</div>
+
 @*客观题答案内容*@
 <script type="text/html" id="objectiveItemTpl">
     {{# layui.each(d,function(index, item){ }}
@@ -204,10 +239,26 @@
     {{# }) }}
 </script>
 
+<script type="text/html" id="materialSelectTpl">
+    <option value="Question|@Model.Id">题目-配图</option>
+    {{# layui.each(d,function(index, item){ }}
+        <option value="QuestionItem|{{item.id}}">选项{{ item.code }}-配图</option>
+    {{# }) }}
+</script>
+
+<script type="text/html" id="materialItemTpl">
+    <div class="layui-col-md3">
+        <img class="layui-row" src="{{d.imgUrl}}?width=200" />
+        <span class="layui-row">{{d.imgTitle}}</span>
+    </div>
+
+</script>
+
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
 <script src="~/plugins/xm-select.js"></script>
 <script src="~/web/myxselect.js"></script>
+<script src="~/web/myfcup.js"></script>
 <script>
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
@@ -221,8 +272,12 @@
     let defaultArr = [];
     let currIndex = 0;
     let currQuestionId = '@Model.Id';
-    //let itemAnswerTotal = 4;
-    //getSelectItems('/exam/questiontype/GetQuestionTypeSelects',{},'selectTplInit','TypeId',false);
+
+    let fileConnObj = {
+        ConnName: 'Question',
+        ConnId: currQuestionId
+    };
+
     let questionTypeStr='@Html.Raw(Model.TypeName)';
     if(questionTypeStr.indexOf('判断')>-1)
         questionType=2;
@@ -277,9 +332,9 @@
             itemAnswerArr = json.data;
             isSingleAnswer = itemAnswerArr.filter(u => u.isAnswer == 1).length;
             
-            //for(let answer of answersArr)
-            //correctAnswer.push(answer.)
             generateAnswerItems(itemAnswerArr.length, false, true);
+        
+            renderMaterialSelect()
         });
     }
 
@@ -316,16 +371,21 @@
         }
     })
 
-    form.on('submit(save)', async function (data) {
+    form.on('select(materialSelectView)', function (data) {
+        console.log(data);
+        let parts = data.value.split('|');
+        fileConnObj = {
+            ConnName:parts[0],
+            ConnId:parts[1]
+        }
+    })
 
+    form.on('submit(save)', async function (data) {
         if (settleItems()<0)
          return;
-
         
         let question = data.field;
         let items = itemAnswerArr;
-        
-
 
         let formData = new FormData();
         formData.append('questionStr', JSON.stringify(question));
@@ -341,8 +401,6 @@
         }
         errorMsg('保存失败')
     })
-
-
 
     //增加选项
     function addAnswerItem() {
@@ -400,7 +458,6 @@
         makeItems(obj);
     }
 
-
     //动态填充选项
     async function makeItems(obj) {
         if (obj.index > 0) {
@@ -428,7 +485,6 @@
             
         })
     }
-
 
     //填充主观题选项
     function makeUnObjectItems(arr) {
@@ -482,6 +538,47 @@
             generateAnswerItems(number, false)
 
         })
+    }
+
+    async function AddMaterial() {
+        // openDiv('素材管理', 'divUpload', '70%', '70%',false);
+        
+        let formData = objectToFormData(fileConnObj);
+        var ret = await request('POST', '/material/material/BindMaterial', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            renderTpl('materialItemTpl', 'materialItemView', 
+            {
+                imgUrl: $('#fileUrl').val(),
+                    imgTitle: fileConnObj.remark
+            }, 
+            true);
+            successMsg('保存成功');
+            return;
+        }
+        errorMsg('保存失败')
+    }
+
+    //渲染素材选择选项
+    function renderMaterialSelect(){
+        if(itemAnswerArr.length==0){
+            return;
+        }
+        renderTpl('materialSelectTpl', 'materialSelectView', itemAnswerArr, false);
+        form.render('select');
+        let uploadObj = {
+            'elemId':'btnUpload',
+            'callback':function(data){
+                $('#fileId').val(data.extenddata.id);
+                if (data.data.startsWith('http'))
+                    $('#fileUrl').val(data.data);
+                else 
+                    $('#fileUrl').val(`${location.protocol}//${location.host}${data.data}`);
+                fileConnObj.Id = data.extenddata.id;
+                fileConnObj.Remark = $('#materialSelectView option:selected').text();
+                fileConnObj.__RequestVerificationToken = requestToken;
+            }
+        }
+        initUploadFilePro(uploadObj)
     }
 
     function settleItems() {

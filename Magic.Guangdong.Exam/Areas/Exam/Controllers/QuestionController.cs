@@ -109,6 +109,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             var ret = await questionItemRepo.getListAsync(u => u.QuestionId == questionId && u.IsDeleted == 0);
             return Json(_resp.success(ret.Select(u => new
             {
+                u.Id,
                 u.OrderIndex,
                 u.Description,
                 u.DescriptionText,

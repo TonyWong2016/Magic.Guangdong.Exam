@@ -86,26 +86,40 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
         /// </summary>
         /// <param name="paperIds"></param>
         /// <returns></returns>
-        [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "BindMaterial")]
-        public async Task BindMaterial(MaterialDto dto)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BindMaterial(MaterialDto dto)
         {
             Assistant.Logger.Warning($"{DateTime.Now},开始绑定资源,{dto.ConnName}");
-            //await _paperRepo.GeneratePaper(paperIds, adminId);
-            if(await _fileRepo.getAnyAsync(u => u.Id == dto.Id))
+            if (!string.IsNullOrEmpty(dto.link))
             {
-               var file = await _fileRepo.getOneAsync(u=>u.Id==dto.Id);
+                var file = new DbServices.Entities.File()
+                {
+                    ConnId = dto.ConnId,
+                    ConnName = dto.ConnName,
+                    updatedAt = DateTime.Now,
+                    Remark = dto.Remark,
+                    ShortUrl = dto.link,
+                    Path = dto.link,
+                    Ext = Path.GetExtension(dto.link),
+                    Type = "网络地址"
+                };
+                await _fileRepo.insertOrUpdateAsync(file);
+                return Json(_resp.success("绑定成功"));
+
+            }
+            if (await _fileRepo.getAnyAsync(u => u.Id == dto.Id))
+            {
+                var file = await _fileRepo.getOneAsync(u => u.Id == dto.Id);
                 file.ConnId = dto.ConnId;
                 file.ConnName = dto.ConnName;
-                file.updatedAt= DateTime.Now;
-                file.Remark = "绑定资源";
+                file.updatedAt = DateTime.Now;
+                file.Remark = dto.Remark;
                 await _fileRepo.updateItemAsync(file);
-                Assistant.Logger.Warning($"{DateTime.Now},绑定成功");
+                return Json(_resp.success("绑定成功"));
+
             }
-            else
-            {
-                Assistant.Logger.Warning($"{DateTime.Now},绑定失败");
-            }
+            return Json(_resp.error("绑定失败"));
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Magic.Guangdong.Exam.Controllers
                     bool isDel = del == 0 ? false : true;
                     var file = await UploadFile(files[0], userId, isDel);
 
-                    return Json(resp.successPlus(file.Path, file));
+                    return Json(resp.successPlus(file.ShortUrl, file));
                 }
             }
             catch (Exception ex)

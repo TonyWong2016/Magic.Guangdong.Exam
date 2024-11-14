@@ -13,5 +13,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Material
         public string ConnId { get; set; }  
 
         public string ConnName { get; set; }
+
+        public string Remark { get; set; }
+
+        public string link { get; set; } = "";
     }
 }
