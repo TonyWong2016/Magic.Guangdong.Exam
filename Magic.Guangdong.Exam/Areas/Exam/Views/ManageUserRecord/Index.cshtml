@@ -115,15 +115,15 @@
     {{# if(d.paperDegree=="all"||(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1)){ }}
     未限制
     {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("normal")>-1) { }}
-    容易，一般
+    容易，普通
     {{# } else if(d.paperDegree.indexOf("easy")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
     容易，困难
     {{# } else if(d.paperDegree.indexOf("normal")>-1 && d.paperDegree.indexOf("difficult")>-1) { }}
-    一般，困难
+    普通，困难
     {{# } else if(d.paperDegree.indexOf("easy")>-1 ) { }}
     容易
     {{# } else if(d.paperDegree.indexOf("normal")>-1 ) { }}
-    一般
+    普通
     {{# } else if(d.paperDegree.indexOf("difficult")>-1 ) { }}
     困难
     {{#} }}

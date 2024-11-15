@@ -142,57 +142,74 @@
        <div id="questionTitle">{{ processTitle(d.TitleRaw,d.orderIndex) }}</div>
        <kbd class="pico-background-jade-350" style=" margin-top:10px">{{d.TypeName}}({{d.ItemScore}}分)</kbd>
     </header>
-    {{# if(d.IsObjective==1){ }}
-        <div class="optionItem">
-            {{# layui.each(d.Items,function(index,item){ }}
-                {{# let currItems = answerArr.filter(u=>u.questionId==d.Id) }}
-                {{# let optionContent = item.Code }}
-                {{# if(item.DescriptionTxt) optionContent+="、"+item.DescriptionTxt; }}
-                {{# if(currItems.length==1&&currItems[0].userAnswer.includes(item.Id.toString()) ){ }}
-                    <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent }}</a>
-        @* <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{- optionContent }}</a> *@
-
-                    {{#} else { }}
-                     <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent}}</a>
-                     @* <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" data-tooltip="{{ optionContent }}">{{- optionContent}}</a> *@
-                {{#} }}
-            {{# }) }}
-        </div>
-    {{#} else if(d.TypeName.indexOf('编程')>-1 || d.TypeName.indexOf('代码')>-1) { }}
-        <div class="codeItem">
-            <select id="codelanguage"  aria-label="请选择适合自己的编程语言作答">
-                <option value=""  disabled>请选择适合自己的编程语言作答</option>
-                <option value="cpp">c/c++</option>
-                <option value="csharp">c#</option>
-                <option value="go">go</option>
-                <option value="java">java</option>
-                <option value="javascript" selected>javascript</option>
-                <option value="php">php</option>
-                <option value="python">python</option>
-                <option value="sql">sql（数据库编程题请选择此项）</option>
-            </select>
-            <div id="code_{{d.Id}}" style="height:700px; border: 1px solid #ccc;"></div>
-            <small style="margin-top:0.4vh">在上述为代码编辑器中编写程序</small>
-        </div>
-    {{#} else { }}
-        <div class="textItem" >
-            {{# if(!answerArr.includes(d.Id.toString())) { }}
-            <textarea
-                id="content_{{d.Id}}"
-                class="content_answer"
-                placeholder="写下您的答案"
-                style="height:36vh"></textarea>
-            {{# } else { }}
-            <textarea
-                id="content_{{d.Id}}"
-                class="content_answer"
-                placeholder="写下您的答案"
-                style="height:36vh"></textarea>
+    <div class="body" style="margin-bottom:50px">
+        <div class="questionMaterials">
+            {{# if(d.Materials && d.Materials.length>0){ }}
+                {{# layui.each(d.Materials,function(index,item) { }}
+                    <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
+                {{# }) }}
             {{# } }}
-            <small style="margin-top:0.4vh">在上述为本框中写下您的答案</small>
         </div>
+        {{# if(d.IsObjective==1){ }}
+            <div class="optionItem">
+                {{# layui.each(d.Items,function(index,item){ }}
+                    {{# let currItems = answerArr.filter(u=>u.questionId==d.Id) }}
+                    {{# let optionContent = item.Code }}
+                    {{# if(item.DescriptionTxt) optionContent+="、"+item.DescriptionTxt; }}
+                    {{# if(currItems.length==1&&currItems[0].userAnswer.includes(item.Id.toString()) ){ }}
+                        <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent }}</a>
+                         {{# if(item.Materials && item.Materials.length>0){ }}
+                                {{# layui.each(item.Materials,function(index,item) { }}
+                                    <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
+                                {{# }) }}
+                            {{# } }}
+                        {{#} else { }}
+                             {{# if(item.Materials && item.Materials.length>0){ }}
+                                {{# layui.each(item.Materials,function(index,item) { }}
+                                    <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
+                                {{# }) }}
+                             {{# } }}
+                             <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent}}</a>
+                        {{#} }}
+                    {{# }) }}
+            </div>
+        {{#} else if(d.TypeName.indexOf('编程')>-1 || d.TypeName.indexOf('代码')>-1) { }}
+            <div class="codeItem">
+                <select id="codelanguage"  aria-label="请选择适合自己的编程语言作答">
+                    <option value=""  disabled>请选择适合自己的编程语言作答</option>
+                    <option value="cpp">c/c++</option>
+                    <option value="csharp">c#</option>
+                    <option value="go">go</option>
+                    <option value="java">java</option>
+                    <option value="javascript" selected>javascript</option>
+                    <option value="php">php</option>
+                    <option value="python">python</option>
+                    <option value="sql">sql（数据库编程题请选择此项）</option>
+                </select>
+                <div id="code_{{d.Id}}" style="height:700px; border: 1px solid #ccc;"></div>
+                <small style="margin-top:0.4vh">在上述为代码编辑器中编写程序</small>
+            </div>
+        {{#} else { }}
+            <div class="textItem" >
+                {{# if(!answerArr.includes(d.Id.toString())) { }}
+                <textarea
+                    id="content_{{d.Id}}"
+                    class="content_answer"
+                    placeholder="写下您的答案"
+                    style="height:36vh"></textarea>
+                {{# } else { }}
+                <textarea
+                    id="content_{{d.Id}}"
+                    class="content_answer"
+                    placeholder="写下您的答案"
+                    style="height:36vh"></textarea>
+                {{# } }}
+                <small style="margin-top:0.4vh">在上述为本框中写下您的答案</small>
+            </div>
 
-    {{# } }}
+        {{# } }}
+    </div>
+    
     <footer>
         {{# if(d.orderIndex > 1){ }}
             <a href="javascript:;" onclick="renderQuestion({{d.orderIndex-2}})" id="previous" role="button" class="contrast outline">上一题({{d.orderIndex-1}})</a>

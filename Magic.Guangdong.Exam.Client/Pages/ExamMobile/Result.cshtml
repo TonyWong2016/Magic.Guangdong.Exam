@@ -75,11 +75,13 @@
 
 <script>
     sessionStorage.removeItem("paperDetail");
-    setTimeout(() => {
-        if (document.querySelectorAll('.xxtSubItemsa').length > 1)
-            $('#btnBack').attr('href', document.querySelectorAll('.xxtSubItemsa')[1].href)
-        else
-            $('#btnBack').attr('href', atob(getCookie('redirectfromexam')));
-    },200)
-    
+    // setTimeout(() => {
+    //     if (document.querySelectorAll('.xxtSubItemsa').length > 1)
+    //         $('#btnBack').attr('href', document.querySelectorAll('.xxtSubItemsa')[1].href)
+    //     else
+    //         $('#btnBack').attr('href', atob(getCookie('redirectfromexam')));
+    // },100)
+    $('#btnBack').click(()=>{
+        alert('更多细节请登录PC端系统进行查看');
+    })
 </script>

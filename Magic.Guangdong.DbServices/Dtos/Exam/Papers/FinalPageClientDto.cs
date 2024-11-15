@@ -43,7 +43,6 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public int Status { get; set; }
 
-
         public int OpenResult { get; set; }
 
 
@@ -86,17 +85,19 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public double ItemScore { get; set; }
 
-        public string Analysis { get; set; }
+        public List<PaperClientMaterialDto> Materials {get;set;}
 
-        public string AnalysisTxt
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(Analysis))
-                    return Assistant.Utils.StripHTML(Analysis);
-                return "无";
-            }
-        }
+        //public string Analysis { get; set; }
+
+        //public string AnalysisTxt
+        //{
+        //    get
+        //    {
+        //        if (!string.IsNullOrEmpty(Analysis))
+        //            return Assistant.Utils.StripHTML(Analysis);
+        //        return "无";
+        //    }
+        //}
 
         public List<PaperQuestionItemClientDto> Items { get; set; }
     }
@@ -114,5 +115,39 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public string DescriptionTxt { get; set; }
 
         public int OrderIndex { get; set; }
+
+        public List<PaperClientMaterialDto> Materials { get; set; }
+    }
+
+    public class PaperClientMaterialDto
+    {
+        public long Id { get; set; } = 0;
+
+        public string ConnId { get; set; }
+
+        public long RealId
+        {
+            get
+            {
+                return Convert.ToInt64(ConnId);
+            }
+        }
+
+        public string ConnName { get; set; }
+
+        public string ShortUrl { get; set; }
+
+        public string url
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ShortUrl))
+                    return "";
+                if (ShortUrl.StartsWith("http"))
+                    return ShortUrl;
+                return Assistant.ConfigurationHelper.GetSectionValue("resourceHost") + ShortUrl;
+
+            }
+        }
     }
 }

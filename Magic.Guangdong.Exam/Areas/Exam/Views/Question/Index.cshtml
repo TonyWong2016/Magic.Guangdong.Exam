@@ -39,7 +39,7 @@
                 <select id="Degree" lay-filter="Degree" class="layui-select">
                     <option value="all">请选择题目难度</option>
                     <option value="easy">容易</option>
-                    <option value="normal">一般</option>
+                    <option value="normal">普通</option>
                     <option value="difficult">困难</option>
                 </select>
             </div>
@@ -71,11 +71,63 @@
     </div>
 </div>
 
+
+<div class="layui-panel  layui-bg-gray" id="divUploadMaterial" style="display:none;padding:30px;">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" lay-filter="uploadForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">素材归属</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" id="questionTitle" readonly/>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display:none">
+                    <label class="layui-form-label">素材归属</label>
+                    <div class="layui-input-block">
+                        <select id="materialSelectView" lay-filter="materialSelectView">
+                            <option value="Question">题目-配图</option>
+                            <option disabled>选项素材请进入到详情页进行上传</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item  layui-col-space10">
+                    <label class="layui-form-label">路径</label>
+                    <div class="layui-col-md5">
+                        <input type="text" class="layui-input" id="fileUrl" placeholder="输入网络地址或者上传素材" />
+                        <input type="hidden" id="fileId" />
+                    </div>
+                    <div class="layui-col-md3">
+                        <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" id="btnUploadMaterial"><i class="layui-icon layui-icon-upload-circle"></i>上传</a>
+                        <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" id="btnAddMaterial" onclick="AddMaterial()"><i class="layui-icon layui-icon-release"></i>确定添加</a>
+
+                    </div>
+
+                </div>
+                <div class="layui-form-item">
+                    <blockquote class="layui-elem-quote">
+                        支持使用网络图片，也可以点击右侧按钮上传，完成后点击【确定添加】按钮即可完成素材绑定;
+                        <br />
+                        为了避免客户端答题因为图片素材造成显示错乱，每种类别上传的素材数量建议不要超过1个，比如题目传1个图，每个选项最多只传1个。
+                    </blockquote>
+                </div>
+            </form>
+        </div>
+
+        <div class="layui-card-body">
+            <div class="layui-row" style="text-align:center" id="materialItemView">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
 <script type="text/html" id="degreeTpl">
     {{# if(d.degree=="easy") { }}
     容易
     {{# } else if(d.degree=="normal") { }}
-    一般
+    普通
     {{# } else if(d.degree=="difficult") { }}
     困难
     {{# } }}
@@ -83,8 +135,24 @@
 <script type="text/html" id="operationTpl">
     @*<a class="layui-btn layui-btn-normal" href=" {{resourceHost + d.templateFileUrl}}" target="_blank">查看</a>*@
     <a class="layui-btn layui-btn-primary layui-border-blue" href="@Url.Action("Edit")?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="OpenMaterial({{d.id}},'{{d.titleText}}')">素材</a>
+
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="deleteQuestion('{{d.id}}')">删除</a>
+
 </script>
+
+<script type="text/html" id="materialItemTpl">
+    {{# layui.each(d,function(index, item){ }}
+    <div class="layui-col-md3">
+        <img class="layui-row" src="{{item.imgUrl}}?width=200" />
+        <div class="layui-row" style="justify-content:space-between">
+           <a href="{{item.imgUrl}}" target="_blank" style="font-size:medium"> {{item.imgTitle}} </a>
+           <a href="javascript:;" onclick="removeMaterial({{item.id}})" title="删除配图"> <i class="layui-icon layui-icon-close layui-border-red"></i></a>
+       </div>
+    </div>
+     {{# }) }}
+</script>
+
 <script src="~/web/myfcup.js"></script>
 <script>
     let form = layui.form;
@@ -95,8 +163,8 @@
     let activityId = 0;
     let degree = 'all';
     //form.render('select');
+    let fileConnObj = {};
 
-    
 
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
     getSelectItems('/exam/subject/GetSubjectSelects', {}, 'selectTpl', 'SubjectId', true)
@@ -294,6 +362,88 @@
             return;
         }
         errorMsg('创建失败')
+    }
+
+    let currQuestionId = 0;
+
+    //打开素材弹窗 & 获取素材
+    function OpenMaterial(questionId, text) {
+       currQuestionId = questionId;
+       GetMaterials();
+       renderMaterialSelect()
+       $('#questionTitle').val(text)
+       openDiv('素材管理', 'divUploadMaterial', '70%', '70%',false);
+    }
+
+    function GetMaterials(){
+        $.getJSON('/material/material/getmaterials',{'connId':currQuestionId,'connName':'Question','rd':randomInt},function(json){
+            renderTpl('materialItemTpl', 'materialItemView',json.data, false);
+        })
+    }
+
+    //添加素材
+    async function AddMaterial() {
+        // openDiv('素材管理', 'divUpload', '70%', '70%',false);
+        if(!$('#fileUrl').val()){
+            errorMsg('请先选择或者上传素材');
+            return;
+        }
+        let link=$('#fileUrl').val();
+        if(!fileConnObj.id && !link.startsWith('http')){
+            errorMsg('素材格式不合法');
+            return;
+        }
+        fileConnObj.ConnId=currQuestionId;
+        fileConnObj.ConnName='Question';
+        fileConnObj.Link=$('#fileUrl').val();
+        fileConnObj.Remark = $('#materialSelectView option:selected').text();
+        fileConnObj.__RequestVerificationToken = requestToken;
+        let formData = objectToFormData(fileConnObj);
+        var ret = await request('POST', '/material/material/BindMaterial', formData, { 'Content-Type': 'multipart/form-data' });
+        if (ret.code == 0) {
+            renderTpl('materialItemTpl', 'materialItemView',
+            [{
+                imgUrl: $('#fileUrl').val(),
+                imgTitle: fileConnObj.Remark
+            }],
+            true);
+            successMsg('保存成功');
+             refreshRandomInt();
+            $('#fileUrl').val('')
+            return;
+        }
+        errorMsg('保存失败')
+    }
+
+    //移除素材
+    function removeMaterial(fileId) {
+        layer.confirm('确定要删除该素材吗?', { icon: 0 }, async(index)=> {
+            let formData = objectToFormData({id:fileId,realDel:0,__RequestVerificationToken : requestToken});
+            var ret = await request('POST', '/material/material/RemoveMaterial', formData, { 'Content-Type': 'multipart/form-data' });
+             if (ret.code == 0) {
+                 successMsg('移除成功');
+                 refreshRandomInt();
+                 GetMaterials();
+                 layer.close(index);
+             }
+        })
+    }
+
+    //上传并渲染素材选择选项
+    function renderMaterialSelect(){
+        
+        let uploadObj = {
+            'elemId':'btnUploadMaterial',
+            'callback':function(data){
+                $('#fileId').val(data.extenddata.id);
+                if (data.data.startsWith('http'))
+                    $('#fileUrl').val(data.data);
+                else
+                    $('#fileUrl').val(`${location.protocol}//${location.host}${data.data}`);
+                fileConnObj.Id = data.extenddata.id;
+            }
+        }
+        initUploadFilePro(uploadObj)
     }
 </script>
 

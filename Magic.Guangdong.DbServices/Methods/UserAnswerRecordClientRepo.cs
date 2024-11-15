@@ -3,6 +3,7 @@ using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.DbServices.Methods
@@ -316,6 +317,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 });
 
             var questionIds = paperQuestions.Select(u => u.Id).ToList();
+            
+               
 
             //题目选项
             var questionItems = new List<QuestionItem>();
@@ -326,9 +329,21 @@ namespace Magic.Guangdong.DbServices.Methods
                     questionItems.AddRange(done.Object);
                 });
 
+            var questionItemsId = questionItems.Select(u => u.Id);
+            //素材列表
+            var materials = (await fsql.Get(conn_str).Select<Entities.File>()
+                .Where(u => u.IsDeleted == 0)
+                .Where(u => (u.ConnName == "Question" && questionIds.Contains(Convert.ToInt64(u.ConnId)))
+                || (u.ConnName == "QuestionItem" && questionItemsId.Contains(Convert.ToInt64(u.ConnId))))
+                .ToListAsync()).Adapt<List<PaperClientMaterialDto>>();
+
+            var questionMaterials = materials.Where(u => u.ConnName == "Question").ToList();
+            var itemMaterials = materials.Where(u => u.ConnName == "QuestionItem").ToList();
+
             //组合题目和选项
             foreach (var question in paperQuestions)
             {
+                //var itemsMaterials = materials.Where(u=>u.ConnId == question.Id.ToString()).Adapt<List<PaperClientMaterialDto>>();)
                 var items = questionItems
                     .Where(u => u.QuestionId == question.Id)
                     .OrderBy(u => u.OrderIndex)
@@ -338,12 +353,23 @@ namespace Magic.Guangdong.DbServices.Methods
                         Code = u.Code,
                         Description = u.Description,
                         DescriptionTxt = u.DescriptionText,
-                        //IsAnswer = u.IsAnswer,
-                        OrderIndex = Convert.ToInt32(u.OrderIndex)
-                    });
+                        OrderIndex = Convert.ToInt32(u.OrderIndex),
+                        
+                    }).ToList();
+                if (itemMaterials.Any())
+                {
+                    foreach (var item in items)
+                    {
+                        item.Materials = itemMaterials.Where(u => u.ConnId == item.Id.ToString()).ToList();
+                    }
+                }
+                question.Materials = questionMaterials
+                    .Where(u => u.ConnId == question.Id.ToString())
+                    .Adapt<List<PaperClientMaterialDto>>();
+
                 question.Items = items.ToList();
             }
-
+            
             paper.Questions = paperQuestions;
             return paper;
         }

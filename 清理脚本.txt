@@ -4,32 +4,38 @@ DECLARE @activityid bigint = 592495397974405;
 DECLARE @reportId bigint = 609133267636613;
 --清理报名信息
   
-delete from [ReportInfo] where id!=@reportId
-delete from ReportProcess where reportid!=@reportId
+delete from [ReportInfo] where id!=@reportId;
+delete from ReportProcess where reportid!=@reportId;
 
-delete from [Magic.Guangdong.Exam].[dbo].[Order] where reportid!=@reportId
+delete from [Magic.Guangdong.Exam].[dbo].[Order] where reportid!=@reportId;
 
-delete from ReportCheckHistorywhere reportid!=@reportId
+delete from ReportCheckHistory where reportid!=@reportId;
 
 --清理考试、活动信息
 
-delete from Relation where examId != @examid
+delete from Relation where examId != @examid;
 
-delete from paper where examId !=  @examid
+delete from paper where examId != @examid;
 
-delete from examination where id != @examid
+delete from examination where id != @examid;
 
-delete from activity where id != @activityid
+delete from activity where id != @activityid;
 
 --清理判分，答题记录
-delete from teacherexamassign
+delete from teacherexamassign;
 
-delete from [TeacherRecordScoreLog]
+delete from [TeacherRecordScoreLog];
 
-delete from [TeacherRecordScoring]
+delete from [TeacherRecordScoring];
 
-delete from UserAnswerRecord 
+delete from UserAnswerRecord;
 
-delete from [UserAnswerSubmitRecord]
+delete from [UserAnswerSubmitRecord];
 
-delete from [UserAnswerSubmitLog]
+delete from [UserAnswerSubmitLog];
+
+--清理题库
+
+delete from Relation
+delete from questionItem
+delete from Question

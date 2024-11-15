@@ -5,6 +5,7 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Material;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Material.Controllers
@@ -14,19 +15,21 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
     {
         private readonly IFileRepo _fileRepo;
         private readonly IResponseHelper _resp;
+        private readonly IQuestionItemRepo _questionItemRepo;
         private readonly IHttpContextAccessor _contextAccessor;
 
         private string adminId = "system";
-        public MaterialController(IFileRepo fileRepo, IResponseHelper resp, IHttpContextAccessor httpContextAccessor)
+        public MaterialController(IFileRepo fileRepo, IResponseHelper resp,IQuestionItemRepo questionItemRepo, IHttpContextAccessor httpContextAccessor)
         {
             _fileRepo = fileRepo;
             _resp = resp;
             _contextAccessor = httpContextAccessor;
+            _questionItemRepo = questionItemRepo;
             adminId = (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
                Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
 
         }
-
+        [RouteMark("素材管理")]
         public IActionResult Index()
         {
             return View();
@@ -43,9 +46,57 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
             return Json(_resp.success(new { items = _fileRepo.getList(dto, out total), total }));
         }
 
+        /// <summary>
+        /// 获取指定素材
+        /// </summary>
+        /// <param name="connId"></param>
+        /// <param name="connName"></param>
+        /// <returns></returns>
+        [ResponseCache(Duration = 100, VaryByQueryKeys = ["connId", "connName", "rd"])]
+        public async Task<IActionResult> GetMaterials(string connId, string connName)
+        {
+            return Json(_resp.success(await _fileRepo.GetMaterials(connId, connName)));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove(long[] ids,int realDel=0)
+        public async Task<IActionResult> RemoveMaterial(long id, int realDel = 0)
+        {
+            bool del = realDel == 1;
+            string delPath = "";
+            try
+            {
+                var file = await _fileRepo.getOneAsync(u =>u.Id==id);
+                file.Remark += "fake deleted";
+                file.IsDeleted = 1;
+                file.updatedAt = DateTime.Now;
+                file.AccountId = adminId;
+                if (del)
+                {
+                    delPath = file.Path;
+                    file.Remark += "real deleted";
+                }
+               
+                
+                return Json(_resp.success(await _fileRepo.updateItemAsync(file)));
+            }
+            catch (Exception ex)
+            {
+                Assistant.Logger.Error(ex);
+                return Json(_resp.error(ex.Message));
+            }
+            finally
+            {
+                if (del && !string.IsNullOrEmpty(delPath))
+                {
+                    FileHelper.FileRemove(delPath);
+                }
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveBatch(long[] ids,int realDel=0)
         {
             bool del = realDel == 1;
             List<string> delPaths = new List<string>();
@@ -55,13 +106,16 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
                 
                 List<DbServices.Entities.File> list = new List<DbServices.Entities.File>();
                 foreach (var file in files)
-                {       
-                    if(del)
-                        delPaths.Add(file.Path);
+                {
+                    file.Remark += "fake deleted";                    
                     file.IsDeleted = 1;
                     file.updatedAt = DateTime.Now;
                     file.AccountId = adminId;
-                    file.Remark = "fake deleted";
+                    if (del)
+                    {
+                        delPaths.Add(file.Path);
+                        file.Remark += "real deleted";
+                    }
                     list.Add(file);
                 }
                 return Json(_resp.success(await _fileRepo.updateItemsAsync(list)));
@@ -81,6 +135,7 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
             }
         }
 
+
         /// <summary>
         /// 绑定素材
         /// </summary>
@@ -91,7 +146,7 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
         public async Task<IActionResult> BindMaterial(MaterialDto dto)
         {
             Assistant.Logger.Warning($"{DateTime.Now},开始绑定资源,{dto.ConnName}");
-            if (!string.IsNullOrEmpty(dto.link))
+            if (!string.IsNullOrEmpty(dto.Link) && dto.Id==0)
             {
                 var file = new DbServices.Entities.File()
                 {
@@ -99,9 +154,9 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
                     ConnName = dto.ConnName,
                     updatedAt = DateTime.Now,
                     Remark = dto.Remark,
-                    ShortUrl = dto.link,
-                    Path = dto.link,
-                    Ext = Path.GetExtension(dto.link),
+                    ShortUrl = dto.Link,
+                    Path = dto.Link,
+                    Ext = Path.GetExtension(dto.Link),
                     Type = "网络地址"
                 };
                 await _fileRepo.insertOrUpdateAsync(file);

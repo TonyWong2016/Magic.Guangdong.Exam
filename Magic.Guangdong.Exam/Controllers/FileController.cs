@@ -168,6 +168,7 @@ namespace Magic.Guangdong.Exam.Controllers
             var adminId = Request.Form["adminId"];
 
             var connId = Request.Form["connId"];
+
             //前端传来的md5值
             var md5 = Request.Form["file_md5"];
             //临时保存分块的目录
