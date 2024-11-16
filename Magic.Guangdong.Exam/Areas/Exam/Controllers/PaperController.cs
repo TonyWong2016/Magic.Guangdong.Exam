@@ -58,12 +58,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                     PaperIds = paperIds,
                     Tags = model.tags
                 };                
-                await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
+                _capBus.Publish(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
             }
 
             if (paperIds != null)
             {
-                await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
+                _capBus.Publish(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
                 return Json(_resp.success(paperIds));
             }
             

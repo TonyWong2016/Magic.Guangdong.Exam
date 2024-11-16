@@ -1,22 +1,15 @@
-﻿//using Authing.ApiClient.Auth;
-using Essensoft.Paylink.Alipay;
+﻿using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using IdentityModel;
 using Magic.Guangdong.Assistant;
-using Magic.Guangdong.Assistant.IService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-//using NetDevPack.Security.JwtExtensions;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Client.Extensions
@@ -328,23 +321,36 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             //配置CAP
             services.AddCap(x =>
             {
-                x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
-                x.UseRabbitMQ(opt =>
+                string transType = configuration.GetSection("TransType").Value;
+                if (transType == "kafka")
                 {
-                    opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
-                    opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
-                    opt.Password = configuration.GetSection("RabbitMQ")["Password"];
-                    opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
-                    opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
-                    //指定Topic exchange名称，不指定的话会用默认的
-                    opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
-                });
+                    x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
+
+                    x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
+
+                }
+                else
+                {
+
+
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    x.UseRabbitMQ(opt =>
+                    {
+                        opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
+                        opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
+                        opt.Password = configuration.GetSection("RabbitMQ")["Password"];
+                        opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
+                        opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
+                        //指定Topic exchange名称，不指定的话会用默认的
+                        opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
+                    });
+                }
                 //设置处理成功的数据在数据库中保存的时间（秒），为保证系统新能，数据会定期清理。
                 x.SucceedMessageExpiredAfter = 24 * 3600 * 3;
                 x.FailedMessageExpiredAfter = 24 * 3600 * 30;
                 //设置失败重试次数
                 x.FailedRetryCount = 5;
-
+                x.UseDashboard();
             });
 
         }

@@ -264,17 +264,29 @@ namespace Magic.Guangdong.Exam.Extensions
             //配置CAP
             services.AddCap(x =>
             {
-                x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
-                x.UseRabbitMQ(opt =>
+                string transType= configuration.GetSection("TransType").Value;
+                if (transType == "kafka")
                 {
-                    opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
-                    opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
-                    opt.Password = configuration.GetSection("RabbitMQ")["Password"];
-                    opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
-                    opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
-                    //指定Topic exchange名称，不指定的话会用默认的
-                    opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
-                });
+                    x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
+
+                    x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
+
+                }
+                else
+                {
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    x.UseRabbitMQ(opt =>
+                    {
+                        opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
+                        opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
+                        opt.Password = configuration.GetSection("RabbitMQ")["Password"];
+                        opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
+                        opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
+                        //指定Topic exchange名称，不指定的话会用默认的
+                        opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
+                    });
+                }
+               
                 //设置处理成功的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
                 x.SucceedMessageExpiredAfter = 24 * 3600 * 3;
 
@@ -284,6 +296,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 //设置处理失败的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
                 x.FailedMessageExpiredAfter = 24 * 3600 * 30;
 
+                x.UseDashboard();
             });            
         }
 

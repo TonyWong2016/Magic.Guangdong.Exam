@@ -6,5 +6,10 @@
     "VirtualHost": "virtual_guangdonexam",
     "Port": 5672,
     "ExchangeName": "cap.text.guangdonexam.exchange"
-  }
+  },
+  "Kafka": {
+    "Brokers": "10.185.1.178:9092,10.185.1.179:9092,10.185.1.176:9092",
+    "QueneStorageConn": "User ID=dev_user;Password=wt123456;Host=10.185.1.179;Port=5432;Database=magicExamQuene;"
+  },
+  "TransType": "kafka"
 }

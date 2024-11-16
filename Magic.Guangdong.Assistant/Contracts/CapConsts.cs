@@ -8,14 +8,13 @@ namespace Magic.Guangdong.Assistant.Contracts
 {
     public class CapConsts
     {
-        public const string PREFIX = "guangdong.exam.service.";
+        public const string PREFIX = "exam.service.";
         //public static string PREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
         public static string GetCapMsgName(string name)
         {
-            //string SUBPREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
-            return PREFIX + name;
+            string SUBPREFIX = ConfigurationHelper.GetSectionValue("CAPSuffix");
+            return PREFIX + name+ SUBPREFIX;
         }
-
         
     }
 }
