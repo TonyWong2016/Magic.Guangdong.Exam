@@ -350,7 +350,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 x.FailedMessageExpiredAfter = 24 * 3600 * 30;
                 //设置失败重试次数
                 x.FailedRetryCount = 5;
-                x.UseDashboard();
+                //x.UseDashboard();
             });
 
         }

@@ -35,12 +35,12 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
             builder.Services.ConfigurePlug(_configuration);
             // builder.Services.BuildServiceProvider();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-                       
+
             builder.Services.ConfigureImageSharp(_configuration);
             return builder;
         }
 
-       
+
         /// <summary>
         /// 配置mvc
         /// </summary>
@@ -74,12 +74,12 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
 
         }
 
-       
+
         static IdleBus<IFreeSql> ib = new IdleBus<IFreeSql>(TimeSpan.FromMinutes(10));
         /// <summary>
         /// 配置orm
         /// </summary>
-        private static void ConfigureOrm(this IServiceCollection services,IConfiguration configuration)
+        private static void ConfigureOrm(this IServiceCollection services, IConfiguration configuration)
         {
             #region orm框架
             //IFreeSql fsql = new FreeSqlBuilder()
@@ -111,7 +111,7 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
                     .Build()
                 );
             }
-            
+
 
             services.AddSingleton(ib);
             #endregion
@@ -204,7 +204,7 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
             //    options.Cookie.IsEssential = true;
             //});
             //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "DataProtection"));
-            
+
             ////这里以后要增加日志拦截器和权限拦截器
             //services.AddAntiforgery(options =>
             //{
@@ -221,17 +221,28 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
             //配置CAP
             services.AddCap(x =>
             {
-                x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
-                x.UseRabbitMQ(opt =>
+                string transType = configuration.GetSection("TransType").Value;
+                if (transType == "kafka")
                 {
-                    opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
-                    opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
-                    opt.Password = configuration.GetSection("RabbitMQ")["Password"];
-                    opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
-                    opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
-                    //指定Topic exchange名称，不指定的话会用默认的
-                    opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
-                });
+                    x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
+
+                    x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
+
+                }
+                else
+                {
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    x.UseRabbitMQ(opt =>
+                    {
+                        opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];
+                        opt.UserName = configuration.GetSection("RabbitMQ")["UserName"];
+                        opt.Password = configuration.GetSection("RabbitMQ")["Password"];
+                        opt.VirtualHost = configuration.GetSection("RabbitMQ")["VirtualHost"];
+                        opt.Port = Convert.ToInt32(configuration.GetSection("RabbitMQ")["Port"]);
+                        //指定Topic exchange名称，不指定的话会用默认的
+                        opt.ExchangeName = configuration.GetSection("RabbitMQ")["ExchangeName"];
+                    });
+                }
                 //设置处理成功的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
                 x.SucceedMessageExpiredAfter = 24 * 3600 * 3;
 
@@ -241,7 +252,7 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
                 //设置处理失败的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
                 x.FailedMessageExpiredAfter = 24 * 3600 * 30;
 
-            });            
+            });
         }
 
         /// <summary>
@@ -250,7 +261,7 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
         /// <param name="services"></param>
         private static void ConfigureCoravel(this IServiceCollection services)
         {
-            
+
             services.AddScheduler();
 
         }
