@@ -85,6 +85,7 @@ namespace Magic.Guangdong.DbServices.Entities
 	public enum PaperOpenResult
 	{		
 		No,
-		Yes
+		Yes,
+		YesAndDetail
 	}
 }

@@ -194,7 +194,20 @@ namespace Magic.Guangdong.DbServices.Methods
                 returnVerifyResult.verifyCode = -1;
                 return returnVerifyResult;
             }
+            
             var reportInfo = await reportCheckQuery.FirstAsync();
+            if(reportInfo.StartTime> DateTime.Now || reportInfo.EndTime < DateTime.Now)
+            {
+                returnVerifyResult.verifyMsg = "不在考试时间，请耐心等待";
+                returnVerifyResult.verifyCode = -1;
+                return returnVerifyResult;
+            }
+            if (reportInfo.Status != 0 || reportInfo.ReportStatus != 0 || reportInfo.ReportStep != 1)
+            {
+                returnVerifyResult.verifyMsg = "考试已关闭";
+                returnVerifyResult.verifyCode = -1;
+                return returnVerifyResult;
+            }
             var recordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
             var recordCheckQuery = recordRepo
                 .Where(u => u.Complated != ExamComplated.Cancle)

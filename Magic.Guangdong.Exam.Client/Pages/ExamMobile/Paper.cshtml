@@ -24,7 +24,7 @@
             <li>
                <details class="dropdown">
                     <summary>答题卡</summary>
-                    <ul dir="rtl" id="answerSheet">
+                    <ul dir="rtl" id="answerSheet" style="height:438px;overflow-y:auto">
                     </ul>
                 </details>
             </li>
@@ -157,19 +157,25 @@
                     {{# let optionContent = item.Code }}
                     {{# if(item.DescriptionTxt) optionContent+="、"+item.DescriptionTxt; }}
                     {{# if(currItems.length==1&&currItems[0].userAnswer.includes(item.Id.toString()) ){ }}
-                        <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent }}</a>
+                        <a role="button" style="margin-top:1vh;width:100%" href="javascript:;"  class="correct option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >
+                            {{- optionContent }}
+                            
                          {{# if(item.Materials && item.Materials.length>0){ }}
                                 {{# layui.each(item.Materials,function(index,item) { }}
                                     <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
                                 {{# }) }}
                             {{# } }}
+                            </a>
                         {{#} else { }}
-                             {{# if(item.Materials && item.Materials.length>0){ }}
-                                {{# layui.each(item.Materials,function(index,item) { }}
-                                    <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
-                                {{# }) }}
-                             {{# } }}
-                             <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >{{- optionContent}}</a>
+                             
+                             <a role="button"style="margin-top:1vh;width:100%" href="javascript:;"  class="secondary outline option" data-itemid="{{item.Id}}" data-questionid="{{d.Id}}" data-single="{{d.SingleAnswer==1}}" >
+                                 {{- optionContent}}
+                                 {{# if(item.Materials && item.Materials.length>0){ }}
+                                    {{# layui.each(item.Materials,function(index,item) { }}
+                                        <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
+                                    {{# }) }}
+                                 {{# } }}
+                                 </a>
                         {{#} }}
                     {{# }) }}
             </div>

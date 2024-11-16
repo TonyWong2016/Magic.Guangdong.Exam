@@ -470,9 +470,10 @@ const TT = {
     }
 };
 
-function checkEnv(isProduction) {
-    if (!isProduction)
+function checkEnv() {
+    if (location.host.indexOf('localhost') > -1 || detectDeviceType() != 'PC') {
         return;
+    }    
     document.addEventListener('keydown', function (event) {
         // 检测 F12 键
         if (event.key === 'F12') {
@@ -499,10 +500,10 @@ function checkEnv(isProduction) {
         }
     });
 
-    // 防止右键菜单中的“检查”选项
+    // 防止PC端右键菜单中的“检查”选项
     document.addEventListener('contextmenu', function (event) {
         event.preventDefault();
-        TT.error('嗯？不让看！');
+        TT.error('本系统禁止右键行为');
     });
 }
 

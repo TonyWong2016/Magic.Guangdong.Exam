@@ -60,6 +60,13 @@ body, html {
     transition: all 0.3s ease; /* 添加过渡效果，使变化平滑 */
 }
 
+    .xxtSubItemsa:hover {
+        /* 鼠标悬停时的样式 */
+        background-color: var(--pico-color-blue-500); /* 黑色背景 */
+        color: #fff; /* 白色文字 */
+        transition: all 0.3s ease; /* 添加过渡效果，使变化平滑 */
+    }
+
 .footer {
     position: relative;
     display: flex;

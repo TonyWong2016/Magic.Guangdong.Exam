@@ -78,8 +78,9 @@
                         <label class="layui-form-label">成绩查询</label>
                         <div class="layui-input-inline">
                             <select asp-for="@Model.OpenResult">
-                                <option value=0>不开放（不允许查看成绩）</option>
-                                <option value=1>开放（允许查看成绩）</option>
+                                <option value=0>不公开</option>
+                                <option value=1>公开</option>
+                                <option value=2>公开且允许看答案和解析</option>
                             </select>
 
                         </div>

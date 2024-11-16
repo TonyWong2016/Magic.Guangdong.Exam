@@ -1,8 +1,8 @@
 ﻿@page
 @using System.Text.RegularExpressions
-@model Magic.Guangdong.Exam.Client.Pages.Exam.DetailModel
+@model Magic.Guangdong.Exam.Client.Pages.ExamMobile.DetailModel
 @{
-    Layout = "_LayoutExam";
+    Layout = "_LayoutExamMobile";
 }
 
 <style>
@@ -49,10 +49,10 @@
                 <input value="准考证：@Model.record.ReportNumber" readonly />
             </fieldset>
             @* <fieldset class="grid">
+               
+                <input value="邮箱：@Model.record.Email" readonly />
 
-            <input value="邮箱：@Model.record.Email" readonly />
-
-            <input value="练习次数：@(Model.record.Stage+1)" readonly />
+                <input value="练习次数：@(Model.record.Stage+1)" readonly />
             </fieldset> *@
         </form>
     </article>

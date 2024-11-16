@@ -1,4 +1,5 @@
-﻿let fileBaseUrl='https://localhost:7188'
+﻿let fileBaseUrl = 'https://localhost:7188'
+//let fileBaseUrl = 'http://zb10.xiaoxiaotong.org'
 function parseJwtPayload(jwt) {
     let base64Url = jwt.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -12,11 +13,9 @@ function checkLoginStatus() {
     ) {
         clearLoginInfo()
     }
-    if (location.host.indexOf('localhost') > -1) {
-        checkEnv(false);
-    } else {
-        checkEnv(true);
-    }
+
+    checkEnv();
+   
     console.log('login ok');
 }
 function setLoginInfo(jwt) {

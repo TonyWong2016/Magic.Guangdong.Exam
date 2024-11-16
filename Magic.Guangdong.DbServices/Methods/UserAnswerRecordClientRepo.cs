@@ -399,15 +399,17 @@ namespace Magic.Guangdong.DbServices.Methods
                 var questionIds = answerList.Select(u => u.questionId);
                 var userSubmitQuestions = await questionRepo.Where(u => questionIds.Contains(u.Id)).ToListAsync();
                 List<string> listAnswer = new List<string>();
+                var paperQuestionItems = await itemRepo.Where(u => questionIds.Contains(u.QuestionId)).ToListAsync();
                 foreach (var userQuestion in userSubmitQuestions)
                 {
                     var userAnswer = answerList.Where(u => u.questionId == userQuestion.Id).First();
                     //如果是客观题，直接返回选项代码
                     if (userQuestion.Objective == 1)
                     {
-                        var userItems = await itemRepo
+                        var userItems = paperQuestionItems
                             .Where(u => userAnswer.userAnswer.Contains(u.Id.ToString()))
-                            .ToListAsync(u => u.Code);
+                            .ToList()
+                            .Select(u=>u.Code);
                         ret.Add(new AnswerDto()
                         {
                             questionId = userQuestion.Id,
