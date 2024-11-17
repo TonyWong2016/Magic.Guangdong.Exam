@@ -45,7 +45,7 @@ namespace Magic.Guangdong.DbServices.Methods
                 return -1;
             }
             //前置处理流程，获取答题记录，并做必要的数据处理
-            var preModel = await ScoreObjectivePreOption(recordId, markingType == 1);
+            var preModel = await ScoreObjectivePreOption(recordId, markingType > 0);
             if (preModel.immeReturn)
             {
                 //return preModel.recordView;

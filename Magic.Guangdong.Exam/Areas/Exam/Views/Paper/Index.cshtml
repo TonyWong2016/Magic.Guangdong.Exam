@@ -26,17 +26,19 @@
 
 <script type="text/html" id="statusTpl">
     {{# if(d.status==0){ }}
-    <span style="color:#1E9FFF">正常</span>
+    <span class="layui-badge layui-bg-green">正常</span>
     {{# } else { }}
-    <span style="color:#FF5722">禁用</span>
+    <span class="layui-badge layui-bg-gray">禁用</span>
     {{#} }}
 </script>
 
 <script type="text/html" id="resultTpl">
     {{# if(d.openResult==1){ }}
-    <span style="color:#1E9FFF">开放</span>
+    <span class="layui-badge layui-bg-green">开放</span>
+    {{# } else if(d.openResult==2){ }}
+    <span class="layui-badge layui-bg-purple">开放解析</span>
     {{# } else { }}
-    <span style="color:gray">未开放</span>
+    <span class="layui-badge layui-bg-gray">未开放</span>
     {{#} }}
 </script>
 

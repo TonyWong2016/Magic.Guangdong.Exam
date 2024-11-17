@@ -23,7 +23,7 @@
             </li>
             <li>
                <details class="dropdown">
-                    <summary>答题卡</summary>
+                    <summary id="answerCardTitle">答题卡</summary>
                     <ul dir="rtl" id="answerSheet" style="height:438px;overflow-y:auto">
                     </ul>
                 </details>
@@ -247,6 +247,7 @@
      let stopExecution;//定时执行动动作
      let editorManager;//代码编辑器
      let typeNames = [];
+     let firstInit = true;
 
      if (jVal('lastAnswer'))
          answerArr = JSON.parse(jVal('lastAnswer'));
@@ -301,6 +302,8 @@
                  }
 
              });
+
+             firstInit = false;
          }
      }
 
@@ -355,7 +358,8 @@
              $('.contentDiv article').css('min-height', '1100px')
              renderCodeQuestion()
          }
-
+        if (!firstInit)
+            $('#answerCardTitle').click();
      }
 
      //渲染选项(选择题会执行)
