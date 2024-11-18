@@ -51,7 +51,11 @@
 
 <div class="layui-layer-notice" style="display:none" id="divUpload">
     <div class="layui-row" style="padding:30px">
-        <blockquote class="layui-elem-quote">注意，通过excel上传时，只能上传客观题</blockquote>
+        <blockquote class="layui-elem-quote">
+            注意，通过excel上传时，只能上传客观题，有素材的题目，可以在上传完成后，再到后台挂载素材；
+            <br />
+            <b style="color:red">选项中不要包含“放弃”之类的选项，因为有不同的评分标准，而评分标准对选错和不答的评分规则也不一样，这里如果包含了【放弃】选项，系统可能会判为错误而不是“放弃”不答，用户的实际意图应该是放弃该题目而不是答错。为了避免这种冲突，上传的选项里不要包含无意义的值</b>
+            </blockquote>
         <div class="layui-col-md6" style="padding:30px">
             <div class="layui-panel">
                 <div style="padding: 30px; text-align:center" id="btnUploadFromWord">

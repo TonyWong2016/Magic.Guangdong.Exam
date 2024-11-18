@@ -11,16 +11,16 @@
                 <option value='file'>其他文件(excel，word等)</option>
             </select>
         </div>
-        <div class="layui-col-md2">
+        @* <div class="layui-col-md2">
             <select id='ConnName' lay-filter='ConnName'>
                 <option value=''>请选择绑定模型</option>
                 <option value='question'>题目配图</option>
                 <option value='questionItem'>选项配图</option>
                 <option value='file'>其他</option>
             </select>
-        </div>
+        </div> *@
         <div class='layui-col-md3'>
-            <input class='layui-input' id='keyword' placeholder='文件名' />
+            <input class='layui-input' id='keyword' placeholder='文件名或备注' />
         </div>
     </form>
     <table class="layui-table" lay-filter="table" id="table"></table>
@@ -51,6 +51,10 @@
     let form = layui.form;
 
     let ext = '';
+
+    autoSearch('keyword', function () {
+        getFileTable();
+    })
     getFileTable();
 
     function getFileTable() {
@@ -154,6 +158,10 @@
                 'Logic': 'Or',
                 'Filters': [{
                     'Field': 'Name',
+                    'Operator': 'Contains',
+                    'Value': keyword
+                },{
+                    'Field': 'Remark',
                     'Operator': 'Contains',
                     'Value': keyword
                 }]

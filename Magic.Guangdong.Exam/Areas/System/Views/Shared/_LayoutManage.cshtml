@@ -19,62 +19,48 @@
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
         function mainTheme(bg){
-           if(bg){
-            localStorage.setItem('main-bg-color',bg);
+           if(bg && bg.startsWith('#')){
+               localStorage.setItem('main-bg-color',bg);
+               const root = document.documentElement;
+               let bgColor = getComputedStyle(root).getPropertyValue('--main-bg-color').trim();
+               let selectedBg = bg;
+               root.style.setProperty('--main-bg-color', bg);
+               if(bg=='#0F3888'){
+                   root.style.setProperty('--main-word-bg-color','#fff');
+                   root.style.setProperty('--main-word-color', bg);
+                   $('#SystemTitle').css('color','#fff');
+               } else{
+                   root.style.setProperty('--main-word-bg-color','#16baaa');
+                   root.style.setProperty('--main-word-color', '#fff');
+                   $('#SystemTitle').css('color','yellow');
+               }
            }
-            //$('.main-bg-color').attr('style:background-color','#'+bg+'!important');
-            $('.main-bg').each((item,elem)=>{
-               $(elem)
-               .removeClass('main-bg-color')
-               .removeClass('main-bg-blue-normal')
-               .removeClass('main-bg-blue-activity')
-               .removeClass('main-bg-blue-black')
-               .removeClass('main-bg-jade')
-               .removeClass('main-bg-purple')
-               .addClass(bg);
-            })
         }
-        setTimeout(()=>{
-                    mainTheme(localStorage.getItem('main-bg-color'));
+        mainTheme(localStorage.getItem('main-bg-color'));
 
-        },200)
     </script>
     <style>
+        :root{
+            --main-bg-color: #0F3888;
+            --main-word-color: #fff;
+            --main-word-bg-color:#16baaa;            
+        }
         .main-bg-color {
-            background-color: #0F3888 !important;
-            color: #fff !important;
+            background-color: var(--main-bg-color) !important;
+            color: #fff !important;            
         }
 
-        .main-bg-blue-normal {
-            background-color: #3C71F7 !important;
-            color: #fff !important;
+        .layui-this .navSideSubLink{
+            background-color: var(--main-word-bg-color) !important;
+            color: var(--main-word-color) !important;
         }
-
-        .main-bg-blue-activity {
-            background-color: #1e9fff !important;
-            color: #fff !important;
-        }
-
-        .main-bg-blue-black {
-            background-color: #080F2D !important;
-            color: #fff !important;
-        }
-
-        .main-bg-jade {
-            background-color: #00895A !important;
-            color: #fff !important;
-        }
-
-        .main-bg-purple {
-            background-color: #a233c6 !important;
-            color: #fff !important;
-        }
+       
     </style>
 </head>
 <body>
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header layui-bg-blue main-bg main-bg-color">
-            <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
+            <div id="SystemTitle" class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:#fff">
                 @ViewData["ProviderName"]
             </div>
             <!-- 头部区域（可配合layui 已有的水平导航） -->
@@ -91,12 +77,12 @@
                         <font>主题配色</font>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a onclick="mainTheme('main-bg-color')" href="javascript:;" style="font-weight:bolder;color:#0F3888">干部蓝</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-blue-activity')" href="javascript:;" style="font-weight:bolder;color:#1e9fff">活力蓝</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-blue-normal')" href="javascript:;" style="font-weight:bolder;color:#3C71F7">经典蓝</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-blue-black')" href="javascript:;" style="font-weight:bolder;color:#080F2D">蓝黑</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-jade')" href="javascript:;" style="font-weight:bolder;color:#00895A">宝石绿</a></dd>
-                        <dd><a onclick="mainTheme('main-bg-purple')" href="javascript:;" style="font-weight:bolder;color:#a233c6">丁香紫</a></dd>
+                        <dd><a onclick="mainTheme('#0F3888')" href="javascript:;" style="font-weight:bolder;color:#0F3888">干部蓝</a></dd>
+                        <dd><a onclick="mainTheme('#1e9fff')" href="javascript:;" style="font-weight:bolder;color:#1e9fff">活力蓝</a></dd>
+                        <dd><a onclick="mainTheme('#3C71F7')" href="javascript:;" style="font-weight:bolder;color:#3C71F7">经典蓝</a></dd>
+                        <dd><a onclick="mainTheme('#080F2D')" href="javascript:;" style="font-weight:bolder;color:#080F2D">蓝黑</a></dd>
+                        <dd><a onclick="mainTheme('#00895A')" href="javascript:;" style="font-weight:bolder;color:#00895A">宝石绿</a></dd>
+                        <dd><a onclick="mainTheme('#a233c6')" href="javascript:;" style="font-weight:bolder;color:#a233c6">丁香紫</a></dd>
 
                         
                     </dl>
@@ -358,7 +344,7 @@
                 { 'icon': 'fire', 'title': '2024.11.15🚀', 'author': 'tony', 'content': '新增手机端答题页面<br/>新增素材管理<br/>新增或者调整了好多内容，记不清了，看代码提交记录的了</a>' },
                 { 'icon': 'note', 'title': '2024.11.16', 'author': 'tony', 'content': '处理修复反馈的问题，共计7条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a><br/>新增客户端答题详情页;<br/>修改消息队列的传输，分流到了kafka集群和postgresql' },
                 { 'icon': 'note', 'title': '2024.11.17', 'author': 'tony', 'content': '处理修复反馈的问题，共计4条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a>' },
-                { 'icon': 'note', 'title': '2024.11.18', 'author': 'tony', 'content': '处理修复反馈的问题，共计6(本次2条)条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a><br/>增加素材管理栏目，可以统一管理查看所有上传的素材' },
+                { 'icon': 'note', 'title': '2024.11.18', 'author': 'tony', 'content': '处理修复反馈的问题，共计6(本次2条)条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a><br/>增加素材管理栏目，可以统一管理查看所有上传的素材<br/>主题切换算法优化' },
 
             ];
         

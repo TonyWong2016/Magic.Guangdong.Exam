@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">配图</label>
+                        <label class="layui-form-label">关联素材</label>
                         
                         <div class="layui-input-block">
                             <a class="layui-btn layui-btn-primary" href="javascript:;" onclick="OpenMaterial()"><i class="layui-icon layui-icon-eye"></i>查看</a>
@@ -395,26 +395,29 @@
         }
     })
 
-    form.on('submit(save)', async function (data) {
+    form.on('submit(save)',  function (data) {
         if (settleItems()<0)
          return;
-        
-        let question = data.field;
-        let items = itemAnswerArr;
+        layer.confirm('由于特殊的数据结构，保存题目后，选项、题目和素材之间的关系会重置；<br /> <b style="color:red">如果您只是要给题目增加或修改素材资源，直接点击【关联素材】的弹出层，操作完成后，返回即可，无需点击保存！</b><br />确定要继续保存吗',{icon:0},async ()=>{
+            let question = data.field;
+            let items = itemAnswerArr;
 
-        let formData = new FormData();
-        formData.append('questionStr', JSON.stringify(question));
-        formData.append('itemsStr', JSON.stringify(items));
-        formData.append('__RequestVerificationToken', requestToken);
-        //let formData = objectToFormData(json);
-        var ret = await request('POST', '@Url.Action("SaveQuestion")', formData, { 'Content-Type': 'multipart/form-data' });
-        if (ret.code == 0) {
-            successMsg('保存成功', () => {
-                window.location.href = 'index';
-            });
-            return;
-        }
-        errorMsg('保存失败')
+            let formData = new FormData();
+            formData.append('questionStr', JSON.stringify(question));
+            formData.append('itemsStr', JSON.stringify(items));
+            formData.append('__RequestVerificationToken', requestToken);
+            //let formData = objectToFormData(json);
+            var ret = await request('POST', '@Url.Action("SaveQuestion")', formData, { 'Content-Type': 'multipart/form-data' });
+            if (ret.code == 0) {
+                successMsg('保存成功', () => {
+                    window.location.href = 'index';
+                });
+                return;
+            }
+            errorMsg('保存失败')
+        });
+
+        
     })
 
     //增加选项
