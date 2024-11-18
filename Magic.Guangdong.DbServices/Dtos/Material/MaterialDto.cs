@@ -40,6 +40,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Material
 
         public long Size { get; set; }
 
+
         public string imgUrl { 
             get {
                 if (string.IsNullOrEmpty(ShortUrl))

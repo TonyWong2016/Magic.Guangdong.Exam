@@ -82,15 +82,21 @@ namespace Magic.Guangdong.DbServices.Methods
                 .OrderByDescending(u => u.Id)
                 .ToListAsync(u => new UserAnswerRecordDto()
                 {
-                    urid = u.Id,
-                    idNumber = u.IdNumber,
-                    accountName = u.Name,
-                    associationTitle = u.AssociationTitle,
-                    examTitle = u.ExamTitle,
-                    paperTitle = u.PaperTitle,
-                    score = u.Score.ToString(),
-                    objectScore=u.ObjectiveScore.ToString(),
-                    complated = u.Complated == 0 ? "未交卷" : "已交卷"
+                    Urid = u.Id,
+                    IdNumber = u.IdNumber,
+                    AccountName = u.Name,
+                    AssociationTitle = u.AssociationTitle,
+                    ExamTitle = u.ExamTitle,
+                    PaperTitle = u.PaperTitle,
+                    Score = u.Score.ToString(),
+                    ObjectScore = u.ObjectiveScore.ToString(),
+                    Complated = u.Complated == 0 ? "未交卷" : "已交卷",
+
+                    Participants = u.ReportParticipants,
+                    Schools = u.ReportSchools,
+                    Teachers = u.ReportTeachers,
+                    ProjectNo = u.ReportProjectNo,
+                    TeamName = u.ReportTeamName,
                 });
         }
 

@@ -122,6 +122,24 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty]
 		public long TagId { get; set; } = 0;
+
+        [JsonProperty, Column(StringLength = 300)]
+        public string ReportParticipants { get; set; }
+
+        [JsonProperty, Column(StringLength = 100)]
+        public string ReportProjectNo { get; set; }
+
+        [JsonProperty, Column(StringLength = 500)]
+        public string ReportSchools { get; set; }
+
+        [JsonProperty, Column(StringLength = 300)]
+        public string ReportTeachers { get; set; }
+
+        [JsonProperty, Column(StringLength = 300)]
+        public string ReportTeamName { get; set; }
+
+        [JsonProperty, Column(StringLength = 300)]
+        public string ReportGroupName { get; set; }
     }
 
 }

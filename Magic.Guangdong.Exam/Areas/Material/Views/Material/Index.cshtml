@@ -37,8 +37,12 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-primary layui-border-blue" href="javascript:;" onclick="warnMsg('developing...')"><i class="layui-icon layui-icon-eye"></i>预览</a>
-    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="warnMsg('developing...')"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    {{# if(d.ext=='.jpg'||d.ext=='jpg'||d.ext=='.png'||d.ext=='png'||d.ext=='.jpeg'||d.ext=='jpeg'){ }}
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="{{d.fileUrl}}" target="_blank"><i class="layui-icon layui-icon-eye"></i>预览</a>
+     {{# } else { }}
+    <a class="layui-btn layui-btn-primary layui-border-blue" href="{{d.fileUrl}}" download="{{d.name}}" target="_blank"><i class="layui-icon layui-icon-eye"></i>预览</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="remove({{d.id}})"><i class="layui-icon layui-icon-delete"></i>删除</a>
    
 </script>
 
@@ -48,6 +52,7 @@
 
     let ext = '';
     getFileTable();
+
     function getFileTable() {
         var params = {
             url: '@Url.Action("Getlist")',
@@ -58,11 +63,12 @@
             cols: [ //表头
                 //{ title: '序号', templet: '#indexTpl', width: 120 }
                 { field: 'id', title: '订单id', type: 'checkbox', width: '5%' }
-                , { field: 'name', title: '文件名', width: '35%' }
+                , { field: 'name', title: '文件名', width: '28%' }
                 // , { field: 'tradeNo', title: '支付平台订单号', width: 300 }
-                , { field: 'size', title: '文件大小（字节）', width: '10%' }
+                , { field: 'fileSize', title: '文件大小', width: '15%' }
+                , { field: 'remark', title: '文件备注', width: '10%' }
                 // , { field: 'expenses', title: '金额', width: 120 }
-                 , { templet: '#extTpl', title: '文件类型', width: '10%' }
+                 , { templet: '#extTpl', title: '文件类型', width: '8%' }
                 // , { templet: '#statusTpl', title: '支付状态', width: 120 }
                 , { field: 'createdAt', title: '创建时间' , width: '13%'}
                 , { title: '操作', templet: '#operationTpl'}
@@ -155,5 +161,19 @@
         }
 
         return { 'whereJsonStr': JSON.stringify(whereJsonStr), 'orderby': 'createdAt', 'isAsc': false, 'rd': randomInt };
+    }
+
+     //移除素材
+    function remove(id) {
+        layer.confirm('确定要删除该素材吗?', { icon: 0 }, async(index)=> {
+            let formData = objectToFormData({id:id,realDel:0,__RequestVerificationToken : requestToken});
+            var ret = await request('POST', '/material/material/RemoveMaterial', formData, { 'Content-Type': 'multipart/form-data' });
+             if (ret.code == 0) {
+                 successMsg('移除成功');
+                 refreshRandomInt();
+                 getFileTable();
+                 layer.close(index);
+             }
+        })
     }
 </script>

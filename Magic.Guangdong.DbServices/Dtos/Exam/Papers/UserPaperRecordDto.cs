@@ -98,41 +98,62 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
     public class UserAnswerRecordDto
     {
-        public long urid { get; set; }
+        public long Urid { get; set; }
 
 
-        public string accountName { get; set; }
+        public string AccountName { get; set; }
 
         [Description("答题账号")]
-        public string accountNameStr
+        public string AccountNameStr
         {
             get
             {
-                if (!string.IsNullOrEmpty(accountName))
-                    return HttpUtility.UrlDecode(accountName);
+                if (!string.IsNullOrEmpty(AccountName))
+                    return HttpUtility.UrlDecode(AccountName);
                 return "无";
             }
         }
 
         [Description("证件号")]
-        public string idNumber { get; set; }
+        public string IdNumber { get; set; }
 
         [Description("活动标题")]
-        public string associationTitle { get; set; }
+        public string AssociationTitle { get; set; }
 
         [Description("考试标题")]
-        public string examTitle { get; set; }
+        public string ExamTitle { get; set; }
 
         [Description("试卷标题")]
-        public string paperTitle { get; set; }
+        public string PaperTitle { get; set; }
+
         [Description("总分数")]
-        public string score { get; set; }
+        public string Score { get; set; }
 
         [Description("客观题分数")]
-        public string objectScore { get; set; }
+        public string ObjectScore { get; set; }
+
+
 
         [Description("完成情况")]
-        public string complated { get; set; }
+        public string Complated { get; set; }
+
+        [Description("项目编号")]
+        public string ProjectNo { get; set; } = "";
+
+        //[Description("赛队名称")]
+        public string TeamName { get; set; } = "";
+
+        [Description("赛队人员")]
+        public string Participants { get; set; } = "";
+
+        [Description("学校")]
+        public string Schools { get; set; } = "";
+
+        [Description("指导教师")]
+        public string Teachers { get; set; } = "";
+
+        [Description("组别")]
+        public string GroupName { get; set; } = "";
     }
 
     public class UserAnswerRecordMiniDto

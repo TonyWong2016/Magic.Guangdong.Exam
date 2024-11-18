@@ -218,7 +218,7 @@
     
     <footer>
         {{# if(d.orderIndex > 1){ }}
-            <a href="javascript:;" onclick="renderQuestion({{d.orderIndex-2}})" id="previous" role="button" class="contrast outline">上一题({{d.orderIndex-1}})</a>
+            <a href="javascript:;" onclick="renderQuestion({{d.orderIndex-2}},false)" id="previous" role="button" class="contrast outline">上一题({{d.orderIndex-1}})</a>
         {{# } else { }}
             <a href="javascript:;" disabled id="previous" role="button" class="contrast outline">上一题</a>
         {{# } }}
@@ -226,7 +226,7 @@
         {{# if(d.orderIndex>=questionObj.total){ }}
             <a href="javascript:;"  id="next" role="button" class="outline" data-target="modal-submit" onClick="togglePicoModal(event)" style="float:right;border-color:#e53935;color:#e53935">交卷</a>
         {{#} else { }}
-            <a href="javascript:;" onclick="renderQuestion({{d.orderIndex}})" id="next" role="button" class="outline" style="float:right">下一题({{d.orderIndex+1}})</a>
+            <a href="javascript:;" onclick="renderQuestion({{d.orderIndex}},false)" id="next" role="button" class="outline" style="float:right">下一题({{d.orderIndex+1}})</a>
         {{# } }}
     </footer>
 </script>
@@ -338,7 +338,7 @@
      }
 
      //渲染题目
-     function renderQuestion(index) {
+     function renderQuestion(index,showDrop=true) {
          if (index >= paperDetail.Questions.length)
              return;
          currQuestion = paperDetail.Questions[index];
@@ -358,7 +358,7 @@
              $('.contentDiv article').css('min-height', '1100px')
              renderCodeQuestion()
          }
-        if (!firstInit)
+         if (!firstInit && showDrop)
             $('#answerCardTitle').click();
      }
 

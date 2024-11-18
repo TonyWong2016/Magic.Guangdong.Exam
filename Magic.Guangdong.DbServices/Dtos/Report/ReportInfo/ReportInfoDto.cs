@@ -109,9 +109,29 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
 
         public string Mobile { get; set; } = "";
 
+        public string HashMobile
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Mobile))
+                    return "";
+                return Assistant.Security.GenerateMD5Hash(Mobile);
+            }
+        }
+
         public Guid ExamId { get; set; } = Guid.Empty;
 
         public string IdCard { get; set; } = "";
+
+        public string HashIdCard
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(IdCard))
+                    return "";
+                return Assistant.Security.GenerateMD5Hash(IdCard);
+            }
+        }
 
         public string Job { get; set; } = "";
 
@@ -148,6 +168,27 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.ReportInfo
         /// 标签ID，如果该id存在，则优先使用TagId
         /// </summary>
         public long TagId { get; set; } = 0;
+
+        public ReportAttributeParam reportAttributes { get; set; }
+    }
+
+    public class ReportAttributeParam
+    {
+        public long ReportId { get; set; } = 0;
+
+        public string Participants { get; set; }
+
+        public string Teachers { get; set; }
+
+        public string Schools { get; set; }
+
+        public string TeamName { get; set; }
+
+        public string ProjectNo { get; set; }
+
+        public string GroupName { get; set; }
+
+        public string Other { get; set; }
     }
 
     public class ReturnVerifyResult

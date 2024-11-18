@@ -3,9 +3,11 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.File;
 using Magic.Guangdong.DbServices.Dtos.Material;
 using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Magic.Guangdong.Exam.Areas.Material.Controllers
@@ -43,7 +45,8 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
         public IActionResult GetList(PageDto dto)
         {
             long total=0;
-            return Json(_resp.success(new { items = _fileRepo.getList(dto, out total), total }));
+            var items = _fileRepo.getList(dto, out total).Adapt<List<FileDto>>();
+            return Json(_resp.success(new { items , total }));
         }
 
         /// <summary>

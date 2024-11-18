@@ -19,6 +19,11 @@ using Yitter.IdGenerator;
 
 namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 {
+    /// <summary>
+    /// 外部开放接口
+    /// 目前接口数量不多，所以所有的接口都放在一个控制器里面，
+    /// 后续开发中，应该根据业务拆分不同的控制器，提高可读性，扩展性和一定程度的性能 
+    /// </summary>
     [Area("webapi")]
     public class ExposedApiController : Controller
     {
@@ -37,6 +42,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly ITagsRepo _tagsRepo;
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         private readonly IUserCenterRepo _userCenterRepo;
+        private readonly IReportAttributeRepo _reportAttributeRepo;
 
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider,
@@ -52,7 +58,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             ITagsRepo tagsRepo,
             IUserAnswerRecordViewRepo userAnswerRecordViewRepo,
             IUserCenterRepo userCenterRepo,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            IReportAttributeRepo reportAttributeRepo)
         {
             _resp = resp;
             _redisCachingProvider = redisCachingProvider;
@@ -69,6 +76,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _tagsRepo = tagsRepo;
             _userCenterRepo = userCenterRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
+            _reportAttributeRepo = reportAttributeRepo;
         }
         [HttpPost]
         [WebApiModule]
@@ -123,7 +131,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 创建活动
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
@@ -173,6 +181,11 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             return Json(_resp.success(new { examId = "未提交创建考试的参数", activityId = dto.Id }, "操作成功"));
         }
 
+        /// <summary>
+        /// 修改活动
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost]
         [WebApiModule]
         public async Task<IActionResult> ModifyActivity(ActivityApiDto dto)
@@ -186,6 +199,11 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             return Json(_resp.success(await _activityRepo.updateItemAsync(activity)));
         }
 
+        /// <summary>
+        /// 创建或修改考试
+        /// </summary>
+        /// <param name="examApiDto"></param>
+        /// <returns></returns>
         [HttpPost]
         [WebApiModule]
         public async Task<IActionResult> CreateOrModifyExamination(ExamApiDto examApiDto)
@@ -223,7 +241,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 }
 
                 //证件号作为唯一报名活动的重复性判定元素
-                if (await _reportInfoRepo.getAnyAsync(r => r.IdCard == dto.IdCard && (r.ActivityId == dto.ActivityId || r.ExamId == dto.ExamId)))
+                if (await _reportInfoRepo.getAnyAsync(r => r.HashIdcard == dto.HashIdCard && (r.ActivityId == dto.ActivityId || r.ExamId == dto.ExamId)))
                 {
                     return Json(_resp.error("您已经报名该活动了"));
                 }
@@ -251,17 +269,23 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                     reportModel.TagId= dto.TagId;
                 }
 
-                if (await _reportInfoRepo.ReportActivity(reportModel))
+                if (!await _reportInfoRepo.ReportActivity(reportModel))
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
-                    return Json(_resp.success(new
-                    {
-                        tradeNo = dto.OrderTradeNumber,
-                        reportId = dto.Id,
-                        dto.ReportNumber
-                    }));
+                    return Json(_resp.error("报名失败"));
+
                 }
-                return Json(_resp.error("报名失败"));
+                if (dto.reportAttributes != null)
+                {
+                    dto.reportAttributes.ReportId = dto.Id;
+                    await _reportAttributeRepo.SyncReportAttribute(dto.reportAttributes);
+                }
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
+                return Json(_resp.success(new
+                {
+                    tradeNo = dto.OrderTradeNumber,
+                    reportId = dto.Id,
+                    dto.ReportNumber
+                }));
             }
             catch(Exception ex)
             {
@@ -368,6 +392,26 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         }
 
+        /// <summary>
+        /// 同步申报属性，参与人，项目编号，指导老师，学校，赛队名等
+        /// </summary>
+        /// <param name="reportAttribute"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [WebApiModule]
+        public async Task<IActionResult> SyncReportInfo([FromBody] ReportAttributeParam reportAttribute)
+        {
+            if(reportAttribute.ReportId==0 || !await _reportInfoRepo.getAnyAsync(u => u.Id == reportAttribute.ReportId && u.IsDeleted==0))
+            {
+                return Json(_resp.error("申报信息不存在或已被删除"));
+            }
+            if(await _reportAttributeRepo.SyncReportAttribute(reportAttribute))
+            {
+                return Json(_resp.success("同步成功"));
+            }
+            return Json(_resp.error("同步失败"));
+        }
+
         public async Task<bool> CreateOrModifyExam(ExamApiDto examApiDto)
         {
             var exam = examApiDto.Adapt<Examination>();
@@ -431,6 +475,8 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             await _userBaseRepo.InsertUserBaseSecurity(newUserBase);
             return true;
         }
+
+        
     }
 
     public class TokenParam
@@ -466,4 +512,6 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         public string tagName { get; set; }
     }
+
+   
 }

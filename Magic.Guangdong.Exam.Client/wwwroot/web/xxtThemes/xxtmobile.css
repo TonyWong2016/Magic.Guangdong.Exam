@@ -17,12 +17,13 @@ body, html {
 }
 
 
-.main {
+main {
     display: flex;
     flex-direction: column;
     flex-grow: 1; /* 让 main 区域尽可能占据剩余空间 */
     /*padding: 5px;*/
-    /* min-height: 51vh; */
+     min-height: 90vh; 
+     overflow-y:auto
 }
 
 .xxtMenu {

@@ -33,5 +33,47 @@ namespace Magic.Guangdong.DbServices.Dtos.File
         public string ConnId { get; set; } = "";
 
         public string ConnName { get; set; } = "";
+
+        public string Remark { get; set; } = "";
+
+        public string FileUrl
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ShortUrl))
+                    return "";
+                if (ShortUrl.StartsWith("http"))
+                    return ShortUrl;
+                return Assistant.ConfigurationHelper.GetSectionValue("baseHost") + ShortUrl;
+            }
+        }
+
+        public string FileUrlTitle
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Remark))
+                    return Name;
+                return Remark;
+            }
+        }
+
+        public string FileSize
+        {
+            get
+            {
+                if(Size==0 && ShortUrl.StartsWith("http"))
+                {
+                    return "网络资源，未获取实际大小";
+                }
+                double kbSize = Convert.ToDouble(Size * 1.0 / 1024);
+                if (kbSize <= 1024)
+                    return Math.Round(kbSize, 2)+"KB";
+                double mbSize = kbSize / 1024;
+                if (mbSize <= 1024)
+                    return Math.Round(mbSize, 2)+"MB";
+                return Size + "字节(B)";
+            }
+        }
     }
 }
