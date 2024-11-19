@@ -10,5 +10,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
     public interface ITagRelationsRepo : IExaminationRepository<TagRelations>
     {
         Task<dynamic> GetPaperTags(string associationId);
+
+        Task<int> AddTagRelations(List<TagRelations> tags);
     }
 }

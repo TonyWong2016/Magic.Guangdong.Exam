@@ -29,6 +29,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         {
             try
             {
+                if (await _keyActionRepo.getAnyAsync(u => u.Id == keyAction.Id))
+                    return;
                 await _keyActionRepo.addItemAsync(keyAction);
             }
             catch (Exception ex)

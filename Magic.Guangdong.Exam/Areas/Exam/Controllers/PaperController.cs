@@ -58,12 +58,12 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                     PaperIds = paperIds,
                     Tags = model.tags
                 };                
-                _capBus.Publish(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
+                await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
             }
 
             if (paperIds != null)
             {
-                _capBus.Publish(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
+                await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
                 return Json(_resp.success(paperIds));
             }
             
@@ -119,7 +119,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         public async Task GeneratePaper(Guid[] paperIds)
         {
             Assistant.Logger.Warning($"{DateTime.Now},开始生成试卷,共计{paperIds.Length}张");
-            await _paperRepo.GeneratePaper(paperIds, adminId);
+            await Task.Run(()=>_paperRepo.GeneratePaper(paperIds, adminId));
         }
 
         /// <summary>

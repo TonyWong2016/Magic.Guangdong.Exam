@@ -31,5 +31,23 @@ namespace Magic.Guangdong.DbServices.Methods
                     b.TagId
                 });
         }
+
+        public async Task<int> AddTagRelations(List<TagRelations> tags)
+        {
+            if (tags.Count==0)
+            {
+                return 0;
+            }
+            var hashs = tags.Select(u=>u.HashRelation).ToList();
+            var exitHashs = await fsql.Get(conn_str).Select<TagRelations>()
+                .Where(u => hashs.Contains(u.HashRelation)).ToListAsync(u=>u.HashRelation);
+            var addTags = tags.Where(u => !exitHashs.Contains(u.HashRelation)).ToList();
+            if (addTags.Count > 0)
+            {
+               return await addItemsAsync(addTags);
+            }
+            return 0;
+        }
+    
     }
 }

@@ -117,9 +117,15 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
                     });
                 }
             }
+            if (tagRelations.Count == 0)
+            {
+                return;
+            }
+            var list = tagRelations.GroupBy(u => u.HashRelation).Select(u => u.First()).ToList();
+            
             //
             //await _paperRepo.GeneratePaper(paperIds, adminId);
-            await _tagRelationsRepo.addItemsAsync(tagRelations);
+            await _tagRelationsRepo.AddTagRelations(list);
         }
 
         [ResponseCache(Duration = 100, VaryByQueryKeys = ["paperId"])]

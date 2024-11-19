@@ -3,6 +3,7 @@ using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using IdentityModel;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Exam.Client.Filters;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -351,7 +352,11 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 //设置失败重试次数
                 x.FailedRetryCount = 5;
                 //x.UseDashboard();
-            });
+
+                x.Version = configuration.GetSection("QueneVersion").Value;
+                x.ConsumerThreadCount = 2;
+
+            }).AddSubscribeFilter<MagicClientCapFilter>();
 
         }
 

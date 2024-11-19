@@ -70,6 +70,12 @@ namespace Magic.Guangdong.Exam.Extensions
                     .DailyAt(3, 0)// 每天3点整执行一次
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(CacheHandle));
+
+                scheduler.OnWorker(nameof(ClearCapMsgId));
+                scheduler
+                    .Schedule<ClearCapMsgId>()
+                    .Hourly()
+                    .PreventOverlapping(nameof(ClearCapMsgId));
             });
 
             return app;

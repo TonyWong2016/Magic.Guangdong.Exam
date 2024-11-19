@@ -1,3 +1,7 @@
+！！！注意，看清条件，别直接复制执行啊！！！
+！！！注意，看清条件，别直接复制执行啊！！！
+！！！注意，看清条件，别直接复制执行啊！！！
+
 --定义特殊变量
 DECLARE @examid VARCHAR(100) = '49D90000-4C24-00FF-3AF2-08DCFE30776D';  
 DECLARE @activityid bigint = 592495397974405;
@@ -10,6 +14,8 @@ delete from ReportProcess where reportid!=@reportId;
 delete from [Magic.Guangdong.Exam].[dbo].[Order] where reportid!=@reportId;
 
 delete from ReportCheckHistory where reportid!=@reportId;
+  
+delete from [ReportAttribute] where id!=@reportId;
 
 --清理考试、活动信息
 

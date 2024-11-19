@@ -8,53 +8,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="image/x-icon" rel="shortcut icon" href="/images/examination_logo-32.ico" />
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
     <script src="~/web/base.js?v=20241014"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
+    <link href="~/web/theme.css" rel="stylesheet" />
+    <script src="~/web/theme.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
-        function mainTheme(bg){
-           if(bg && bg.startsWith('#')){
-               localStorage.setItem('main-bg-color',bg);
-               const root = document.documentElement;
-               let bgColor = getComputedStyle(root).getPropertyValue('--main-bg-color').trim();
-               let selectedBg = bg;
-               root.style.setProperty('--main-bg-color', bg);
-               if(bg=='#0F3888'){
-                   root.style.setProperty('--main-word-bg-color','#fff');
-                   root.style.setProperty('--main-word-color', bg);
-                   $('#SystemTitle').css('color','#fff');
-               } else{
-                   root.style.setProperty('--main-word-bg-color','#16baaa');
-                   root.style.setProperty('--main-word-color', '#fff');
-                   $('#SystemTitle').css('color','yellow');
-               }
-           }
-        }
-        mainTheme(localStorage.getItem('main-bg-color'));
+       
 
     </script>
     <style>
-        :root{
-            --main-bg-color: #0F3888;
-            --main-word-color: #fff;
-            --main-word-bg-color:#16baaa;            
-        }
-        .main-bg-color {
-            background-color: var(--main-bg-color) !important;
-            color: #fff !important;            
-        }
-
-        .layui-this .navSideSubLink{
-            background-color: var(--main-word-bg-color) !important;
-            color: var(--main-word-color) !important;
-        }
-       
+        
     </style>
 </head>
 <body>

@@ -250,9 +250,12 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
                 x.FailedRetryCount = 5;
 
                 //设置处理失败的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
-                x.FailedMessageExpiredAfter = 24 * 3600 * 30;
+                x.FailedMessageExpiredAfter = 24 * 3600 * 3;
 
-            });
+                x.Version = configuration.GetSection("QueneVersion").Value;
+                x.ConsumerThreadCount = 2;
+
+            }).AddSubscribeFilter<MagicTeacherCapFilter>();
         }
 
         /// <summary>

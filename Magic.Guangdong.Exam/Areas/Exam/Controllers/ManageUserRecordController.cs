@@ -203,6 +203,11 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         {
             try
             {
+                if(!await _userAnswerRecordViewRepo.getAnyAsync(u => u.Id == urId))
+                {
+                    Logger.Warning($"{DateTime.Now},开始移除用户【{urId}】的答题记录，但记录不存在");
+                    return;
+                }
                 var record = await _userAnswerRecordViewRepo.getOneAsync(u => u.Id == urId);
                 Logger.Warning($"{DateTime.Now},开始移除用户【{record.Name}】的答题记录");
                 //int applyId = 0;

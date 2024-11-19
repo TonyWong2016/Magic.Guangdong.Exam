@@ -14,6 +14,8 @@
     <script src="~/web/base.js?v=20241014"></script>
     <script src="~/web/requestapi.js"></script>
     <script src="~/web/layextend.js"></script>
+    <link href="~/web/theme.css" rel="stylesheet" />
+    <script src="~/web/theme.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();

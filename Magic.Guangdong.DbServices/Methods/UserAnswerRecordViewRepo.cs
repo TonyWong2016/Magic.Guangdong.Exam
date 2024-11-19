@@ -97,6 +97,7 @@ namespace Magic.Guangdong.DbServices.Methods
                     Teachers = u.ReportTeachers,
                     ProjectNo = u.ReportProjectNo,
                     TeamName = u.ReportTeamName,
+                    GroupName=u.ReportGroupName
                 });
         }
 

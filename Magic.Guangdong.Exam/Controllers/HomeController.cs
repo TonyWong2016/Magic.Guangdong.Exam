@@ -1,6 +1,9 @@
-﻿using Magic.Guangdong.Assistant;
+﻿using DotNetCore.CAP;
+using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +14,36 @@ namespace Magic.Guangdong.Exam.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ICapPublisher _capPublisher;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher)
         {
             _logger = logger;
+            _capPublisher = capPublisher;
         }
         [RouteMark("测试1")]
         public IActionResult Index()
-        {           
+        {
+            int i = 0;
+            while ( i < 3){
+                Assistant.Logger.Warning($"生产消息：" + DateTime.Now + i.ToString());
+                _capPublisher.Publish(CapConsts.PREFIX + "TEST", $"第{(i+1).ToString()}条，{DateTime.Now}");
+                i++;
+            }
             return View();
         }
+
+        [NonAction]
+        [CapSubscribe(CapConsts.PREFIX + "TEST")]
+        public async Task GeneratePaper(object t)
+        {
+            
+            await Task.Delay(3000);
+            Assistant.Logger.Warning($"消费消息：" + t.ToString());
+
+        }
+
 
         [RouteMark("测试2")]
         public IActionResult Privacy()

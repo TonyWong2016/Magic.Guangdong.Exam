@@ -56,9 +56,10 @@ namespace Magic.Guangdong.DbServices.Methods
             maskPhone.keyId = user.KeyId;
             maskPhone.keySecret = user.KeySecret;
 
-            maskPhone.text = user.Mobile.Trim();
+            
             if (string.IsNullOrEmpty(user.Mobile))
             { return true; }
+            maskPhone.text = user.Mobile.Trim();
             if (user.CardType == 0)
             {
                 maskPhone.maskDataType = MaskDataType.ChinaCellPhone;

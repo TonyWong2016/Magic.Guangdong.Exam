@@ -294,10 +294,15 @@ namespace Magic.Guangdong.Exam.Extensions
                 x.FailedRetryCount = 5;
 
                 //设置处理失败的数据在数据库中保存的时间（秒），为保证系统性能，数据会定期清理。
-                x.FailedMessageExpiredAfter = 24 * 3600 * 30;
+                x.FailedMessageExpiredAfter = 24 * 3600 * 10;
+
+                x.Version = configuration.GetSection("QueneVersion").Value;
+                x.ConsumerThreadCount = 2;//服务端
+
+                
 
                 x.UseDashboard();
-            });            
+            }).AddSubscribeFilter<MagicCapFilter>();            
         }
 
         /// <summary>
@@ -310,6 +315,7 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddScheduler();
             services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
             services.AddTransient<AutoJobs.MiddleWare.CacheHandle>();
+            services.AddTransient<AutoJobs.MiddleWare.ClearCapMsgId>();
         }
 
         private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)

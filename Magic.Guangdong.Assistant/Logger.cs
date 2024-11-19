@@ -134,8 +134,8 @@ namespace Magic.Guangdong.Assistant
         /// <param name="msg"></param>
         /// <param name="logLevel"></param>
         /// <returns></returns>
-        public static async Task writeLogToRedis(string msg, string logLevel,string system="spaceOA")
-        {
+        public static async Task writeLogToRedis(string msg, string logLevel,string system="magicExam")
+        {            
             string ret = $"{system} {logLevel} {msg}";
             //Console.WriteLine(msg);
             Console.ForegroundColor = ConsoleColor.Blue;

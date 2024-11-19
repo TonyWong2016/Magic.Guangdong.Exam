@@ -90,9 +90,15 @@ namespace Magic.Guangdong.DbServices.Methods
                 var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
                 var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
                 var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
+
+                if (model.generateQuestionTypeModels.Sum(u => u.number) > await questionRepo.Where(u => u.IsDeleted == 0).CountAsync())
+                {
+                    return null;
+                }
                 long existPaperCnt = await paperRepo.Where(u => u.ExamId == model.examId).CountAsync();
                 var exam = await examRepo.Where(u => u.Id == model.examId).FirstAsync();
                 int paperNum = 0;//试卷套数
+
                 while (paperNum < model.paperNumber)
                 {
                     foreach (var sub in model.generateQuestionTypeModels)
@@ -190,7 +196,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             int questionNumber = 0;
                             while (questionNumber < rule.number)
                             {
-                                var selectedQuestionIndex = new Random().Next(selectedCnt);
+                                var selectedQuestionIndex = new Random().Next(0,selectedCnt-1);
                                 var randomQuestion = selectedQuestions[selectedQuestionIndex];
                                 targetRelations.Add(new Relation()
                                 {
