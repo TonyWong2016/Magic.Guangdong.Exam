@@ -163,7 +163,7 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
                     Type = "net"
                 };
                 await _fileRepo.insertOrUpdateAsync(file);
-                return Json(_resp.success("绑定成功"));
+                return Json(_resp.success(file.Id, "绑定成功"));
 
             }
             if (await _fileRepo.getAnyAsync(u => u.Id == dto.Id))
@@ -174,7 +174,7 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
                 file.updatedAt = DateTime.Now;
                 file.Remark = dto.Remark;
                 await _fileRepo.updateItemAsync(file);
-                return Json(_resp.success("绑定成功"));
+                return Json(_resp.success(file.Id, "绑定成功"));
 
             }
             return Json(_resp.error("绑定失败"));

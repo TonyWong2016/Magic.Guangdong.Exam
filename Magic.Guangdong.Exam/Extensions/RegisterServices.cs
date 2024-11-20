@@ -304,7 +304,7 @@ namespace Magic.Guangdong.Exam.Extensions
 
                 x.UseDashboard(a =>
                 {
-                    a.PathMatch = "/magiccap";
+                    a.PathMatch = configuration.GetSection("CAPDash").Value ?? "CAPOA";
                 });
             }).AddSubscribeFilter<MagicCapFilter>();            
         }

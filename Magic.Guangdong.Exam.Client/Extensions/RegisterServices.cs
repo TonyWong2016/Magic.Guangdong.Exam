@@ -361,7 +361,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
                 x.UseDashboard(d =>
                 {
-                    d.PathMatch = "/MagicClientCap";
+                    d.PathMatch = configuration.GetSection("CAPDash").Value ?? "CAPClient";
                 });
 
             }).AddSubscribeFilter<MagicClientCapFilter>();

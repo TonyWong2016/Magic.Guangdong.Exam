@@ -152,6 +152,7 @@
         <img class="layui-row" src="{{item.imgUrl}}?width=200" />
         <div class="layui-row" style="justify-content:space-between">
            <a href="{{item.imgUrl}}" target="_blank" style="font-size:medium"> {{item.imgTitle}} </a>
+           
            <a href="javascript:;" onclick="removeMaterial({{item.id}})" title="删除配图"> <i class="layui-icon layui-icon-close layui-border-red"></i></a>
        </div>
     </div>
@@ -409,7 +410,8 @@
             renderTpl('materialItemTpl', 'materialItemView',
             [{
                 imgUrl: $('#fileUrl').val(),
-                imgTitle: fileConnObj.Remark
+                imgTitle: fileConnObj.Remark,
+                id:ret.data
             }],
             true);
             successMsg('保存成功');

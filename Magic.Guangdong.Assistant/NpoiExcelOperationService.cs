@@ -149,7 +149,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器
-                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"magicexam/export/{DateTime.Now.ToString("yyyyMM")}";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -169,8 +169,8 @@ namespace Magic.Guangdong.Assistant
                 }
                 #endregion
 
-                #region 同步至附件服务器                
-                string url = await FileHelper.SyncFile(excelPath, excelFileName, true);
+                #region 导出的文件就不放附件服务器了，放到本地，定时清除
+                string url = await FileHelper.SyncFile(excelPath, excelFileName, true,"local");
 
                 #endregion
 

@@ -593,7 +593,8 @@
             renderTpl('materialItemTpl', 'materialItemView', 
             [{
                 imgUrl: $('#fileUrl').val(),
-                imgTitle: fileConnObj.Remark
+                imgTitle: fileConnObj.Remark,
+                id:ret.data
             }], 
             true);
             successMsg('保存成功');

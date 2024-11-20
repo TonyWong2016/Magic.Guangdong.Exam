@@ -339,11 +339,14 @@ namespace Magic.Guangdong.Assistant
                 //共享文件夹的目录
                 DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                 //获取保存文件的路径
-                string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
+                string PathName = "";
+                string PathDate = $"{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}";
                 if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
                 {
-                    PathName=$"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{DateTime.Now.ToString("yyyyMM")}\\";
+                    PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{PathDate}\\";
                 }
+                else
+                    PathName = $"{theFolder.ToString()}{PathDate}\\";
                 //string PathName =$"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("remoteFolder")}{DateTime.Now.ToString("yyyyMM")}\\";
                 if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
                 {
@@ -351,13 +354,15 @@ namespace Magic.Guangdong.Assistant
                     //上传到附件服务器
                     await FileHelper.Transport(save_file, PathName, Path.GetFileName(fileName), isDel);
                     //return ConfigurationHelper.GetSectionValue("resourcehost") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
-                    return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
-
+                    //return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + PathDate.Replace("\\","/") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
+                    return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{PathDate.Replace("\\", "/")}/{Path.GetDirectoryName(fileName).Replace("\\", "/")}/{Path.GetFileName(fileName)}";
                 }
                 else
                 {
                     await FileHelper.Transport(save_file, PathName, fileName, isDel);
-                    return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + fileName;
+                    //return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + fileName;
+                    return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{PathDate.Replace("\\", "/")}/{fileName}";
+
                 }
             }
             else
@@ -366,38 +371,43 @@ namespace Magic.Guangdong.Assistant
                 return "error";
             }
         }
-        public static string CopyFile(byte[] data, string fileName)
-        {
+        //public static string CopyFile(byte[] data, string fileName)
+        //{
 
-            bool flag = connectState();
-            if (flag)
-            {
-                //共享文件夹的目录
-                DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
-                //获取保存文件的路径
-                //string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
-                string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
-                if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
-                {
-                    PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{DateTime.Now.ToString("yyyyMM")}\\";
-                }
-                if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
-                {
-                    PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}{Path.GetDirectoryName(fileName)}\\";
-                    fileName = Path.GetFileName(fileName);
-                }
-                //上传到附件服务器
-                Transport(data, PathName, fileName);
-                //return $"{ConfigurationHelper.GetSectionValue("resourcehost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
-                return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+        //    bool flag = connectState();
+        //    if (flag)
+        //    {
+        //        //共享文件夹的目录
+        //        DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
+        //        //获取保存文件的路径
+        //        //string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
+        //        string PathName = "";
+        //        string PathDate = $"{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}";
 
-            }
-            else
-            {
-                Logger.Error("远程连接建立失败");
-                return "远程连接建立失败";
-            }
-        }
+        //        if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+        //        {
+        //            PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{PathDate}\\";
+        //        }
+        //        else
+        //            PathName = $"{theFolder.ToString()}{PathDate}\\";
+
+        //        if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
+        //        {
+        //            PathName = $"{theFolder.ToString()}{PathDate.Replace("\\", "/")}{Path.GetDirectoryName(fileName)}\\";
+        //            fileName = Path.GetFileName(fileName);
+        //        }
+        //        //上传到附件服务器
+        //        Transport(data, PathName, fileName);
+        //        //return $"{ConfigurationHelper.GetSectionValue("resourcehost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+        //        return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{PathDate.Replace("\\","/")}/{fileName}";
+
+        //    }
+        //    else
+        //    {
+        //        Logger.Error("远程连接建立失败");
+        //        return "远程连接建立失败";
+        //    }
+        //}
 
         /// <summary>
         /// 同步文件

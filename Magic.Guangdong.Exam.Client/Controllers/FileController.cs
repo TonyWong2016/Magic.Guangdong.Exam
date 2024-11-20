@@ -279,7 +279,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     ShortUrl = fileResponseDto.path,
                     AccountId = adminId,
                     ConnId = connId,
-                    Type = ""
+                    Type = ConfigurationHelper.GetSectionValue("storageType"),
+                    Remark = "客户端上传"
                 };
 
 
