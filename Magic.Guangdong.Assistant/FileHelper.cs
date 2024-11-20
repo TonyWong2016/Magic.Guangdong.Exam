@@ -139,7 +139,10 @@ namespace Magic.Guangdong.Assistant
                 outFileStream.Flush();
                 outFileStream.Close();
                 if (isDel)
+                {
                     File.Delete(src);//移动到附件服务器后，就把视频源文件删掉，保留服务器空间
+
+                }
             }
         }
 
@@ -336,20 +339,25 @@ namespace Magic.Guangdong.Assistant
                 //共享文件夹的目录
                 DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                 //获取保存文件的路径
-                string PathName = theFolder.ToString() + $"{DateTime.Now.ToString("yyyyMM")}\\";
-
+                string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
+                if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                {
+                    PathName=$"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{DateTime.Now.ToString("yyyyMM")}\\";
+                }
                 //string PathName =$"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("remoteFolder")}{DateTime.Now.ToString("yyyyMM")}\\";
                 if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
                 {
                     PathName += $"{Path.GetDirectoryName(fileName)}\\";
                     //上传到附件服务器
                     await FileHelper.Transport(save_file, PathName, Path.GetFileName(fileName), isDel);
-                    return ConfigurationHelper.GetSectionValue("resourcehost") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
+                    //return ConfigurationHelper.GetSectionValue("resourcehost") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
+                    return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
+
                 }
                 else
                 {
                     await FileHelper.Transport(save_file, PathName, fileName, isDel);
-                    return ConfigurationHelper.GetSectionValue("resourcehost") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + fileName;
+                    return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + fileName;
                 }
             }
             else
@@ -367,7 +375,12 @@ namespace Magic.Guangdong.Assistant
                 //共享文件夹的目录
                 DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                 //获取保存文件的路径
+                //string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
                 string PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}\\";
+                if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                {
+                    PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{DateTime.Now.ToString("yyyyMM")}\\";
+                }
                 if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
                 {
                     PathName = $"{theFolder.ToString()}{DateTime.Now.ToString("yyyyMM")}{Path.GetDirectoryName(fileName)}\\";
@@ -375,7 +388,9 @@ namespace Magic.Guangdong.Assistant
                 }
                 //上传到附件服务器
                 Transport(data, PathName, fileName);
-                return $"{ConfigurationHelper.GetSectionValue("resourcehost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+                //return $"{ConfigurationHelper.GetSectionValue("resourcehost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+                return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+
             }
             else
             {

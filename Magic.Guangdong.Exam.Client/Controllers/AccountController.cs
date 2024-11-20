@@ -238,7 +238,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SyncAccountInfo")]
+        [CapSubscribe(CapConsts.ClientPrefix + "SyncAccountInfo")]
         public async Task SyncAccountInfo(string accountId)
         {
             Logger.Warning($"{DateTime.Now},开始同步用户数据");

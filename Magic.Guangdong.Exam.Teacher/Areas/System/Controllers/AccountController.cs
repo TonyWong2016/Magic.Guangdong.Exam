@@ -90,7 +90,7 @@ namespace Magic.Guangdong.Exam.Teacher.Areas.System.Controllers
             //var adminRole = await _adminRoleRepo.getOneAsync(u => u.AdminId == admin.Id);
             DateTime expires = remember == 1 ? DateTime.Now.AddDays(3) : DateTime.Now.AddHours(3);
             string jwt = _jwtService.Make(Utils.ToBase64Str(teacher.Id.ToString()), teacher.Name, expires);
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitTeacherLoginLog", $"{teacher.Id}|{jwt}|{Utils.DateTimeToTimeStamp(expires)}");
+            await _capPublisher.PublishAsync(CapConsts.TeacherPrefix + "SubmitTeacherLoginLog", $"{teacher.Id}|{jwt}|{Utils.DateTimeToTimeStamp(expires)}");
             //await _capPublisher.PublishAsync(CapConsts.PREFIX + "CacheMyPermission", new AfterLoginDto() { adminId = admin.Id, exp = expires });
 
             return Json(_resp.success(
@@ -102,10 +102,10 @@ namespace Magic.Guangdong.Exam.Teacher.Areas.System.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SubmitTeacherLoginLog")]
+        [CapSubscribe(CapConsts.TeacherPrefix + "SubmitTeacherLoginLog")]
         public async Task SubmitTeacherLoginLog(string jwtIdExp)
         {
-            Console.WriteLine($"{DateTime.Now}:消费事务---记录登录日志");
+            Console.WriteLine($"{DateTime.Now}:消费事务---记录老师登录日志");
             string[] parts = jwtIdExp.Split('|');
             await _teacherLoginLogRepo.InsertTeacherLoginLog(Guid.Parse(parts[0]), parts[1], parts[2]);
         }

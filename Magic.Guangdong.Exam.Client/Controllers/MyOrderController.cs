@@ -73,10 +73,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "ConfirmAndSyncOrderInfo")]
+        [CapSubscribe(CapConsts.ClientPrefix + "ConfirmAndSyncOrderInfo")]
         public async Task ConfirmAndSyncOrderInfo(string orderNo)
         {
-
+            Console.WriteLine($"{DateTime.Now}:消费事务---订单支付成功，开始同步订单信息{orderNo}");
+            await Task.CompletedTask;
         }
     }
 }

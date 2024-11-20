@@ -382,7 +382,6 @@ namespace Magic.Guangdong.Assistant
                 }
                 else if (storageType == "local")
                 {
-                    //file = Path.Combine(System.Environment.CurrentDirectory, "wwwroot", file.Replace(ConfigurationHelper.GetSectionValue("resourcehost"), ""));
                     file = $"{Environment.CurrentDirectory}\\wwwroot{file.Replace("/", "\\")}";
 
                     AttachmentInfo data = new AttachmentInfo()

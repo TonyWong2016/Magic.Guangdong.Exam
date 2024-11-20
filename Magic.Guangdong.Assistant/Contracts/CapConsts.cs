@@ -9,6 +9,10 @@ namespace Magic.Guangdong.Assistant.Contracts
     public class CapConsts
     {
         public const string PREFIX = "exam.service.";
+
+        public const string ClientPrefix = "exam.service.client.";
+
+        public const string TeacherPrefix = "exam.service.teacher.";
         //public static string PREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
         public static string GetCapMsgName(string name)
         {

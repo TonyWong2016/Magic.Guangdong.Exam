@@ -19,23 +19,31 @@ namespace Magic.Guangdong.Exam.Filters
             string msgKey = context.DeliverMessage.Headers["cap-msg-id"];
             if (await _redis.HExistsAsync("capExamOaMsgs", msgKey))
             {
-                return;
+                Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.MediumMessage));
+
+                throw new Exception("消息重复");
+                // return;
             }
             await _redis.HSetAsync("capExamOaMsgs", msgKey, "processed");
             // 订阅方法执行前
-            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.MediumMessage));
-            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
+            //Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
             await base.OnSubscribeExecutingAsync(context);
         }
 
-        //public override Task OnSubscribeExecutedAsync(ExecutedContext context)
-        //{
-        //    // 订阅方法执行后
-        //}
+        public override async Task OnSubscribeExecutedAsync(ExecutedContext context)
+        {
+            // 订阅方法执行后
+            Logger.Debug("消费完成");
+            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
+            await base.OnSubscribeExecutedAsync(context);
+        }
 
-        //public override Task OnSubscribeExceptionAsync(ExceptionContext context)
-        //{
-        //    // 订阅方法执行异常
-        //}
+        public override async Task OnSubscribeExceptionAsync(ExceptionContext context)
+        {
+            Assistant.Logger.Error($"消费异常");
+            Logger.Error(JsonHelper.JsonSerialize(context.DeliverMessage));
+            context.ExceptionHandled = true;
+            await base.OnSubscribeExceptionAsync(context);
+        }
     }
 }

@@ -20,19 +20,21 @@ namespace Magic.Guangdong.Exam.Client.Filters
             string msgKey = context.DeliverMessage.Headers["cap-msg-id"];
             if (await _redis.HExistsAsync("capExamClientMsgs", msgKey))
             {
+                Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.MediumMessage));
+
+                //throw new Exception("消息重复");
                 return;
             }
             await _redis.HSetAsync("capExamClientMsgs", msgKey, "processed");
-            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.MediumMessage));
-            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
+            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage.Headers));
             await base.OnSubscribeExecutingAsync(context);
         }
 
         public override async Task OnSubscribeExecutedAsync(ExecutedContext context)
         {
             // 订阅方法执行后
-            Logger.Debug("消费完成");
-            Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
+            Logger.Warning("消费完成");
+            Assistant.Logger.Warning(JsonHelper.JsonSerialize(context.DeliverMessage.Headers));
             await base.OnSubscribeExecutedAsync(context);
         }
 

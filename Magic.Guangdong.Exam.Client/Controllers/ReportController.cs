@@ -81,7 +81,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             dto.OrderTradeNumber = $"{dto.ExamId.ToString().Substring(19, 4).ToUpper()}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{Assistant.Utils.GenerateRandomCodePro(15)}";
             if (await _reportInfoRepo.ReportActivity(dto))
             {
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", dto.Id);
+                await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "CheckReportStatus", dto.Id);
                 return Json(_resp.success(new { tradeNo = dto.OrderTradeNumber, reportId = dto.Id }));
             }
             return Json(_resp.error("报名失败"));
@@ -119,7 +119,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             var ret = await _reportInfoRepo.GetReportOrderListClient(dto);
             
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncExamReportInfoToPractice", ret);
+            await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SyncExamReportInfoToPractice", ret);
             return Json(_resp.success(ret));
         }
 
@@ -136,7 +136,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX+ "SyncExamReportInfoToPractice")]
+        [CapSubscribe(CapConsts.ClientPrefix+ "SyncExamReportInfoToPractice")]
         public async Task SyncExamReportInfoToPractice(ReportOrderList list)
         {
             //5分钟内只能操作一次
@@ -203,7 +203,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "CheckReportStatus")]
+        [CapSubscribe(CapConsts.ClientPrefix + "CheckReportStatus")]
         public async Task CheckReportStatus(long reportId)
         {
             var reportInfo = await _reportExamViewRepo.getOneAsync(u => u.ReportId == reportId);

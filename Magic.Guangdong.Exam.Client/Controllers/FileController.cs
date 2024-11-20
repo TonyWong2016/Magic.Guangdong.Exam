@@ -279,7 +279,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     ShortUrl = fileResponseDto.path,
                     AccountId = adminId,
                     ConnId = connId,
-                    Type = "client"
+                    Type = ""
                 };
 
 
@@ -323,7 +323,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                             Assistant.Logger.Error("远程连接建立失败");
                         }
                     }
-
+                    file.Type = storageType;
                     await _fileRepo.addItemAsync(file);
                 }
                 catch
@@ -364,19 +364,22 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
             }
             FileInfo fi = new FileInfo(save_file);
+            
             string fileMd5 = await Security.GetFileMD5(save_file);
-            string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
-            await _fileRepo.addItemAsync(new DbServices.Entities.File()
+            var newFile = new DbServices.Entities.File()
             {
                 AccountId = userId,
-                ShortUrl = returnPath,
                 Path = fi.FullName,
                 Size = fi.Length,
                 Ext = fi.Extension,
                 Name = fi.Name,
                 Md5 = fileMd5,
-                Type = "client"
-            });
+                Type = ConfigurationHelper.GetSectionValue("storageType")
+            };
+            string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
+            newFile.ShortUrl = returnPath;
+
+            await _fileRepo.addItemAsync(newFile);
 
             return returnPath;
 
@@ -491,7 +494,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     Name = fileName,
                     Ext = fileExt,
                     Size = fileSize,
-                    Type = "client",
+                    Type = ConfigurationHelper.GetSectionValue("storageType"),
                     Path = path,
                     AccountId = accountId,
                     ConnId = connId,

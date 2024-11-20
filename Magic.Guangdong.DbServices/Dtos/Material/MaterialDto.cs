@@ -1,4 +1,5 @@
 ﻿using Essensoft.Paylink.Alipay.Domain;
+using Magic.Guangdong.Assistant;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Material
 
         public string Ext { get; set; }
 
+        public string Type { get; set; }
+
         public long Size { get; set; }
 
 
@@ -47,8 +50,12 @@ namespace Magic.Guangdong.DbServices.Dtos.Material
                     return "";
                 if(ShortUrl.StartsWith("http"))
                     return ShortUrl;
+                if (Type == "server")
+                {
+                    return ConfigurationHelper.GetSectionValue("resourceHost") + ShortUrl;
+                }
                 return Assistant.ConfigurationHelper.GetSectionValue("baseHost")+ShortUrl;
-            } 
+            }
         }
 
         public string imgTitle

@@ -59,11 +59,11 @@ namespace Magic.Guangdong.Assistant
                     if (!File.Exists(savePath))
                         return null;
                 }
-                //else if (storageType == "server")
-                //{
-                //    FileHelper.connectState();
-                //    savePath = ConfigurationHelper.GetSectionValue("remoteBase") + filePath;
-                //}
+                else if (storageType == "server")
+                {
+                    FileHelper.connectState();
+                    savePath = ConfigurationHelper.GetSectionValue("remoteBase") + filePath;
+                }
                 var import = await Importer.Import<T>(savePath);
                 if (import.HasError)
                 {

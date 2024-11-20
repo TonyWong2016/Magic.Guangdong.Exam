@@ -54,7 +54,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
 
                 string sub = Assistant.Utils.EncodeUrlParam($"{{\"tradeNo\":\"{notify.TradeNo}\",\"outTradeNo\":\"{notify.OutTradeNo}\",\"payType\":\"alipay\",\"totalAmount\":{notify.TotalAmount}}}");
                 //发布一个消息
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncOrderInfo", new SyncOrderDto()
+                await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SyncOrderInfo", new SyncOrderDto()
                 {
                     OutTradeNo = notify.OutTradeNo,
                     TradeNo = notify.TradeNo,
@@ -64,7 +64,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
                 });
 
                 var order = await _orderRepo.getOneAsync(u => u.TradeNo == notify.OutTradeNo);
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "CheckReportStatus", order.ReportId);
+                await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "CheckReportStatus", order.ReportId);
                 return Redirect("/order/result?sub=" + sub);
             }
             catch (AlipayException ex)
@@ -103,7 +103,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SyncOrderInfo")]
+        [CapSubscribe(CapConsts.ClientPrefix + "SyncOrderInfo")]
         public async Task SyncOrderInfo(SyncOrderDto dto)
         {
             await _orderRepo.SyncOrderInfo(dto);

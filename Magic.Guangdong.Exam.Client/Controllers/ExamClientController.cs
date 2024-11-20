@@ -212,7 +212,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
            
 
             Assistant.Logger.Warning($"{DateTime.Now}:发布事务--保存答案");
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "SubmitMyAnswer", dto);
+            await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SubmitMyAnswer", dto);
             if (!await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
             {
                 var record = await _userAnswerRecordClientRepo.GetMyRecord(dto.recordId);
@@ -227,10 +227,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "SubmitMyAnswer")]
-        public async Task SubmitMyAnswer(SubmitMyAnswerDto dto)
+        [CapSubscribe(CapConsts.ClientPrefix + "SubmitMyAnswer")]
+        public async Task SubmitMyAnswer(SubmitMyAnswerDto dto, [FromCap] CapHeader header)
         {
             Logger.Warning($"{DateTime.Now}:消费事务---保存答案");
+            //Logger.Warning(System.Text.Json.JsonSerializer.Serialize(header));
             await Task.Run(() =>
             {
                 _userAnswerRecordClientRepo.SubmitMyPaper(dto);

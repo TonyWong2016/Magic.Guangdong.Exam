@@ -356,6 +356,14 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 x.Version = configuration.GetSection("QueneVersion").Value;
                 x.ConsumerThreadCount = 2;
 
+                //x.EnablePublishParallelSend = true;
+                //x.EnableSubscriberParallelExecute = true;
+
+                x.UseDashboard(d =>
+                {
+                    d.PathMatch = "/MagicClientCap";
+                });
+
             }).AddSubscribeFilter<MagicClientCapFilter>();
 
         }

@@ -316,7 +316,12 @@ namespace Magic.Guangdong.Assistant.Lib
                 {
                     return certTemplateUrl;
                 }
-                return ConfigurationHelper.GetSectionValue("resourceHost")+certTemplateUrl.Replace("\\", "/");
+                if (ConfigurationHelper.GetSectionValue("storageType") == "server")
+                {
+                    return ConfigurationHelper.GetSectionValue("resourceHost") + certTemplateUrl.Replace("\\", "/");
+
+                }
+                return ConfigurationHelper.GetSectionValue("baseHost")+certTemplateUrl.Replace("\\", "/");
             }
         }
         

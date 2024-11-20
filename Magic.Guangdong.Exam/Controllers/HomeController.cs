@@ -36,13 +36,14 @@ namespace Magic.Guangdong.Exam.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.PREFIX + "TEST")]
-        public async Task GeneratePaper(object t)
+        public async Task TEST1(object t)
         {
             
             await Task.Delay(3000);
-            Assistant.Logger.Warning($"消费消息：" + t.ToString());
+            Assistant.Logger.Warning($"group1消费消息：" + t.ToString());
 
         }
+
 
 
         [RouteMark("测试2")]

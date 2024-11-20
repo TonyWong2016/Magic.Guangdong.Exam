@@ -12,5 +12,5 @@
     "QueneStorageConn": "User ID=dev_user;Password=wt123456;Host=10.185.1.179;Port=5432;Database=magicExamQuene;"
   },
   "TransType": "kafka",
-  "QueneVersion": "dev"
+  "QueneVersion": "local"
 }

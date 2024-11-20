@@ -160,7 +160,7 @@ namespace Magic.Guangdong.Exam.Areas.Material.Controllers
                     ShortUrl = dto.Link,
                     Path = dto.Link,
                     Ext = Path.GetExtension(dto.Link),
-                    Type = "网络地址"
+                    Type = "net"
                 };
                 await _fileRepo.insertOrUpdateAsync(file);
                 return Json(_resp.success("绑定成功"));

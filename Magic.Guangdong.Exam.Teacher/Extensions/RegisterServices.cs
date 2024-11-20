@@ -255,6 +255,11 @@ namespace Magic.Guangdong.Exam.Teacher.Extensions
                 x.Version = configuration.GetSection("QueneVersion").Value;
                 x.ConsumerThreadCount = 2;
 
+                x.UseDashboard(d =>
+                {
+                    d.PathMatch = "/MagicTeacherCap";
+                });
+
             }).AddSubscribeFilter<MagicTeacherCapFilter>();
         }
 

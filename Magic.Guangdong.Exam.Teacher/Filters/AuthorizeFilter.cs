@@ -63,7 +63,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
             //非get请求，请求头验证
             if (!HeaderCheck(context))
             {
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
+                await _capPublisher.PublishAsync(CapConsts.TeacherPrefix + "AddKeyAction", new KeyAction()
                 {
                     AdminId = adminId,
                     Action = "header认证失败",

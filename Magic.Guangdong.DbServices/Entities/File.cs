@@ -37,7 +37,7 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// 文件类型，不是后缀，是业务类型
 		/// </summary>
 		[JsonProperty, Column(DbType = "varchar(20)", IsNullable = false)]
-		public string Type { get; set; } = "";
+		public string Type { get; set; } = "local";
 
 		/// <summary>
 		/// 谁上传的

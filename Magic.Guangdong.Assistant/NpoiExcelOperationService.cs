@@ -714,7 +714,7 @@ namespace Magic.Guangdong.Assistant
                 #endregion
 
                 #region 保存到本地服务器                
-                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}/";
+                string folder = $"magicexam/export/{DateTime.Now.ToString("yyyyMM")}/";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{save_path}/upfile/{folder}";
@@ -745,11 +745,15 @@ namespace Magic.Guangdong.Assistant
                     //共享文件夹的目录
                     DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                     //获取保存文件的路径
-                    string PathName = theFolder.ToString() + $"{folder}\\";
+                    string PathName = $"{theFolder.ToString()}{folder}\\";
+                    if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                    {
+                        PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir")}\\{folder}\\";
+                    }
                     //上传文件到附件服务器(注意这个没有删除本地文件)
                     await FileHelper.Transport(excelPath, PathName, excelFileName, false);
                 }
-                string url = ConfigurationHelper.GetSectionValue("resourcehost") + "/" + folder + "/" + excelFileName;
+                string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
                 #endregion
 
                 //excel文件保存的相对路径，提供前端下载
@@ -891,7 +895,7 @@ namespace Magic.Guangdong.Assistant
         {
             try
             {
-                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}/";
+                string folder = $"magicexam/export/{DateTime.Now.ToString("yyyyMM")}/";
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 //var uploadPath = save_path + "/upfile/" + folder + "/";
                 string uploadPath = $"{savePath}/upfile/{folder}";
@@ -995,10 +999,14 @@ namespace Magic.Guangdong.Assistant
                         DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                         //获取保存文件的路径
                         string PathName = theFolder.ToString() + $"{folder.Replace("/","\\")}";
+                        if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                        {
+                            PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir")}\\{folder}\\";
+                        }
                         //上传文件到附件服务器(注意这个没有删除本地文件)
                         await FileHelper.Transport(docPath, PathName, docFileName, false);
                     }
-                    string url = ConfigurationHelper.GetSectionValue("resourcehost") + "/" + folder + "/" + docFileName;
+                    string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + docFileName;
                     #endregion
                     return docPath;
                 }
@@ -1100,7 +1108,8 @@ namespace Magic.Guangdong.Assistant
             {
                 #region 保存到本地服务器
                 //string folder = DateTime.Now.ToString("yyyyMM");
-                string folder = $"guangdong/export/{DateTime.Now.ToString("yyyyMM")}";
+                string folder = $"/export/{DateTime.Now.ToString("yyyyMM")}";
+                
 
                 //保存文件到静态资源文件夹中（wwwroot）,使用绝对路径
                 var uploadPath = save_path + "\\upfile\\" + folder + "\\";
@@ -1131,11 +1140,15 @@ namespace Magic.Guangdong.Assistant
                     //共享文件夹的目录
                     DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
                     //获取保存文件的路径
-                    string PathName = theFolder.ToString() + $"{folder}\\";
-                    //上传文件到附件服务器，同时删掉本地文件节省服务器空间
+                    string PathName = $"{theFolder.ToString()}{folder}\\";
+                    if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                    {
+                        PathName = $"{theFolder.ToString()}{ConfigurationHelper.GetSectionValue("resourceDir")}\\{folder}\\";
+                    }
+                        //上传文件到附件服务器，同时删掉本地文件节省服务器空间
                     await FileHelper.Transport(excelPath, PathName, excelFileName, true);
                 }
-                string url = ConfigurationHelper.GetSectionValue("resourcehost") + "/" + folder + "/" + excelFileName;
+                string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
                 #endregion
                 //excel文件保存的相对路径，提供前端下载
                 //resp.code = 1;
@@ -1225,7 +1238,7 @@ namespace Magic.Guangdong.Assistant
                 if (cloudSync)
                     url = BceHelper.UploadFileToBosSingle(fileName, FileHelper.getFileData(PathName + fileName));
                 else
-                    url = ConfigurationHelper.GetSectionValue("resourcehost") + "/" + folder + "/" + fileName;
+                    url = ConfigurationHelper.GetSectionValue("resourcehost") + ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + fileName;
             }
 
             return url;

@@ -297,11 +297,15 @@ namespace Magic.Guangdong.Exam.Extensions
                 x.FailedMessageExpiredAfter = 24 * 3600 * 10;
 
                 x.Version = configuration.GetSection("QueneVersion").Value;
-                x.ConsumerThreadCount = 2;//服务端
+                x.ConsumerThreadCount = 2;//消费者线程数
+                x.FallbackWindowLookbackSeconds = 5 * 60;
+                x.EnablePublishParallelSend = true;
+                x.EnableSubscriberParallelExecute = true;
 
-                
-
-                x.UseDashboard();
+                x.UseDashboard(a =>
+                {
+                    a.PathMatch = "/magiccap";
+                });
             }).AddSubscribeFilter<MagicCapFilter>();            
         }
 

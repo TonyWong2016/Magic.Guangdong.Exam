@@ -160,7 +160,7 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
             if(response.TradeStatus== "TRADE_SUCCESS")
             {
                 //发布一个消息
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "SyncOrderInfo", new SyncOrderDto()
+                await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SyncOrderInfo", new SyncOrderDto()
                 {
                     OutTradeNo = response.OutTradeNo,
                     TradeNo = response.TradeNo,

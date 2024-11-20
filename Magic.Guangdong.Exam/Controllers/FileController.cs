@@ -366,17 +366,24 @@ namespace Magic.Guangdong.Exam.Controllers
             }
             FileInfo fi = new FileInfo(save_file);
             string fileMd5 = await Security.GetFileMD5(save_file);
-            string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
             var newfile = new DbServices.Entities.File()
             {
                 AccountId = userId,
-                ShortUrl = returnPath,
+                //ShortUrl = returnPath,
                 Path = fi.FullName,
                 Size = fi.Length,
                 Ext = fi.Extension,
                 Name = fi.Name,
-                Md5 = fileMd5
+                Md5 = fileMd5,
+                Type = ConfigurationHelper.GetSectionValue("storageType")
             };
+            string returnPath = await FileHelper.SyncFile(save_file, uploadFileName, true);
+
+            if (newfile.Type == "server")
+            {
+                newfile.Path = ConfigurationHelper.GetSectionValue("remoteBase")+returnPath.Replace("/","\\");
+            }
+            newfile.ShortUrl = returnPath;
             await _fileRepo.addItemAsync(newfile);
             
             return newfile;

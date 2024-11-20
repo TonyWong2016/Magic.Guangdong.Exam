@@ -4,7 +4,7 @@ if (tinymceUserId)
 //增加一个富文本编辑器，tinymce，中文文档：http://tinymce.ax-z.cn/
 function InitTinymce(elemId, content, file_base_url, base_child ='/FileAttach') {
     //let file_base_url = "http://v.superzb.cn/fileattach/";
-    if (!base_ajax_url) {
+    if (!file_base_url) {
         file_base_url = window.location.protocol + "//" + window.location.host + base_child;
     }
     tinymce.init({
