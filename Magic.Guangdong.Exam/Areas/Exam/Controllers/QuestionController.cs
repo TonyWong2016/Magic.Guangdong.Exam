@@ -42,6 +42,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("试题管理")]
         public IActionResult Index()
         {
+            ViewData["resourceHost"] = ConfigurationHelper.GetSectionValue("resourceHost");
             return View();
         }
 

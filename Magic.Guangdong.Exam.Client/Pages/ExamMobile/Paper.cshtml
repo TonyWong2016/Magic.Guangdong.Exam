@@ -143,7 +143,7 @@
        <kbd class="pico-background-jade-350" style=" margin-top:10px">{{d.TypeName}}({{d.ItemScore}}分)</kbd>
     </header>
     <div class="body" style="margin-bottom:50px">
-        <div class="questionMaterials">
+        <div class="questionMaterials" style="text-align:center">
             {{# if(d.Materials && d.Materials.length>0){ }}
                 {{# layui.each(d.Materials,function(index,item) { }}
                     <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>

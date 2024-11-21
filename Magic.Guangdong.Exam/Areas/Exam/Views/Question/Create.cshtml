@@ -233,8 +233,8 @@
 
 
     //渲染题目和题目解析
-    InitTinymce('Title', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
-    InitTinymce('Analysis', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+    InitTinymce('Title', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
+    InitTinymce('Analysis', '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
 
     form.on('radio', function (data) {
         let elem = data.elem.id
@@ -394,12 +394,12 @@
             let i = 0;
             while (i < obj.length) {
                 ClearTinymce(prefix + obj[i].OrderIndex);
-                InitTinymce(prefix + obj[i].OrderIndex, '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+                InitTinymce(prefix + obj[i].OrderIndex, '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
                 i++;
             }
         } else {
             ClearTinymce(prefix + obj);
-            InitTinymce(prefix + obj, '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourcehost")', '')
+            InitTinymce(prefix + obj, '', '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
 
         }
     }

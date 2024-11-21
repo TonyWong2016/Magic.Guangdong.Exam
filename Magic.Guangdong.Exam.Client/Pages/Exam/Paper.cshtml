@@ -170,7 +170,7 @@
        <kbd class="pico-background-jade-350" style=" margin-top:10px">{{d.TypeName}}({{d.ItemScore}}分)</kbd>
     </header>
     <div class="body" style="margin-bottom:50px">
-         <div class="questionMaterials">
+         <div class="questionMaterials"  style="text-align:center">
             {{# if(d.Materials && d.Materials.length>0){ }}
                 {{# layui.each(d.Materials,function(index,item) { }}
                     <img class="questionmaterial" src="{{item.url}}" id="material_{{item.ConnName}}_{{item.ConnId}}"/>
@@ -607,7 +607,7 @@
          if (width < 1024 || height < 500) {
              //alert("检测到您正在使用小尺寸的屏幕进行答题，目前没有支持小尺寸屏幕的计划，请移步PC端或者最大化您的浏览器后进行答题！");
             TT.success("检测到您正在使用小尺寸的屏幕进行答题，系统即将自动跳转！",()=>{
-                location.href = location.href.replace('/exam','/exammobile')
+                location.href = location.href.replace('/exam/','/exammobile/')
             });
          }
      }

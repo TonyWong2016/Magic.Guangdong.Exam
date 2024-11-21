@@ -3,14 +3,15 @@
     "HostName": "10.185.1.179",
     "UserName": "tony",
     "Password": "wt123456",
-    "VirtualHost": "virtual_guangdonexam",
+    "VirtualHost": "virtual_magicexam",
     "Port": 5672,
-    "ExchangeName": "cap.text.guangdonexam.exchange"
+    "ExchangeName": "cap.text.magicexam.exchange",
+    "QueneStorageConn": "server=10.185.4.181;uid=sql_cysccnet;pwd=cyscc62180521;database=ChatRoom;Connection Lifetime=20;Min pool Size=5;Encrypt=True; TrustServerCertificate=True"
   },
   "Kafka": {
     "Brokers": "10.185.1.178:9092,10.185.1.179:9092,10.185.1.176:9092",
     "QueneStorageConn": "User ID=dev_user;Password=wt123456;Host=10.185.1.179;Port=5432;Database=magicExamQuene;"
   },
-  "TransType": "kafka",
+  "TransType": "RabbitMQ",
   "QueneVersion": "dev"
 }

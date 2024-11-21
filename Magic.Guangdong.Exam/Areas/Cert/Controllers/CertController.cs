@@ -127,7 +127,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             try
             {
                 //序列化模板信息
-                string resourceHost = ConfigurationHelper.GetSectionValue("resourcehost");
+                string resourceHost = ConfigurationHelper.GetSectionValue("resourceHost");
                 var template = await _certTemplateRepo.getOneAsync(u => u.Id == dto.ImportModel.TemplateId);
                 var certConfig = JsonHelper.JsonDeserialize<CertTemplateDto>(template.ConfigJsonStrForImg);
                 certConfig.certTempUrl = template.Url;

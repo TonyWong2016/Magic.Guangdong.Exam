@@ -137,6 +137,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public string ShortUrl { get; set; }
 
+        public string Type { get; set; }
+
         public string url
         {
             get
@@ -145,7 +147,10 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
                     return "";
                 if (ShortUrl.StartsWith("http"))
                     return ShortUrl;
-                return Assistant.ConfigurationHelper.GetSectionValue("resourceHost") + ShortUrl;
+                if(Type=="server")
+                    return Assistant.ConfigurationHelper.GetSectionValue("resourceHost") + ShortUrl;
+
+                return Assistant.ConfigurationHelper.GetSectionValue("baseHost") + ShortUrl;
 
             }
         }

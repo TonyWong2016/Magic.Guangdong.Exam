@@ -26,6 +26,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Account
         }
         public async void OnGet()
         {
+            Assistant.Logger.Debug("0.¿ªÊ¼·ÃÎÊ");
             var requestCookies = _httpContextAccessor.HttpContext.Request.Cookies;
             if (requestCookies.Any(u => u.Key == "accountId") &&
                 requestCookies.Any(u => u.Key == "idToken") &&

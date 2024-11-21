@@ -540,7 +540,7 @@ namespace Magic.Guangdong.Assistant
                 //    }
                 //    else
                 //    {
-                //        finalUrl = ConfigurationHelper.GetSectionValue("resourcehost") + "/" + folder + "/" + excelFileName;
+                //        finalUrl = ConfigurationHelper.GetSectionValue("resourceHost") + "/" + folder + "/" + excelFileName;
                 //    }
                 //}
                 string finalUrl = await FileHelper.SyncFile(excelPath, excelFileName, true);
@@ -753,7 +753,7 @@ namespace Magic.Guangdong.Assistant
                     //上传文件到附件服务器(注意这个没有删除本地文件)
                     await FileHelper.Transport(excelPath, PathName, excelFileName, false);
                 }
-                string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
+                string url = ConfigurationHelper.GetSectionValue("resourceHost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
                 #endregion
 
                 //excel文件保存的相对路径，提供前端下载
@@ -1006,7 +1006,7 @@ namespace Magic.Guangdong.Assistant
                         //上传文件到附件服务器(注意这个没有删除本地文件)
                         await FileHelper.Transport(docPath, PathName, docFileName, false);
                     }
-                    string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + docFileName;
+                    string url = ConfigurationHelper.GetSectionValue("resourceHost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + docFileName;
                     #endregion
                     return docPath;
                 }
@@ -1148,7 +1148,7 @@ namespace Magic.Guangdong.Assistant
                         //上传文件到附件服务器，同时删掉本地文件节省服务器空间
                     await FileHelper.Transport(excelPath, PathName, excelFileName, true);
                 }
-                string url = ConfigurationHelper.GetSectionValue("resourcehost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
+                string url = ConfigurationHelper.GetSectionValue("resourceHost")+ ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + excelFileName;
                 #endregion
                 //excel文件保存的相对路径，提供前端下载
                 //resp.code = 1;
@@ -1238,7 +1238,7 @@ namespace Magic.Guangdong.Assistant
                 if (cloudSync)
                     url = BceHelper.UploadFileToBosSingle(fileName, FileHelper.getFileData(PathName + fileName));
                 else
-                    url = ConfigurationHelper.GetSectionValue("resourcehost") + ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + fileName;
+                    url = ConfigurationHelper.GetSectionValue("resourceHost") + ConfigurationHelper.GetSectionValue("resourceDir") + "/" + folder + "/" + fileName;
             }
 
             return url;

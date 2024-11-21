@@ -48,7 +48,8 @@ namespace Magic.Guangdong.Exam.Client.Filters
             if (page.Equals("/exam/verify") ||
                 page.Equals("/exammobile/verify")||
                 page.Equals("/account/me") ||
-                page.Equals("/account/logout"))
+                page.Equals("/account/logout") ||
+                page.Equals("account/logout"))
             {
                 Assistant.Logger.Debug("免登录");
                 return;

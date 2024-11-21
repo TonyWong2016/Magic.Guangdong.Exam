@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using Yitter.IdGenerator;
 
@@ -25,7 +26,8 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 .AddJsonFile("Configs/cachesetting.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("Configs/mqsetting.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("Configs/paysetting.json", optional: true, reloadOnChange: true)
-               ;
+                .AddJsonFile("Configs/resoucesetting.json", optional: true, reloadOnChange: true)
+                ;
 
             _configuration = builder.Configuration;
             ConfigurationHelper.Initialize(_configuration);
@@ -150,8 +152,8 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                     cb.HttpOnly = false;
                     cb.IsEssential = true;
                     cb.Expiration = DateTime.Now.AddHours(6)-DateTime.Now;
-                    //options.Authority = ConfigurationHelper.GetSectionValue("authHost");
-                    options.Authority = "http://login.xiaoxiaotong.org";
+                    options.Authority = ConfigurationHelper.GetSectionValue("authHost");
+                    //options.Authority = "http://login.xiaoxiaotong.org";
                     //正是环境需要这两行⬇️
                     options.NonceCookie = cb;
                     options.CorrelationCookie = cb;
@@ -175,6 +177,21 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                         NameClaimType = JwtClaimTypes.GivenName,
                         RoleClaimType = JwtClaimTypes.Role,
                     };
+                    //因域名换成了https形式 需要增加这一段 开发阶段的时候继续使用http 正式的时候换成https
+                    if (configuration.GetSection("env").Value!="dev")
+                    {
+                        options.Events = new OpenIdConnectEvents()
+                        {
+                            OnRedirectToIdentityProvider = context =>
+                            {
+                                var builder = new UriBuilder(context.ProtocolMessage.RedirectUri);
+                                builder.Scheme = "https";
+                                builder.Port = -1;
+                                context.ProtocolMessage.RedirectUri = builder.ToString();
+                                return Task.FromResult(0);
+                            }
+                        };
+                    }
                     
                 });
         }
@@ -334,7 +351,9 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 {
 
 
-                    x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    //x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetSection("RabbitMQ")["QueneStorageConn"]);
+
                     x.UseRabbitMQ(opt =>
                     {
                         opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];

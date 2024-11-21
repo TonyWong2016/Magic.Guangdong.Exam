@@ -445,6 +445,8 @@
                 $('#fileId').val(data.extenddata.id);
                 if (data.data.startsWith('http'))
                     $('#fileUrl').val(data.data);
+                else if(data.extenddata.type=='server')
+                    $('#fileUrl').val("@ViewData["resourceHost"]" + data.data);
                 else
                     $('#fileUrl').val(`${location.protocol}//${location.host}${data.data}`);
                 fileConnObj.Id = data.extenddata.id;

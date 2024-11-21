@@ -557,7 +557,7 @@ namespace Magic.Guangdong.Exam.Controllers
                 {
                     return Content("服务器链接失败");
                 }
-                string decodeUri = System.Web.HttpUtility.UrlDecode(encodeUri).Replace(ConfigurationHelper.GetSectionValue("resourcehost"), "").Replace("/", "\\");
+                string decodeUri = System.Web.HttpUtility.UrlDecode(encodeUri).Replace(ConfigurationHelper.GetSectionValue("resourceHost"), "").Replace("/", "\\");
                 string filePath = remoteBase + decodeUri;
                 using (var stream = new FileStream(filePath, FileMode.Open))
                 {

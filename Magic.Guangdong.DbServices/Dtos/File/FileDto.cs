@@ -44,6 +44,10 @@ namespace Magic.Guangdong.DbServices.Dtos.File
                     return "";
                 if (ShortUrl.StartsWith("http"))
                     return ShortUrl;
+                if (Type == "server")
+                {
+                    return Assistant.ConfigurationHelper.GetSectionValue("resourceHost") + ShortUrl;
+                }
                 return Assistant.ConfigurationHelper.GetSectionValue("baseHost") + ShortUrl;
             }
         }

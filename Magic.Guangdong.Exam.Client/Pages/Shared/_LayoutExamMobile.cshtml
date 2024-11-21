@@ -133,19 +133,23 @@
     <script>
         let pageHost='';
         let PageConfigData = {
-           'mobile':{
-               'header':{},
-               'footer':{}
-           },
-            'theme': 'indigo',
-            "pageHost": "http://zb10.xiaoxiaotong.org"
+           "mobile": {
+                "header": {
+                    "headerBackgroundImg": "/upfile/202411/2/header-yunnanmobile-20241113164056.jpg"
+                },
+                "footer": {
+                    "footerBackgroundImg": "/upfile/202411/2/footer-yunnanmobile-20241113164138.jpg"
+                },
+                "pageHost": "https://oaexam.xiaoxiaotong.org"
+            },
+            "theme": "jade"
         };
 
         setTimeout(()=>{
             
             if(detectDeviceType()=='PC'){
                 const url = location.href;
-                location.href = url.replace('exammobile','exam');
+                location.href = url.replace('/exammobile/','/exam/');
             }
             if(!pageConfigRenderFlag)
             renderPageConfig();

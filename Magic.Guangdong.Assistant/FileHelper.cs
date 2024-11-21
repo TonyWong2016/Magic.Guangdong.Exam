@@ -353,7 +353,7 @@ namespace Magic.Guangdong.Assistant
                     PathName += $"{Path.GetDirectoryName(fileName)}\\";
                     //上传到附件服务器
                     await FileHelper.Transport(save_file, PathName, Path.GetFileName(fileName), isDel);
-                    //return ConfigurationHelper.GetSectionValue("resourcehost") + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
+                    //return ConfigurationHelper.GetSectionValue() + "/" + DateTime.Now.ToString("yyyyMM") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
                     //return ConfigurationHelper.GetSectionValue("resourceDir") + "/" + PathDate.Replace("\\","/") + "/" + Path.GetDirectoryName(fileName).Replace("\\", "/") + "/" + Path.GetFileName(fileName);
                     return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{PathDate.Replace("\\", "/")}/{Path.GetDirectoryName(fileName).Replace("\\", "/")}/{Path.GetFileName(fileName)}";
                 }
@@ -398,7 +398,7 @@ namespace Magic.Guangdong.Assistant
         //        }
         //        //上传到附件服务器
         //        Transport(data, PathName, fileName);
-        //        //return $"{ConfigurationHelper.GetSectionValue("resourcehost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
+        //        //return $"{ConfigurationHelper.GetSectionValue("resourceHost")}/{DateTime.Now.ToString("yyyyMM")}/{fileName}";
         //        return $"{ConfigurationHelper.GetSectionValue("resourceDir")}/{PathDate.Replace("\\","/")}/{fileName}";
 
         //    }

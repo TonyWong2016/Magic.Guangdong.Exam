@@ -187,7 +187,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         {
                             var selectedQuestions = await questionRepo
                                 .Where(u => u.SubjectId == rule.subjectId && u.TypeId == rule.typeId && u.IsDeleted == 0)
-                                .WhereIf(paper.PaperType == PaperType.Practice, u => u.IsOpen == IsOpen.Yes)//如果是生成练习题，那就只抽取开放的题
+                                //.WhereIf(paper.PaperType == PaperType.Practice, u => u.IsOpen == IsOpen.Yes)//如果是生成练习题，那就只抽取开放的题
+                                .Where(u => u.IsOpen == IsOpen.Yes)
                                 .WhereIf(paper.PaperDegree != "all", u => paper.PaperDegree.Contains(u.Degree))//如果没有设定试卷难度，那就抽取对应难度的题
                                 .Where(u => u.ActivityId == 0 || u.ActivityId == activityId)
                                 .ToListAsync();

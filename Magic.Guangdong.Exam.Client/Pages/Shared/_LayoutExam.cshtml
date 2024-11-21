@@ -131,47 +131,132 @@
     <script>
         let pageHost='';
         let PageConfigData = {
-            'header': {
-                'headerBackgroundImg': 'http://zb10.xiaoxiaotong.org/recources/default/header-background.jpg',
-                'topMenus': [
-                    { 'url': '#', 'title': '首页' },
-                    { 'url': '#', 'title': '关于我们' },
-                    { 'url': '#', 'title': '品牌活动' },
-                    { 'url': '#', 'title': '文件通知' },
-                    { 'url': '#', 'title': '新闻报道' },
-                    { 'url': '#', 'title': '在线展厅' },
-                    { 'url': '#', 'title': '人才培养' },
-                    { 'url': '#', 'title': '交流活动' },
-                    { 'url': '#', 'title': '科教导航' },
-                    { 'url': '#', 'title': '创新学院' },
-                ],
-                'submenu_back': '#',
-                'submenu_current': '#',
-                'submenu_profile': '#',
-                'noticeList':[
-                    { 'url': '#', 'title': '通知1' },
-                    { 'url': '#', 'title': '通知2' },
-                    { 'url': '#', 'title': '通知3' },
-                    { 'url': '#', 'title': '通知4' }
-                ]
-            },
-            'footer': {
-                'footerBackgroundImg': 'http://zb10.xiaoxiaotong.org/recources/default/header-background.jpg',
-                "footerRemarks": [
-                    { "title": "网站支持", "hasLink": false, "description": "校校通" },
-                    { "title": "服务保障", "hasLink": false, "description": "校校通（北京）教育科技有限公司" },
-                    { "title": "网站备案", "hasLink": true, "link": "http://baidu.com", "description": "网站备案" },
-                    { "title": "联系我们", "hasLink": false, "description": "yunnan@xiaoxiaotong.org" }
-                ]
-            },
-            'theme': 'indigo',
-            "pageHost": "http://zb10.xiaoxiaotong.org"
+                "pageTitle": "云南考试平台",
+                "header": {
+                    "headerBackgroundImg": "/upfile/202410/3/header-20241018164443.jpg",
+                    "pageHost": "https://oaexam.xiaoxiaotong.org",
+                    "topMenus": [
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/index.aspx",
+                            "title": "首页"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/AboutUs.aspx",
+                            "title": "关于我们"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/active/active.aspx",
+                            "title": "品牌活动"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/news/noticeIndex.aspx",
+                            "title": "文件通知"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/news/newsIndex.aspx",
+                            "title": "新闻报道"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/Exhibition/index.aspx",
+                            "title": "在线展厅"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/communicate/question.aspx",
+                            "title": "交流活动"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/idol/StudentIdol.aspx",
+                            "title": "人才培养"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/stemResource/res/ResourceMain.aspx",
+                            "title": "科教导航"
+                        },
+                        {
+                            "url": "http://www.xiaoxiaotong.net/Index?location=yunnan",
+                            "title": "创新学院"
+                        }
+                    ],
+                    "noticeList": [
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/News/noticeView.aspx?AID=265997&FrontColumnID=5402",
+                            "title": "关于征集2025-2026年度云南省青少年机器人竞赛比赛项目的通知",
+                            "time": "2024-10-10"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/News/noticeView.aspx?AID=265973&FrontColumnID=5402",
+                            "title": "第38届中国化学奥林匹克（决赛）云南省代表队选手公示",
+                            "time": "2024-09-27"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/News/noticeView.aspx?AID=265972&FrontColumnID=5402",
+                            "title": "第38届中国化学奥林匹克（初赛）云南赛区二三等奖获奖名单公示",
+                            "time": "2024-09-27"
+                        },
+                        {
+                            "url": "https://yunnan.xiaoxiaotong.org/News/noticeView.aspx?AID=265927&FrontColumnID=5402",
+                            "title": "关于开展2024年云南省青少年科技辅导员专业水平认证工作的通知",
+                            "time": "2024-09-06"
+                        }
+                    ],
+                    "noticeMore": "https://yunnan.xiaoxiaotong.org/news/noticeIndex.aspx",
+                    "submenu_back": "https://yunnan.xiaoxiaotong.org/MatchList/Index.aspx",
+                    "submenu_current": "https://yunnan.xiaoxiaotong.org/SubjectApply/index.aspx",
+                    "submenu_profile": "https://i.xiaoxiaotong.org/UserProfile",
+                    "topMenuBackgroundImg": "/upfile/202410/4/menuBg-20241022141933.jpg",
+                    "topMenuSelectedImg": "/upfile/202410/4/menuSelect-20241022135204.png"
+                },
+                "footer": {
+                    "pageHost": "https://oaexam.xiaoxiaotong.org",
+                    "footerBackgroundImg": "/upfile/202410/3/footer-20241018164446.jpg",
+                    "footerRemarks": [
+                        {
+                            "title": "主办单位：",
+                            "hasLink": false,
+                            "description": "云南省青少年科技中心"
+                        },
+                        {
+                            "title": "建设运营：",
+                            "hasLink": false,
+                            "description": "全国青少年科技教育和科普活动云服务平台"
+                        },
+                        {
+                            "title": "网站备案：",
+                            "hasLink": true,
+                            "link": "https://beian.miit.gov.cn/#/Integrated/index",
+                            "description": "京ICP备11018462号-2 "
+                        },
+                        {
+                            "title": "京公网安备：",
+                            "hasLink": false,
+                            "description": "110108009524号案"
+                        }
+                    ],
+                    "footerThumbs": [
+                        {
+                            "src": "https://yunnan.xiaoxiaotong.org/sourceyunnan/images/footer-wx.png?width=140"
+                        },
+                        {
+                            "src": "https://yunnan.xiaoxiaotong.org/sourceyunnan/images/footer-wz.png?width=140"
+                        }
+                    ]
+                },
+                "mobile": {
+                    "header": {
+                        "headerBackgroundImg": "/upfile/202411/2/header-yunnanmobile-20241113164056.jpg"
+                    },
+                    "footer": {
+                        "footerBackgroundImg": "/upfile/202411/2/footer-yunnanmobile-20241113164138.jpg"
+                    },
+                    "pageHost": "https://oaexam.xiaoxiaotong.org"
+                },
+                "theme": "jade"
         };
 
         setTimeout(()=>{            
             if(detectDeviceType()!='PC'){
                 const url = location.href;
-                location.href = url.replace('exam','exammobile');
+                location.href = url.replace('/exam/','/exammobile/');
             }
             if(!pageConfigRenderFlag)
                 renderPageConfig();

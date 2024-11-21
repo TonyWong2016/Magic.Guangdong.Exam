@@ -4,6 +4,8 @@
   "remoteBase": "\\\\10.185.4.151\\NET_Attach",
   "remoteUser": "IUSR_YSC",
   "remotePwd": "kgonv3u8Ty",
-  "resourcehost": "https://checkin.xiaoxiaotong.org/FileAttach",
+  "resourceHost": "https://checkexam.xiaoxiaotong.org",
+  "resourceDir": "/MagicExam",
+
   "attachBase": "http://zb5.xiaoxiaotong.org/FileAttach"
 }

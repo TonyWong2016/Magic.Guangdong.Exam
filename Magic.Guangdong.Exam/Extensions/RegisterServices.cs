@@ -274,7 +274,8 @@ namespace Magic.Guangdong.Exam.Extensions
                 }
                 else
                 {
-                    x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    //x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetSection("RabbitMQ")["QueneStorageConn"]);
                     x.UseRabbitMQ(opt =>
                     {
                         opt.HostName = configuration.GetSection("RabbitMQ")["HostName"];

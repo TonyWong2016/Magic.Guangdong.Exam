@@ -197,10 +197,10 @@ namespace Magic.Guangdong.Assistant
                 if (item.imgType == 0)
                 {
                     //filename = $"test_{DateTime.Now.ToString("yyyyMMdd")}";
-                    string resourceHost = ConfigurationHelper.GetSectionValue("baseHost");
-                    if (!resourceHost.Contains("upfile"))
-                        resourceHost = resourceHost + "upfile";
-                    string imgUrl = $"{resourceHost}/{DateTime.Now.ToString("yyyyMM")}/{Utils.GetCurrentWeekOfMonth(DateTime.Now)}/{filename}.jpg";
+                    string baseHost = ConfigurationHelper.GetSectionValue("baseHost");
+                    if (!baseHost.Contains("upfile"))
+                        baseHost = baseHost + "upfile";
+                    string imgUrl = $"{baseHost}/{DateTime.Now.ToString("yyyyMM")}/{Utils.GetCurrentWeekOfMonth(DateTime.Now)}/{filename}.jpg";
                     
                     tmpQrcodeUrl = savePath + $"\\upfile\\{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}\\qrcode_{filename}.png";
                     if (!Directory.Exists(Path.GetDirectoryName(tmpQrcodeUrl)))
