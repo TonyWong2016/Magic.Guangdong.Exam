@@ -64,7 +64,8 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
         [BindProperty]
         public ExamType ExamType { get; set; }
 
-
+        [BindProperty]
+        public int IncludeSubjective { get; set; }
         public async Task<IActionResult> OnGet(long urid, int force = 0)
         {
             if (!await _userAnswerRecordClientRepo.getAnyAsync(u => u.Id == urid && u.IsDeleted == 0))
@@ -93,6 +94,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             Name = record.Name;
             Score = record.Score;
             
+            IncludeSubjective = record.IncludeSubjective;
             OpenResult = (PaperOpenResult)record.OpenResult;
             Marked = record.Marked;
             ExamType = (ExamType)record.ExamType;

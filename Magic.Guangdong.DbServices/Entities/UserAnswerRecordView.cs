@@ -176,6 +176,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
         [JsonProperty]
 		public long TagId { get; set; } = 0;
+
+        [JsonProperty]
+        public int IncludeSubjective { get; set; } = 0;
     }
 
 }

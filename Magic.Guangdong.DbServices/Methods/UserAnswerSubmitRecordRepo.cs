@@ -35,8 +35,7 @@ namespace Magic.Guangdong.DbServices.Methods
         /// </param>
         /// <returns></returns>
         public async Task<int> ScoreObjectivePart(long recordId, int markingType=0)
-        {
-            
+        {           
 
             var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
             if (!await userAnswerRecordRepo.Where(u => u.Id == recordId).AnyAsync())
@@ -119,6 +118,9 @@ namespace Magic.Guangdong.DbServices.Methods
                     record.Score = userObjectiveScore;
                 record.Marked = ExamMarked.Part;
                 
+                var paper = await fsql.Get(conn_str).Select<Paper>().Where(u => u.Id == recordView.PaperId).ToOneAsync();
+                if (paper.IncludeSubjective == 0)
+                    record.Marked = ExamMarked.All;
                 return await userAnswerRecordRepo.UpdateAsync(record);
                 
             }
@@ -147,7 +149,7 @@ namespace Magic.Guangdong.DbServices.Methods
 
             };
             //已经给过分了
-            if (recordView.UpdatedBy == "systemmarked")
+            if (recordView.UpdatedBy == "systemmarked" && recordView.Marked!=0)
             {
                 returnModel.immeReturn = true;
                 return returnModel;

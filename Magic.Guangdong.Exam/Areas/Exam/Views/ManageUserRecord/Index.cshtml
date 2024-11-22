@@ -94,9 +94,11 @@
 </script>
 
 <script type="text/html" id="markedTpl">
-    {{# if(d.marked==1){ }}
+    {{# if(d.marked==2 && d.includeSubjective==0){ }}
+        <b style="color:#029AE8">已出分</span>
+    {{# } else if(d.marked==1){ }}
         <b style="color:#79C0FF">客观题已出分</span>
-    {{#} else if(d.marked==2) { }}
+    {{#} else if(d.marked==2 && d.includeSubjective==1) { }}
         <b style="color:#029AE8">主/客观题均出分</span>
     {{#} else { }}
         <b style="color:#2f363c">待出分</span>

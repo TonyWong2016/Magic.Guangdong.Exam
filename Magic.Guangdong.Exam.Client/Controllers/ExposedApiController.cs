@@ -8,5 +8,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             return View();
         }
+
+
+
     }
 }

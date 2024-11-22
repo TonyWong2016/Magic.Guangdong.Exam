@@ -87,17 +87,26 @@ namespace Magic.Guangdong.DbServices.Methods
             try
             {
                 List<Paper> targetPapers = new List<Paper>(model.paperNumber);
-                var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
-                var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
-                var questionRepo = fsql.Get(conn_str).GetRepository<Question>();
+               
+                var questionRepo = fsql.Get(conn_str).GetRepository<QuestionView>();
 
                 if (model.generateQuestionTypeModels.Sum(u => u.number) > await questionRepo.Where(u => u.IsDeleted == 0).CountAsync())
                 {
                     return null;
                 }
+
+                var paperRepo = fsql.Get(conn_str).GetRepository<Paper>();
+                var examRepo = fsql.Get(conn_str).GetRepository<Examination>();
+
                 long existPaperCnt = await paperRepo.Where(u => u.ExamId == model.examId).CountAsync();
                 var exam = await examRepo.Where(u => u.Id == model.examId).FirstAsync();
                 int paperNum = 0;//试卷套数
+                int IncludeSubjective = 0;
+                var typeIds = model.generateQuestionTypeModels.Select(u => u.typeId);
+                if(await questionRepo.Where(u=> typeIds.Contains(u.TypeId) && u.Objective == 0).AnyAsync())
+                {
+                    IncludeSubjective = 1;
+                }
 
                 while (paperNum < model.paperNumber)
                 {
@@ -123,7 +132,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         Score = model.paperScore,
                         Duration = exam.BaseDuration,
                         OpenResult = (PaperOpenResult)model.openResult,
-                        PaperDegree = model.degrees
+                        PaperDegree = model.degrees,
+                        IncludeSubjective = IncludeSubjective
                     };
 
                     paper.QuestionDetailJson = JsonHelper.JsonSerialize(model.generateQuestionTypeModels);
@@ -189,7 +199,7 @@ namespace Magic.Guangdong.DbServices.Methods
                                 .Where(u => u.SubjectId == rule.subjectId && u.TypeId == rule.typeId && u.IsDeleted == 0)
                                 //.WhereIf(paper.PaperType == PaperType.Practice, u => u.IsOpen == IsOpen.Yes)//如果是生成练习题，那就只抽取开放的题
                                 .Where(u => u.IsOpen == IsOpen.Yes)
-                                .WhereIf(paper.PaperDegree != "all", u => paper.PaperDegree.Contains(u.Degree))//如果没有设定试卷难度，那就抽取对应难度的题
+                                .WhereIf(!string.IsNullOrEmpty(paper.PaperDegree) && paper.PaperDegree != "all", u => paper.PaperDegree.Contains(u.Degree))//如果没有设定试卷难度，那就抽取对应难度的题
                                 .Where(u => u.ActivityId == 0 || u.ActivityId == activityId)
                                 .ToListAsync();
                             int selectedCnt = selectedQuestions.Count();

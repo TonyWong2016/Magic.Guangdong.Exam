@@ -344,13 +344,21 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 {
                     x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
 
-                    x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
-
+                    //x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
+                    x.UseKafka(kafkaOptions =>
+                    {
+                        kafkaOptions.Servers = configuration.GetSection("Kafka")["Brokers"];
+                        if (configuration.GetSection("Kafka")["Secuity"] == "open")
+                        {
+                            kafkaOptions.MainConfig.Add("sasl.username", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.username"]);
+                            kafkaOptions.MainConfig.Add("sasl.password", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.password"]);
+                            kafkaOptions.MainConfig.Add("sasl.mechanism", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.mechanism"]);
+                            kafkaOptions.MainConfig.Add("security.protocol", configuration.GetSection("Kafka")["KafkaMainConfig:security.protocol"]);
+                        }
+                    });
                 }
                 else
                 {
-
-
                     //x.UseSqlServer(x => x.ConnectionString = configuration.GetConnectionString("ExamConnString"));
                     x.UseSqlServer(x => x.ConnectionString = configuration.GetSection("RabbitMQ")["QueneStorageConn"]);
 
@@ -374,6 +382,8 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
                 x.Version = configuration.GetSection("QueneVersion").Value;
                 x.ConsumerThreadCount = 2;
+
+                x.DefaultGroupName = configuration.GetSection("DefaultGroupName").Value;
 
                 //x.EnablePublishParallelSend = true;
                 //x.EnableSubscriberParallelExecute = true;

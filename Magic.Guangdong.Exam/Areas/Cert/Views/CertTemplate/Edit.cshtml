@@ -3,77 +3,75 @@
 }
 @model Magic.Guangdong.DbServices.Dtos.Cert.TemplateDto
 
-<div class="layui-card layui-panel">
-    <div class="layui-card-header" style="color:#16baaa;font-size:large">
-        创建模板
-    </div>
+<div class="layui-card-header" style="color:#16baaa;font-size:large">
+    创建模板
+</div>
 
-    <div class="layui-card-body">
-        <form class="layui-form main-form" lay-filter="templateForm">
-            <div class="layui-form-item">
-                <label class="layui-form-label">模板标题</label>
-                <div class="layui-input-block">
-                    <input class="layui-input" asp-for="Title" placeholder="请输入模板标题" lay-affix="clear" autocomplete="off" />
-                </div>
+<div class="layui-card-body">
+    <form class="layui-form main-form" lay-filter="templateForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">模板标题</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Title" placeholder="请输入模板标题" lay-affix="clear" autocomplete="off" />
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">所属活动</label>
-                <div class="layui-input-block">
-                    <select asp-for="ActivityId">
-                        <option >请选择关联活动</option>
-                    </select>
-                </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属活动</label>
+            <div class="layui-input-block">
+                <select asp-for="ActivityId">
+                    <option>请选择关联活动</option>
+                </select>
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">模板类型</label>
-                <div class="layui-input-block">
-                    <select asp-for="Type" lay-filter="Type" lay-search>
-                        <option value="0">图片</option>
-                        <option value="1" disabled>PDF（暂不支持）</option>
-                    </select>
-                </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">模板类型</label>
+            <div class="layui-input-block">
+                <select asp-for="Type" lay-filter="Type" lay-search>
+                    <option value="0">图片</option>
+                    <option value="1" disabled>PDF（暂不支持）</option>
+                </select>
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">模板状态</label>
-                <div class="layui-input-block">
-                    <select asp-for="Status" lay-filter="Status" lay-search>
-                        <option value="0">可用</option>
-                        <option value="1">禁用</option>
-                    </select>
-                </div>
-            </div>            
-
-            <div class="layui-form-item imageTemplate">
-                <label class="layui-form-label">模板图片</label>
-                <a href="javascript:;" class="layui-btn layui-btn-primary" id="btnUpload"><i class="layui-icon layui-icon-upload-circle"></i>上传</a>
-                <a href="javascript:;" class="layui-btn layui-btn-primary layui-border-blue" onclick="editTemplate()"><i class="layui-icon layui-icon-edit"></i>编辑模板</a>
-                <img id="tmpPreview" style="display:none" alt="预览图" />
+        <div class="layui-form-item">
+            <label class="layui-form-label">模板状态</label>
+            <div class="layui-input-block">
+                <select asp-for="Status" lay-filter="Status" lay-search>
+                    <option value="0">可用</option>
+                    <option value="1">禁用</option>
+                </select>
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">模板参数</label>
-                <div class="layui-input-block">
-                    <textarea asp-for="ConfigJsonStrForImg" class="layui-textarea" placeholder="点击编辑模板在新页面配置完成后显示"></textarea>
-                </div>
+        <div class="layui-form-item imageTemplate">
+            <label class="layui-form-label">模板图片</label>
+            <a href="javascript:;" class="layui-btn layui-btn-primary" id="btnUpload"><i class="layui-icon layui-icon-upload-circle"></i>上传</a>
+            <a href="javascript:;" class="layui-btn layui-btn-primary layui-border-blue" onclick="editTemplate()"><i class="layui-icon layui-icon-edit"></i>编辑模板</a>
+            <img id="tmpPreview" style="display:none" alt="预览图" />
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">模板参数</label>
+            <div class="layui-input-block">
+                <textarea asp-for="ConfigJsonStrForImg" class="layui-textarea" placeholder="点击编辑模板在新页面配置完成后显示"></textarea>
             </div>
+        </div>
 
-            <input type="hidden" asp-for="CanvasJson"/>
-            <input type="hidden" asp-for="Id"/>
-            <input type="hidden" asp-for="Url"/>
-            <div class="layui-form-item" style="margin-left:110px">
-                <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
-                <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
+        <input type="hidden" asp-for="CanvasJson" />
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Url" />
+        <div class="layui-form-item" style="margin-left:110px">
+            <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+            <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
 
-                <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
-            </div>
-            <blockquote class="layui-elem-quote">注意：创建模板之后，要到编辑页面对证书模板进行配置</blockquote>
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+        <blockquote class="layui-elem-quote">注意：创建模板之后，要到编辑页面对证书模板进行配置</blockquote>
 
-            @Html.AntiForgeryToken()
-        </form>
-    </div>
+        @Html.AntiForgeryToken()
+    </form>
 </div>
 <script src="~/web/myfcup.js"></script>
 <script>

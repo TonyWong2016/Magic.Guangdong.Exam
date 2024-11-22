@@ -161,6 +161,10 @@ namespace Magic.Guangdong.DbServices.Methods
                         Quota = orginExam.Quota,
                         Expenses = orginExam.Expenses,
                         Remark = orginExam.Remark + $"(基本信息克隆自{orginExam.Id})",
+                        SchemeId = orginExam.SchemeId,
+                        PageConfig = orginExam.PageConfig,
+                        IndependentAccess = orginExam.IndependentAccess,
+                        LoginRequired = orginExam.LoginRequired,
                     };
                     await examRepo.InsertAsync(cloneExam);
 
@@ -189,6 +193,7 @@ namespace Magic.Guangdong.DbServices.Methods
                             UpdatedAt = DateTime.Now,
                             CreatedBy = adminId + "执行克隆操作",
                             UpdatedBy = adminId,
+                            IncludeSubjective = org.IncludeSubjective
                         });
                         paperIndex++;
                     }

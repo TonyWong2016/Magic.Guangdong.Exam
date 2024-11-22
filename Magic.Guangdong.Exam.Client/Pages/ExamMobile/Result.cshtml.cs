@@ -64,6 +64,8 @@ namespace Magic.Guangdong.Exam.Client.Pages.ExamMobile
         [BindProperty]
         public ExamType ExamType { get; set; }
 
+        [BindProperty]
+        public int IncludeSubjective { get; set; }
 
         public async Task<IActionResult> OnGet(long urid, int force = 0)
         {
@@ -92,7 +94,7 @@ namespace Magic.Guangdong.Exam.Client.Pages.ExamMobile
             Mobile = record.Mobile;
             Name = record.Name;
             Score = record.Score;
-            
+            IncludeSubjective = record.IncludeSubjective;
             OpenResult = (PaperOpenResult)record.OpenResult;
             Marked = record.Marked;
             ExamType = (ExamType)record.ExamType;

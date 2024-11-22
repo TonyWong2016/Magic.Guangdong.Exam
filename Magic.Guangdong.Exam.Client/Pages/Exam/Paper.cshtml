@@ -56,7 +56,7 @@
                 </footer>
             </article>
 
-            <input type="hidden" id="lastAnswer" value="@Model.SubmitAnswer" />
+            <input type="hidden" id="MyLastAnswer" value="@Model.SubmitAnswer" />
         </div>
 
         <article class="sideDiv">
@@ -275,8 +275,8 @@
      let editorManager;//代码编辑器
      let typeNames = [];
 
-     if (jVal('lastAnswer'))
-         answerArr = JSON.parse(jVal('lastAnswer'));
+     if (jVal('MyLastAnswer'))
+         answerArr = JSON.parse(jVal('MyLastAnswer'));
 
      if (sessionStorage.getItem("answerArr"))
          answerArr = JSON.parse(sessionStorage.getItem("answerArr"));

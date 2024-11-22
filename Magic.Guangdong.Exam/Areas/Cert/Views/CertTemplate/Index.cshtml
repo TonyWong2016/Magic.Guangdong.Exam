@@ -1,52 +1,50 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-<div class="layui-card layui-panel">
-    <div style="padding:15px">
-        <form class="layui-form">
-            <div class="layui-form-item layui-row layui-col-space16">
-                <div class="layui-col-md3">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-search"></i>
-                        </div>
-                        <input type="text" id="keyword" placeholder="关键字" class="layui-input">
+<div style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row layui-col-space16">
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-search"></i>
                     </div>
-                </div>
-                <div class="layui-col-md3">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-note"></i>
-                        </div>
-                        <select id="activityId" lay-filter="activityId">
-                            <option value="">请选择归属活动</option>
-                            
-                        </select>
-                    </div>
-                </div>
-                <div class="layui-col-md3">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-tips"></i>
-                        </div>
-                        <select id="status" lay-filter="status">
-                            <option value="">状态</option>
-                            <option value="0">正常</option>
-                            <option value="1">禁用</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="layui-col-md3">
-                    <div class="layui-input-wrap">
-                        <a href="@Url.Action("create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新建模板</a>
-                    </div>
+                    <input type="text" id="keyword" placeholder="关键字" class="layui-input">
                 </div>
             </div>
-        </form>
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-note"></i>
+                    </div>
+                    <select id="activityId" lay-filter="activityId">
+                        <option value="">请选择归属活动</option>
 
-        <hr />
-        <table class="layui-table" lay-filter="table" id="table"></table>
-    </div>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-tips"></i>
+                    </div>
+                    <select id="status" lay-filter="status">
+                        <option value="">状态</option>
+                        <option value="0">正常</option>
+                        <option value="1">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="layui-input-wrap">
+                    <a href="@Url.Action("create")" class="layui-btn"><i class="layui-icon layui-icon-add-1"></i>新建模板</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+    <table class="layui-table" lay-filter="table" id="table"></table>
 </div>
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/cert/certtemplate/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>

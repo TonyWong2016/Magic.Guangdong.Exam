@@ -64,6 +64,8 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.UserAnswerRecord
                 return "未判分";
             }
         }
+
+        public int IncludeSubjective {  get; set; }
     }
 
 

@@ -71,7 +71,13 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty, Column(DbType = "varchar(50)")]
 		public string UpdatedBy { get; set; }
 
-	}
+		/// <summary>
+		/// 是否包含主观题，0-否，1-是
+		/// </summary>
+		[JsonProperty]
+		public int IncludeSubjective { get; set; } = 0;
+
+    }
 
 	
 

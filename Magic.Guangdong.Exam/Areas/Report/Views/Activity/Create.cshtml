@@ -3,28 +3,27 @@
 }
 @model Magic.Guangdong.DbServices.Dtos.Report.Activities.ActivityDto
 
-<div class="layui-card layui-panel">
-    <div class="layui-card-header" style="color:#16baaa;font-size:large">
-        创建活动
-    </div>
+<div class="layui-card-header" style="color:#16baaa;font-size:large">
+    创建活动
+</div>
 
-    <div class="layui-card-body">
-         <form class="layui-form main-form" lay-filter="activityForm">
-            <div class="layui-form-item">
-                <label class="layui-form-label">活动标题</label>
-                <div class="layui-input-block">
-                    <input class="layui-input" asp-for="Title" placeholder="请输入活动名称" lay-affix="clear" autocomplete="off"/>
-                </div>
+<div class="layui-card-body">
+    <form class="layui-form main-form" lay-filter="activityForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">活动标题</label>
+            <div class="layui-input-block">
+                <input class="layui-input" asp-for="Title" placeholder="请输入活动名称" lay-affix="clear" autocomplete="off" />
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">活动介绍</label>
-                <div class="layui-input-block">
-                    <textarea class="layui-textarea" asp-for="Description" placeholder="请输入活动介绍" lay-affix="clear" autocomplete="off" ></textarea>
-                </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">活动介绍</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" asp-for="Description" placeholder="请输入活动介绍" lay-affix="clear" autocomplete="off"></textarea>
             </div>
+        </div>
 
-            @* <div class="layui-form-item">
+        @* <div class="layui-form-item">
                 <label class="layui-form-label">参与名额</label>
                 <div class="layui-input-block">
                     <input class="layui-input" asp-for="Quota" placeholder="活动的名额限制 (数字)" lay-affix="number" autocomplete="off" type="number" step="1" min="0" />
@@ -40,42 +39,41 @@
                     <blockquote class="layui-elem-quote" style="margin-top:10px">输入0，则无报名费用</blockquote>
                 </div>
             </div> *@
-            <div class="layui-form-item">
-                <label class="layui-form-label">起止时间</label>
-                <div class="layui-input-block">
-                    <input id="Duration" class="layui-input" placeholder="请选择活动的起止日期" autocomplete="off" lay-verify="required" required />
-                </div>
-                <input type="hidden" asp-for="StartTime" />
-                <input type="hidden" asp-for="EndTime" />
+        <div class="layui-form-item">
+            <label class="layui-form-label">起止时间</label>
+            <div class="layui-input-block">
+                <input id="Duration" class="layui-input" placeholder="请选择活动的起止日期" autocomplete="off" lay-verify="required" required />
             </div>
+            <input type="hidden" asp-for="StartTime" />
+            <input type="hidden" asp-for="EndTime" />
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">活动状态</label>
-                <div class="layui-input-block">
-                    <select asp-for="Status">
-                        <option value=0 selected>开启</option>
-                        <option value=1>关闭</option>
-                    </select>
-                </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">活动状态</label>
+            <div class="layui-input-block">
+                <select asp-for="Status">
+                    <option value=0 selected>开启</option>
+                    <option value=1>关闭</option>
+                </select>
             </div>
+        </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">独立申报</label>
-                <div class="layui-input-block">
-                    <select asp-for="IndependentReport">
-                        <option value=0 selected>不允许（需要对接公司原有申报系统）</option>
-                        <option value=1>允许（使用考试系统自有流程完成报名，不依赖申报系统）</option>
-                    </select>
-                </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">独立申报</label>
+            <div class="layui-input-block">
+                <select asp-for="IndependentReport">
+                    <option value=0 selected>不允许（需要对接公司原有申报系统）</option>
+                    <option value=1>允许（使用考试系统自有流程完成报名，不依赖申报系统）</option>
+                </select>
             </div>
+        </div>
 
-            <div class="layui-form-item" style="margin-left:110px">
-                <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
-                <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
-            </div>
-            @Html.AntiForgeryToken()
-         </form>
-    </div>
+        <div class="layui-form-item" style="margin-left:110px">
+            <a class="layui-btn" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
+            <a class="layui-btn layui-btn-primary" href="@Url.Action("index")" id="btnBack"><i class="layui-icon layui-icon-left"></i>返回</a>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
 </div>
 
 <script src="~/plugins/tinymce/tinymce.min.js"></script>

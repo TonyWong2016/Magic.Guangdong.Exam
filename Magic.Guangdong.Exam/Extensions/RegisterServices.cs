@@ -1,5 +1,6 @@
 ﻿using AspNetCoreRateLimit;
 using Coravel;
+using DotNetCore.CAP;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
@@ -269,8 +270,17 @@ namespace Magic.Guangdong.Exam.Extensions
                 {
                     x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
 
-                    x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
-
+                    x.UseKafka(kafkaOptions =>
+                    {
+                        kafkaOptions.Servers = configuration.GetSection("Kafka")["Brokers"];
+                        if (configuration.GetSection("Kafka")["Secuity"] == "open")
+                        {
+                            kafkaOptions.MainConfig.Add("sasl.username", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.username"]);
+                            kafkaOptions.MainConfig.Add("sasl.password", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.password"]);
+                            kafkaOptions.MainConfig.Add("sasl.mechanism", configuration.GetSection("Kafka")["KafkaMainConfig:sasl.mechanism"]);
+                            kafkaOptions.MainConfig.Add("security.protocol", configuration.GetSection("Kafka")["KafkaMainConfig:security.protocol"]);
+                        }
+                    });
                 }
                 else
                 {
@@ -302,6 +312,8 @@ namespace Magic.Guangdong.Exam.Extensions
                 x.FallbackWindowLookbackSeconds = 5 * 60;
                 x.EnablePublishParallelSend = true;
                 x.EnableSubscriberParallelExecute = true;
+
+                x.DefaultGroupName = configuration.GetSection("DefaultGroupName").Value;
 
                 x.UseDashboard(a =>
                 {

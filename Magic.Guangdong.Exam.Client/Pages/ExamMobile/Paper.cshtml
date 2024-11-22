@@ -102,7 +102,7 @@
     <input type="hidden" asp-for="LimitedTime" />
     </form>
 
-    <input type="hidden" id="MyAnswer" value="@Model.SubmitAnswer" />
+    <input type="hidden" id="MyLastAnswer" value="@Model.SubmitAnswer" />
 </main>
 
 <script src="~/web/exam/paper.js"></script>
@@ -249,8 +249,8 @@
      let typeNames = [];
      let firstInit = true;
 
-     if (jVal('lastAnswer'))
-         answerArr = JSON.parse(jVal('lastAnswer'));
+     if (jVal('MyLastAnswer'))
+          answerArr = JSON.parse(jVal('MyLastAnswer'));
 
      if (sessionStorage.getItem("answerArr"))
          answerArr = JSON.parse(sessionStorage.getItem("answerArr"));

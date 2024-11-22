@@ -1,67 +1,64 @@
 ﻿@{
     Layout = "../Shared/_LayoutContent.cshtml";
 }
-<div class="layui-card layui-panel">
-    <div style="padding:15px">
-        <form class="layui-form">
-            <div class="layui-form-item layui-row layui-col-space16">
-                <div class="layui-col-md2">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-flag"></i>
-                        </div>
-                        <select id="activityId" lay-filter="activityId">
-                            <option value="">请选择归属活动(如果有)</option>
+<div style="padding:15px">
+    <form class="layui-form">
+        <div class="layui-form-item layui-row layui-col-space16">
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-flag"></i>
+                    </div>
+                    <select id="activityId" lay-filter="activityId">
+                        <option value="">请选择归属活动(如果有)</option>
 
-                        </select>
-                    </div>
+                    </select>
                 </div>
-                <div class="layui-col-md2">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-note"></i>
-                        </div>
-                        <select id="examId" lay-filter="examId">
-                            <option value="">请选择归属考试(如果有)</option>
-
-                        </select>
-                    </div>
-                </div>
-                <div class="layui-col-md2">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-form"></i>
-                        </div>
-                        <select id="templateId" lay-filter="templateId">
-                            <option value="">请选择对应模板</option>
-
-                        </select>
-                    </div>
-                </div>
-                <div class="layui-col-md2">
-                    <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                            <i class="layui-icon layui-icon-search"></i>
-                        </div>
-                        <input type="text" id="keyword" placeholder="关键字" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-col-md2">
-                    <div class="layui-input-wrap">
-                        <a class="layui-btn demo-dropdown-base" lay-options="{trigger: 'hover'}" href="javascript:;">
-                            <span>选择操作</span>
-                            <i class="layui-icon layui-icon-down layui-font-12"></i>
-                        </a>
-                    </div>
-                </div>
-
             </div>
-        </form>
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-note"></i>
+                    </div>
+                    <select id="examId" lay-filter="examId">
+                        <option value="">请选择归属考试(如果有)</option>
 
-        <table class="layui-table" lay-filter="table" id="table"></table>
-    </div>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-form"></i>
+                    </div>
+                    <select id="templateId" lay-filter="templateId">
+                        <option value="">请选择对应模板</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <div class="layui-input-prefix">
+                        <i class="layui-icon layui-icon-search"></i>
+                    </div>
+                    <input type="text" id="keyword" placeholder="关键字" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-col-md2">
+                <div class="layui-input-wrap">
+                    <a class="layui-btn demo-dropdown-base" lay-options="{trigger: 'hover'}" href="javascript:;">
+                        <span>选择操作</span>
+                        <i class="layui-icon layui-icon-down layui-font-12"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+    <table class="layui-table" lay-filter="table" id="table"></table>
 </div>
-
 <script type="text/html" id="statusTpl">
     {{# if(d.status==0){ }}
     <span style="color:#5FB878">展示中</span>
