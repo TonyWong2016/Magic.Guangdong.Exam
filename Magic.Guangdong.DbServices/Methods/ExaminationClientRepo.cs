@@ -1,21 +1,9 @@
-﻿using Magic.Guangdong.DbServices.Entities;
-using Magic.Guangdong.DbServices.Interfaces;
-using FreeSql.Internal.Model;
-using MassTransit;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Magic.Guangdong.DbServices.Dtos;
-using NPOI.POIFS.Dev;
+﻿using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
-using Magicodes.ExporterAndImporter.Core.Extension;
-using EasyCaching.CSRedis;
-using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
-using Mapster;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
+using Magic.Guangdong.DbServices.Entities;
+using Magic.Guangdong.DbServices.Interfaces;
+using Mapster;
 
 namespace Magic.Guangdong.DbServices.Methods
 {

@@ -1,22 +1,14 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
-using Magic.Guangdong.DbServices.Methods;
-using Mapster;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using Yitter.IdGenerator;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Essensoft.Paylink.Alipay.Domain;
-using Microsoft.AspNetCore.Hosting;
-using NPOI.SS.Formula.Functions;
 
 namespace Magic.Guangdong.Exam.Client.Controllers
 {

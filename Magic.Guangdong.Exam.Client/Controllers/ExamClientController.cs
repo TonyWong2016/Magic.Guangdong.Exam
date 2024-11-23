@@ -1,6 +1,5 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;

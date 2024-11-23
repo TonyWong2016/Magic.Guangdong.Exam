@@ -118,6 +118,32 @@ namespace Magic.Guangdong.Assistant
             return result.ToString();
         }
 
+        public static string GenerateRandomCodeFast(int length, int type = 0)
+        {
+            string chars = "0123456789ABCDEFGHIGKLMNOPQRSTUVWXYZ";
+            if (type == 1)
+            {
+                chars = "ABCDEFGHIGKLMNOPQRSTUVWXYZ";
+            }
+            else if (type == 2)
+            {
+                chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
+            }
+            else if (type == 3)
+            {
+                chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+            }
+            Span<char> buffer = stackalloc char[length];
+            Random random = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                buffer[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string(buffer);
+        }
+
         /// <summary>
         /// 字符串转Unicode 直接Byte的方式，单字节操作
         /// </summary>
