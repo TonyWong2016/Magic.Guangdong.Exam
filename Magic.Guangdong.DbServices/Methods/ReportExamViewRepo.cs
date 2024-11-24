@@ -23,9 +23,11 @@ namespace Magic.Guangdong.DbServices.Methods
             decimal orderAmountTotal = await fsql.Get(conn_str).Select<Order>()
                 .Where(u => u.Status == 0 && u.IsDeleted == 0)
                 .SumAsync(u => u.Expenses);
+
             long reportNumTotal = await fsql.Get(conn_str).Select<ReportInfo>()
-                .Where(u=>u.IsDeleted==0)
+                .Where(u => u.IsDeleted == 0)
                 .CountAsync();
+
             long examNumTotal = await fsql.Get(conn_str).Select<Examination>()
                 .Where(u => u.IsDeleted == 0)
                 .CountAsync();
@@ -39,10 +41,13 @@ namespace Magic.Guangdong.DbServices.Methods
                 .CountAsync();
 
             long unMarkedTotal = await fsql.Get(conn_str).Select<UserAnswerRecordView>()
-                .Where(u => u.IsDeleted == 0 && u.Marked!=(int)ExamMarked.All && u.ExamType==0)
+                .Where(u => u.IsDeleted == 0 &&
+                u.Marked != (int)ExamMarked.All &&
+                u.ExamType == 0 &&
+                u.IncludeSubjective == 1)
                 .CountAsync();
 
-            
+
             string sql = $"SELECT CONVERT(date, ReportTime) AS reportTime," +
                 $" COUNT(*) AS reportCnt " +
                 $" FROM " +
@@ -52,8 +57,8 @@ namespace Magic.Guangdong.DbServices.Methods
                 $" GROUP BY CONVERT(date, ReportTime) " +
                 $" ORDER BY CONVERT(date, ReportTime);";
             var reportExamDateLine = await fsql.Get(conn_str).Ado.QueryAsync<ReportNumDto>(sql);
-            
-            
+
+
             string sqlOrder = $"SELECT" +
                 $" CONVERT(date, CreatedAt) AS CreatedAt," +
                 $" sum(Expenses) AS orderAmount" +
@@ -65,8 +70,18 @@ namespace Magic.Guangdong.DbServices.Methods
                 $" ORDER BY" +
                 $" CONVERT(date, CreatedAt)";
             var orderDateLine = await fsql.Get(conn_str).Ado.QueryAsync<OrderNumDto>(sqlOrder);
-        
-            return new { orderAmountTotal, reportNumTotal, unMarkedTotal, examNumTotal, recordTotal, certTotal, reportExamDateLine,  orderDateLine };
+
+            return new
+            {
+                orderAmountTotal,
+                reportNumTotal,
+                unMarkedTotal,
+                examNumTotal,
+                recordTotal,
+                certTotal,
+                reportExamDateLine,
+                orderDateLine
+            };
         }
     }
 

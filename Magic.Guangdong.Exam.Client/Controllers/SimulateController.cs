@@ -6,6 +6,7 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Yitter.IdGenerator;
 
@@ -34,7 +35,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return Content("hi");
         }
 
         /// <summary>
@@ -45,10 +46,13 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [ResponseCache(Duration = 100,VaryByQueryKeys = ["examId"])]
         public async Task<IActionResult> GetExamInfo(Guid examId)
         {
-            return Json(await _examinationClientRepo.GetExamsForClient(new OnlyGetExamDto()
+            //模拟header验证耗时
+            await Task.Delay(new Random().Next(10, 300));
+            var ret = await _examinationClientRepo.GetExamsForClient(new OnlyGetExamDto()
             {
-                examId = examId,
-            }));
+                examId = examId
+            });
+            return Json(_resp.success(ret));
         }
 
         /// <summary>
@@ -62,6 +66,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             try
             {
+                //模拟header验证耗时
+                await Task.Delay(new Random().Next(10, 200));
                 string[] idNumbers = ["53081732180510DD7DGX", "43161732180511DD7D52", "81031732180511DD7DVK"];
                 Random rd = new Random();
                 var result = await _examinationClientRepo.InfoVerificationByNumber(new OnlyGetExamDto
@@ -69,8 +75,9 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     examId= Guid.Parse("0C140000-569B-0050-DD7D-08DD09FF5460"),
                     reportNumber= idNumbers[rd.Next(0,2)],
                 });
-                
-                return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
+
+                //return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
+                return Json(_resp.success(result,result.verifyMsg));
             }
             catch (Exception ex)
             {
@@ -88,6 +95,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveDraft(SimulateSaveDto dto)
         {
+            //模拟header验证耗时
+            await Task.Delay(new Random().Next(10, 200));
             if (string.IsNullOrEmpty(dto.answer))
             {
                 dto.answer = Utils.GenerateRandomCodeFast(3000);
