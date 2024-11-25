@@ -4,7 +4,7 @@ import { check, sleep } from 'k6';
 export const options = {
 
     // A number specifying the number of VUs to run concurrently.
-    vus: 10,
+    vus: 1,
     // A string specifying the total duration of the test run.
     duration: '3s',
     thresholds: {
@@ -14,8 +14,8 @@ export const options = {
 }
 
 export default function () {
-    const url = 'https://localhost:7296/simulate/GetExamInfo?examId=49D90000-4C24-00FF-84A0-08DD0926B694';
-    //const url = 'https://oaexam.xiaoxiaotong.org/home/gettemporarytoken';
+    //const url = 'http://192.168.0.46:5001/simulate/GetExamInfo?examId=49D90000-4C24-00FF-84A0-08DD0926B694';
+    const url = 'https://exam.xiaoxiaotong.org/simulate/GetExamInfo?examId=0C140000-569B-0050-51DC-08DD093F8ED7';
     let params = {
         headers: {
             'Content-Type': 'application/json'

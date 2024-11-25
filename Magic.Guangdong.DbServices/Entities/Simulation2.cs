@@ -24,6 +24,15 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(StringLength = -2)]
         public string SubmitAnswer { get; set; } = "";
 
+        [JsonProperty]
+        public string CapMsgId { get; set; } 
+
+        [JsonProperty]
+        public string CapInstance { get; set; } = "";
+
+        [JsonProperty]
+        public string CapSenttime { get; set; } = "";
+
     }
 
 }

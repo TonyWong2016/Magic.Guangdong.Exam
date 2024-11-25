@@ -84,7 +84,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
 
         public int isPractice { get; set; } = 0;
 
-        //public double usedTime { get; set; }
+        public string msgId { get; set; } = "";
+
+        public string instance { get; set; } = "";
+
+        public string senttime { get; set; } = "";
     }
 
     /// <summary>

@@ -40,6 +40,7 @@ namespace Magic.Guangdong.Assistant
                         .WriteTo.Logger(lg => lg.Filter.ByIncludingOnly(Matching.WithProperty<string>("position", p => p == log5Name)).WriteTo.Async(a => a.File(LogFilePath(log5Name), rollingInterval: RollingInterval.Day, outputTemplate: SerilogOutputTemplate)))
                         //.WriteTo.Async(a => a.Console())
                         .CreateLogger();
+            
         }
 
         /*****************************下面是不同日志级别*********************************************/
@@ -73,14 +74,17 @@ namespace Magic.Guangdong.Assistant
             Console.ResetColor();
             //Task.Run(() => writeLogToRedis(msg, "info"));
         }
+
         /// <summary>
         /// 调试日志
         /// </summary>
         /// <param name="msg"></param>
         public static void Debug(string msg)
-        {
+        {            
+
+            if (ConfigurationHelper.GetSectionValue("env") != "dev")
+                return;
             Log.Debug($"{{position}}:{msg}", log4Name);
-          
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"Debug:{msg}....{DateTime.Now}");
             Console.ResetColor();
@@ -92,6 +96,8 @@ namespace Magic.Guangdong.Assistant
         /// <param name="msg"></param>
         public static void Verbose(string msg)
         {
+            if (ConfigurationHelper.GetSectionValue("env") != "dev")
+                return;
             Log.Debug($"{{position}}:{msg}", log2Name);
         }
         /// <summary>
@@ -128,6 +134,7 @@ namespace Magic.Guangdong.Assistant
             //Task.Run(() => writeLogToRedis(msg, "error"));
         }
 
+
         /// <summary>
         /// 日志写入到redis队列
         /// </summary>
@@ -139,7 +146,7 @@ namespace Magic.Guangdong.Assistant
             string ret = $"{system} {logLevel} {msg}";
             //Console.WriteLine(msg);
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"log:{msg}....{DateTime.Now}");
+           // Console.WriteLine($"log:{msg}....{DateTime.Now}");
             Console.ResetColor();
             await RedisHelper.LPushAsync(ConfigurationHelper.GetSectionValue("redislogkey"), ret);
         }

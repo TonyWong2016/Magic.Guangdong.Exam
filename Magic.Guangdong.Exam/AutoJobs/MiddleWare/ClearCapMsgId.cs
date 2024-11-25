@@ -14,11 +14,11 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 
         public async Task Invoke()
         {
-            Assistant.Logger.Debug("检查cap缓存" + DateTime.Now);
-            //作废clientsigns
+            Assistant.Logger.Warning("检查cap缓存");
             await _redisCachingProvider.KeyDelAsync("capExamOaMsgs");
             await _redisCachingProvider.KeyDelAsync("capExamClientMsgs");
             await _redisCachingProvider.KeyDelAsync("capExamTeacherMsgs");
+            Assistant.Logger.Warning("cap缓存检查完成");
         }
     }
 }

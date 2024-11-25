@@ -183,24 +183,12 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         /// <summary>
         /// 按条件删除条目（异步）
-        /// dywhere 支持
-        /// 主键值
-        /// new[] { 主键值1, 主键值2 }
-        /// 对象
-        /// new[] { 对象1, 对象2 }
-        /// new { id = 1 }
-        /// var t1 = fsql.Delete<Topic>(new[] { 1, 2 }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1 OR `Id` = 2)
-        /// var t2 = fsql.Delete<Topic>(new Topic { Id = 1, Title = "test" }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1)
-        /// var t3 = fsql.Delete<Topic>(new[] { new Topic { Id = 1, Title = "test" }, new Topic { Id = 2, Title = "test" } }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1 OR `Id` = 2)
-        /// var t4 = fsql.Delete<Topic>(new { id = 1 }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1)
         /// </summary>
-        /// <param name="dywhere"></param>
+        /// <param name="predicate"></param>
         /// <returns></returns>
-        Task<int> delItemAsync(object dywhere);
+        Task<int> delItemAsync(Expression<Func<T, bool>> predicate);
+
+        Task<int> delItemsDict(Dictionary<string, object> dywhere,string table);
 
         /// <summary>
         /// 更新单条条目

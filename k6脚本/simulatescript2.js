@@ -14,8 +14,8 @@ export const options = {
 }
 
 export default function () {
-    const url = 'http://192.168.5.20:5001/simulate/VerifyInfo';
-    //const url = 'https://oaexam.xiaoxiaotong.org/home/gettemporarytoken';
+    //const url = 'http://192.168.0.46:5001/simulate/VerifyInfo';
+    const url = 'https://exam.xiaoxiaotong.org/simulate/VerifyInfo';
     let params = {
         headers: {
             'Content-Type': 'application/json'

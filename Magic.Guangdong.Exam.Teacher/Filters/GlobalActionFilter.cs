@@ -149,7 +149,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
                 brower = "Safari";
             string logMode = ConfigurationHelper.GetSectionValue("LogMode");
             if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamTeacher"));
             else
             {
                 string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
@@ -206,7 +206,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
             string brower = "Response";
             string logMode = ConfigurationHelper.GetSectionValue("LogMode");
             if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamClient"));
             else
             {
                 string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";

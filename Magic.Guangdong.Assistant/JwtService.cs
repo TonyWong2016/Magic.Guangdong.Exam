@@ -248,7 +248,7 @@ namespace Magic.Guangdong.Assistant
                 ClaimsPrincipal principal = tokenHandler.ValidateToken(jwt, validationParameters, out SecurityToken secToken);
                 foreach (var claim in principal.Claims)
                 {
-                    Console.WriteLine($"{claim.Type}={claim.Value}");
+                    //Console.WriteLine($"{claim.Type}={claim.Value}");
                     if (claim.Type.EndsWith("name"))
                     {
                         accountClaim.Name = claim.Value;

@@ -14,9 +14,10 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 
         public async Task Invoke()
         {
-            Assistant.Logger.Debug("检查过期缓存" + DateTime.Now);
+            Assistant.Logger.Warning("检查过期缓存");
             //作废clientsigns
             await _redisCachingProvider.KeyDelAsync("clientsigns");
+            Assistant.Logger.Warning("过期缓存检查完成");
         }
     }
 }

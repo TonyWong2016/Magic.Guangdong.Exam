@@ -588,6 +588,9 @@ namespace Magic.Guangdong.DbServices.Methods
                         Urid = record.Id,
                         ComplatedMode = dto.complatedMode,
                         SubmitAnswer = dto.submitAnswerStr,//记录表里就如实记录提交的内容
+                        CapInstance = dto.instance,
+                        CapMsgId = dto.msgId,
+                        CapSenttime = dto.senttime
                     });
 
 

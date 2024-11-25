@@ -233,9 +233,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             //Logger.Warning(System.Text.Json.JsonSerializer.Serialize(header));
             await Task.Run(() =>
             {
+                dto.msgId = header["cap-msg-id"] ?? "";
+                dto.instance = header["cap-exec-instance-id"] ?? "";
+                dto.senttime = header["cap-senttime"] ?? "";
                 _userAnswerRecordClientRepo.SubmitMyPaper(dto);
-            });
-            
+            });            
         }
 
         public async Task<IActionResult> GetMyAnswer(long urid)

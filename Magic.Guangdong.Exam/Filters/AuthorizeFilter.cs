@@ -124,7 +124,7 @@ namespace Magic.Guangdong.Exam.Filters
             
 
             //string header = context.HttpContext.Request.Headers["Authorization"];
-            Assistant.Logger.Info("area:" + area + " controller:" + controller + " action:" + action);
+            Assistant.Logger.Debug("area:" + area + " controller:" + controller + " action:" + action);
 
         }
     

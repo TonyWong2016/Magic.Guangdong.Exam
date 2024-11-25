@@ -23,6 +23,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		[JsonProperty]
 		public long Urid { get; set; }
 
-	}
+		[JsonProperty]
+		public string CapMsgId { get; set; } = "";
+
+        [JsonProperty]
+        public string CapInstance { get; set; } = "";
+
+        [JsonProperty]
+        public string CapSenttime { get; set; } = "";
+    }
 
 }

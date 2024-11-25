@@ -1,13 +1,8 @@
-﻿using Magic.Guangdong.Assistant;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using DotNetCore.CAP;
+using Magic.Guangdong.Assistant;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
-using Magic.Guangdong.DbServices.Interfaces;
-using DotNetCore.CAP;
-using Magic.Guangdong.Assistant.Contracts;
-using Magic.Guangdong.DbServices.Entities;
-using Azure.Core;
-using System;
 
 namespace Magic.Guangdong.Exam.Client.Filters
 {
@@ -39,7 +34,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
         {
             try
             {
-                Console.WriteLine("start:" + DateTime.Now.ToString());
+                Logger.Debug("start:" + DateTime.Now.ToString());
                 if (context.RouteData == null ||
                     context.RouteData.Values == null ||
                     context.HttpContext.Request.Path == null
@@ -101,10 +96,10 @@ namespace Magic.Guangdong.Exam.Client.Filters
                     //}) ;
                 }
                 RequestLog(context);
-                Console.WriteLine("end:" + DateTime.Now.ToString());
+                Logger.Debug("end");
             }
             catch (Exception ex) {
-                Console.WriteLine("响应日志记录异常" + DateTime.Now.ToString() + ex.Message);
+                Logger.Error("响应日志记录异常" + DateTime.Now.ToString() + ex.Message);
             }
         }
 
@@ -152,7 +147,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
                     brower = "Safari";
                 string logMode = ConfigurationHelper.GetSectionValue("LogMode");
                 if (logMode == "es")
-                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info","magicExamClient"));
                 else
                 {
                     string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
@@ -161,7 +156,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             }
             catch (Exception ex)
             {
-                Console.WriteLine("请求日志记录异常" + DateTime.Now.ToString() + ex.Message);
+                Logger.Error("请求日志记录异常" + DateTime.Now.ToString() + ex.Message);
             }
             
         }
@@ -212,7 +207,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             string brower = "Response";
             string logMode = ConfigurationHelper.GetSectionValue("LogMode");
             if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamClient"));
             else
             {
                 string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";

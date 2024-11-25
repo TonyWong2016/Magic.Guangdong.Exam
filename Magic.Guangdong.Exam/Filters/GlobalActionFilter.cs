@@ -41,7 +41,7 @@ namespace Magic.Guangdong.Exam.Filters
         public async void OnActionExecuting(ActionExecutingContext context)
         {
             RequestLog(context);
-            Console.WriteLine("start:"+DateTime.Now.ToString());
+            Logger.Debug("start:"+DateTime.Now.ToString());
             if (context.RouteData == null ||
                 context.RouteData.Values == null ||
                 !context.RouteData.Values.Where(u => u.Key == "controller").Any() ||
@@ -113,8 +113,7 @@ namespace Magic.Guangdong.Exam.Filters
                     CreatedAt = DateTime.Now
                 });
             }
-           
-            Console.WriteLine("end:" + DateTime.Now.ToString());
+            Logger.Debug("end");
         }
 
         private void RequestLog(ActionExecutingContext context)
@@ -171,11 +170,11 @@ namespace Magic.Guangdong.Exam.Filters
                     brower = "Safari";
                 string logMode = ConfigurationHelper.GetSectionValue("LogMode");
                 if (logMode == "es")
-                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info","magicExam"));
                 else
                 {
                     string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
-                    Logger.Verbose(msg);
+                    Logger.Debug(msg);
                 }
             }
             catch (Exception ex) {
@@ -241,7 +240,7 @@ namespace Magic.Guangdong.Exam.Filters
                 string brower = "Response";
                 string logMode = ConfigurationHelper.GetSectionValue("LogMode");
                 if (logMode == "es")
-                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info"));
+                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExam"));
                 else
                 {
                     string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {user} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";

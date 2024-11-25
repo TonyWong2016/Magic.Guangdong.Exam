@@ -5,6 +5,7 @@ using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
+using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,18 +67,31 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         {
             try
             {
-                //模拟header验证耗时
-                await Task.Delay(new Random().Next(10, 200));
-                string[] idNumbers = ["53081732180510DD7DGX", "43161732180511DD7D52", "81031732180511DD7DVK"];
-                Random rd = new Random();
-                var result = await _examinationClientRepo.InfoVerificationByNumber(new OnlyGetExamDto
+                var exams = await _examinationClientRepo.getListAsync(u => u.IsDeleted == 0);
+                string[] idNumbers = [
+                    "53081732180510DD7DGX",
+                    "43161732180511DD7D52",
+                    "81031732180511DD7DVK"
+                ];
+                if (exams.Count == 0)
                 {
-                    examId= Guid.Parse("0C140000-569B-0050-DD7D-08DD09FF5460"),
-                    reportNumber= idNumbers[rd.Next(0,2)],
+                    return Json(_resp.success(0, "没有可用的考试数据"));
+                }
+                var exam = new Examination();
+
+                if (exams.Count > 1)
+                    exam = exams[new Random().Next(0, exams.Count - 1)];
+                else
+                    exam = exams.FirstOrDefault();
+                int rd = new Random().Next(0, 2);
+                var result = await _examinationClientRepo.InfoVerificationByNumber(new OnlyGetExamDto()
+                {
+                    examId = exam.Id,
+                    reportNumber = idNumbers[rd],
                 });
 
                 //return Json(_resp.ret(result.verifyCode, result.verifyMsg, result));
-                return Json(_resp.success(result,result.verifyMsg));
+                return Json(_resp.success(result, result.verifyMsg));
             }
             catch (Exception ex)
             {
@@ -86,6 +100,27 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             }
         }
 
+        public async Task<IActionResult> InitSimulationData()
+        {
+            if(await _simulation1Repo.getAnyAsync(u => u.Id > 0))
+            {
+                await _simulation1Repo.delItemAsync(u => u.Id > 0);
+                await _simulation2Repo.delItemAsync(u => u.Id > 0);
+            }
+            List<Simulation1> list = new List<Simulation1>();
+            for (int i = 0; i < 101; i++)
+            {
+                list.Add(new Simulation1()
+                    {
+                        Id = YitIdHelper.NextId(),
+                        SubmitAnswer = "测试备用",
+                    }
+                );
+            }
+            await _simulation1Repo.addItemsAsync(list);
+            return Json(_resp.success(101));
+            
+        }
 
         /// <summary>
         /// 模拟保存草稿
@@ -95,29 +130,15 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveDraft(SimulateSaveDto dto)
         {
-            //模拟header验证耗时
-            await Task.Delay(new Random().Next(10, 200));
-            if (string.IsNullOrEmpty(dto.answer))
-            {
-                dto.answer = Utils.GenerateRandomCodeFast(3000);
-            }
-            if (dto.sid == 0)
-            {
-                dto.sid = YitIdHelper.NextId();
-                await _simulation1Repo.addItemAsync(new DbServices.Entities.Simulation1()
-                {
-                    Id = dto.sid,
-                    SubmitAnswer = dto.answer,
-                });
-            }
-            else
-            {
-                Logger.Warning($"{DateTime.Now}:发布事务---模拟提交答案");
+            
+            int rd = new Random().Next(0, 100);
 
-                await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SimulateSaveDraft", dto);
+            var randomOne = (await _simulation1Repo.getListAsync(u => u.Id > 0))[rd];
+            dto.sid=randomOne.Id;
+            dto.answer = Utils.GenerateRandomCodeFast(new Random().Next(2, 10000));
+            await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SimulateSaveDraft", dto);
 
-            }
-
+            Logger.Warning($"{DateTime.Now}:发布事务---模拟提交答案");
             return Json(_resp.success(dto.sid));
         }
 
@@ -135,13 +156,17 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     {
                         Sid = dto.sid,
                         SubmitAnswer = dto.answer,
+                        CapMsgId = header["cap-msg-id"]??"",
+                        CapInstance = header["cap-exec-instance-id"]??"",
+                        CapSenttime = header["cap-senttime"] ?? ""
                     });
 
                 }
                 await _simulation1Repo.insertOrUpdateAsync(new DbServices.Entities.Simulation1()
                 {
-                    Id=dto.sid,
+                    Id = dto.sid,
                     SubmitAnswer = dto.answer,
+                    UpdatedAt = DateTime.Now
                 });
             });
         }

@@ -33,7 +33,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
             if (routeValues.ContainsKey("controller") && routeValues.ContainsKey("area"))
                 page = (routeValues["area"].ToString()+"/" +routeValues["controller"].ToString()+"/" + routeValues["action"].ToString()).ToLower();
 
-            Assistant.Logger.Info("访问：" + page);
+            Assistant.Logger.Debug("访问：" + page);
             page = page.ToLower();
             //var descriptor = context.ActionDescriptor;
             if (page.Contains("error") || page.Contains("open") || page.Contains("simulate"))
@@ -51,7 +51,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 page.Equals("/account/logout") ||
                 page.Equals("account/logout"))
             {
-                Assistant.Logger.Debug("免登录");
+                Assistant.Logger.Warning("免登录地址：" + page);
                 return;
             }
             if (!cookies.Where(u => u.Key == "accountId").Any() 

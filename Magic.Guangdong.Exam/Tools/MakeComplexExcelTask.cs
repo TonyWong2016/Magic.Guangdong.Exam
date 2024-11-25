@@ -30,14 +30,14 @@ namespace Magic.Guangdong.Exam.Tools
             if (await RedisHelper.HLenAsync("MakeComplexExcelTask") == 0)
             {
                 Console.WriteLine($"{DateTime.Now},无excel生成任务");
-                await Logger.writeLogToRedis("无excel生成任务", "info");
+                await Logger.writeLogToRedis("无excel生成任务", "info", "magicExam");
                 return;
             }
             var rets = RedisHelper.HGetAll("MakeComplexExcelTask");
             string msg = $"{DateTime.Now},excel生成任务启动,共计{rets.Count}个excel文件待生成";
             Console.WriteLine(msg);
             Logger.Warning(msg);
-            await Logger.writeLogToRedis(msg, "info");
+            await Logger.writeLogToRedis(msg, "info","magicExam");
             //todo...
            
         }

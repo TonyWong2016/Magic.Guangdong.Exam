@@ -21,6 +21,8 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(StringLength = -2)]
         public string SubmitAnswer { get; set; } = "";
 
+        [JsonProperty, Column(InsertValueSql = "getdate()")]
+        public DateTime UpdatedAt { get; set; }=DateTime.Now;
     }
 
 }

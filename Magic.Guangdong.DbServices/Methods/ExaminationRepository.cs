@@ -261,29 +261,21 @@ namespace Magic.Guangdong.DbServices.Methods
         }
 
         /// <summary>
-        /// 按条件删除条目（异步）
-        /// dywhere 支持
-        /// 主键值
-        /// new[] { 主键值1, 主键值2 }
-        /// 对象
-        /// new[] { 对象1, 对象2 }
-        /// new { id = 1 }
-        /// var t1 = fsql.Get(conn_str).Delete<Topic>(new[] { 1, 2 }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1 OR `Id` = 2)
-        /// var t2 = fsql.Get(conn_str).Delete<Topic>(new Topic { Id = 1, Title = "test" }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1)
-        /// var t3 = fsql.Get(conn_str).Delete<Topic>(new[] { new Topic { Id = 1, Title = "test" }, new Topic { Id = 2, Title = "test" } }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1 OR `Id` = 2)
-        /// var t4 = fsql.Get(conn_str).Delete<Topic>(new { id = 1 }).ToSql();
-        /// 等价于 DELETE FROM `Topic` WHERE (`Id` = 1)
+        /// 按条件删除条目
         /// </summary>
-        /// <param name="dywhere"></param>
+        /// <param name="predicate"></param>
         /// <returns></returns>
-        public async Task<int> delItemAsync(object dywhere)
+        public async Task<int> delItemAsync(Expression<Func<T, bool>> predicate)
         {
-            return await fsql.Get(conn_str).Delete<T>(dywhere).ExecuteAffrowsAsync();
+            //return await fsql.Get(conn_str).Delete<T>(dywhere).ExecuteAffrowsAsync();
+            return await fsql.Get(conn_str).Select<T>().Where(predicate).ToDelete().ExecuteAffrowsAsync();
         }
 
+        public async Task<int> delItemsDict(Dictionary<string, object> dywhere,string table)
+        {
+
+            return await fsql.Get(conn_str).DeleteDict(dywhere).AsTable(table).ExecuteAffrowsAsync();
+        }
         /// <summary>
         /// 更新单条条目
         /// </summary>
