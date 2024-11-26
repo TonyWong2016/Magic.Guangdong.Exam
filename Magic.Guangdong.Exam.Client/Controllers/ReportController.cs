@@ -129,8 +129,14 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.ClientPrefix+ "SyncExamReportInfoToPractice")]
-        public async Task SyncExamReportInfoToPractice(ReportOrderList list)
+        public async Task SyncExamReportInfoToPractice(ReportOrderList list, [FromCap] CapHeader header)
         {
+            string msgId = header["cap-msg-id"] ?? "";
+            if (!string.IsNullOrEmpty(msgId) && await _redisProvider.HExistsAsync(CapConsts.MsgIdCacheClientName, msgId))
+            {
+                Assistant.Logger.Verbose("已消费");
+                return;
+            }
             //5分钟内只能操作一次
             if (list.total==0 || await _redisProvider.KeyExistsAsync("SyncExamReportInfoToPractice_" + list.items[0].AccountId))
             {

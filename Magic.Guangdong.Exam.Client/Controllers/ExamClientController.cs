@@ -229,7 +229,13 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [CapSubscribe(CapConsts.ClientPrefix + "SubmitMyAnswer")]
         public async Task SubmitMyAnswer(SubmitMyAnswerDto dto, [FromCap] CapHeader header)
         {
-            Logger.Warning($"{DateTime.Now}:消费事务---保存答案");
+            Logger.Warning($"消费事务---保存答案");
+            string msgId = header["cap-msg-id"]??"";
+            if (!string.IsNullOrEmpty(msgId) && await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheClientName, msgId))
+            {
+                Logger.Verbose("已消费");
+                return;
+            }
             //Logger.Warning(System.Text.Json.JsonSerializer.Serialize(header));
             await Task.Run(() =>
             {

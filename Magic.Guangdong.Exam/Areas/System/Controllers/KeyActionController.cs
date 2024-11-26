@@ -1,4 +1,5 @@
 ﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
@@ -12,11 +13,14 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
     public class KeyActionController : Controller
     {
         private readonly IKeyActionRepo _keyActionRepo;
+        private readonly IRedisCachingProvider _redisCachingProvider;
+
         private readonly IResponseHelper _resp;
-        public KeyActionController(IKeyActionRepo keyActionRepo,IResponseHelper responseHelper)
+        public KeyActionController(IKeyActionRepo keyActionRepo,IResponseHelper responseHelper,IRedisCachingProvider redisCachingProvider)
         {
             _keyActionRepo = keyActionRepo;
             _resp = responseHelper;
+            _redisCachingProvider = redisCachingProvider;
         }
         public IActionResult Index()
         {
@@ -25,10 +29,16 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.PREFIX + "AddKeyAction")]
-        public async Task AddKeyAction(KeyAction keyAction)
+        public async Task AddKeyAction(KeyAction keyAction, [FromCap] CapHeader header)
         {
             try
             {
+                string msgId = header["cap-msg-id"] ?? "";
+                if(await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheOaName, msgId))
+                {
+                    Assistant.Logger.Warning("动作被记录");
+                    return;
+                }
                 if (await _keyActionRepo.getAnyAsync(u => u.Id == keyAction.Id))
                     return;
                 await _keyActionRepo.addItemAsync(keyAction);

@@ -136,7 +136,24 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             var randomOne = (await _simulation1Repo.getListAsync(u => u.Id > 0))[rd];
             dto.sid=randomOne.Id;
             dto.answer = Utils.GenerateRandomCodeFast(new Random().Next(2, 8000));
+
             await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SimulateSaveDraft", dto);
+
+            Logger.Warning($"{DateTime.Now}:发布事务---模拟提交答案");
+            return Json(_resp.success(dto.sid));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveDraft2(SimulateSaveDto dto)
+        {
+
+            int rd = new Random().Next(0, 100);
+
+            var randomOne = (await _simulation1Repo.getListAsync(u => u.Id > 0))[rd];
+            dto.sid = randomOne.Id;
+            dto.answer = Utils.GenerateRandomCodeFast(new Random().Next(2, 2700));
+
+            await _capPublisher.PublishDelayAsync(TimeSpan.FromSeconds(1), CapConsts.ClientPrefix + "SimulateSaveDraft", dto);
 
             Logger.Warning($"{DateTime.Now}:发布事务---模拟提交答案");
             return Json(_resp.success(dto.sid));
@@ -147,6 +164,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         public async Task SimulateSaveDraft(SimulateSaveDto dto, [FromCap] CapHeader header)
         {
             Logger.Warning($"{DateTime.Now}:消费事务---模拟保存答案");
+            if(await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheClientName, header["cap-msg-id"]))
+            {
+                Logger.Warning("已消费");
+                return;
+            }
             //Logger.Warning(System.Text.Json.JsonSerializer.Serialize(header));
             await Task.Run(async () =>
             {

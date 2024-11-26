@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP.Filter;
 using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 
 namespace Magic.Guangdong.Exam.Teacher.Filters
 {
@@ -16,12 +17,11 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
         {
             // 订阅方法执行前
             string msgKey = context.DeliverMessage.Headers["cap-msg-id"];
-            if (await _redis.HExistsAsync("capExamTeacherMsgs", msgKey))
+            if (await _redis.HExistsAsync(CapConsts.MsgIdCacheTeacherName, msgKey))
             {
                 Assistant.Logger.Error("消息重复:" + JsonHelper.JsonSerialize(context.DeliverMessage));
                 return;
             }
-            await _redis.HSetAsync("capExamTeacherMsgs", msgKey, "processed");
             Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.MediumMessage));
             Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));
             await base.OnSubscribeExecutingAsync(context);
@@ -29,6 +29,10 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
 
         public override async Task OnSubscribeExecutedAsync(ExecutedContext context)
         {
+            string msgKey = context.DeliverMessage.Headers["cap-msg-id"] ?? "";
+
+            if (string.IsNullOrEmpty(msgKey))
+                await _redis.HSetAsync(CapConsts.MsgIdCacheOaName, msgKey, "processed");
             // 订阅方法执行后
             Logger.Debug("消费完成");
             Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage));

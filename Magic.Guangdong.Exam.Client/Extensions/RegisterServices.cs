@@ -342,8 +342,9 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 string transType = configuration.GetSection("TransType").Value;
                 if (transType == "kafka")
                 {
-                    x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
-
+                    //x.UsePostgreSql(configuration.GetSection("Kafka")["QueneStorageConn"]);
+                    
+                    x.UseSqlServer(x => x.ConnectionString = configuration.GetSection("Kafka")["QueneStorageMssqlConn"]);
                     //x.UseKafka(configuration.GetSection("Kafka")["Brokers"]);
                     x.UseKafka(kafkaOptions =>
                     {
@@ -381,12 +382,12 @@ namespace Magic.Guangdong.Exam.Client.Extensions
                 //x.UseDashboard();
 
                 x.Version = configuration.GetSection("QueneVersion").Value;
-                x.ConsumerThreadCount = 2;
+                x.ConsumerThreadCount = 1;
 
                 x.DefaultGroupName = configuration.GetSection("DefaultGroupName").Value;
 
-                //x.EnablePublishParallelSend = true;
-                //x.EnableSubscriberParallelExecute = true;
+                x.EnablePublishParallelSend = true;
+                x.EnableSubscriberParallelExecute = true;
 
                 x.UseDashboard(d =>
                 {

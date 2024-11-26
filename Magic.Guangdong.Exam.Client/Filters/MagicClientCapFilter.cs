@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP.Filter;
 using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using StackExchange.Redis;
 
 namespace Magic.Guangdong.Exam.Client.Filters
@@ -18,20 +19,22 @@ namespace Magic.Guangdong.Exam.Client.Filters
         {
             // 订阅方法执行前
             string msgKey = context.DeliverMessage.Headers["cap-msg-id"];
-            if (await _redis.HExistsAsync("capExamClientMsgs", msgKey))
+            if (await _redis.HExistsAsync(CapConsts.MsgIdCacheClientName, msgKey))
             {
                 Assistant.Logger.Warning("防止重发："+JsonHelper.JsonSerialize(context.MediumMessage));
 
-                //throw new Exception("消息重复");
-                return;
+                throw new Exception("消息重复");
+                //return;
             }
-            await _redis.HSetAsync("capExamClientMsgs", msgKey, "processed");
+            
             Assistant.Logger.Debug(JsonHelper.JsonSerialize(context.DeliverMessage.Headers));
             await base.OnSubscribeExecutingAsync(context);
         }
 
         public override async Task OnSubscribeExecutedAsync(ExecutedContext context)
         {
+            string msgKey = context.DeliverMessage.Headers["cap-msg-id"];
+            await _redis.HSetAsync(CapConsts.MsgIdCacheClientName, msgKey, "processed");
             //Console.WriteLine(msg);
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(JsonHelper.JsonSerialize(context.DeliverMessage.Headers));

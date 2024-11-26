@@ -13,6 +13,12 @@ namespace Magic.Guangdong.Assistant.Contracts
         public const string ClientPrefix = "exam.service.client.";
 
         public const string TeacherPrefix = "exam.service.teacher.";
+
+        public const string MsgIdCacheOaName = "capExamOaMsgs";
+
+        public const string MsgIdCacheClientName = "capExamClientMsgs";
+
+        public const string MsgIdCacheTeacherName = "capExamTeacherMsgs";
         //public static string PREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
         public static string GetCapMsgName(string name)
         {

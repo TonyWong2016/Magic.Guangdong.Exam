@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宁夏青少年科技教育和科普活动云服务平台</title>
+	 <link rel="stylesheet" href="./lib/pico2/css/pico.min.css">
+    <link rel="stylesheet" href="./lib/pico2/css/pico.blue.min.css">
+	<style>
+		/* 页头和页脚固定 */
+		header, footer {
+			position: fixed;
+			width: 100%;
+			text-align: center;
+			padding: 10px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		header {
+			top: 0;
+			background-color: #fff;
+		}
+
+		footer {
+			bottom: 0;
+			background-color: #f8f8f8;
+		}
+
+		/* 主内容区 */
+		main-container {
+			margin-top: 70px;
+			margin-bottom: 70px;
+			padding: 20px;
+			min-height: calc(100vh - 140px); /* 确保内容区高度足够 */
+		}
+
+		/* 抽签过程中滚动的名字 */
+		#rolling-names {
+			height: 100px;
+			overflow: hidden;
+			position: relative;
+			margin-top: 20px;
+			border: 1px solid #ccc;
+			padding: 5px;
+			background-color: #f9f9f9;
+		}
+
+		#rolling-names ul {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+			position: absolute;
+			top: 0;
+			animation: roll 2s linear infinite;
+		}
+
+		@keyframes roll {
+			from { transform: translateY(0); }
+			to { transform: translateY(-100%); }
+		}
+
+		/* 显示结果的动画 */
+		.result-item {
+			opacity: 0;
+			transition: opacity 0.5s ease-in-out;
+			margin: 5px 0;
+			font-size:xxx-large;
+		}
+
+		.result-item.show {
+			opacity: 1;
+			font-size:x-large;
+		}
+
+		/* 不同颜色的字 */
+		.final-member {
+			color: #007BFF; /* 蓝色 */
+			font-size:large;
+		}
+
+		.non-final-member {
+			color: #007BFF; /* 黑色 */
+			
+		}
+	</style>
+</head>
+<body>
+    <header style="text-align:center">
+		<h1 class="display-1">宁夏青少年科技教育和科普活动云服务平台</h1>
+    </header>
+
+    <main class="container" style="margin-top:120px">
+			
+		<form>
+			<div>
+				<label for="group-select">选择组别:</label>
+				<select id="group-select" name="group">
+					<!-- 组别选项将通过JavaScript动态生成 -->
+				</select>
+			</div>
+			<button type="button" id="draw-button" onclick="draw()">抽签</button>
+			<button disabled id="draw-button-disabled" aria-busy="true" style="display:none">抽签中</button>
+		</form>
+		<section id="rolling-names">
+			<ul id="names-list"></ul>
+		</section>
+		<section id="result">
+			<h2>抽签结果</h2>
+			<ul id="drawn-list"></ul>
+		</section>
+		 <p id="error-message" style="color:red;"></p>
+	</main>
+
+    <footer style="text-align:center;display:none">
+		<p>&copy; 2024 宁夏青少年科技教育和科普活动云服务平台. All rights reserved.</p>
+    </footer>
+
+    <script>
+		const API_URL = `${window.location.protocol}//${window.location.host}/draw.json`;
+		document.addEventListener("DOMContentLoaded", function() {
+			fetchGroups();
+		});
+
+		let groups = {};
+		let isFirstDraw = {};
+
+		async function fetchGroups() {
+			try {
+				const response = await fetch(API_URL); // 替换为你的API端点
+				const data = await response.json();
+				if (!response.ok) throw new Error(data.message || 'Failed to fetch data');
+				
+				groups = data.groups.reduce((acc, group) => {
+					acc[group.id] = group;
+					isFirstDraw[group.id] = true; // 初始化每个组别的 isFirstDraw 标志
+					return acc;
+				}, {});
+
+				populateSelect();
+			} catch (error) {
+				console.error(error);
+				document.getElementById('error-message').textContent = '加载数据失败，请稍后再试。';
+			}
+		}
+
+		function populateSelect() {
+			const select = document.getElementById('group-select');
+			select.innerHTML = ''; // 清空之前的选项
+			Object.values(groups).forEach(group => {
+				let option = document.createElement('option');
+				option.value = group.id;
+				option.textContent = group.name;
+				select.appendChild(option);
+			});
+
+			// 添加选择框的 change 事件监听器
+			select.addEventListener('change', () => {
+				const selectedGroupId = select.value;
+				isFirstDraw[selectedGroupId] = true; // 重置当前组别的 isFirstDraw 标志
+			});
+		}
+
+		function startRolling(group) {
+			const namesList = document.getElementById('names-list');
+			namesList.innerHTML = ''; // 清空之前的内容
+
+			// 生成滚动列表
+			for (let i = 0; i < 5; i++) { // 重复5次以确保有足够的滚动空间
+				group.members.forEach(member => {
+					let listItem = document.createElement('li');
+					listItem.textContent = member;
+					namesList.appendChild(listItem);
+				});
+			}
+
+			// 开始滚动动画
+			namesList.style.animationPlayState = 'running';
+		}
+
+		function stopRolling() {
+			const namesList = document.getElementById('names-list');
+			namesList.style.animationPlayState = 'paused'; // 暂停滚动动画
+		}
+
+		function displayResultsWithAnimation(members, finalMembers) {
+			const resultContainer = document.getElementById('drawn-list');
+			resultContainer.innerHTML = ''; // 清空之前的结果
+
+			members.forEach((member, index) => {
+				let listItem = document.createElement('li');
+				listItem.className = 'result-item';
+				listItem.textContent = member;
+				if (finalMembers.includes(member)) {
+					listItem.classList.add('final-member');
+				} else {
+					listItem.classList.add('non-final-member');
+				}
+				resultContainer.appendChild(listItem);
+
+				setTimeout(() => {
+					listItem.classList.add('show'); // 逐个显示结果
+				}, 500 * index); // 每隔0.5秒显示一个
+			});
+		}
+
+		function draw() {
+			const select = document.getElementById('group-select');
+			const selectedGroupId = select.value;
+			const selectedGroup = groups[selectedGroupId];
+			if (!selectedGroup) return;
+
+			const drawButton = document.getElementById('draw-button');
+			const drawButtonDisabled = document.getElementById('draw-button-disabled');
+			
+			drawButton.style.display='none';
+			drawButtonDisabled.style.display='block';
+			startRolling(selectedGroup); // 开始滚动动画
+
+			setTimeout(() => { // 模拟抽签过程，延时后停止滚动并显示结果
+				stopRolling();
+
+				let drawnMembers = [];
+				if (isFirstDraw[selectedGroupId]) {
+					drawnMembers = selectedGroup.final.slice(); // 先复制final成员
+					isFirstDraw[selectedGroupId] = false;
+				}
+
+				let remainingMembers = selectedGroup.members.filter(member => !drawnMembers.includes(member)); // 剩余成员
+
+				while (drawnMembers.length < selectedGroup.cnt && remainingMembers.length > 0) {
+					let randomIndex = Math.floor(Math.random() * remainingMembers.length);
+					drawnMembers.push(remainingMembers.splice(randomIndex, 1)[0]);
+				}
+
+				displayResultsWithAnimation(drawnMembers, selectedGroup.final); // 以动画形式显示结果
+				
+				// 恢复按钮状态
+				drawButton.style.display='block';
+				drawButtonDisabled.style.display='none';
+			}, 3000); // 抽签过程持续3秒
+		}
+	</script>
+</body>
+</html>

@@ -255,14 +255,22 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                                (dto.ExamId == Guid.Empty ? Utils.GenerateRandomCodePro(6) : dto.ExamId.ToString().Substring(19, 4).ToUpper() + Utils.GenerateRandomCodePro(2));
                 var reportModel = dto.Adapt<ReportInfoDto>();
 
-                if (!string.IsNullOrEmpty(dto.Tag) && !await _tagsRepo.getAnyAsync(u=>u.Title==dto.Tag))
-                {
-                    var newTag = new Tags()
+                if (!string.IsNullOrEmpty(dto.Tag))
+                {                    
+                    if (await _tagsRepo.getAnyAsync(u => u.Title == dto.Tag))
                     {
-                        Title = dto.Tag,                        
-                    };
-                    await _tagsRepo.addItemAsync(newTag);
-                    reportModel.TagId = newTag.Id;
+                        var existTag = await _tagsRepo.getOneAsync(u => u.Title == dto.Tag);
+                        reportModel.TagId = existTag.Id;
+                    }
+                    else
+                    {
+                        var newTag = new Tags()
+                        {
+                            Title = dto.Tag,
+                        };
+                        await _tagsRepo.addItemAsync(newTag);
+                        reportModel.TagId = newTag.Id;
+                    }
                 }
                 if(dto.TagId > 0 && await _tagsRepo.getAnyAsync(u => u.Id == dto.TagId))
                 {

@@ -1,4 +1,5 @@
 ﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.Alipay.Request;
@@ -16,12 +17,15 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IResponseHelper _resp;
         private readonly IOrderRepo _orderRepo;
         private readonly IAlipayClient _alipayClient;
+        private readonly IRedisCachingProvider _redisCachingProvider;
+
         private readonly IOptions<AlipayOptions> _optionsAliAccessor;
-        public MyOrderController(IResponseHelper resp, IOrderRepo orderRepo, IAlipayClient alipayClient, IOptions<AlipayOptions> optionsAliAccessor)
+        public MyOrderController(IResponseHelper resp, IOrderRepo orderRepo, IAlipayClient alipayClient,IRedisCachingProvider redisCachingProvider, IOptions<AlipayOptions> optionsAliAccessor)
         {
             _resp = resp;
             _orderRepo = orderRepo;
             _alipayClient = alipayClient;
+            _redisCachingProvider = redisCachingProvider;
             _optionsAliAccessor = optionsAliAccessor;
         }
 
@@ -74,8 +78,14 @@ namespace Magic.Guangdong.Exam.Client.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.ClientPrefix + "ConfirmAndSyncOrderInfo")]
-        public async Task ConfirmAndSyncOrderInfo(string orderNo)
+        public async Task ConfirmAndSyncOrderInfo(string orderNo, [FromCap] CapHeader header)
         {
+            string msgId = header["cap-msg-id"] ?? "";
+            if (!string.IsNullOrEmpty(msgId) && await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheClientName, msgId))
+            {
+                Assistant.Logger.Verbose("已消费");
+                return;
+            }
             Console.WriteLine($"{DateTime.Now}:消费事务---订单支付成功，开始同步订单信息{orderNo}");
             await Task.CompletedTask;
         }

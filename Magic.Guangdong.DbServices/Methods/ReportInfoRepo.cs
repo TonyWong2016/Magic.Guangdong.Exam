@@ -1,5 +1,4 @@
-﻿using BaiduBce.Services.Bos.Model;
-using FreeSql.Internal.Model;
+﻿using FreeSql.Internal.Model;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.DbServices.Dtos;
@@ -8,7 +7,6 @@ using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
 using Mapster;
 using Newtonsoft.Json;
-using System.ComponentModel;
 
 namespace Magic.Guangdong.DbServices.Methods
 {

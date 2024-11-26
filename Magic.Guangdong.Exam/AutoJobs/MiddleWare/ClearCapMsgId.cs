@@ -1,5 +1,6 @@
 ﻿using Coravel.Invocable;
 using EasyCaching.Core;
+using Magic.Guangdong.Assistant.Contracts;
 
 namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 {
@@ -15,9 +16,9 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
         public async Task Invoke()
         {
             Assistant.Logger.Warning("检查cap缓存");
-            await _redisCachingProvider.KeyDelAsync("capExamOaMsgs");
-            await _redisCachingProvider.KeyDelAsync("capExamClientMsgs");
-            await _redisCachingProvider.KeyDelAsync("capExamTeacherMsgs");
+            await _redisCachingProvider.KeyDelAsync(CapConsts.MsgIdCacheOaName);
+            await _redisCachingProvider.KeyDelAsync(CapConsts.MsgIdCacheClientName);
+            await _redisCachingProvider.KeyDelAsync(CapConsts.MsgIdCacheTeacherName);
             Assistant.Logger.Warning("cap缓存检查完成");
         }
     }

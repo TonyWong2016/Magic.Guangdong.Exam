@@ -104,8 +104,14 @@ namespace Magic.Guangdong.Exam.Client.Area.Order.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.ClientPrefix + "SyncOrderInfo")]
-        public async Task SyncOrderInfo(SyncOrderDto dto)
+        public async Task SyncOrderInfo(SyncOrderDto dto, [FromCap] CapHeader header)
         {
+            Assistant.Logger.Warning($"消费事务---同步订单");
+            if (await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheOaName, header["cap-msg-id"]))
+            {
+                Assistant.Logger.Verbose("已消费");
+                return;
+            }
             await _orderRepo.SyncOrderInfo(dto);
         }
     }

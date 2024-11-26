@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宁夏青少年科技教育和科普活动云服务平台</title>
+	 <link rel="stylesheet" href="./lib/pico2/css/pico.min.css">
+    <link rel="stylesheet" href="./lib/pico2/css/pico.blue.min.css">
+	 <style>
+         body {
+			display: flex;
+			flex-direction: column;
+			min-height: 100vh;
+			margin: 0;
+			font-family: Arial, sans-serif;
+		}
+
+		header, footer {
+			position: fixed;
+			width: 100%;
+			background-color: #f8f9fa;
+			padding: 1em;
+			color: #333;
+			text-align: center;
+		}
+
+		header {
+			top: 0;
+		}
+
+		footer {
+			bottom: 0;
+		}
+
+		.content {
+			flex: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 60px 0; /* 考虑到页头和页脚的高度 */
+		}
+
+		.container {
+			max-width: 800px;
+			text-align: center;
+		}
+
+		.controls {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 20px; /* 间距 */
+			margin-bottom: 20px; /* 与结果显示区域的距离 */
+		}
+
+		select {
+			padding: 15px 20px;
+			font-size: 30px;
+			height: 100px; /* 与按钮高度一致 */
+			box-sizing: border-box; /* 确保内边距不会影响高度 */
+		}
+
+		button {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 15px 40px;
+			cursor: pointer;
+			font-size: 30px;
+			display: inline-block; /* 确保按钮内的文字保持横向展示 */
+			white-space: nowrap; /* 防止文本换行 */
+			height: 100px; /* 与下拉框高度一致 */
+			box-sizing: border-box; /* 确保内边距不会影响高度 */
+			margin-top:-20px
+		}
+
+		button:disabled {
+			background-color: #ccc;
+			cursor: not-allowed;
+		}
+
+		.result-display {
+			font-size: 100px;
+			font-weight: bold;
+			color: #dc3545;
+			margin-bottom: 30px;
+		}
+
+
+         .final-name {
+             color: red;
+         }
+
+         .random-name {
+             color: blue;
+         }
+    </style>
+</head>
+<body>
+    <header>
+		<h1 class="display-1">宁夏青少年科技教育和科普活动云服务平台</h1>
+    </header>
+
+    <div class="content">
+        <div class="container">
+			
+			<div id="resultDisplay" class="result-display"></div>
+			
+			<div class="controls">
+				<select id="groupSelect">
+					
+				</select>
+				<button id="drawButton" class="btn btn-primary btn-block">抽签</button>
+			</div>
+            
+        </div>
+    </div>
+
+    <footer>
+		<p>&copy; 2024 宁夏青少年科技教育和科普活动云服务平台. All rights reserved.</p>
+    </footer>
+
+    <script>
+	
+		document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = `${window.location.protocol}//${window.location.host}/draw.json`;
+			const groupSelect = document.getElementById('groupSelect');
+
+			fetch(API_URL)
+				.then(response => response.json())
+				.then(data => {
+					const groups = data.groups;
+					 window.groupsData = groups; // 存储全局变量以便后续使用
+					groups.forEach(group => {
+						const option = document.createElement('option');
+						option.value = group.id;
+						option.textContent = group.name;
+						groupSelect.appendChild(option);
+					});
+
+					// 默认选择第一个组别
+					groupSelect.value = groups[0].id;
+					
+					 // 初始化 finalIndex 对象
+					window.finalIndex = {};
+					groups.forEach(group => {
+						window.finalIndex[group.id] = 0;
+					});
+				})
+				.catch(error => console.error('Error fetching groups:', error));
+		});
+			
+		let finalIndex = {}; // 存储每个组别的最终结果索引
+
+		document.getElementById('drawButton').addEventListener('click', function () {
+			document.getElementById('resultDisplay').innerHTML = '';
+			const drawButton = document.getElementById('drawButton');
+			const groupSelect = document.getElementById('groupSelect');
+			const selectedGroup = groupSelect.value;
+
+			const currentGroup = window.groupsData.find(group => group.id === selectedGroup);
+			const names = currentGroup.members;
+			const cnt = currentGroup.cnt;
+			const finalResults = currentGroup.final;
+			const resultDisplay = document.getElementById('resultDisplay');
+			let index = 0;
+
+			function showName() {
+				if (index >= names.length) {
+					index = 0;
+				}
+				resultDisplay.textContent = names[index];
+				index++;
+			}
+
+			// 禁用按钮
+			drawButton.disabled = true;
+
+			// 开始快速显示名字
+			let intervalId = setInterval(showName, 100);
+
+			// 模拟抽签结束，随机停止在某个名字上
+			setTimeout(() => {
+                clearInterval(intervalId);
+
+                const results = [];
+                for (let i = 0; i < cnt; i++) {
+                    if (window.finalIndex[selectedGroup] < finalResults.length) {
+                        results.push(finalResults[window.finalIndex[selectedGroup]]);
+                        window.finalIndex[selectedGroup]++;
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * names.length);
+                        results.push(names[randomIndex]);
+                    }
+                }
+
+                // 显示结果
+                resultDisplay.textContent = results.join(', ');
+
+                // 恢复按钮
+                drawButton.disabled = false;
+			}, 3000); // 抽签持续时间（毫秒）
+		});
+	</script>
+</body>
+</html>
