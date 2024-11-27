@@ -13,11 +13,13 @@
     }
 
     .contentDiv {
-        grid-area: 1 / 1 / 6 / 7;
+        /* grid-area: 1 / 1 / 6 / 7; */
+        grid-area: 1 / 1 / 6 / 6;
     }
 
     .sideDiv {
-        grid-area: 1 / 7 / 6 / 9;
+        /* grid-area: 1 / 7 / 6 / 9; */
+        grid-area: 1 / 6 / 7 / 9;
         margin-left: 20px;
         /* margin-top:-10px;        */
     }
@@ -35,6 +37,12 @@
         background-color: #f5f5f5; /* 添加背景色以覆盖可能存在的内容 */
         box-sizing: border-box; /* 包含 padding 在内计算宽度 */
         padding: 1rem; /* 可根据需要设置 footer 内边距 */
+    }
+    .warpItem {
+        margin-top:2%;
+        padding:2%;
+        /* width:18%; */
+        width:15%
     }
 
 </style>
@@ -62,11 +70,11 @@
         <article class="sideDiv">
             <header>
                 <button id="submitPaper"
-                        style="cursor:pointer;border-color:white;"
+                        style="cursor:pointer;border-color:var(--pico-color-red-500);box-shadow:4px 5px 10px rgba(0, 0, 0, 0.3)"
                         class="pico-background-red-500 container-fluid submitEnabled"
                         data-target="modal-submit"
                         onClick="togglePicoModal(event)">
-                    交卷
+                    交 卷
                 </button>
                 <button id="submitPaperDisabled"
                         class="pico-background-grey-300 container-fluid submitDisabled"
@@ -84,7 +92,9 @@
             <div style="margin-top:20px;height:580px;overflow-y:auto">
                 <h5>答题卡</h5>
                 @* <hr /> *@
-                <div id="answerWarp">
+                <input type="checkbox" id="autoSwitch" name="autoSwitch" />
+                自动切题（仅限单选）
+                <div id="answerWarp" style="padding:1px">
                 </div>
             </div>
 
@@ -155,9 +165,9 @@
 
     {{# } }}
     {{# if(answerArr && answerArr.filter(u=>u.questionId==item.Id).length>0){ }}
-        <a role="button" href="javascript:;"style="margin-top:2%;padding:2%;width:18%"  onclick="renderQuestion({{index}})">{{index + 1}} </a>
+        <a role="button" class="warpItem" href="javascript:;"  onclick="renderQuestion({{index}})">{{index + 1}} </a>
     {{# } else { }}
-        <a role="button" class="outline"style="margin-top:2%;padding:2%;width:18%" href="javascript:;"  onclick="renderQuestion({{index}})">{{index + 1}} </a>
+        <a role="button" class="outline warpItem"  href="javascript:;"  onclick="renderQuestion({{index}})">{{index + 1}} </a>
     {{# } }}
     {{# }) }}
 </script>
@@ -404,6 +414,13 @@
 
      }
 
+     //仅单选题和判断题生效，选题时有效，取消时不生效
+     function autoSwitch(){
+         if($('#autoSwitch')[0].checked){
+             $('#next').click();
+         }
+     }
+
      //选中，并构造数组（选择题会执行）
      function makeChoice(obj) {
          let userAnswer = [];
@@ -426,6 +443,9 @@
 
          sessionStorage.setItem("answerArr", JSON.stringify(answerArr));
          renderAnswerSheet();
+         if(obj.isSingle){
+             autoSwitch()
+         }
      }
 
      //取消选中，并构造数组（选择题执行）
