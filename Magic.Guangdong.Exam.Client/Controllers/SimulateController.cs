@@ -136,7 +136,11 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             var randomOne = (await _simulation1Repo.getListAsync(u => u.Id > 0))[rd];
             dto.sid=randomOne.Id;
             dto.answer = Utils.GenerateRandomCodeFast(new Random().Next(2, 8000));
-
+            if (dto.answer.Length > CapConsts.CapMsgMaxLength)
+            {
+                await _redisCachingProvider.StringSetAsync("tmpSimulate" + dto.sid, dto.answer, TimeSpan.FromMinutes(1));
+                dto.answer = "";
+            }
             await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SimulateSaveDraft", dto);
 
             Logger.Warning($"{DateTime.Now}:发布事务---模拟提交答案");

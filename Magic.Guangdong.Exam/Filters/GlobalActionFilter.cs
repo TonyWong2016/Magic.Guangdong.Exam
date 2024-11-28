@@ -133,19 +133,24 @@ namespace Magic.Guangdong.Exam.Filters
                 }
                 else if (headers.ContainsKey("x-Forwarded-For"))
                 {
-                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault() ?? "";
                 }
                 else if (headers.ContainsKey("X-Real-IP"))
                 {
-                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault() ?? "";
                 }
                 else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
                 {
-                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault() ?? "";
                 }
                 else
                 {
-                    ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                    if (context.HttpContext.Connection.RemoteIpAddress == null)
+                    {
+                        ip = "未知";
+                    }
+                    else
+                        ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
                 }
                 string user = Guid.Empty.ToString();
                 //if (context.HttpContext.User.Claims.Any())
@@ -154,12 +159,12 @@ namespace Magic.Guangdong.Exam.Filters
                 //}
                 if (context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any())
                 {
-                    user = Utils.FromBase64Str(context.HttpContext.Request.Cookies["userId"]);
+                    user = Utils.FromBase64Str(context.HttpContext.Request.Cookies["userId"]??"0");
                 }
                 string method = context.HttpContext.Request.Method;
-                string url = context.HttpContext.Request.Path.Value;
-                string param = Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments);
-                string remark = context.HttpContext.Request.Headers["User-Agent"];
+                string url = context.HttpContext.Request.Path.Value??"未获取";
+                string param = JsonConvert.SerializeObject(context.ActionArguments);
+                string remark = Convert.ToString(context.HttpContext.Request.Headers["User-Agent"])??"未获取";
 
                 string brower = "UnKnown";
                 if (remark.Contains("FireFox"))
@@ -199,19 +204,24 @@ namespace Magic.Guangdong.Exam.Filters
                 }
                 else if (headers.ContainsKey("x-Forwarded-For"))
                 {
-                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault()??"";
                 }
                 else if (headers.ContainsKey("X-Real-IP"))
                 {
-                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault()??"";
                 }
                 else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
                 {
-                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
+                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault()??"";
                 }
                 else
                 {
-                    ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                    if (context.HttpContext.Connection.RemoteIpAddress == null)
+                    {
+                        ip = "未知";
+                    }
+                    else
+                        ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
                 }
                 string user = "freeViewer";
                 //if (context.HttpContext.User.Claims.Any())
@@ -220,11 +230,11 @@ namespace Magic.Guangdong.Exam.Filters
                 //}
                 if (context.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any())
                 {
-                    user = context.HttpContext.Request.Cookies["userId"];
+                    user = context.HttpContext.Request.Cookies["userId"]??"0";
                 }
                 string method = context.HttpContext.Request.Method;
-                string url = context.HttpContext.Request.Path.Value;
-                string param = context.HttpContext.Request.QueryString.Value;
+                string url = context.HttpContext.Request.Path.Value??"未获取";
+                string param = context.HttpContext.Request.QueryString.Value??"未获取";
                 string remark = "";
                 if (context.Result != null)
                 {

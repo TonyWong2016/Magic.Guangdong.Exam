@@ -89,6 +89,17 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public string instance { get; set; } = "";
 
         public string senttime { get; set; } = "";
+
+        public int chunkIndex { get; set; } = 1;
+    }
+
+    public class SubmitMyAnswerChuckDto
+    {
+        public long recordId { get; set; }
+
+        public int chunkIndex { get; set; }
+
+        public string answerStr { get; set; }
     }
 
     /// <summary>

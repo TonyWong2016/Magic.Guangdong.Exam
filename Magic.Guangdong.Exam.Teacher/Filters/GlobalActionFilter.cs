@@ -37,7 +37,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
         /// <param name="context"></param>
         public async void OnActionExecuting(ActionExecutingContext context)
         {
-            Console.WriteLine("start:"+DateTime.Now.ToString());
+            Console.WriteLine("start:" + DateTime.Now.ToString());
             if (context.RouteData == null ||
                 context.RouteData.Values == null ||
                 !context.RouteData.Values.Where(u => u.Key == "controller").Any() ||
@@ -54,7 +54,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
                 teacherId = Utils.FromBase64Str(context.HttpContext.Request.Cookies["teacherId"]);
 
             }
-            
+
             string area = "";
             string controller = Convert.ToString(context.RouteData.Values["controller"]).ToLower();
             string action = Convert.ToString(context.RouteData.Values["action"]).ToLower();
@@ -62,7 +62,7 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
                 area = context.RouteData.Values["area"].ToString().ToLower();
             //执行方法前先执行这
             var actionLog = $"{DateTime.Now} 开始调用 【{area}/{controller}/{action}】 api；参数为：{Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments)}";
-            
+
             var descriptor = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
             if (descriptor == null)
             {
@@ -107,113 +107,132 @@ namespace Magic.Guangdong.Exam.Teacher.Filters
 
         private void RequestLog(ActionExecutingContext context)
         {
-            string ip = "";
-            var headers = context.HttpContext.Request.Headers;
-            if (!headers.Any())
+            try
             {
-                ip = "未知";
+                string ip = "";
+                var headers = context.HttpContext.Request.Headers;
+                if (!headers.Any())
+                {
+                    ip = "未知";
+                }
+                else if (headers.ContainsKey("x-Forwarded-For"))
+                {
+                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault() ?? "";
+                }
+                else if (headers.ContainsKey("X-Real-IP"))
+                {
+                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault() ?? "";
+                }
+                else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
+                {
+                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault() ?? "";
+                }
+                else
+                {
+                    ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                }
+                string Teacher = Guid.Empty.ToString();
+
+                if (context.HttpContext.Request.Cookies.Where(u => u.Key == "teacherId").Any())
+                {
+                    Teacher = Utils.FromBase64Str(context.HttpContext.Request.Cookies["teacherId"]) ?? "";
+                }
+                string method = context.HttpContext.Request.Method;
+                string url = context.HttpContext.Request.Path.Value;
+                string param = Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments);
+                string remark = context.HttpContext.Request.Headers["User-Agent"];
+
+                string brower = "UnKnown";
+                if (remark.Contains("FireFox"))
+                    brower = "FireFox";
+                else if (remark.Contains("Chrome"))
+                    brower = "Chrome";
+                else if (remark.Contains("Safari"))
+                    brower = "Safari";
+                string logMode = ConfigurationHelper.GetSectionValue("LogMode");
+                if (logMode == "es")
+                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamTeacher"));
+                else
+                {
+                    string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
+                    Logger.Verbose(msg);
+                }
             }
-            else if (headers.ContainsKey("x-Forwarded-For"))
+            catch (Exception ex)
             {
-                ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
-            }
-            else if (headers.ContainsKey("X-Real-IP"))
-            {
-                ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
-            }
-            else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
-            {
-                ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
-            }
-            else
-            {
-                ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
-            }
-            string Teacher = Guid.Empty.ToString();
-         
-            if(context.HttpContext.Request.Cookies.Where(u=>u.Key=="teacherId").Any())
-            {
-                Teacher = Utils.FromBase64Str(context.HttpContext.Request.Cookies["teacherId"]);
-            }
-            string method = context.HttpContext.Request.Method;
-            string url = context.HttpContext.Request.Path.Value;
-            string param = Newtonsoft.Json.JsonConvert.SerializeObject(context.ActionArguments);
-            string remark = context.HttpContext.Request.Headers["User-Agent"];
-            
-            string brower = "UnKnown";
-            if (remark.Contains("FireFox"))
-                brower = "FireFox";
-            else if (remark.Contains("Chrome"))
-                brower = "Chrome";
-            else if (remark.Contains("Safari"))
-                brower = "Safari";
-            string logMode = ConfigurationHelper.GetSectionValue("LogMode");
-            if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamTeacher"));
-            else
-            {
-                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
-                Logger.Verbose(msg);
+                Logger.Error("记录访问日志失败：" + ex.Message);
             }
         }
 
         private void ResponseLog(ActionExecutedContext context)
         {
-            
-            string ip = "";
-            var headers = context.HttpContext.Request.Headers;
-            if (!headers.Any())
+            try
             {
-                ip = "未知";
-            }
-            else if (headers.ContainsKey("x-Forwarded-For"))
-            {
-                ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault();
-            }
-            else if (headers.ContainsKey("X-Real-IP"))
-            {
-                ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
-            }
-            else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
-            {
-                ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault();
-            }
-            else
-            {
-                ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
-            }
-            string Teacher = "freeViewer";
-      
-            if (context.HttpContext.Request.Cookies.Where(u => u.Key == "teacherId").Any())
-            {
-                Teacher = context.HttpContext.Request.Cookies["teacherId"];
-            }
-            string method = context.HttpContext.Request.Method;
-            string url = context.HttpContext.Request.Path.Value;
-            string param = context.HttpContext.Request.QueryString.Value;
-            string remark = "";
-            if (context.Result != null)
-            {
-                if (context.Result is JsonResult && ((JsonResult)context.Result).Value != null)
-                    remark = JsonConvert.SerializeObject(((JsonResult)context.Result).Value).Replace("\"", "'");
-                else if (context.Result is ObjectResult && ((ObjectResult)context.Result).Value != null)
-                    remark = JsonConvert.SerializeObject(((ObjectResult)context.Result).Value);
-                if (remark.Length > 1000)
+                string ip = "";
+                var headers = context.HttpContext.Request.Headers;
+                if (!headers.Any())
                 {
-                    remark = remark.Substring(0, 1000);
+                    ip = "未知";
+                }
+                else if (headers.ContainsKey("x-Forwarded-For"))
+                {
+                    ip = context.HttpContext.Request.Headers["x-Forwarded-For"].FirstOrDefault() ?? "";
+                }
+                else if (headers.ContainsKey("X-Real-IP"))
+                {
+                    ip = context.HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault() ?? "";
+                }
+                else if (headers.ContainsKey("HTTP_X_FORWARDED_FOR"))
+                {
+                    ip = context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"].FirstOrDefault() ?? "";
+                }
+                else
+                {
+                    if (context.HttpContext.Connection.RemoteIpAddress == null)
+                    {
+                        ip = "未知";
+                    }
+                    else
+                        ip = context.HttpContext.Connection.RemoteIpAddress.ToString();
+
+                }
+                string Teacher = "freeViewer";
+
+                if (context.HttpContext.Request.Cookies.Where(u => u.Key == "teacherId").Any())
+                {
+                    Teacher = context.HttpContext.Request.Cookies["teacherId"] ?? "0";
+                }
+                string method = context.HttpContext.Request.Method;
+                string url = context.HttpContext.Request.Path.Value ?? "未获取";
+                string param = context.HttpContext.Request.QueryString.Value ?? "未获取";
+                string remark = "";
+                if (context.Result != null)
+                {
+                    if (context.Result is JsonResult && ((JsonResult)context.Result).Value != null)
+                        remark = JsonConvert.SerializeObject(((JsonResult)context.Result).Value).Replace("\"", "'");
+                    else if (context.Result is ObjectResult && ((ObjectResult)context.Result).Value != null)
+                        remark = JsonConvert.SerializeObject(((ObjectResult)context.Result).Value);
+                    if (remark.Length > 1000)
+                    {
+                        remark = remark.Substring(0, 1000);
+                    }
+                }
+                string brower = "Response";
+                string logMode = ConfigurationHelper.GetSectionValue("LogMode");
+                if (logMode == "es")
+                    Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamClient"));
+                else
+                {
+                    string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
+                    Logger.Verbose(msg);
                 }
             }
-            string brower = "Response";
-            string logMode = ConfigurationHelper.GetSectionValue("LogMode");
-            if (logMode == "es")
-                Task.Run(() => Logger.writeLogToRedis($"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"", "info", "magicExamClient"));
-            else
+            catch (Exception ex)
             {
-                string msg = $"{DateTime.Now.ToString("HH:mm:ss")} {Teacher} {method} {url} \"{param}\" {ip} {brower} \"{remark}\"";
-                Logger.Verbose(msg);
+                Logger.Error("记录响应日志失败：" + ex.Message);
             }
         }
-        
+
 
     }
 }

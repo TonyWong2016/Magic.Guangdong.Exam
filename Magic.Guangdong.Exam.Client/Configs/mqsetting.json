@@ -6,12 +6,12 @@
     "VirtualHost": "virtual_magicexam",
     "Port": 5672,
     "ExchangeName": "cap.text.magicexam.exchange",
-    "QueneStorageConn": "server=10.185.4.181;uid=sql_cysccnet;pwd=cyscc62180521;database=ChatRoom;Connection Lifetime=20;Min pool Size=5;Encrypt=True; TrustServerCertificate=True"
+    "QueneStorageConn": "server=10.185.4.181;uid=sql_cysccnet;pwd=cyscc62180521;database=CheckIn;Encrypt=True;MultipleActiveResultSets=True;TrustServerCertificate=True;Pooling=true;Min Pool Size=5;"
   },
   "Kafka": {
     "Brokers": "10.185.1.178:9092,10.185.1.179:9092,10.185.1.176:9092",
     "QueneStorageConn": "User ID=dev_user;Password=wt123456;Host=10.185.1.179;Port=5432;Database=magicExamQuene;",
-    "QueneStorageMssqlConn": "server=10.185.4.181;uid=sql_cysccnet;pwd=cyscc62180521;database=CheckIn;Connection Lifetime=20;Min pool Size=5;Encrypt=True; TrustServerCertificate=True",
+    "QueneStorageMssqlConn": "server=10.185.4.181;uid=sql_cysccnet;pwd=cyscc62180521;database=ChatRoom;Encrypt=True;MultipleActiveResultSets=True;TrustServerCertificate=True;Pooling=true;Min Pool Size=5;",
 
     //"Brokers": "82.157.73.166:50027,82.157.73.166:50028,82.157.73.166:50026",
     "Secuity": "close",

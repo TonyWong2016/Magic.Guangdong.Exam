@@ -207,18 +207,26 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                     return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPracticePaper(dto));
             }
-
-           
-
             Assistant.Logger.Warning($"{DateTime.Now}:发布事务--保存答案");
-            await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SubmitMyAnswer", dto);
-            if (!await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
+            if (dto.submitAnswerStr.Length > CapConsts.CapMsgMaxLength)
             {
-                var record = await _userAnswerRecordClientRepo.GetMyRecord(dto.recordId);
-                await _redisCachingProvider.StringSetAsync(dto.recordId.ToString(),
-                    JsonHelper.JsonSerialize(record),
-                    DateTime.Now.AddMinutes(1) - DateTime.Now);
+                Assistant.Logger.Warning($"{DateTime.Now}:发布事务--间接保存答案");
+                await _redisCachingProvider.StringSetAsync("longAnswer" + dto.recordId, dto.submitAnswerStr, TimeSpan.FromSeconds(60));
+                dto.submitAnswerStr = "";               
             }
+            await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SubmitMyAnswer", dto);
+
+            await Task.Run(async () =>
+            {
+                if (!await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
+                {
+                    var record = await _userAnswerRecordClientRepo.GetMyRecord(dto.recordId);
+                    await _redisCachingProvider.StringSetAsync(dto.recordId.ToString(),
+                        JsonHelper.JsonSerialize(record),
+                        DateTime.Now.AddSeconds(90) - DateTime.Now);
+                }
+            });
+            
 
             return Json(_resp.success(
                     await _redisCachingProvider.StringGetAsync(dto.recordId.ToString())));
@@ -237,13 +245,27 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 return;
             }
             //Logger.Warning(System.Text.Json.JsonSerializer.Serialize(header));
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
+                if (string.IsNullOrEmpty(dto.submitAnswerStr))
+                {
+                    if (await _redisCachingProvider.KeyExistsAsync("longAnswer" + dto.recordId))
+                    {
+                        dto.submitAnswerStr = await _redisCachingProvider.StringGetAsync("longAnswer" + dto.recordId);
+                        //不去手动移除，交给redis自动过期
+                       // await _redisCachingProvider.KeyDelAsync("longAnswer" + dto.recordId);
+                    }
+                    else if (await _redisCachingProvider.KeyExistsAsync(dto.recordId.ToString()))
+                    {
+                        var record = await _redisCachingProvider.StringGetAsync(dto.recordId.ToString());
+                        dto.submitAnswerStr = JsonHelper.JsonDeserialize<UserAnswerRecordView>(record).SubmitAnswer;
+                    }
+                }
                 dto.msgId = header["cap-msg-id"] ?? "";
                 dto.instance = header["cap-exec-instance-id"] ?? "";
                 dto.senttime = header["cap-senttime"] ?? "";
-                _userAnswerRecordClientRepo.SubmitMyPaper(dto);
-            });            
+                await _userAnswerRecordClientRepo.SubmitMyPaper(dto);
+            });
         }
 
         public async Task<IActionResult> GetMyAnswer(long urid)

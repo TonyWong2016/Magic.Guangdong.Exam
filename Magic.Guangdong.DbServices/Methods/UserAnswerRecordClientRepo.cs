@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
@@ -621,7 +622,19 @@ namespace Magic.Guangdong.DbServices.Methods
             }
         }
 
-        
+        //public async Task<dynamic> SubmitMyPaperChunk(SubmitMyAnswerDto dto)
+        //{
+        //    if (dto.chunkIndex > 1)
+        //    {
+        //        var userAnswerRecordRepo = fsql.Get(conn_str).GetRepository<UserAnswerRecord>();
+        //        var record = await userAnswerRecordRepo.Where(u => u.Id == dto.recordId).ToOneAsync();
+        //        if (record.SubmitAnswer.Length < dto.chunkIndex * CapConsts.CapMsgMaxLength)
+        //        {
+        //            record.SubmitAnswer += dto.submitAnswerStr;
+        //        }
+
+        //    }
+        //}
         public async Task<dynamic> SubmitMyPracticePaper(SubmitMyAnswerDto dto)
         {
             try
