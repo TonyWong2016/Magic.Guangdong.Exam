@@ -130,7 +130,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveDraft(SimulateSaveDto dto)
         {
-            
+            //模拟验证header的耗时
+            await Task.Delay(new Random().Next(10, 300));
             int rd = new Random().Next(0, 100);
 
             var randomOne = (await _simulation1Repo.getListAsync(u => u.Id > 0))[rd];

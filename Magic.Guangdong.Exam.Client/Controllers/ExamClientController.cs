@@ -208,6 +208,8 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPracticePaper(dto));
             }
             Assistant.Logger.Warning($"{DateTime.Now}:发布事务--保存答案");
+            if (string.IsNullOrEmpty(dto.submitAnswerStr))
+                dto.submitAnswerStr = "[]";
             if (dto.submitAnswerStr.Length > CapConsts.CapMsgMaxLength)
             {
                 Assistant.Logger.Warning($"{DateTime.Now}:发布事务--间接保存答案");
