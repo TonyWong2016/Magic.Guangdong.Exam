@@ -206,12 +206,12 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 //}
                 #endregion
 
-                Logger.Warning("发布事务，延时3秒开始判分");
-                await _capPublisher.PublishDelayAsync(TimeSpan.FromSeconds(3), CapConsts.ClientPrefix + "ScoreObjectivePartWhenSubmit", new ScoreAfterSubmitDto()
-                {
-                    recordId = dto.recordId,
-                    complatedMode = dto.complatedMode
-                });
+                //Logger.Warning("发布事务，延时3秒开始判分");
+                //await _capPublisher.PublishDelayAsync(TimeSpan.FromSeconds(3), CapConsts.ClientPrefix + "ScoreObjectivePartWhenSubmit", new ScoreAfterSubmitDto()
+                //{
+                //    recordId = dto.recordId,
+                //    complatedMode = dto.complatedMode
+                //});
 
                 if (dto.isPractice == 0)
                 {                    

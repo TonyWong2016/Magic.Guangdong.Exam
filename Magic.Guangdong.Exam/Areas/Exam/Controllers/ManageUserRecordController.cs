@@ -46,6 +46,13 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [RouteMark("答题记录")]
         public IActionResult Index()
         {
+            //var noMarkingRecords = (_userAnswerRecordViewRepo.getList(
+            //    u => u.IsDeleted == 0
+            //    && u.CreatedAt.Date == DateTime.Today
+            //   && u.Complated == 1
+            //   && u.Marked == 0))
+            //   .Select(u => new { u.Id, u.Complated, u.ComplatedMode })
+            //   .ToList();
             return View();
         }
 
@@ -126,7 +133,6 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
             var records = await _userAnswerRecordViewRepo.getListAsync(u => urids.Contains(u.Id));
             foreach (var record in records)
             {
-
                 //var record = await _userAnswerRecordViewRepo.ForceMarking(urid);
                 if (await userAnswerSubmitRecordRepo.ScoreObjectivePart(record.Id, 2) != 1)
                 {

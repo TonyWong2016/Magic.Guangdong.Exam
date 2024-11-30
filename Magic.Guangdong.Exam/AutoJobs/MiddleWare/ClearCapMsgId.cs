@@ -6,7 +6,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 {
     public class ClearCapMsgId : IInvocable
     {
-        public readonly IRedisCachingProvider _redisCachingProvider;
+        private readonly IRedisCachingProvider _redisCachingProvider;
 
         public ClearCapMsgId(IRedisCachingProvider redisCachingProvider)
         {
@@ -20,6 +20,9 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
             await _redisCachingProvider.KeyDelAsync(CapConsts.MsgIdCacheClientName);
             await _redisCachingProvider.KeyDelAsync(CapConsts.MsgIdCacheTeacherName);
             Assistant.Logger.Warning("cap缓存检查完成");
+
+            Assistant.Logger.Warning("清除判分队列");
+            await _redisCachingProvider.KeyDelAsync("markingProcess");
         }
     }
 }

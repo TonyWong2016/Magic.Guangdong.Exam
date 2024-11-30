@@ -80,13 +80,14 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             //        return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("∆¿∑÷ ß∞‹"));
             //    }
             //}
-            if (!await _redisCachingProvider.KeyExistsAsync("markingProcess"+urid.ToString()))
+            if (!await _redisCachingProvider.HExistsAsync("markingProcess",urid.ToString()))
             {
-                await _redisCachingProvider.StringSetAsync("markingProcess"+ urid.ToString(),"marking..",TimeSpan.FromSeconds(10));
                 if (await _userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, force) < 0)
                 {
                     return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("∆¿∑÷ ß∞‹"));
                 }
+                await _redisCachingProvider.HSetAsync("markingProcess", urid.ToString(), DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+
             }
 
             //var record = await _userAnswerRecordClientRepo.Marking(urid, force == 1);

@@ -1,5 +1,6 @@
 ﻿using Coravel.Invocable;
 using DotNetCore.CAP;
+using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.DbServices.Entities;
 using Magic.Guangdong.DbServices.Interfaces;
@@ -11,17 +12,27 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
     {
         private readonly IUnitInfoRepo _unitInfoRepo;
         private readonly ISyncRecordRepo _syncRecordRepo;
-        private readonly ICapPublisher _capPublisher;
-        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo,ICapPublisher capPublisher)
+        private readonly IRedisCachingProvider _redisCachingProvider;
+        private readonly IKeyActionRepo _keyActionRepo;
+        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo, IRedisCachingProvider redisCachingProvider,IKeyActionRepo keyActionRepo)
         {
             _unitInfoRepo = unitInfoRepo;
             _syncRecordRepo = syncRecordRepo;
-            _capPublisher = capPublisher;
+            _redisCachingProvider = redisCachingProvider;
+            _keyActionRepo = keyActionRepo;
         }
         public async Task Invoke()
         {
-            Logger.Debug("获取大库单位库数据记录" + DateTime.Now);
+            if(await _redisCachingProvider.KeyExistsAsync("syncunit"))
+            {
+                return;
+            }
+            await _redisCachingProvider.StringSetAsync("syncunit", DateTime.Now.ToString(), TimeSpan.FromMinutes(30));
+            Logger.Warning("获取大库单位库数据记录" + DateTime.Now);
             await GetRecord();
+
+            Logger.Warning("移除30天之前的keyaction");
+            await _keyActionRepo.delItemAsync(u => u.CreatedAt <= DateTime.Now.AddDays(-30));
         }
 
         internal async Task GetRecord()
@@ -29,7 +40,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
             try
             {
                 var client = new HttpClient();
-                DateTime fromDate = DateTime.Now.AddDays(-300);
+                DateTime fromDate = DateTime.Now.AddDays(-30);
                 string responseStr = await RestHelper.Get(
                     new RestParams()
                     {

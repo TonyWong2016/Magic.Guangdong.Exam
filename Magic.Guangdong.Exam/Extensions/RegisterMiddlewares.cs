@@ -1,6 +1,7 @@
 ﻿using AspNetCoreRateLimit;
 using Autofac.Extensions.DependencyInjection;
 using Coravel;
+using Magic.Guangdong.Exam.AutoJobs.CheckMarkingProgress;
 using Magic.Guangdong.Exam.AutoJobs.MiddleWare;
 using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
 using Microsoft.AspNetCore.Builder;
@@ -76,6 +77,14 @@ namespace Magic.Guangdong.Exam.Extensions
                     .Schedule<ClearCapMsgId>()
                     .Hourly()
                     .PreventOverlapping(nameof(ClearCapMsgId));
+
+                scheduler.OnWorker(nameof(AutoChecking));
+                scheduler
+                    .Schedule<AutoChecking>()
+                    .Cron("0 1,7,18,22 * * *")
+                    //.DailyAt(20, 39)// 每天3点整执行一次
+                    .Zoned(TimeZoneInfo.Local)
+                    .PreventOverlapping(nameof(AutoChecking));
             });
 
             return app;

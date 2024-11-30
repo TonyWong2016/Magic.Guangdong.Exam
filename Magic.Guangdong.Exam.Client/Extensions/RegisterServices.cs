@@ -64,6 +64,7 @@ namespace Magic.Guangdong.Exam.Client.Extensions
 
                 });
             //数据压缩
+            services.AddRequestDecompression();
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<BrotliCompressionProvider>();

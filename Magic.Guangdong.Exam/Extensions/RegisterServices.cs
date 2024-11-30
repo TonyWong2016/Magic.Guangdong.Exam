@@ -92,6 +92,7 @@ namespace Magic.Guangdong.Exam.Extensions
             //引入signalr
             services.AddSignalR().AddMessagePackProtocol();
             //数据压缩
+            services.AddRequestDecompression();
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<BrotliCompressionProvider>();
@@ -308,7 +309,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 x.FailedMessageExpiredAfter = 24 * 3600 * 10;
 
                 x.Version = configuration.GetSection("QueneVersion").Value;
-                x.ConsumerThreadCount = 2;//消费者线程数
+                x.ConsumerThreadCount = 1;//消费者线程数
                 x.FallbackWindowLookbackSeconds = 5 * 60;
                 x.EnablePublishParallelSend = true;
                 x.EnableSubscriberParallelExecute = true;
@@ -333,6 +334,7 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
             services.AddTransient<AutoJobs.MiddleWare.CacheHandle>();
             services.AddTransient<AutoJobs.MiddleWare.ClearCapMsgId>();
+            services.AddTransient<AutoJobs.CheckMarkingProgress.AutoChecking>();
         }
 
         private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)

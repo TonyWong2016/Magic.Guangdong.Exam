@@ -436,7 +436,9 @@
         if (isChineseIDCard(str))
             return false;
         var num = Number(str);
-        return isNaN(num) ? false : parseInt(str, 10) >= 0;
+        //return isNaN(num) ? false : parseInt(str, 10) >= 0;
+        return isNaN(num) ? false : Math.abs(parseInt(str, 10)) >= 0;
+
     }
 
     function isChineseIDCard(id) {
