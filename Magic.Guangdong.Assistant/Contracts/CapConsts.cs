@@ -19,6 +19,8 @@ namespace Magic.Guangdong.Assistant.Contracts
         public const string MsgIdCacheClientName = "capExamClientMsgs";
 
         public const string MsgIdCacheTeacherName = "capExamTeacherMsgs";
+
+        public const int CapMsgMaxLength = 2000;
         //public static string PREFIX = CheckInAssistant.ConfigurationHelper.GetSectionValue("SUBPREFIX");
         public static string GetCapMsgName(string name)
         {

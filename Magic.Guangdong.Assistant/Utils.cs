@@ -253,10 +253,54 @@ namespace Magic.Guangdong.Assistant
         /// </summary>
         /// <param name="Str"></param>
         /// <returns></returns>
-        public static string FromBase64Str(String Str)
+        //public static string FromBase64Str(String Str)
+        //{
+        //    byte[] b = Convert.FromBase64String(Str);
+        //    return System.Text.Encoding.Default.GetString(b);
+        //}
+
+        public static string FromBase64Str(string input)
         {
-            byte[] b = Convert.FromBase64String(Str);
-            return System.Text.Encoding.Default.GetString(b);
+            // 验证字符串是否为Base64编码
+            if (IsBase64String(input))
+            {
+                try
+                {
+                    // 解码Base64字符串
+                    byte[] bytes = Convert.FromBase64String(input);
+                    return Encoding.Default.GetString(bytes);
+                }
+                catch (FormatException)
+                {
+                    // 如果解码失败，返回原始字符串
+                    return input;
+                }
+            }
+            else
+            {
+                // 如果不是Base64编码，直接返回原始字符串
+                return input;
+            }
+        }
+
+        private static bool IsBase64String(string input)
+        {
+            // 基本长度检查
+            if (string.IsNullOrEmpty(input) || input.Length % 4 != 0)
+            {
+                return false;
+            }
+
+            // 检查字符是否符合Base64编码规则
+            foreach (char c in input)
+            {
+                if (!(char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '='))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static string EncodeUrlParam(string msg,bool base64=true)

@@ -117,7 +117,7 @@ namespace Magic.Guangdong.Exam.Client.Filters
                 var item = new RedirectResult(finalUrl);
                 context.Result = item;
             }
-            Assistant.Logger.Error(msg);
+            Assistant.Logger.Error(msg+finalUrl);
 
         }
 

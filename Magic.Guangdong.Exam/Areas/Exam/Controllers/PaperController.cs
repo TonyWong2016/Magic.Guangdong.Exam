@@ -44,26 +44,59 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPaperRule(GeneratePaperDto model)
         {
-            model.adminId = adminId;
-            Guid[] paperIds = await _paperRepo.SetPaperRule(model);
-
-            if (!string.IsNullOrEmpty(model.tags) && paperIds != null)
+            try
             {
-                TagPaperDto dto = new TagPaperDto()
+                model.adminId = adminId;
+                Guid[] paperIds = await _paperRepo.SetPaperRule(model);
+
+                if(paperIds == null)
                 {
-                    PaperIds = paperIds,
-                    Tags = model.tags
-                };                
-                await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
-            }
+                    return Json(_resp.ret(-1, "抽题失败，请检查题库里符合所选题型，科目，难度条件的题目总量是否满足设定的题目数量"));
 
-            if (paperIds != null)
-            {
-                await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
-                return Json(_resp.success(paperIds));
+                }
+                Assistant.Logger.Debug("开始抽题喽");
+                int i = 1;
+                foreach (var item in paperIds.Chunk(50))
+                {
+                    Assistant.Logger.Debug($"第{i}把") ;
+                    Assistant.Logger.Debug(string.Join(',', item));
+                    i++;
+                    if (!string.IsNullOrEmpty(model.tags))
+                    {
+                        TagPaperDto dto = new TagPaperDto()
+                        {
+                            PaperIds = item,
+                            Tags = model.tags
+                        };
+                        await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
+                    }
+                    await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", item, model.adminId);
+
+                }
+                return Json(_resp.success(paperIds,"组卷成功，请回到列表页检查是否符合要求"));
             }
-            
-            return Json(_resp.ret(-1, "抽题失败，请检查题库里符合所选题型，科目，难度条件的题目总量是否满足设定的题目数量"));
+            catch (Exception ex)
+            {
+                Assistant.Logger.Error(ex);
+                return Json(_resp.ret(-1, "抽题失败，" + ex.Message));
+
+            }
+            //if (!string.IsNullOrEmpty(model.tags) && paperIds != null)
+            //{
+            //    TagPaperDto dto = new TagPaperDto()
+            //    {
+            //        PaperIds = paperIds,
+            //        Tags = model.tags
+            //    };                
+            //    await _capBus.PublishAsync(CapConsts.PREFIX + "BuildPaperTagRelation", dto, model.adminId);
+            //}
+
+            //if (paperIds != null)
+            //{
+            //    await _capBus.PublishAsync(CapConsts.PREFIX + "GeneratePaper", paperIds, model.adminId);
+            //    return Json(_resp.success(paperIds));
+            //}
+
         }
 
         /// <summary>

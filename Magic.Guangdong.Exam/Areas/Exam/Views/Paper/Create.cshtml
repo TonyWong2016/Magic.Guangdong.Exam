@@ -194,7 +194,7 @@
         formData.append('__RequestVerificationToken', requestToken)
         var ret = await request('POST', '@Url.Action("SetPaperRule")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
-            successMsg('操作成功', () => {
+            successMsg(ret.msg, () => {
                 window.location.href = `@Url.Action("Index")?examId=${examId}`;
             });
             return;
