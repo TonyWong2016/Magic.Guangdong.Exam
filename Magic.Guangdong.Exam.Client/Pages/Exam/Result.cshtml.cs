@@ -72,15 +72,23 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             {
                 return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("答题记录不存在或已失效"));
             }
-            if(!await _redisCachingProvider.KeyExistsAsync("markingProcess"))
+            //if(!await _redisCachingProvider.KeyExistsAsync("markingProcess"))
+            //{
+            //    await _redisCachingProvider.StringSetAsync("markingProcess", urid.ToString(), TimeSpan.FromSeconds(10));
+            //    if (await _userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, force) < 0)
+            //    {
+            //        return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("评分失败"));
+            //    }
+            //}
+            if (!await _redisCachingProvider.KeyExistsAsync("markingProcess"+urid.ToString()))
             {
-                await _redisCachingProvider.StringSetAsync("markingProcess", urid.ToString(), TimeSpan.FromSeconds(10));
+                await _redisCachingProvider.StringSetAsync("markingProcess"+ urid.ToString(),"marking..",TimeSpan.FromSeconds(10));
                 if (await _userAnswerSubmitRecordRepo.ScoreObjectivePart(urid, force) < 0)
                 {
                     return Redirect("/Error?msg=" + Assistant.Utils.EncodeUrlParam("评分失败"));
                 }
             }
-            
+
             //var record = await _userAnswerRecordClientRepo.Marking(urid, force == 1);
             var record = await _userAnswerRecordClientRepo.GetUserRecordDetailById(urid);
             Urid = urid;

@@ -16,11 +16,13 @@ namespace Magic.Guangdong.Exam.Client.Controllers
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IResponseHelper _resp;
         private readonly IUserAnswerRecordClientRepo _userAnswerRecordClientRepo;
+        private readonly IUserAnswerSubmitRecordRepo _userAnswerSubmitRecordRepo;
+
         private readonly IExaminationClientRepo _examRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IPaperRepo _paperRepo;
         private readonly ICapPublisher _capPublisher;
-        public ExamClientController(IHttpContextAccessor contextAccessor, IResponseHelper resp, IExaminationClientRepo examinationRepo, IRedisCachingProvider redisCachingProvider, IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IPaperRepo paperRepo, ICapPublisher capPublisher)
+        public ExamClientController(IHttpContextAccessor contextAccessor, IResponseHelper resp, IExaminationClientRepo examinationRepo, IRedisCachingProvider redisCachingProvider, IUserAnswerRecordClientRepo userAnswerRecordClientRepo, IPaperRepo paperRepo, ICapPublisher capPublisher, IUserAnswerSubmitRecordRepo userAnswerSubmitRecordRepo)
         {
             _contextAccessor = contextAccessor;
             _resp = resp;
@@ -29,6 +31,7 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             _userAnswerRecordClientRepo = userAnswerRecordClientRepo;
             _paperRepo = paperRepo;
             _capPublisher = capPublisher;
+            _userAnswerSubmitRecordRepo = userAnswerSubmitRecordRepo;
         }
 
         public IActionResult Index()
@@ -202,13 +205,21 @@ namespace Magic.Guangdong.Exam.Client.Controllers
                 //    return Json(_resp.error("交卷失败，令牌不一致，请确保使用首次验证的设备进行答题"));
                 //}
                 #endregion
-                //这样写实非我愿啊/(ㄒoㄒ)/~~~
+
+                Logger.Warning("发布事务，延时3秒开始判分");
+                await _capPublisher.PublishDelayAsync(TimeSpan.FromSeconds(3), CapConsts.ClientPrefix + "ScoreObjectivePartWhenSubmit", new ScoreAfterSubmitDto()
+                {
+                    recordId = dto.recordId,
+                    complatedMode = dto.complatedMode
+                });
+
                 if (dto.isPractice == 0)
+                {                    
                     return Json(await _userAnswerRecordClientRepo.SubmitMyPaper(dto));
+                }
                 return Json(await _userAnswerRecordClientRepo.SubmitMyPracticePaper(dto));
             }
-
-           
+                      
 
             Assistant.Logger.Warning($"{DateTime.Now}:发布事务--保存答案");
             await _capPublisher.PublishAsync(CapConsts.ClientPrefix + "SubmitMyAnswer", dto);
@@ -246,6 +257,21 @@ namespace Magic.Guangdong.Exam.Client.Controllers
             });            
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="urid"></param>
+        /// <returns></returns>
+        [NonAction]
+        [CapSubscribe(CapConsts.ClientPrefix + "ScoreObjectivePartWhenSubmit")]
+        public async Task ScoreObjectivePartWhenSubmit(ScoreAfterSubmitDto dto)
+        {
+            Logger.Warning("消费事务，延时结束，开始判分");
+            await Task.Run(async () =>
+            {
+                await _userAnswerSubmitRecordRepo.ScoreObjectivePart(dto.recordId, dto.complatedMode);
+            });
+        }
         public async Task<IActionResult> GetMyAnswer(long urid)
         {
             return Json(_resp.success(await _userAnswerRecordClientRepo.GetUserAnswer(urid)));

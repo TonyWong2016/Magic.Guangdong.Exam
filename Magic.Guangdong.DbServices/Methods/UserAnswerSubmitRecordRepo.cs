@@ -333,7 +333,7 @@ namespace Magic.Guangdong.DbServices.Methods
             //题目没作答
             else if (answer.userAnswer.Length == 0)
             {
-                SingleScore += relation.ItemScore * Math.Abs(scoreScheme.EmptyAction)*-1;
+                SingleScore += relation.ItemScore * Math.Abs(scoreScheme.EmptyAction) * -1;//一般emptyaction都是0
             }
             //回答错误
             else
@@ -351,12 +351,12 @@ namespace Magic.Guangdong.DbServices.Methods
             //没作答
             if (answer.userAnswer.Length == 0)
             {
-                MultScore += relation.ItemScore * Math.Abs(scoreScheme.EmptyAction) *-1;
+                MultScore += relation.ItemScore * Math.Abs(scoreScheme.EmptyAction) * -1;
             }
             //答案数量和正确答案不一致，直接错
             else if (answer.userAnswer.Length != currItems.Count)
             {
-                MultScore += relation.ItemScore * Math.Abs(scoreScheme.WrongAction)*-1;
+                MultScore += relation.ItemScore * Math.Abs(scoreScheme.WrongAction) * -1;
             }
             //判断答案是否正确
             else

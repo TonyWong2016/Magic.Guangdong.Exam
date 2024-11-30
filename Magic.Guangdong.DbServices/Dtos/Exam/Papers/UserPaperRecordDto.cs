@@ -99,6 +99,12 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Papers
         public long recordId { get; set; }
     }
 
+    public class ScoreAfterSubmitDto
+    {
+        public long recordId { get; set; }
+
+        public int complatedMode { get; set;}
+    }
 
     public class UserAnswerRecordDto
     {
