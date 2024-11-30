@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using Yitter.IdGenerator;
 
