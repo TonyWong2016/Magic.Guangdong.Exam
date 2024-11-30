@@ -1,0 +1,61 @@
+--定义特殊变量
+DECLARE @examid VARCHAR(100) = '0C140000-569B-0050-DD7D-08DD09FF5460';  
+DECLARE @activityid bigint = 614438654759301;
+
+--先查一下，确定一下
+--答题记录相关
+select * from UserAnswerSubmitLog where Urid in (select id from UserAnswerRecord where ExamId=@examid);
+
+select * from [UserAnswerSubmitRecord] where RecordId in (select id from UserAnswerRecord where ExamId=@examid);
+
+select * from UserAnswerRecord where ExamId=@examid;
+
+--报名，订单相关
+select * from dbo.[Order] where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+select * from ReportCheckHistory where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+select * from [ReportAttribute] where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+select * from ReportProcess where ActivityId=@activityid
+
+select * from ReportInfo where ExamId=@examid
+
+--考试信息相关
+select * from Relation where examId = @examid;
+
+select * from paper where examId = @examid;
+
+select * from examination where id = @examid;
+
+select * from activity where id = @activityid;
+
+---------------------查询没问题，就可以删了,注意先后顺序------------------------------------
+
+--答题记录相关
+delete from UserAnswerSubmitLog where Urid in (select id from UserAnswerRecord where ExamId=@examid);
+
+delete from [UserAnswerSubmitRecord] where RecordId in (select id from UserAnswerRecord where ExamId=@examid);
+
+delete from UserAnswerRecord where ExamId=@examid;
+
+--报名，订单相关
+delete from dbo.[Order] where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+delete from ReportCheckHistory where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+delete from [ReportAttribute] where ReportId in (select id from ReportInfo where ExamId=@examid)
+
+delete from ReportProcess where ActivityId=@activityid
+
+delete from ReportInfo where ExamId=@examid
+
+--考试信息相关
+delete from Relation where examId = @examid;
+
+delete from paper where examId = @examid;
+
+delete from examination where id = @examid;
+
+delete from activity where id = @activityid;
+
