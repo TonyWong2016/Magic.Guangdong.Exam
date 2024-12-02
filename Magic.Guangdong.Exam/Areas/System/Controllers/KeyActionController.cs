@@ -34,12 +34,16 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             try
             {
                 string msgId = header["cap-msg-id"] ?? "";
-                if(await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheOaName, msgId))
+                if(!string.IsNullOrEmpty(msgId) && await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheOaName, msgId))
                 {
-                    Assistant.Logger.Warning("动作被记录");
+                    Assistant.Logger.Warning("动作已被记录");
                     return;
                 }
-                if (await _keyActionRepo.getAnyAsync(u => u.Id == keyAction.Id))
+                keyAction.CapInstance= header["cap-exec-instance-id"] ?? "";
+                keyAction.CapMsgId = msgId;
+                keyAction.CapSenttime= header["cap-senttime"] ?? "";
+                //keyAction.ExpiredAt = 14;
+                if (await _keyActionRepo.getAnyAsync(u => u.Id == keyAction.Id || u.CapMsgId == msgId))
                     return;
                 await _keyActionRepo.addItemAsync(keyAction);
             }

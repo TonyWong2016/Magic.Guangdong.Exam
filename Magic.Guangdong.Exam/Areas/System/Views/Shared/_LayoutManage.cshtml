@@ -317,7 +317,7 @@
                 { 'icon': 'note', 'title': '2024.11.17', 'author': 'tony', 'content': '处理修复反馈的问题，共计4条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a>' },
                 { 'icon': 'note', 'title': '2024.11.18', 'author': 'tony', 'content': '处理修复反馈的问题，共计6(本次2条)条 <br />地址：👉<a href="https://kdocs.cn/l/ccKJLzE7aUeq" target="_blank">考试模块相关反馈-11.15</a><br/>增加素材管理栏目，可以统一管理查看所有上传的素材<br/>主题切换算法优化' },
                 { 'icon': 'fire', 'title': '2024.11.19~11.22✈️', 'author': 'tony', 'content': '优化消息队列分组策略👍<br/> 消息队列支持切换到高可用方案（HA）👍<br />消息队列增加支持SASL安全协议相关模块 👍<br />组卷是增加判定当前试卷是否包含主观题<br />诸多功能点优化调整' },
-
+                { 'icon': 'tree', 'title': '2024.11.23~11.30', 'author': 'tony', 'content': '队列消息传输支持超大字段，不再受目标数据库索引限制🐂🍺<br/>生成组卷规则时，检测规则长度，分段生成<br/>保存草稿时，搭配redis提高效率，平均每次保持草稿的耗时降低到了10毫秒左右🚀<br/>扩展了2个自动检测的定时任务，分别定时清除过期markingProgress和检查那些交卷了，但没等到成绩出来就离开了的记录。' },
             ];
         
         function openTimeLine() {

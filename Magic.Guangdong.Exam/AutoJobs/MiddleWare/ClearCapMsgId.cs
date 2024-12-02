@@ -1,6 +1,7 @@
 ﻿using Coravel.Invocable;
 using EasyCaching.Core;
 using Magic.Guangdong.Assistant.Contracts;
+using Magic.Guangdong.DbServices.Interfaces;
 
 namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 {
@@ -23,6 +24,8 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 
             Assistant.Logger.Warning("清除判分队列");
             await _redisCachingProvider.KeyDelAsync("markingProcess");
+
+           
         }
     }
 }

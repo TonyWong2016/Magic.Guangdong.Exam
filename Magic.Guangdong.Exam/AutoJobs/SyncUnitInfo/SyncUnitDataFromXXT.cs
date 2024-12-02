@@ -13,13 +13,11 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
         private readonly IUnitInfoRepo _unitInfoRepo;
         private readonly ISyncRecordRepo _syncRecordRepo;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        private readonly IKeyActionRepo _keyActionRepo;
-        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo, IRedisCachingProvider redisCachingProvider,IKeyActionRepo keyActionRepo)
+        public SyncUnitDataFromXXT(IUnitInfoRepo unitInfoRepo,ISyncRecordRepo syncRecordRepo, IRedisCachingProvider redisCachingProvider)
         {
             _unitInfoRepo = unitInfoRepo;
             _syncRecordRepo = syncRecordRepo;
             _redisCachingProvider = redisCachingProvider;
-            _keyActionRepo = keyActionRepo;
         }
         public async Task Invoke()
         {
@@ -29,10 +27,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
             }
             await _redisCachingProvider.StringSetAsync("syncunit", DateTime.Now.ToString(), TimeSpan.FromMinutes(30));
             Logger.Warning("获取大库单位库数据记录" + DateTime.Now);
-            await GetRecord();
-
-            Logger.Warning("移除30天之前的keyaction");
-            await _keyActionRepo.delItemAsync(u => u.CreatedAt <= DateTime.Now.AddDays(-30));
+            await GetRecord();            
         }
 
         internal async Task GetRecord()

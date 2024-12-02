@@ -566,3 +566,40 @@ function checkEnv(isProduction) {
         layer.msg('嗯？瞎看什么？系统问题找开发，不要自己乱猜哟！🛠️', { icon: 4 });
     });
 }
+
+
+function setWithExpiry(key, value, ttl, useSession = false) {
+    const now = new Date().getTime(); // 当前时间的毫秒数
+    const item = {
+        value: value,
+        expiry: now + ttl * 1000 // 过期时间 = 当前时间 + ttl (秒) * 1000 (转换成毫秒)
+    };
+    const storage = useSession ? sessionStorage : localStorage;
+    storage.setItem(key, JSON.stringify(item));
+}
+
+function getWithExpiry(key, useSession = false) {
+    const storage = useSession ? sessionStorage : localStorage;
+    const itemStr = storage.getItem(key);
+    if (!itemStr) {
+        return null; // 如果没有找到对应的键，返回 null
+    }
+    const item = JSON.parse(itemStr);
+    const now = new Date().getTime();
+
+    // 检查是否过期
+    if (now > item.expiry) {
+        // 如果过期了，删除该项并返回 null
+        storage.removeItem(key);
+        return null;
+    }
+    return item.value; // 如果没过期，返回值
+}
+
+// 使用示例：
+// 设置一个带有5分钟过期时间的本地存储项
+//setWithExpiry('myKey', 'myValue', 5 * 60, false); // false 表示使用 localStorage
+
+//// 获取本地存储项
+//const value = getWithExpiry('myKey', false); // false 表示使用 localStorage
+//console.log(value); // 如果没过期，输出 'myValue'；如果过期或不存在，则输出 null

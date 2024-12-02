@@ -22,12 +22,12 @@
       {
         "Endpoint": "*",
         "Period": "1s",
-        "Limit": 20
+        "Limit": 10
       },
       {
         "Endpoint": "*",
         "Period": "1m",
-        "Limit": 300
+        "Limit": 120
       }
       //,{
       //  "Endpoint": "*",

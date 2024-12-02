@@ -44,6 +44,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 		[JsonProperty]
 		public int IsSubjective { get; set; } = 0;
-	}
+
+        [JsonProperty]
+        public DateTime ExpiredAt { get; set; } = DateTime.Now.AddDays(14);
+    }
 
 }

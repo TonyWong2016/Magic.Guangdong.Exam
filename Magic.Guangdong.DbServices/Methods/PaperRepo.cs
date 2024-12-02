@@ -283,6 +283,12 @@ namespace Magic.Guangdong.DbServices.Methods
 
             //试卷题目
             var paperQuestions = await fsql.Get(conn_str).Select<QuestionView, Relation>()
+                .AsTable((type, oldname) =>
+                {
+                    if (type.Name == "Relation" && paper.CreatedAt.Year < DateTime.Now.Year)
+                        return $"Relation_{paper.CreatedAt.Year}";
+                    return null;
+                })
                 .LeftJoin((a, b) => a.Id == b.QuestionId)
                 .Where((a, b) => b.PaperId == paperId && a.IsDeleted == 0)
                 .ToListAsync((a, b) => new PaperQuestionDto()

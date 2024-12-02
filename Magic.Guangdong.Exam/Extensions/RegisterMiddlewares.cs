@@ -1,6 +1,7 @@
 ﻿using AspNetCoreRateLimit;
 using Autofac.Extensions.DependencyInjection;
 using Coravel;
+using Magic.Guangdong.Exam.AutoJobs.AutoSharding;
 using Magic.Guangdong.Exam.AutoJobs.CheckMarkingProgress;
 using Magic.Guangdong.Exam.AutoJobs.MiddleWare;
 using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
@@ -69,6 +70,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 scheduler
                     .Schedule<CacheHandle>()
                     .DailyAt(3, 0)// 每天3点整执行一次
+                    //.DailyAt(16,40)
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(CacheHandle));
 
@@ -85,6 +87,13 @@ namespace Magic.Guangdong.Exam.Extensions
                     //.DailyAt(20, 39)// 每天3点整执行一次
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(AutoChecking));
+
+                scheduler.OnWorker(nameof(RelationSharding));
+                scheduler
+                    .Schedule<RelationSharding>()
+                    .Cron("0 10 1 1 *")// 每年1月1号上午10点整执行一次
+                    .Zoned(TimeZoneInfo.Local)
+                    .PreventOverlapping(nameof(RelationSharding));
             });
 
             return app;

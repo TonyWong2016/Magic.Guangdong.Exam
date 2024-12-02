@@ -38,5 +38,15 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty]
         public int Type { get; set; } = 1;
 
+        [JsonProperty]
+        public string CapMsgId { get; set; } = "";
+
+        [JsonProperty]
+        public string CapInstance { get; set; } = "";
+
+        [JsonProperty]
+        public string CapSenttime { get; set; } = "";
+        [JsonProperty]
+        public DateTime ExpiredAt { get; set; } = DateTime.Now.AddDays(14);
     }
 }

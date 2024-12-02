@@ -328,13 +328,13 @@ namespace Magic.Guangdong.Exam.Extensions
         /// </summary>
         /// <param name="services"></param>
         private static void ConfigureCoravel(this IServiceCollection services)
-        {
-            
+        {            
             services.AddScheduler();
             services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
             services.AddTransient<AutoJobs.MiddleWare.CacheHandle>();
             services.AddTransient<AutoJobs.MiddleWare.ClearCapMsgId>();
             services.AddTransient<AutoJobs.CheckMarkingProgress.AutoChecking>();
+            services.AddTransient<AutoJobs.AutoSharding.RelationSharding>();
         }
 
         private static void ConfigureImageSharp(this IServiceCollection services, IConfiguration configuration)

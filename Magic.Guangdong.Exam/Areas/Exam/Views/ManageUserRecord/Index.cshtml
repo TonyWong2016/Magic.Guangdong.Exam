@@ -3,7 +3,7 @@
 }
 <div class="layui-row" style="padding:15px">
     <form class="layui-form">
-        <div class="layui-form-item layui-row  layui-col-space16">
+        <div class="layui-form-item layui-row layui-col-space16">
             <div class="layui-col-md2">
                 <select id="associationIdView" lay-filter="associationId" lay-search>
                 </select>
@@ -44,13 +44,14 @@
 
 
             <div class="layui-col-md1">
-                <input type="checkbox" lay-filter="showDeleted" title="查看被清除的记录" lay-skin="primary">
+                <input type="checkbox" id="showDeleted" lay-filter="showDeleted" title="查看被清除的记录" lay-skin="primary">
             </div>
         </div>
         <div class="layui-btn-container">
             <a href="javascript:;" onclick="exportRecord()" class="layui-btn"><i class="layui-icon layui-icon-export"></i>导出</a>
            
             <a href="javascript:;" onclick="ForceMarkingBatch()" class="layui-btn layui-btn-danger"><i class="layui-icon layui-icon-fire"></i>强制交卷</a>
+            <span id="queryGroup"></span>
         </div>
         @* <blockquote class="layui-elem-quote">注意，【同步成绩】和【强制交卷】的操作必须在对应的考试结束后执行。</blockquote> *@
 
@@ -162,9 +163,8 @@
 
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'activityTpl', 'associationIdView', false)
         .then(v => {
-            //getExams()
-            getUserRecord()
-
+            //getUserRecord()
+            showLastQuery();
         })
 
     form.on('select(associationId)', function (data) {        
@@ -223,7 +223,7 @@
     function getUserRecord() {
         layer.load();
         let params = {
-            url: '@Url.Action("GetUserRecord")?isasc=false',
+            url: '@Url.Action("GetUserRecord")?isasc=false&orderby=updatedat',
             elem: '#table',
             where: { 'whereJsonStr': JSON.stringify(makeWhereJson()) },
             size: 'lg',
@@ -271,12 +271,14 @@
                 'Value': showDeleted
             }]
         };
+
         if (associationId && isNumeric(associationId)) {
             whereJsonStr.Filters.push({
                 'Field': 'AssociationId',
                 'Operator': 'Equal',
                 'Value': associationId
             });
+
         }
 
         if (examType != '-1') {
@@ -302,6 +304,7 @@
                 'Value': paperId
             });
         }
+
         if (isComplated > -1) {
             whereJsonStr.Filters.push({
                 'Field': 'Complated',
@@ -318,7 +321,14 @@
                 'Operator': 'Equal',
                 'Value': _keyword
             });
-        } else if (_keyword) {
+        } else if(isChineseIDCard(_keyword) || _keyword.length==20){
+            whereJsonStr.Filters.push({
+                'Field': 'IdNumber',
+                'Operator': 'Equal',
+                'Value': _keyword
+            })
+        }
+        else if(_keyword)  {
             whereJsonStr.Filters.push({
                 'Logic': 'Or',
                 'Filters': [{
@@ -332,7 +342,49 @@
                 }]
             });
         }
+
+        //sessionStorage.setItem('lastWhere'+location.pathname, JSON.stringify(whereJsonStr))
+        setWithExpiry('lastWhere' + location.pathname, whereJsonStr, 600, true);
         return whereJsonStr;
+    }
+
+    function showLastQuery(){
+        let lastWhere = getWithExpiry('lastWhere' + location.pathname,true);
+        if(lastWhere && lastWhere.Filters && lastWhere.Filters.length>1){
+            setTimeout(()=>{
+                [...lastWhere.Filters].forEach(item=>{
+                    if(item.Field=='AssociationId'){
+                         $('#associationIdView').val(item.Value)
+                          associationId = item.Value;                            
+                          getExams();
+                    }
+                    else if(item.Field=='ExamId'){
+                        examId=item.Value
+                        $('#examId').val(examId)
+                        getSelectItems('/exam/Paper/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
+                    }
+                    else if(item.Field=='ExamType'){
+                        $('#examType').val(item.Value)
+                    }
+                    else if(item.Field=='PaperId'){
+                        $('#paperId').val(item.Value)
+                    }
+                    else if(item.Field=='Complated'){
+                        $('#isComplated').val(item.Value)
+                    }
+                    else if(item.Field=='IdNumber'|| item.Field=='Name'|| item.Field=='Score'){
+                        $('#keyword').val(item.Value)
+                    }
+                })
+                form.render();
+                layer.tips('已加载上次的输入搜索条件', '#queryGroup', {
+                        tips: [3, 'var(--bg-success-color)']
+                })
+                getUserRecord();
+            },200)            
+        } else {
+        getUserRecord();
+        }
     }
 
     function RemoveUserRecord(urid) {
@@ -382,6 +434,7 @@
             }
         })
     }
+
     function DoSync(stage, isForce) {
         warnMsg('暂不支持');
         return;
