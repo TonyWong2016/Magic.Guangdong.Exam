@@ -344,46 +344,58 @@
         }
 
         //sessionStorage.setItem('lastWhere'+location.pathname, JSON.stringify(whereJsonStr))
-        setWithExpiry('lastWhere' + location.pathname, whereJsonStr, 600, true);
+        setWithExpiry('lastwhere_userrecord', whereJsonStr, 600, true);
         return whereJsonStr;
     }
 
     function showLastQuery(){
-        let lastWhere = getWithExpiry('lastWhere' + location.pathname,true);
+        let lastWhere = getWithExpiry('lastwhere_userrecord',true);
         if(lastWhere && lastWhere.Filters && lastWhere.Filters.length>1){
-            setTimeout(()=>{
-                [...lastWhere.Filters].forEach(item=>{
-                    if(item.Field=='AssociationId'){
-                         $('#associationIdView').val(item.Value)
-                          associationId = item.Value;                            
-                          getExams();
-                    }
-                    else if(item.Field=='ExamId'){
+            $('#queryGroup').html('加载上次的检索条件...');
+            [...lastWhere.Filters].forEach(item=>{
+                if(item.Field=='AssociationId'){
+                        $('#associationIdView').val(item.Value)
+                        associationId = item.Value;
+                        getExams();
+                }
+                else if(item.Field=='ExamId'){
+                    setTimeout(()=>{
                         examId=item.Value
                         $('#examId').val(examId)
                         getSelectItems('/exam/Paper/GetPaperMini', { 'examId': examId }, 'paperTplInit', 'paperId', false)
-                    }
-                    else if(item.Field=='ExamType'){
-                        $('#examType').val(item.Value)
-                    }
-                    else if(item.Field=='PaperId'){
+
+                    },300)
+                }
+                else if(item.Field=='ExamType'){
+                    examType = item.Value
+                    $('#examType').val(item.Value)
+                }
+                else if(item.Field=='PaperId'){
+                    setTimeout(()=>{
+                        paperId=item.Value;
                         $('#paperId').val(item.Value)
-                    }
-                    else if(item.Field=='Complated'){
-                        $('#isComplated').val(item.Value)
-                    }
-                    else if(item.Field=='IdNumber'|| item.Field=='Name'|| item.Field=='Score'){
-                        $('#keyword').val(item.Value)
-                    }
-                })
+                    },600)
+                }
+                else if(item.Field=='Complated'){
+                    isComplated = item.Value
+                    $('#isComplated').val(item.Value)
+                }
+                else if(item.Field=='IdNumber'|| item.Field=='Name'|| item.Field=='Score'){
+                    $('#keyword').val(item.Value)
+                }
+            })               
+
+            setTimeout(()=>{
+                $('#queryGroup').html('');
                 form.render();
                 layer.tips('已加载上次的输入搜索条件', '#queryGroup', {
                         tips: [3, 'var(--bg-success-color)']
                 })
+                whereJsonStr = lastWhere;
                 getUserRecord();
-            },200)            
+            },1000)            
         } else {
-        getUserRecord();
+            getUserRecord();
         }
     }
 

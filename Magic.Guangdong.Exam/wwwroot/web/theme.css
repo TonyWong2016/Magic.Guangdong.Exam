@@ -1,6 +1,8 @@
 ﻿:root {
     --main-bg-color: #0F3888;
     --main-word-color: #fff;
+    --main-warning-color: #ffb800;
+    --main-danger-color: #ff5722;
     --main-word-bg-color: #16baaa;
     --bg-success-color: #16baaa;
     --bg-normal-color: #1e9fff;

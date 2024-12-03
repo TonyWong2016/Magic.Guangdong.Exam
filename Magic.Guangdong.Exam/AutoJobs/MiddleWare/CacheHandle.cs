@@ -20,6 +20,13 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
 
         public async Task Invoke()
         {
+            await Task.Delay(new Random().Next(100, 5000));
+            if (await _redisCachingProvider.KeyExistsAsync("autoclearcache"))
+            {
+                Assistant.Logger.Info("自动清理缓存的服务已分配到其他终端");
+                return;
+            }
+            await _redisCachingProvider.StringSetAsync("autoclearcache", DateTime.Now.ToString(), TimeSpan.FromMinutes(10));
             Assistant.Logger.Warning("检查过期缓存");
             //作废clientsigns
             await _redisCachingProvider.KeyDelAsync("clientsigns");

@@ -18,8 +18,10 @@ namespace Magic.Guangdong.Exam.AutoJobs.CheckMarkingProgress
 
         public async Task Invoke()
         {
+            await Task.Delay(new Random().Next(100, 5000));
             if (await _rediscachingProvider.KeyExistsAsync("autocheckscore"))
             {
+                Assistant.Logger.Info("自动检查成绩的服务已分配到其他终端");
                 return;
             }
             await _rediscachingProvider.StringSetAsync("autocheckscore", DateTime.Now.ToString(), TimeSpan.FromSeconds(300));

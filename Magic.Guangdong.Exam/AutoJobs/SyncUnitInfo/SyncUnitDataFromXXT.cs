@@ -21,12 +21,15 @@ namespace Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo
         }
         public async Task Invoke()
         {
-            if(await _redisCachingProvider.KeyExistsAsync("syncunit"))
+            await Task.Delay(new Random().Next(100, 5000));
+
+            if (await _redisCachingProvider.KeyExistsAsync("syncunit"))
             {
+                Logger.Info("自动同步单位库的服务已分配到其他终端");
                 return;
             }
             await _redisCachingProvider.StringSetAsync("syncunit", DateTime.Now.ToString(), TimeSpan.FromMinutes(30));
-            Logger.Warning("获取大库单位库数据记录" + DateTime.Now);
+            Logger.Warning("获取大库单位库数据记录");
             await GetRecord();            
         }
 
