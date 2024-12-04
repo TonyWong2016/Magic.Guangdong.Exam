@@ -227,9 +227,9 @@ function initUploadFile(elemId, exts = 'jpg|pdf', url = '', callback) {
 //分块上传
 function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUrl = '',appendData='', callback = '') {
     if (url == '')
-        url = "/fileupload/upload";
+        url = "/file/UploadChunk";
     if (checkUrl == '')
-        checkUrl = "/fileupload/CheckFile";
+        checkUrl = "/file/CheckFile";
     var up = new fcup({
         id: elemId, // 绑定id
         url: url, // url地址
@@ -240,7 +240,7 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
         maxsize: "2048", // 上传文件最大M数，单位为M，默认200M
         timeout: 600000,
         headers: { 'Authorization': localStorage.getItem('accessToken'), 'X-CSRF-TOKEN': requestToken },
-        apped_data: appendData,
+        apped_data: appendData ,
         // 定义错误信息
         errormsg: {
             1000: "未找到上传id",
@@ -272,7 +272,7 @@ function initUploadFileChunk(elemId, types, progressElem = '', url = '', checkUr
             element.progress(progressElem, num + "%");
             console.log(other);
             if (num >= 99 && !uploadFlag) {
-                Toast.info("已上传" + num + "%，正在进行最后的校验阶段，请耐心等待，上传完成后会出现成功提示", 1000 * 10);
+                warnMsg("已上传" + num + "%，正在进行最后的校验阶段，请耐心等待，上传完成后会出现成功提示", 1000 * 10);
                 uploadFlag = true;
             }
         },

@@ -15,7 +15,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// 模板id
         /// </summary>
-        public int TemplateId { get; set; }
+        public long TemplateId { get; set; }
+
+
         /// <summary>
         /// 证书名称
         /// </summary>
@@ -35,11 +37,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// <summary>
         /// 活动id
         /// </summary>
-        //public long ActivityId { get; set; } = 0;
-        ///// <summary>
-        ///// 考试id
-        ///// </summary>
-        //public Guid ExamId { get; set; } = Guid.Empty;
+        public long ActivityId { get; set; } = 0;
+        /// <summary>
+        /// 考试id
+        /// </summary>
+        public Guid ExamId { get; set; } = Guid.Empty;
         /// <summary>
         /// 编号前缀
         /// </summary>

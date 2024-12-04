@@ -10,6 +10,9 @@ namespace Magic.Guangdong.Assistant.Contracts
     {
         public const string CLIENTFACTORYNAME = "MagicHttpClient";
 
-        
+        /// <summary>
+        /// 它表示通道（Channel）可以容纳的最大元素数量
+        /// </summary>
+        public const int SSECapacity = 20;
     }
 }

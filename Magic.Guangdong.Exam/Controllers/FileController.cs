@@ -28,6 +28,7 @@ namespace Magic.Guangdong.Exam.Controllers
             _fileRepo = fileRepo;
             this.resp = resp;
             _capPublisher = capPublisher;
+            _baseUploadDir = $"{Directory.GetCurrentDirectory()}\\wwwroot\\upfile";
         }
 
         /// <summary>
@@ -272,25 +273,28 @@ namespace Magic.Guangdong.Exam.Controllers
                 var suffix = Path.GetExtension(fileName);
 
                 fileResponseDto.path = $"/{yearMonth}/{md5}/{fileName}";
-
+                string storageType = ConfigurationHelper.GetSectionValue("storageType");
                 var file = new DbServices.Entities.File()
                 {
                     Name = fileName,
                     Ext = suffix,
                     Size = fileSize,
-                    ShortUrl = fileResponseDto.path,
+                    //ShortUrl = fileResponseDto.path,
                     AccountId = adminId,
-                    ConnId = connId
+                    ConnId = connId,      
+                    Type = storageType,
+                    Md5 = md5,
+                    Remark="证书名单"
                 };
 
 
 
-                fileResponseDto.fileId = _fileRepo.addItemsIdentity(file);
+                //fileResponseDto.fileId = _fileRepo.addItemsIdentity(file);
                 #region 上传到远程附件服务器（或本地服务器，注释的代码是本地）
 
                 try
                 {
-                    string storageType = ConfigurationHelper.GetSectionValue("storageType");
+                    
                     if (storageType == "local")
                     {
                         FileInfo fi = new FileInfo(finalPath);
@@ -311,13 +315,29 @@ namespace Magic.Guangdong.Exam.Controllers
                         {
                             //共享文件夹的目录
                             DirectoryInfo theFolder = new DirectoryInfo(remoteBase + "\\");
+
+                            string PathName = "";
+                            string PathDate = $"{DateTime.Now.ToString("yyyyMM")}\\{Utils.GetCurrentWeekOfMonth(DateTime.Now)}";
+                            if (!string.IsNullOrEmpty(ConfigurationHelper.GetSectionValue("resourceDir")))
+                            {
+                                PathName = $"{ConfigurationHelper.GetSectionValue("resourceDir").TrimStart('/')}\\{PathDate}\\";
+                                
+                            }
+                            else
+                            {
+                                PathName = $"{PathDate}\\";
+                            }
+                            
+                            fileResponseDto.path = "/"+Path.Combine(PathName, fileName).Replace("\\","/");
+                            file.ShortUrl = fileResponseDto.path;
+                            file.Path = Path.Combine(theFolder.ToString(),PathName, fileName);
                             //获取保存文件的路径
-                            string PathName = theFolder.ToString() + $"{yearMonth}\\{md5}\\";
+                            //string PathName = theFolder.ToString() + $"{yearMonth}\\{md5}\\";
                             //执行方法
                             //await Task.Run(() => FileHelper.Transport(finalPath, PathName, fileName));
                             //上传文件到附件服务器，同时删掉本地文件节省服务器空间
-                            await FileHelper.Transport(finalPath, PathName, fileName, true);
-                            file.Path = Path.Combine(PathName,fileName);
+                            await FileHelper.Transport(finalPath, Path.Combine(theFolder.ToString(),PathName), fileName, true);
+                            
                         }
                         else
                         {
@@ -325,7 +345,7 @@ namespace Magic.Guangdong.Exam.Controllers
                         }
                     }
 
-                    await _fileRepo.addItemAsync(file);
+                    await _fileRepo.insertOrUpdateAsync(file);
                 }
                 catch
                 {

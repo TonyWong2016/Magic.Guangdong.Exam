@@ -53,7 +53,7 @@
                     </a>
                 </div>
             </div>
-
+            <input class="layui-input" id="progress"/>
         </div>
     </form>
 
@@ -85,10 +85,10 @@
             id: 'downloadTemplate'
         }, {
             title: '导入模板',
-            id: 'import'
+            id: 'importCerts'
         }, {
             title: '导出记录',
-            id: 'export'
+            id: 'exportCerts'
         }, {
             title: '批量编辑',
             id: 'bulkEdit'
@@ -122,6 +122,27 @@
                     layer.msg("模板下载失败", { icon: 2 });
                 }
             })
+    }
+
+    function importCerts(){
+        layer.open({
+            type: 2,
+            shade: [0.3, '#393D49'],
+            area: ['70%', '96%'],
+            title: "导入名单",
+            maxmin: true,
+            content: `@Url.Action("Import")`,
+            zIndex: layer.zIndex,
+            success: function (layero) {
+                //弹出后回调
+                layer.setTop(layero);
+            },
+            end: function () {
+                //关闭弹窗，重新加载列表
+                //getTable(params);
+                location.reload();
+            }
+        });
     }
 
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'activityId', true);
@@ -237,5 +258,19 @@
             'isAsc': false, 
             'rd': randomInt
         };
+    }
+
+    getCertGenProgress()
+    function getCertGenProgress(){
+         const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
+            eventSource.onmessage = function (event) {
+                const progressData = JSON.parse(event.data);
+                const progress = progressData.progress;
+                // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
+                $('#progress').val(`Progress: ${progress}`);
+            };
+            eventSource.onerror = function (error) {
+                console.log('Error in SSE connection:', error);
+            };
     }
 </script>

@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
@@ -9,6 +10,7 @@ using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Threading.Channels;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 {
@@ -25,9 +27,10 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         private readonly IHubContext<Tools.ConnectionHub> _myHub;
         private readonly ICapPublisher _capPublisher;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Channel<string> _channel;
         private string adminId = "";
 
-        public CertController(IResponseHelper resp, ICertRepo certRepo, ICertTemplateRepo certTemplateRepo, IHttpContextAccessor contextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en,IRedisCachingProvider redisCachingProvider,IHubContext<Tools.ConnectionHub> myHub,ICapPublisher capPublisher,IHttpClientFactory httpClientFactory)
+        public CertController(IResponseHelper resp, ICertRepo certRepo, ICertTemplateRepo certTemplateRepo, IHttpContextAccessor contextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en, IRedisCachingProvider redisCachingProvider, IHubContext<Tools.ConnectionHub> myHub, ICapPublisher capPublisher, IHttpClientFactory httpClientFactory)
         {
             _resp = resp;
             _certRepo = certRepo;
@@ -43,6 +46,11 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 adminId = cookieValue;
             }
+            // 创建一个有界的通道，用于传递消息（这里简单示例，可按需调整缓冲区等配置）
+            _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(UtilConsts.SSECapacity)
+            {
+                FullMode = BoundedChannelFullMode.DropOldest
+            });
         }
 
         public IActionResult Index()
@@ -65,7 +73,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [ResponseCache(Duration = 100,VaryByQueryKeys = new string[] { "whereJsonStr", "rd", "isAsc", "orderby" })]
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "rd", "isAsc", "orderby" })]
         public IActionResult GetCerts(PageDto dto)
         {
             long total;
@@ -77,6 +85,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             return View();
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportExcelData(ImportDto model)
         {
             string key = $"importList-{Security.GenerateMD5Hash(model.Path)}";
@@ -90,7 +99,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 importList = await ExcelHelper<ImportTemplateDto>.GetImportData(model.Path);
             }
 
-            await _certTemplateRepo.CacheActivitiesAndExams(importList);
+            //await _certTemplateRepo.CacheActivitiesAndExams(importList);
 
             int importTotal = importList.Count;
             if (importTotal > model.CertNumLength)
@@ -98,9 +107,9 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 return Json(_resp.error($"导入的条数为{importTotal}条，高余设定的导入编号上限"));
             }
             var idNumbers = importList.Select(u => u.IdNumber).ToList();
-            if (await _certRepo.getAnyAsync(u=> idNumbers.Contains(u.IdNumber) && u.IsDeleted==0))
+            if (model.IsOverwrite == 0 && await _certRepo.getAnyAsync(u => idNumbers.Contains(u.IdNumber) && u.IsDeleted == 0))
             {
-                return Json(_resp.error($"导入的数据中有重复的id号码"));
+                return Json(_resp.ret(1,$"导入的数据中有重复的id号码"));
             }
             List<string> orginCertNums = importList.Select(u => u.CertNo).ToList();
             List<string> certNums = new List<string>();
@@ -109,15 +118,21 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 certNums.Add(model.CertNumPrefix + (item.Length < model.CertNumLength ? new string('0', model.CertNumLength - item.Length) + item : item.Substring(0, model.CertNumLength)));
             }
 
-            if (model.IsOverwrite == 0 && await _certRepo.getAnyAsync(u => certNums.Contains(u.CertNo)))
+            if (model.IsOverwrite == 0 && await _certRepo.getAnyAsync(u => certNums.Contains(u.CertNo) && u.IsDeleted == 0))
             {
-                
+
                 await _redisCachingProvider.StringSetAsync(key, JsonHelper.JsonSerialize(importList), TimeSpan.FromMinutes(2));
                 return Json(_resp.ret(2, "部分编号记录已存在，是否要覆盖原数据"));
             }
+
             await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", "生成证书可能需要较长时间，取决于模板大小和您导入名单的数量，这是一个异步操作，生成情况会实时反馈到前台，期间您不必一直在当前页面停留");
-            await _capPublisher.PublishAsync(CapConsts.PREFIX + "InsertCertData", new ImportCapDto { ImportList = importList, ImportModel = model });
-            return Json(_resp.ret(0, "正在后台生成，稍后可在后台查看"));
+            foreach (var items in importList.Chunk(10))
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "InsertCertData", new ImportCapDto { ImportList = items.ToList(), ImportModel = model });
+
+            }
+
+            return Json(_resp.ret(0, "正在后台生成，稍后可在后台查看", importList.Count));
         }
 
         [NonAction]
@@ -129,22 +144,25 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 //序列化模板信息
                 string resourceHost = ConfigurationHelper.GetSectionValue("resourceHost");
                 var template = await _certTemplateRepo.getOneAsync(u => u.Id == dto.ImportModel.TemplateId);
+                if (template == null)
+                    return;
                 var certConfig = JsonHelper.JsonDeserialize<CertTemplateDto>(template.ConfigJsonStrForImg);
                 certConfig.certTempUrl = template.Url;
                 string requestUrl = template.Url;
-                if (certConfig.certTempUrl.StartsWith("http"))
+                if (!certConfig.certTempUrl.StartsWith("http"))
                 {
                     requestUrl = resourceHost + template.Url;
                 }
-                using(var client = _httpClientFactory.CreateClient(UtilConsts.CLIENTFACTORYNAME))
+                using (var client = _httpClientFactory.CreateClient(UtilConsts.CLIENTFACTORYNAME))
                 {
                     certConfig.certTempData = await client.GetByteArrayAsync(requestUrl);
                 }
                 List<DbServices.Entities.Cert> certList = new List<DbServices.Entities.Cert>();
                 int finished = 0;
-                foreach (var item in dto.ImportList) {
+                foreach (var item in dto.ImportList)
+                {
                     item.CertNo = dto.ImportModel.CertNumPrefix + (item.CertNo.Length < dto.ImportModel.CertNumLength ? new string('0', dto.ImportModel.CertNumLength - item.CertNo.Length) + item.CertNo : item.CertNo.Substring(0, dto.ImportModel.CertNumLength));
-                    
+
                     Type tImport = typeof(ImportTemplateDto);
                     Type tContent = typeof(TemplateContentModel);
                     var tmpContent = new TemplateContentModel();
@@ -159,17 +177,17 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                     }
                     string filename = $"{dto.ImportModel.TemplateId}-{item.CertNo}";
                     string path = await _sixLaborHelper.MakeCertPic(_en.WebRootPath, certConfig, filename);
-                    
-                    long activityId = 0;
-                    if (await _redisCachingProvider.HExistsAsync("ImportActivities", item.ActivityTitle))
-                    {
-                        activityId = Convert.ToInt64(await _redisCachingProvider.HGetAsync("ImportActivities", item.ActivityTitle));
-                    }
-                    Guid examId = Guid.Empty;
-                    if(await _redisCachingProvider.HExistsAsync("ImportExams", item.ExamTitle))
-                    {
-                        examId = Guid.Parse(await _redisCachingProvider.HGetAsync("ImportExams", item.ExamTitle));
-                    }
+
+                    //long activityId = 0;
+                    //if (await _redisCachingProvider.HExistsAsync("ImportActivities", item.ActivityTitle))
+                    //{
+                    //    activityId = Convert.ToInt64(await _redisCachingProvider.HGetAsync("ImportActivities", item.ActivityTitle));
+                    //}
+                    //Guid examId = Guid.Empty;
+                    //if (await _redisCachingProvider.HExistsAsync("ImportExams", item.ExamTitle))
+                    //{
+                    //    examId = Guid.Parse(await _redisCachingProvider.HGetAsync("ImportExams", item.ExamTitle));
+                    //}
                     certList.Add(new DbServices.Entities.Cert()
                     {
                         TemplateId = dto.ImportModel.TemplateId,
@@ -178,18 +196,22 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                         AwardName = item.AwardName,
                         Url = path,
                         CertContent = JsonHelper.JsonSerialize(certConfig.contentList.Select(u => new { u.key, u.content })),
-                        ActivityId = activityId,
-                        ExamId = examId,
+                        
+                        ActivityId=dto.ImportModel.ActivityId,
+                        ExamId = dto.ImportModel.ExamId,
                         Title = dto.ImportModel.Title,
                         Status = DbServices.Entities.CertStatus.Enable,
-
+                        AccountId = adminId
                     });
                     finished++;
 
                     await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", $"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}");
-
+                    // 这里模拟进度消息，格式化为字符串，真实场景按业务逻辑生成合适的进度表示消息
+                    var progressMessage = $"{{ \"progress\": \"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}\" }}";
+                    await _channel.Writer.WriteAsync(progressMessage);
                 }
-                await _certRepo.addItemsAsync(certList);
+                
+                await _certRepo.InsertCertBatch(certList);
             }
             catch (Exception ex)
             {
@@ -198,12 +220,41 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 
             }
         }
+
+        [HttpGet("progress")]
+        public async Task GetCertGenerationProgress(string adminId, string examId)
+        {
+            Response.Headers.Append("Content-Type", "text/event-stream");
+            Response.Headers.Append("Cache-Control", "no-cache");
+            Response.Headers.Append("Connection", "keep-alive");
+            try
+            {
+                while (true)
+                {
+                    // 从通道中读取消息（这里等待消息到来）
+                    var message = await _channel.Reader.ReadAsync();
+                    // 按照SSE协议格式发送数据到客户端
+                    await Response.WriteAsync($"data:{message}\n\n");
+                    await Response.Body.FlushAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // 可以记录异常等处理
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                // 清理资源等操作
+                _channel.Writer.Complete();
+            }
+        }
     }
 
     public class ImportCapDto
     {
         public List<ImportTemplateDto> ImportList { get; set; }
 
-        public ImportDto ImportModel {  get; set; }
+        public ImportDto ImportModel { get; set; }
     }
 }

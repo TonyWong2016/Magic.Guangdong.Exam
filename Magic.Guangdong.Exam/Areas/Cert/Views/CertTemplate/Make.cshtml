@@ -152,11 +152,13 @@
         setTimeout(() => {
             startNumber = canvas.getObjects().length + 1;
             if (localStorage.getItem('templateJson')) {
-                let contentList = JSON.parse(localStorage.getItem('templateJson')).contentList;
-                startNumber = contentList.length + 1;
-                contentList.forEach(item => {
-                    keyValueArr.push({key:item.key,value:item.content});
-                })
+                let contentList = JSON.parse(localStorage.getItem('templateJson'))
+                if(contentList && contentList.length>0){
+                    startNumber = contentList.length + 1;
+                    contentList.forEach(item => {
+                        keyValueArr.push({key:item.key,value:item.content});
+                    })
+                }
             }
         }, 500)
     }
@@ -248,8 +250,9 @@
                 let item = canvas._objects[i];
                 if (item.text) {
                     let key = item.text;
-                    if (keyValueArr.filter(u => u.value == item.text)) {
-                           key = keyValueArr.filter(u => u.value == item.text)[0].key
+                    let keyValueItems = keyValueArr.filter(u => u.value == item.text)
+                    if (keyValueItems.length>0 && keyValueItems[0].key) {
+                           key = keyValueItems[0].key;
                     }
                     certParam.contentList.push({
                         content: item.text,
@@ -292,7 +295,7 @@
 
         let ret = await request('POST', '/cert/certtemplate/Preview', formData,CT)
        
-        let baseUrl = `${location.protocol}//${location.host}`;
+        let baseUrl = '@Model.ResourceHost';
         layer.closeAll('loading');
         window.open(baseUrl + ret.data);
         hiddenMenu();

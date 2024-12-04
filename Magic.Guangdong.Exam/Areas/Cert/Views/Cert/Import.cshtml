@@ -9,7 +9,7 @@
             <div class="layui-form-item normalField">
                 <label class="layui-form-label">归属活动</label>
                 <div class="layui-input-block">
-                    <select id="ActivityId" lay-filter="ActivityId">
+                    <select id="activityId" lay-filter="activityId">
                         <option value="">请选择归属活动(如果有)</option>
                     </select>
                 </div>
@@ -26,13 +26,13 @@
            
             <div class="layui-form-item">
                 <label class="layui-form-label">证书模板</label>
-                <div class="layui-input-inline" style="width:55%">
+                <div class="layui-input-block">
                     <select id="templateId" lay-filter="templateId">
                         <option value="">请选择对应模板</option>
 
                     </select>
                 </div>
-                <input type="checkbox" name="showcommon" lay-filter="showcommon" title="显示公用模板(对赛区管理员有效)" lay-skin="primary">
+                @* <input type="checkbox" name="showcommon" lay-filter="showcommon" title="显示公用模板(对赛区管理员有效)" lay-skin="primary"> *@
 
             </div>
             <div class="layui-form-item">
@@ -58,7 +58,7 @@
                 <div class="layui-input-block">
                     <input class="layui-input" type="text" name="certNumPrefix" id="certNumPrefix" placeholder="请输入编号前缀（将在序号前增加的前缀，没有可为空）" />
                     <br />
-                    <blockquote class="layui-elem-quote">前缀将追加在编号前方，如前缀设置成2021，长度设置成3，则最终的编号为2021001，不设置则最终编号就是001</blockquote>
+                    <blockquote class="layui-elem-quote">前缀将追加在编号前方，如前缀设置成2024，长度设置成3，则最终的编号为2021001，不设置则最终编号就是001</blockquote>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -96,10 +96,10 @@
                 <div class="layui-form-mid layui-word-aux" style="margin-left:-130px;color:red!important">注意：强制颁发后，将不验证是否通过决赛审核，颁发门槛降低到和选拔赛证书一致</div>
             </div>
 
-            <div class="layui-form-item">
+            <div class="layui-form-item" style="text-align:center">
                 @*<a class="layui-btn layui-btn-primary" href="javascript:;" onclick="DownloadTemplate()" id="btnDownloadTemplate">下载模板</a>*@
-                <a class="layui-btn" href="javascript:;" id="btnUpload" style="display:none">上传</a>
-                <a class="layui-btn layui-btn-disabled" href="javascript:;" id="btnUploadDisable">上传</a>
+                <a class="layui-btn" href="javascript:;" id="btnUpload" style="display:none"><i class="layui-icon layui-icon-upload"></i> 上传</a>
+                <a class="layui-btn layui-btn-disabled" href="javascript:;" id="btnUploadDisable"><i class="layui-icon layui-icon-upload"></i> 上传</a>
                 <div class="layui-input-inline layui-progress layui-progress-big" style="margin-top:8px;width:20%;display:none" id="progressBar" lay-filter="progressBar" lay-showPercent="true">
                     <div class="layui-progress-bar  layui-bg-blue" lay-percent="0%"></div>
                 </div>
@@ -113,16 +113,133 @@
     <option value="{{ item.value }}">{{item.text}}</option>
     {{# }) }}
 </script>
-<script src="~/plugins/fcup2/fcup.min.js"></script>
+<script src="~/plugins/fcup2/fcup.js"></script>
 <script src="~/web/myfcup.js"></script>
 <script>
     let form = layui.form;
     let activityId = '0';
-    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
+    let templateId='0';
+    let isOverwrite='0';
+    getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'activityId', true)
         .then(v => {
             form.render('select')
         })
-    form.on('select(ActivityId)', (data) => {
-        activityId = data.value        
+    getSelectItems('/exam/examination/getexammini', { id: '', type: 0, examType:0, rd: randomInt }, 'selectTpl', 'examId', true)
+    getSelectItems('/Cert/CertTemplate/GetTemplateDrops', { rd: randomInt }, 'selectTpl', 'templateId', true)
+
+    form.on('select(templateId)', function (data) {
+        templateId = data.value;
+    });
+    form.on('select(activityId)', (data) => {
+        activityId = data.value;
+        getSelectItems('/exam/examination/getexammini', { id: activityId, type: 0, examType: 0,rd: randomInt }, 'selectTpl', 'examId', false)
+            .then(v => {
+                form.render('select')
+            })
+        getSelectItems('/Cert/CertTemplate/GetTemplateDrops', { activityId: activityId, rd: randomInt }, 'selectTpl', 'templateId', false)
+            .then(v => {
+                form.render('select')
+            })
     })
+
+    initUploadFileChunk('btnUpload', 'xls,xlsx', 'progressBar', '','', [{'key': '__RequestVerificationToken','value':requestToken}], async function (data) {
+        console.log(data);
+        data = JSON.parse(data);
+        if (!data.path) {
+            TT.error('上传失败')
+            return;
+        }
+        //let tmpUrl = data.path.indexOf('upfile') > -1 ? data.path : '/upfile' + data.path
+        $('#path').val(data.path);
+        successMsg('1.上传成功，正在导入记录...');
+        // $('#progressBar').hide();
+        await ImportExcelData(0);
+    });
+
+    //导入数据
+    async function ImportExcelData(isOverwrite) {
+        let params = {
+            'TemplateId': templateId.toString(),
+            'Path': $('#path').val(),
+            'Title': $('#title').val(),
+            'CertNumLength': parseInt($('#certNumLength').val()),
+            'CertNumPrefix': $('#certNumPrefix').val(),
+            'Status': $('#status').val(),
+            'ExamId':$('#examId').val(),
+            'ActivityId':$('#activityId').val(),
+            'Type': $('#type').val(),
+            'IsOverwrite': isOverwrite,
+            'CertType': 0,
+            'IsForce': 0,
+            '__RequestVerificationToken':requestToken
+        };
+
+       let formData = objectToFormData(params);
+       let json = await request('POST', '@Url.Action("ImportExcelData")', formData, { 'Content-Type': 'multipart/form-data' });
+
+       if (json.code == 0) {
+            successMsg(`2.导入成功成功,共计导入了${json.data}条记录`);
+        } else if (json.code >= 1) {
+            layer.confirm('检测到上传的名单中有已经入库获奖的用户，点击确定将重新颁发证书', { icon: 3, title: '提示' }, async function (index) {
+                await ImportExcelData(1);
+                layer.close(index);
+            })
+        } 
+        else
+            errorMsg(`上传失败：${json.msg}`);
+
+        // console.log(params);
+        // axios.get('@Url.Action("ImportExcelData")', {
+        //     params:
+        //         params
+        // }).then(function (data) {
+        //     if (data.status == 200) {
+        //         let json = data.data;
+        //         if (json.code == 1) {
+        //             TT.info(`2.导入成功成功,共计导入了${json.data}条记录`);
+        //         } else if (json.code == 2) {
+        //             layer.confirm('检测到上传的名单中有已经入库获奖的用户，点击确定将重新颁发证书', { icon: 3, title: '提示' }, function (index) {
+        //                 ImportExcelData(1);
+        //                 layer.close(index);
+        //             })
+        //         } else if (json.code == 0) {
+        //             console.log(json.msg);
+        //         }
+        //         else
+        //             TT.error(`上传失败：${json.msg}`);
+        //     }
+
+        // });
+    }
+
+    autoSearch('title', function () {
+        if (checkModel() && templateId > 0) {
+            $('#btnUpload').show();
+            $('#btnUploadDisable').hide();
+        } else {
+            $('#btnUpload').hide();
+            $('#btnUploadDisable').show();
+        }
+    })
+
+    form.on('select', function (data) {
+        if (checkModel() && templateId > 0) {
+            $('#btnUpload').show();
+            $('#btnUploadDisable').hide();
+        } else {
+            $('#btnUpload').hide();
+            $('#btnUploadDisable').show();
+        }
+    })
+
+    function checkModel() {
+        let flag = true;
+        $('.importData').each(function (index, item) {
+            if (!$(item).val()) {
+                flag = false;
+                return flag;
+            }
+        })
+        return flag;
+    }
 </script>

@@ -173,7 +173,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         /// <param name="config_str"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Preview(string config_str, string filename = "")
         {
             var config = JsonHelper.JsonDeserialize<CertTemplateDto>(config_str);

@@ -82,8 +82,12 @@
         elemId: 'btnUpload',
         accept: 'images',
         callback: function (res) {
-            $('#tmpPreview').attr('src', res.data).attr('width', '120px').show();
-            $('#Url').val(res.data)
+            let shortUrl = res.data;
+            if(shortUrl.indexOf('http') < 0){
+                shortUrl ='@Model.ResourceHost' + shortUrl;
+            }
+            $('#tmpPreview').attr('src', shortUrl).attr('width', '120px').show();
+            $('#Url').val(shortUrl)
         }
     }
     initUploadFilePro(fileUpObj);
@@ -92,6 +96,11 @@
         $('#tmpPreview').attr('src', imgPath).attr('width', '120px').show();
     }
 
+    $('#btnBack').click(()=>{
+            localStorage.removeItem('templateJson')
+            localStorage.removeItem('canvasJson')
+    });
+
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
         .then(v => {
             //associationId = selectRet[0].value
@@ -99,7 +108,7 @@
             $('#Type').val('@((int)Model.Type)');
             $('#Status').val('@((int)Model.Status)');
             form.render('select')
-            
+
         })
 
     if (localStorage.getItem('templateJson')) {
@@ -113,7 +122,9 @@
         let formData = objectToFormData(data.field);
         var ret = await request('POST', '/cert/certtemplate/edit', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
-            successMsg('创建成功', () => {
+            localStorage.removeItem('templateJson')
+            localStorage.removeItem('canvasJson')
+            successMsg('保存成功', () => {
                 window.location.href = '@Url.Action("Index")';
             });
             return;

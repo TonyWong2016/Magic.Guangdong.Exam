@@ -9,5 +9,6 @@ namespace Magic.Guangdong.DbServices.Interfaces
 {
     public  interface ICertRepo: IExaminationRepository<Cert>
     {
+        Task<int> InsertCertBatch(List<Cert> certs);
     }
 }

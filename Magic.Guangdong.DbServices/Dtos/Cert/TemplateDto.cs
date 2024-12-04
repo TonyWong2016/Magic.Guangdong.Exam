@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.DbServices.Entities;
+﻿using Magic.Guangdong.Assistant;
+using Magic.Guangdong.DbServices.Entities;
 using Magicodes.ExporterAndImporter.Core;
 using Magicodes.ExporterAndImporter.Excel;
 using System;
@@ -39,6 +40,13 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
 
         public CertTemplateLockStatus IsLock { get; set; }
 
+        public string ResourceHost
+        {
+            get
+            {
+                return ConfigurationHelper.GetSectionValue("resourceHost");
+            }
+        }
     }
 
     [ExcelImporter(IsLabelingError = true)]

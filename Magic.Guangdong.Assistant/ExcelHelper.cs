@@ -87,7 +87,7 @@ namespace Magic.Guangdong.Assistant
             filePath = Path.Combine(filePath, $"{templateName}.xlsx");
             if (File.Exists(filePath)) File.Delete(filePath);
             await Importer.GenerateTemplate<T>(filePath);
-            return await FileHelper.SyncFile(filePath, templateName);
+            return await FileHelper.SyncFile(filePath, $"{templateName}.xlsx");
         }
 
 

@@ -111,16 +111,24 @@ namespace Magic.Guangdong.Assistant
         public async Task<string> MakeCertPic(string savePath, CertTemplateDto model, string filename)
         {
             string storageType = ConfigurationHelper.GetSectionValue("storageType");
-            if (storageType == "local")
+           
+            if (model.certTempData != null && model.certTempData.Length > 0) {
+            // do nothing.
+            }
+            else if (!string.IsNullOrEmpty(model.certTempUrl))
+            {
+                HttpClient hc = new HttpClient();
+                model.certTempData = await hc.GetByteArrayAsync(model.certTempUrl);
+                hc.Dispose();
+            }
+            else if (storageType == "local")
             {
                 string localPath = savePath + model.certTempUrl.Replace("/", "\\");
                 model.certTempData = FileHelper.getFileByte(localPath);
             }
-            else if (model.certTempData == null && !string.IsNullOrEmpty(model.certTempUrl))
+            else if (storageType == "server")
             {
-                System.Net.WebClient wc = new System.Net.WebClient();
-                model.certTempData = wc.DownloadData(model.certTempUrl);
-                wc.Dispose();
+                model.certTempData =  FileHelper.getFileByte(model.certTempUrl);
             }
             FontCollection collection = new FontCollection();
             string fontFile = @$"{savePath}\fonts\siyuansongti.ttf";
@@ -231,7 +239,7 @@ namespace Magic.Guangdong.Assistant
             
 
             await image.SaveAsJpegAsync(uploadPath);
-            string ret = await FileHelper.SyncFile(uploadPath, filename);
+            string ret = await FileHelper.SyncFile(uploadPath, filename+".jpg");
             return ret;
         }
 

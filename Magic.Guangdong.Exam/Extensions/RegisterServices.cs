@@ -99,7 +99,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
             });
 
-           
+            
 
         }
 

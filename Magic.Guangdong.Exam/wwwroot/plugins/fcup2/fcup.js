@@ -218,7 +218,9 @@
             //    this.form_data.append("apped_data", JSON.stringify(this.apped_data));
             //}
             if (this.apped_data && this.apped_data.length > 0) {
+
                 this.apped_data.forEach(v => {
+                    console.log(v)
                     this.form_data.append(v.key, v.value);
                 })
             }
@@ -279,8 +281,8 @@
             that.result_status = false;
             if (xhr.responseText) {
                 let json = JSON.parse(xhr.responseText);
-                if (json.code != 1) {
-                    Toaster.error(json.msg)
+                if (json.code && json.code < 0) {
+                    errorMsg('异常')
                     this.cancel = true;
                     return;
                 }
@@ -432,12 +434,12 @@
             let frOnload = function (e) {
                 spark.append(e.target.result);
                 currentChunk++;
-                if (currentChunk == 1 && Toaster) {
+                if (currentChunk == 1) {
                     //layer.load();
                     //layer.msg("上传较大文件时，会耗时较长时间来进行文件验证（1Gb文件大约需要30秒），请耐心等待...", { icon: 0 }, function () {
                     //    //layer.load();
                     //});                    
-                    Toaster.warning("文件校验中，请耐心等待...")
+                    warnMsg("文件校验中，请耐心等待...")
                 }
                 if (currentChunk < chunks) {
                     loadNext();
@@ -496,7 +498,7 @@
                     if (xhr.responseText) {
                         let json = JSON.parse( xhr.responseText);
                         if (json.code != 1) {
-                            Toaster.error("上传失败," + json.msg);
+                            errorMsg("上传失败," + json.msg);
                             setTimeout(v => {
                                 location.reload();
                             },3000)
