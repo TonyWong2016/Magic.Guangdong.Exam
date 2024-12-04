@@ -56,7 +56,7 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
                 }
                 Assistant.Logger.Debug("开始抽题喽");
                 int i = 1;
-                foreach (var item in paperIds.Chunk(50))
+                foreach (var item in paperIds.Chunk(20))
                 {
                     Assistant.Logger.Debug($"第{i}把") ;
                     Assistant.Logger.Debug(string.Join(',', item));
