@@ -10,6 +10,7 @@ using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Threading.Channels;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
@@ -27,9 +28,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         private readonly IHubContext<Tools.ConnectionHub> _myHub;
         private readonly ICapPublisher _capPublisher;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly Channel<string> _channel;
         private string adminId = "";
-
         public CertController(IResponseHelper resp, ICertRepo certRepo, ICertTemplateRepo certTemplateRepo, IHttpContextAccessor contextAccessor, ISixLaborHelper sixLaborHelper, IWebHostEnvironment en, IRedisCachingProvider redisCachingProvider, IHubContext<Tools.ConnectionHub> myHub, ICapPublisher capPublisher, IHttpClientFactory httpClientFactory)
         {
             _resp = resp;
@@ -47,10 +46,10 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 adminId = cookieValue;
             }
             // 创建一个有界的通道，用于传递消息（这里简单示例，可按需调整缓冲区等配置）
-            _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(UtilConsts.SSECapacity)
-            {
-                FullMode = BoundedChannelFullMode.DropOldest
-            });
+            //_channel = Channel.CreateBounded<string>(new BoundedChannelOptions(UtilConsts.SSECapacity)
+            //{
+            //    FullMode = BoundedChannelFullMode.DropOldest
+            //});
         }
 
         public IActionResult Index()
@@ -88,6 +87,11 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportExcelData(ImportDto model)
         {
+            if (await _redisCachingProvider.KeyExistsAsync("generationCertMark"))
+            {
+                return Json(_resp.error("当前存在正在进行中的证书生成任务，请等待其完成后在进行新的任务"));
+
+            }
             string key = $"importList-{Security.GenerateMD5Hash(model.Path)}";
             List<ImportTemplateDto> importList;
             if (await _redisCachingProvider.KeyExistsAsync(key))
@@ -125,7 +129,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 return Json(_resp.ret(2, "部分编号记录已存在，是否要覆盖原数据"));
             }
 
-            await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", "生成证书可能需要较长时间，取决于模板大小和您导入名单的数量，这是一个异步操作，生成情况会实时反馈到前台，期间您不必一直在当前页面停留");
+            //await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", "生成证书可能需要较长时间，取决于模板大小和您导入名单的数量，这是一个异步操作，生成情况会实时反馈到前台，期间您不必一直在当前页面停留");
             foreach (var items in importList.Chunk(10))
             {
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "InsertCertData", new ImportCapDto { ImportList = items.ToList(), ImportModel = model });
@@ -141,6 +145,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         {
             try
             {
+                await _redisCachingProvider.StringSetAsync("generationCertMark", dto.ImportList.Count.ToString(), TimeSpan.FromHours(2));
                 //序列化模板信息
                 string resourceHost = ConfigurationHelper.GetSectionValue("resourceHost");
                 var template = await _certTemplateRepo.getOneAsync(u => u.Id == dto.ImportModel.TemplateId);
@@ -205,38 +210,49 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                     });
                     finished++;
 
-                    await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", $"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}");
+                    //await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", $"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}");
                     // 这里模拟进度消息，格式化为字符串，真实场景按业务逻辑生成合适的进度表示消息
-                    var progressMessage = $"{{ \"progress\": \"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}\" }}";
-                    await _channel.Writer.WriteAsync(progressMessage);
+                    double precent = Math.Round((double)finished / dto.ImportList.Count, 2) * 100;
+                    var progressMessage = $"{{\"progress\":\"{precent}\", \"msg\": \"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}\" }}";
+                    await _redisCachingProvider.StringSetAsync("certProgress", progressMessage, TimeSpan.FromMinutes(1));
                 }
                 
                 await _certRepo.InsertCertBatch(certList);
+                await _redisCachingProvider.KeyDelAsync("generationCertMark");
+
             }
             catch (Exception ex)
             {
-                Logger.Error($"导入错误:{ex.Message},\n{ex.StackTrace}");
-                await _myHub.Clients.All.SendAsync("ReceiveMessage", $"导入错误:{ex.Message}");
+                await _redisCachingProvider.KeyDelAsync("generationCertMark");
 
+                Logger.Error($"导入错误:{ex.Message},\n{ex.StackTrace}");
             }
         }
 
         [HttpGet("progress")]
         public async Task GetCertGenerationProgress(string adminId, string examId)
         {
-            Response.Headers.Append("Content-Type", "text/event-stream");
-            Response.Headers.Append("Cache-Control", "no-cache");
-            Response.Headers.Append("Connection", "keep-alive");
+            Response.Headers["Content-Type"]="text/event-stream";
+            Response.Headers["Cache-Control"]= "no-cache";
+            if (HttpContext.Request.Protocol.StartsWith("HTTP/1.1"))
+            {
+                Response.Headers["Connection"] = "keep-alive";
+            }            
             try
             {
                 while (true)
                 {
+                    await Task.Delay(2000);
                     // 从通道中读取消息（这里等待消息到来）
-                    var message = await _channel.Reader.ReadAsync();
+                    var message = await _redisCachingProvider.StringGetAsync("certProgress");
+
+                    if (string.IsNullOrEmpty(message))
+                        return;
                     // 按照SSE协议格式发送数据到客户端
                     await Response.WriteAsync($"data:{message}\n\n");
                     await Response.Body.FlushAsync();
                 }
+
             }
             catch (Exception ex)
             {
@@ -246,7 +262,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             finally
             {
                 // 清理资源等操作
-                _channel.Writer.Complete();
+                await _redisCachingProvider.KeyDelAsync("certProgress");
             }
         }
     }

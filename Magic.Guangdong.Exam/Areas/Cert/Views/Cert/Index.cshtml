@@ -53,22 +53,27 @@
                     </a>
                 </div>
             </div>
-            <input class="layui-input" id="progress"/>
+           
+        </div>
+        <div class=" layui-row layui-progress layui-progress-big" lay-showPercent="true" lay-filter="genProgress">
+
+            <div class="layui-progress-bar" lay-percent="0%"></div>
+
         </div>
     </form>
 
     <table class="layui-table" lay-filter="table" id="table"></table>
 </div>
 <script type="text/html" id="statusTpl">
-    {{# if(d.status==0){ }}
-    <span style="color:#5FB878">展示中</span>
-    {{#} else { }}
-    <span style="color:#c2c2c2">已下线</span>
-    {{#} }}
+     {{# if(d.status==0){ }}
+    <span class="layui-badge layui-bg-green">展示中</span>
+    {{# } else { }}
+    <span class="layui-badge">已下线</span>
+    {{# } }}
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-normal" href="{{ baseDownloadUrl + d.path }}" target="_blank">查看证书</a>
+    <a class="layui-btn layui-btn-normal" href="{{ baseDownloadUrl + d.url }}" target="_blank">查看证书</a>
 </script>
 
 <script>
@@ -77,7 +82,9 @@
     let activityId = 0;
     let templateId = 0;
     let examId = '';
+    let element = layui.element;
 
+    baseDownloadUrl = "@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")";
     dropdown.render({
         elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
         data: [{
@@ -181,8 +188,8 @@
                 , { field: 'id', title: 'id', hide: true }
                 , { field: 'title', title: '证书标题', width: "15%" }
                 , { field: 'awardName', title: '获奖人员', width: "15%" }
-                , { field: 'certNum', title: '证书编号', width: "12%" }
-                , { field: 'projectNo', title: '唯一ID号', width: "12%" }
+                , { field: 'certNo', title: '证书编号', width: "12%" }
+                , { field: 'idNumber', title: '唯一ID号', width: "12%" }
                 , { title: '状态', templet: '#statusTpl', width: "10%" }
                 , { field: 'createdAt', title: '发放时间', width: "12%" }
                 , { title: '操作', templet: '#operationTpl' }
@@ -267,10 +274,16 @@
                 const progressData = JSON.parse(event.data);
                 const progress = progressData.progress;
                 // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
-                $('#progress').val(`Progress: ${progress}`);
+                //$('#progress').val(`Progress: ${progress}`);
+                 element.progress('genProgress', `${progress}%`);
+                 if(progress==100){
+                     eventSource.close();
+                 }
+                 else
+                    successMsg(progressData.msg)
             };
             eventSource.onerror = function (error) {
-                console.log('Error in SSE connection:', error);
+                //console.log('Error in SSE connection:', error);
             };
     }
 </script>

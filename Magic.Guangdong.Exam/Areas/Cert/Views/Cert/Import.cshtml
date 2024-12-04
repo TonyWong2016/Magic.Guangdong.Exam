@@ -104,6 +104,7 @@
                     <div class="layui-progress-bar  layui-bg-blue" lay-percent="0%"></div>
                 </div>
             </div>
+
         </form>
     </div>
 </div>
@@ -188,28 +189,7 @@
         else
             errorMsg(`上传失败：${json.msg}`);
 
-        // console.log(params);
-        // axios.get('@Url.Action("ImportExcelData")', {
-        //     params:
-        //         params
-        // }).then(function (data) {
-        //     if (data.status == 200) {
-        //         let json = data.data;
-        //         if (json.code == 1) {
-        //             TT.info(`2.导入成功成功,共计导入了${json.data}条记录`);
-        //         } else if (json.code == 2) {
-        //             layer.confirm('检测到上传的名单中有已经入库获奖的用户，点击确定将重新颁发证书', { icon: 3, title: '提示' }, function (index) {
-        //                 ImportExcelData(1);
-        //                 layer.close(index);
-        //             })
-        //         } else if (json.code == 0) {
-        //             console.log(json.msg);
-        //         }
-        //         else
-        //             TT.error(`上传失败：${json.msg}`);
-        //     }
-
-        // });
+        
     }
 
     autoSearch('title', function () {
@@ -242,4 +222,18 @@
         })
         return flag;
     }
+
+    // getCertGenProgress()
+    // function getCertGenProgress(){
+    //      const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
+    //         eventSource.onmessage = function (event) {
+    //             const progressData = JSON.parse(event.data);
+    //             const progress = progressData.progress;
+    //             // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
+    //             $('#progress').val(`Progress: ${progress}`);
+    //         };
+    //         eventSource.onerror = function (error) {
+    //             console.log('Error in SSE connection:', error);
+    //         };
+    // }
 </script>
