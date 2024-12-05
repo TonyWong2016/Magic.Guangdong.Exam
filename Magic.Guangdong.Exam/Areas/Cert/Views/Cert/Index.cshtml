@@ -53,11 +53,11 @@
                     </a>
                 </div>
             </div>
-           
-        </div>
-        <div class=" layui-row layui-progress layui-progress-big" lay-showPercent="true" lay-filter="genProgress">
 
-            <div class="layui-progress-bar" lay-percent="0%"></div>
+        </div>
+        <div class="layui-row layui-progress layui-progress-big" lay-showPercent="true" lay-filter="genProgress">
+
+            <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
 
         </div>
     </form>
@@ -97,19 +97,29 @@
             title: '导出记录',
             id: 'exportCerts'
         }, {
-            title: '批量编辑',
-            id: 'bulkEdit'
+            title: '批量展示',
+            id: 'bulkShow'
+        }, {
+            title: '批量下架',
+            id: 'bulkDrop'
         }, {
             title: '批量删除',
             id: 'bulkDelete'
-        }],
+        }
+        ],
         click: function (obj) {
             console.log(obj)
             this.elem.find('span').text(obj.title);
             setTimeout(() => {
                 this.elem.find('span').text('选择操作');
             }, 2000)
-            if (typeof window[obj.id] === 'function') {
+            if(obj.id == 'bulkShow'){
+                bulkEdit(0);
+            }
+            else if(obj.id == 'bulkDrop'){
+                bulkEdit(1);
+            } 
+            else if (typeof window[obj.id] === 'function') {                
                 window[obj.id]();
             } else {
                 errorMsg(`【${obj.title}】未指定动作`);
@@ -175,6 +185,7 @@
         templateId = data.value;
         getCerts();
     })
+
     getCerts();
     function getCerts(){
         var params = {
@@ -261,13 +272,75 @@
         }
         return {
             'whereJsonStr': JSON.stringify(whereJsonStr),
-            'orderby': 'Id', 
-            'isAsc': false, 
+            'orderby': 'Id',
+            'isAsc': false,
             'rd': randomInt
         };
     }
 
+    async function exportCerts() {
+        let formData = new FormData();
+        formData.append('whereJsonStr',JSON.stringify(makeWhereJson()));
+        formData.append('__RequestVerificationToken',requestToken);
+        var ret = await request('POST', '/cert/cert/ExportCertRecords', formData, { 'Content-Type': 'multipart/form-data' });
+        if(ret.code==0){
+            successMsg('导出成功')
+            window.open(ret.data);
+        } else {
+                errorMsg('导出失败'+ret.msg);
+        }
+    }
+
+
+    //批量更新
+    function bulkEdit(status){
+        let currTable = layui.table
+            // 复选框事件
+           // 获取选中行相关数据
+        var tableStatus = currTable.checkStatus('table');
+        // console.log(tableStatus.data) // 选中行的数据
+        // console.log(tableStatus.data.length) // 选中行数量，可作为是否有选中行的条件
+        // console.log(tableStatus.isAll ) // 表格是否全选
+        var formData = new FormData();
+        if(tableStatus.data.length==0){
+            layer.confirm("未勾选任何选项，执行此操作，会以当前检索条件为准，批量修改数据("+$($('.layui-laypage-count')[0]).text()+")，确定继续执行吗?",{icon:0},async function(index){
+                layer.close(index);
+                formData = objectToFormData({ "whereJsonStr": makeWhereJson().whereJsonStr,"status": status,"__RequestVerificationToken": requestToken})
+                var ret = await request('POST', '/cert/cert/BulkUpdateCertByQuery', formData, { 'Content-Type': 'multipart/form-data' })
+                if(ret.code==0){
+                   successMsg("修改成功");
+                   getCerts();
+                   return;
+                }
+                errorMsg("修改失败"+ret.msg);
+            })
+        }else{
+            let certIds = tableStatus.data.map(u=>u.id)
+            console.log(certIds)
+            layer.confirm("确定要更新所勾选的记录吗?",{icon:0}, async function(index){
+                layer.close(index);
+
+                formData = objectToFormData({ "status": status,"__RequestVerificationToken": requestToken})
+                
+                certIds.forEach((certId) => {
+                   formData.append('certIds[]', certId);
+                 });
+                var ret = await request('POST', '/cert/cert/BulkUpdateCertByIds', formData, { 'Content-Type': 'multipart/form-data' })
+                if(ret.code==0){
+                   successMsg("修改成功");
+                   getCerts();
+                   return;
+                }
+                errorMsg("修改失败"+ret.msg);
+            })
+        }
+
+    }
+
+
     getCertGenProgress()
+    let finished=false;
+    $('.layui-progress').hide();
     function getCertGenProgress(){
          const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
             eventSource.onmessage = function (event) {
@@ -276,14 +349,25 @@
                 // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
                 //$('#progress').val(`Progress: ${progress}`);
                  element.progress('genProgress', `${progress}%`);
-                 if(progress==100){
-                     eventSource.close();
+
+                 if(!finished){
+                     successMsg(progressData.msg);
                  }
-                 else
-                    successMsg(progressData.msg)
+
+                 if(progress=='100'){
+                     finished = true;
+                     $('.layui-progress').hide();
+                     return;
+                 }
+
+                 $('.layui-progress').show();
             };
             eventSource.onerror = function (error) {
-                //console.log('Error in SSE connection:', error);
+                // finished = true;
+                // errorMsg('尝试建立SSE链接失败，请刷新页面重试');
+
+                // //console.log('Error in SSE connection:', error);
+                // eventSource.close();
             };
     }
 </script>

@@ -161,7 +161,7 @@ namespace Magic.Guangdong.Assistant
                     Directory.CreateDirectory(uploadPath);
                 }
                 //Excel的路径及名称
-                string excelPath = uploadPath + excelFileName;
+                string excelPath = Path.Combine(uploadPath, excelFileName);
                 using (var fileStream = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
                 {
                     //向Excel文件对象写入文件流，生成Excel文件
@@ -171,7 +171,7 @@ namespace Magic.Guangdong.Assistant
 
                 #region 导出的文件就不放附件服务器了，放到本地，定时清除
                 string url = await FileHelper.SyncFile(excelPath, excelFileName, true,"local");
-
+                
                 #endregion
 
                 //excel文件保存的相对路径，提供前端下载

@@ -1,48 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.9.8/css/layui.css">
-  <script src="https://cdn.staticfile.org/layui/2.9.8/layui.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Popup</title>
+  <style>
+    /* 隐藏弹出层 */
+   .progress-popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 环形进度所在的画布样式 */
+    #progressCanvas {
+      width: 150px;
+      height: 150px;
+    }
+
+    /* 进度文本样式 */
+    #progressText {
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
-
-<div class="layui-side layui-bg-black" id="navBar">
-  <div class="layui-side-scroll">
-    <ul class="layui-nav layui-nav-tree">
-      <!-- 一级导航 -->
-      <li class="layui-nav-item layui-nav-itemed">
-        <a href="javascript:;" class="layui-nav-title">一级菜单1</a>
-        <dl class="layui-nav-child">
-          <!-- 二级导航 -->
-          <dd>
-            <a href="javascript:;">二级菜单1</a>
-            <dl class="layui-nav-child">
-              <!-- 三级导航 -->
-              <dd><a href="#">三级菜单1</a></dd>
-              <dd><a href="#">三级菜单2</a></dd>
-              <!-- 可继续添加更多三级菜单 -->
-            </dl>
-          </dd>
-          <dd><a href="javascript:;">二级菜单2</a></dd>
-          <!-- 可继续添加更多二级菜单 -->
-        </dl>
-      </li>
-      <li class="layui-nav-item">
-        <a href="javascript:;" class="layui-nav-title">一级菜单2</a>
-        <!-- 同样可以在此处添加二级、三级及更多级菜单 -->
-      </li>
-      <!-- 可继续添加更多一级菜单 -->
-    </ul>
+  <button id="showProgressButton">显示进度</button>
+  <div id="progressPopup" class="progress-popup">
+    <canvas id="progressCanvas"></canvas>
+    <div id="progressText"></div>
   </div>
-</div>
+  <script>
+    // 获取相关元素
+    const showProgressButton = document.getElementById('showProgressButton');
+    const progressPopup = document.getElementById('progressPopup');
+    const progressCanvas = document.getElementById('progressCanvas');
+    const progressText = document.getElementById('progressText');
 
-<script>
-// 如果需要处理导航点击事件或展开折叠效果，可以在这里编写相应的 JavaScript 代码
-layui.use('element', function(){
-  var element = layui.element;
-});
-</script>
+    // 点击按钮显示弹出层
+    showProgressButton.addEventListener('click', function () {
+      progressPopup.style.display = 'flex';
+    });
 
+    // 点击页面空白处隐藏弹出层
+    document.addEventListener('click', function (event) {
+      if (event.target!== showProgressButton &&!progressPopup.contains(event.target)) {
+        progressPopup.style.display = 'none';
+      }
+    });
+
+    function drawProgress(progress, extraText = "") {
+      const canvas = progressCanvas;
+      const ctx = canvas.getContext('2d');
+
+      // 在下次重绘前，先清除canvas上已有的内容（避免多次绘制时出现图形重叠等问题）
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 获取canvas元素的实际宽度和高度（考虑样式等因素后的准确尺寸）
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) / 2 - 10;
+
+      // 绘制圆环背景
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 10;
+      ctx.stroke();
+
+      // 绘制进度圆环
+      const progressRadian = (progress / 100) * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + progressRadian);
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 10;
+      ctx.stroke();
+
+      // 设置并显示进度文本和额外内容
+      progressText.innerHTML = `${progress}% ${extraText}`;
+    }
+  </script>
 </body>
+
 </html>

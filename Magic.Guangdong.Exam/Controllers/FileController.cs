@@ -1,4 +1,5 @@
 ﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
@@ -17,18 +18,20 @@ namespace Magic.Guangdong.Exam.Controllers
         private IFileRepo _fileRepo;
         private readonly ICapPublisher _capPublisher;
         private readonly IResponseHelper resp;
+        private readonly IRedisCachingProvider _redisCachingProvider;
         /// <summary>
         /// 文件存放的根路径
         /// </summary>
         private readonly string _baseUploadDir;
 
-        public FileController(IWebHostEnvironment en,ICapPublisher capPublisher, IFileRepo fileRepo, IResponseHelper resp)
+        public FileController(IWebHostEnvironment en,ICapPublisher capPublisher, IFileRepo fileRepo, IResponseHelper resp,IRedisCachingProvider redisCachingProvider)
         {
             this.en = en;
             _fileRepo = fileRepo;
             this.resp = resp;
             _capPublisher = capPublisher;
             _baseUploadDir = $"{Directory.GetCurrentDirectory()}\\wwwroot\\upfile";
+            _redisCachingProvider = redisCachingProvider;
         }
 
         /// <summary>
@@ -188,6 +191,7 @@ namespace Magic.Guangdong.Exam.Controllers
             {
                 await file.CopyToAsync(stream);
                 LogicLog.WriteLogicLog(index.ToString(), _baseUploadDir + md5 + ".txt", false);
+                await _redisCachingProvider.HSetAsync("tempfiles", md5, _baseUploadDir + md5 + ".txt");
             }
 
             //如果是最后一个分块， 则合并文件
@@ -286,8 +290,6 @@ namespace Magic.Guangdong.Exam.Controllers
                     Md5 = md5,
                     Remark="证书名单"
                 };
-
-
 
                 //fileResponseDto.fileId = _fileRepo.addItemsIdentity(file);
                 #region 上传到远程附件服务器（或本地服务器，注释的代码是本地）

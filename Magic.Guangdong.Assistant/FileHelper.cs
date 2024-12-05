@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Magic.Guangdong.Assistant.Dto;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -418,6 +420,7 @@ namespace Magic.Guangdong.Assistant
         /// <returns></returns>
         public static async Task<string> SyncFile(string saveFile, string fileName = "", bool isDel = true, string storageType = "")
         {
+            
             if (string.IsNullOrEmpty(storageType))
                 storageType = ConfigurationHelper.GetSectionValue("storageType");
             if (storageType == "server")
@@ -426,6 +429,16 @@ namespace Magic.Guangdong.Assistant
             }
             else
             {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    saveFile = saveFile.Replace("/", "\\");
+                    fileName = fileName.Replace("/", "\\");
+                }
+                else
+                {
+                    saveFile = saveFile.Replace("\\", "/");
+                    fileName = fileName.Replace("\\", "/");
+                }
 
                 if (!saveFile.Contains("upfile"))
                 {
@@ -433,6 +446,10 @@ namespace Magic.Guangdong.Assistant
                         Directory.CreateDirectory(Path.GetDirectoryName(fileName));
                     File.Copy(saveFile, fileName, true);//注意，这个fileName需要是完整路径，且当storageType是local时，必须在upfile目录下
                     saveFile = fileName;
+                }
+                if (isDel)
+                {
+                    await RedisHelper.HSetAsync("tempfiles", Utils.GenerateRandomCodeFast(6,2), saveFile.Replace("/", "\\"));
                 }
                 //这里有个问题，当存储类型为local时，要确保保存路径在wwwroot/upfile路径下！
                 var parts = saveFile.Split("upfile");

@@ -10,6 +10,7 @@ using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Minio.DataModel.Select;
 using System;
 using System.Threading.Channels;
 
@@ -106,7 +107,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             //await _certTemplateRepo.CacheActivitiesAndExams(importList);
 
             int importTotal = importList.Count;
-            if (importTotal > model.CertNumLength)
+            if (importTotal > Math.Pow(10, model.CertNumLength-1))
             {
                 return Json(_resp.error($"导入的条数为{importTotal}条，高余设定的导入编号上限"));
             }
@@ -164,6 +165,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 }
                 List<DbServices.Entities.Cert> certList = new List<DbServices.Entities.Cert>();
                 int finished = 0;
+                List<string> msgList = new List<string>();
                 foreach (var item in dto.ImportList)
                 {
                     item.CertNo = dto.ImportModel.CertNumPrefix + (item.CertNo.Length < dto.ImportModel.CertNumLength ? new string('0', dto.ImportModel.CertNumLength - item.CertNo.Length) + item.CertNo : item.CertNo.Substring(0, dto.ImportModel.CertNumLength));
@@ -205,20 +207,21 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                         ActivityId=dto.ImportModel.ActivityId,
                         ExamId = dto.ImportModel.ExamId,
                         Title = dto.ImportModel.Title,
-                        Status = DbServices.Entities.CertStatus.Enable,
+                        Status = 0,
                         AccountId = adminId
                     });
                     finished++;
 
-                    //await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", $"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}");
-                    // 这里模拟进度消息，格式化为字符串，真实场景按业务逻辑生成合适的进度表示消息
                     double precent = Math.Round((double)finished / dto.ImportList.Count, 2) * 100;
-                    var progressMessage = $"{{\"progress\":\"{precent}\", \"msg\": \"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}\" }}";
-                    await _redisCachingProvider.StringSetAsync("certProgress", progressMessage, TimeSpan.FromMinutes(1));
+                    
+                    string progressMessage = $"{{\"progress\":\"{precent}\", \"msg\": \"{item.AwardName}的证书生成完成,{finished}/{dto.ImportList.Count}\" }}";
+                    
+                    await _redisCachingProvider.StringSetAsync("certProgress", progressMessage);
+                    
                 }
                 
                 await _certRepo.InsertCertBatch(certList);
-                await _redisCachingProvider.KeyDelAsync("generationCertMark");
+              
 
             }
             catch (Exception ex)
@@ -226,6 +229,11 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 await _redisCachingProvider.KeyDelAsync("generationCertMark");
 
                 Logger.Error($"导入错误:{ex.Message},\n{ex.StackTrace}");
+            }
+            finally
+            {
+                await _redisCachingProvider.KeyDelAsync("generationCertMark");
+                await _redisCachingProvider.KeyExpireAsync("certProgress", 10);
             }
         }
 
@@ -242,15 +250,18 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 while (true)
                 {
-                    await Task.Delay(2000);
+                    await Task.Delay(1000);
                     // 从通道中读取消息（这里等待消息到来）
+                    //var message = await _redisCachingProvider.StringGetAsync("certProgress");
+                    if (!await _redisCachingProvider.KeyExistsAsync("certProgress"))
+                        return;
                     var message = await _redisCachingProvider.StringGetAsync("certProgress");
-
                     if (string.IsNullOrEmpty(message))
                         return;
                     // 按照SSE协议格式发送数据到客户端
                     await Response.WriteAsync($"data:{message}\n\n");
                     await Response.Body.FlushAsync();
+                    
                 }
 
             }
@@ -259,13 +270,78 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 // 可以记录异常等处理
                 Console.WriteLine(ex.Message);
             }
-            finally
-            {
-                // 清理资源等操作
-                await _redisCachingProvider.KeyDelAsync("certProgress");
-            }
+            //finally
+            //{
+            //    // 清理资源等操作
+            //    await _redisCachingProvider.KeyExpireAsync("certProgress",30);
+            //}
+        }
+
+
+        /// <summary>
+        /// 导出表格（自定义）
+        /// </summary>
+        /// <param name="npoi"></param>
+        /// <param name="whereJsonstr"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExportCertRecords([FromServices] INpoiExcelOperationService npoi, string whereJsonstr, string title)
+        {
+            var list = await _certRepo.GetCertRecordsForExcel(whereJsonstr);
+            return Json(await npoi.ExcelDataExportTemplate($"{title}发放记录", list[0].Title, list, _en.WebRootPath));
+        }
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        /// <param name="recordIds"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkRemoveCertByIds(long[] recordIds)
+        {
+            return Json(_resp.success(await _certRepo.BulkRemoveCerts(recordIds)));
+        }
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        /// <param name="whereJsonStr"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkRemoveCertByQuery(string whereJsonStr)
+        {
+            return Json(_resp.success(await _certRepo.BulkRemoveCerts(whereJsonStr)));
+        }
+
+        /// <summary>
+        /// 批量更新
+        /// </summary>
+        /// <param name="whereJsonStr"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkUpdateCertByQuery(string whereJsonStr, int status)
+        {
+            return Json(_resp.success(await _certRepo.BulkUpdateCerts(whereJsonStr, status)));
+        }
+
+        /// <summary>
+        /// 批量更新
+        /// </summary>
+        /// <param name="certIds"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkUpdateCertByIds(long[] certIds, int status)
+        {
+            return Json(_resp.success(await _certRepo.BulkUpdateCerts(certIds, status)));
         }
     }
+
 
     public class ImportCapDto
     {

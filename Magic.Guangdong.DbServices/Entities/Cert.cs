@@ -45,7 +45,7 @@ namespace Magic.Guangdong.DbServices.Entities {
 		public long? ReportId { get; set; }
 
 		[JsonProperty]
-		public CertStatus Status { get; set; } = CertStatus.Enable;
+		public int Status { get; set; } = 0;
 
 		[JsonProperty]
 		public long TemplateId { get; set; } = 0;
@@ -67,9 +67,9 @@ namespace Magic.Guangdong.DbServices.Entities {
 
 	}
 
-	public enum CertStatus
-	{
-		Enable,
-		Disable,
-	}
+	//public enum CertStatus
+	//{
+	//	Enable,
+	//	Disable,
+	//}
 }

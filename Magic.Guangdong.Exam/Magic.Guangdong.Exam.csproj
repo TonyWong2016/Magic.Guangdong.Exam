@@ -9,12 +9,24 @@
   <ItemGroup>
     <Compile Remove="wwwroot\is-cache\**" />
     <Compile Remove="wwwroot\plugins\tinymce7\**" />
+    <Compile Remove="wwwroot\upfile\feedback\**" />
+    <Compile Remove="wwwroot\upfile\guangdong\**" />
+    <Compile Remove="wwwroot\upfile\magicexam\**" />
     <Content Remove="wwwroot\is-cache\**" />
     <Content Remove="wwwroot\plugins\tinymce7\**" />
+    <Content Remove="wwwroot\upfile\feedback\**" />
+    <Content Remove="wwwroot\upfile\guangdong\**" />
+    <Content Remove="wwwroot\upfile\magicexam\**" />
     <EmbeddedResource Remove="wwwroot\is-cache\**" />
     <EmbeddedResource Remove="wwwroot\plugins\tinymce7\**" />
+    <EmbeddedResource Remove="wwwroot\upfile\feedback\**" />
+    <EmbeddedResource Remove="wwwroot\upfile\guangdong\**" />
+    <EmbeddedResource Remove="wwwroot\upfile\magicexam\**" />
     <None Remove="wwwroot\is-cache\**" />
     <None Remove="wwwroot\plugins\tinymce7\**" />
+    <None Remove="wwwroot\upfile\feedback\**" />
+    <None Remove="wwwroot\upfile\guangdong\**" />
+    <None Remove="wwwroot\upfile\magicexam\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,7 +60,6 @@
     <Folder Include="Areas\Exam\Views\Examination\" />
     <Folder Include="Areas\Report\Models\" />
     <Folder Include="Areas\System\Models\" />
-    <Folder Include="wwwroot\upfile\feedback\" />
   </ItemGroup>
 
   <ItemGroup>
