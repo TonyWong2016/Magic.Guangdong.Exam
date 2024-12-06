@@ -70,7 +70,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 scheduler
                     .Schedule<CacheHandle>()
                     .DailyAt(3, 0)// 每天3点整执行一次
-                    //.DailyAt(16,10)
+                    //.DailyAt(9,46)
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(CacheHandle));
 

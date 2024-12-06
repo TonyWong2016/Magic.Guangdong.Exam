@@ -61,5 +61,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         /// 0-表示按正常流程颁发证书
         /// </summary>
         public int IsForce { get; set; } = 0;
+
+        public string AccountId { get; set; } = "";
     }
 }

@@ -131,7 +131,7 @@
 
         let imgObj = {};
         if (path) {
-            path = atob(decodeURIComponent(path))
+            path = decodeURIComponent(path)
             $('#template').attr('src', path);
             loadImg();
         }
@@ -225,7 +225,7 @@
         }
         keyValueArr.push({ key: key, value: 'qrcode' });
         // 这里使用Fabric.js创建并添加一个几何图形，例如矩形：
-        const rect = new fabric.Rect({ left: pointX, top: pointY, width: 140, height: 140, fill: getRandomHexColor() });
+        const rect = new fabric.Rect({ left: pointX, top: pointY, width: 160, height: 160, fill: getRandomHexColor() });
         rect.set('customData', {
             id: key,
             content: '图片元素'
@@ -322,8 +322,9 @@
 
     $('#btnBack').click(() => {
         localStorage.removeItem('canvasJson');
+        localStorage.removeItem('templateJson')
         if (from) {
-            window.location.href = atob(decodeURIComponent(from));
+            window.location.href = decodeURIComponent(from);
             // localStorage.removeItem('templateJson');
             // localStorage.removeItem('canvasJson');
         } else

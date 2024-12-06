@@ -38,6 +38,7 @@ namespace Magic.Guangdong.DbServices.Methods
             template.UpdatedAt = DateTime.Now;
             template.CreatedAt = DateTime.Now;
             template.CreatedBy = adminId;
+            
             await templateRepo.InsertAsync(template);
             return true;
         }

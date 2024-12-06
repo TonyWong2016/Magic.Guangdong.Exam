@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -449,7 +450,7 @@ namespace Magic.Guangdong.Assistant
                 }
                 if (isDel)
                 {
-                    await RedisHelper.HSetAsync("tempfiles", Utils.GenerateRandomCodeFast(6,2), saveFile.Replace("/", "\\"));
+                    await RedisHelper.HSetAsync("tempfiles-"+ Environment.MachineName, Utils.GenerateRandomCodeFast(6,2), saveFile.Replace("/", "\\"));
                 }
                 //这里有个问题，当存储类型为local时，要确保保存路径在wwwroot/upfile路径下！
                 var parts = saveFile.Split("upfile");

@@ -90,13 +90,13 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         [RouteMark("添加证书模板")]
         public IActionResult Create()
         {
-            return View();
+            return View(new TemplateDto());
         }
         
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TemplateDto dto)
         {
-            if (await _certTemplateRepo.getAnyAsync(u => u.Title == dto.Title))
+            if (await _certTemplateRepo.getAnyAsync(u => u.Title == dto.Title && u.IsDeleted==0))
             {
                 return Json(_resp.error("模板名称已存在"));
             }
@@ -121,7 +121,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TemplateDto dto)
         {
-            if(await _certTemplateRepo.getAnyAsync(u=>u.Title==dto.Title && u.Id!=dto.Id))
+            if(await _certTemplateRepo.getAnyAsync(u=>u.Title==dto.Title && u.IsDeleted==0 && u.Id!=dto.Id))
             {
                 return Json(_resp.error("模板名称已存在"));
             }
@@ -131,8 +131,6 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             {
                 return Json(_resp.error("该模板已锁定，不能编辑"));
             }
-
-            
 
             template = dto.Adapt<CertTemplate>();
             template.UpdatedAt = DateTime.Now;
@@ -185,7 +183,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveTemplate(long id,string templateJson,string canvasJson)
         {
-            if(!await _certTemplateRepo.getAnyAsync(u=>u.Id==id))
+            if(!await _certTemplateRepo.getAnyAsync(u=>u.Id==id && u.IsDeleted==0))
             {
                 return Json(_resp.error("模板不存在"));
             }

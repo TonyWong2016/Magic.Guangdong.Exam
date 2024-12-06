@@ -14,11 +14,11 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<List<CertDto>> GetCertRecordsForExcel(string whereJsonStr);
 
-        Task<int> BulkRemoveCerts(string whereJsonStr);
+        //Task<int> BulkRemoveCerts(string whereJsonStr);
 
-        Task<int> BulkRemoveCerts(long[] ids);
+        //Task<int> BulkRemoveCerts(long[] ids);
 
-        Task<int> BulkUpdateCerts(string whereJsonStr, int status);
-        Task<int> BulkUpdateCerts(long[] certIds, int status);
+        Task<int> BulkUpdateCerts(string whereJsonStr, int status, int isDeleted = 0);
+        Task<int> BulkUpdateCerts(long[] certIds, int status, int isDeleted = 0);
     }
 }

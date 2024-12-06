@@ -16,11 +16,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
     {
         public long? Id { get; set; } = YitIdHelper.NextId();
 
-        public string ConfigJsonStrForImg { get; set; }
+        public string ConfigJsonStrForImg { get; set; } = "{}";
 
-        public string CanvasJson { get; set; }
+        public string CanvasJson { get; set; } = "{}";
 
-        public string ConfigJsonStrForPdf { get; set; }
+        public string ConfigJsonStrForPdf { get; set; } = "{}";
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
@@ -31,6 +31,18 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         public string Title { get; set; }
 
         public string? Url { get; set; } = "";
+
+        public string ShortUrl
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Url) && !Url.StartsWith("http"))
+                {
+                    return ConfigurationHelper.GetSectionValue("resourceHost")+ Utils.EncodeUrlParam(Url,false);
+                }
+                return Utils.EncodeUrlParam(Url,false);
+            }
+        }
 
         public CertTemplateType Type { get; set; }
 

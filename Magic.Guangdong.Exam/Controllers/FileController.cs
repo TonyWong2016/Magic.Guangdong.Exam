@@ -191,7 +191,7 @@ namespace Magic.Guangdong.Exam.Controllers
             {
                 await file.CopyToAsync(stream);
                 LogicLog.WriteLogicLog(index.ToString(), _baseUploadDir + md5 + ".txt", false);
-                await _redisCachingProvider.HSetAsync("tempfiles", md5, _baseUploadDir + md5 + ".txt");
+                await _redisCachingProvider.HSetAsync("tempfiles-" + Environment.MachineName, md5, _baseUploadDir + md5 + ".txt");
             }
 
             //如果是最后一个分块， 则合并文件

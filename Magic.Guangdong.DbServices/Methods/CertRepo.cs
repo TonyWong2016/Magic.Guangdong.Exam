@@ -78,13 +78,15 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <param name="whereJsonStr"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public async Task<int> BulkUpdateCerts(string whereJsonStr, int status)
+        public async Task<int> BulkUpdateCerts(string whereJsonStr, int status, int isDeleted=0)
         {
             DynamicFilterInfo dyfilter = JsonConvert.DeserializeObject<DynamicFilterInfo>(whereJsonStr);
             return await fsql.Get(conn_str).Select<Cert>()
+                //.Where(u=>u.IsDeleted==0)
                 .WhereDynamicFilter(dyfilter)
                 .ToUpdate()
                 .Set(u => u.Status, status)
+                .SetIf(isDeleted != 0, u => u.IsDeleted, isDeleted)
                 .ExecuteAffrowsAsync();
         }
 
@@ -94,12 +96,13 @@ namespace Magic.Guangdong.DbServices.Methods
         /// <param name="whereJsonStr"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public async Task<int> BulkUpdateCerts(long[] certIds, int status)
+        public async Task<int> BulkUpdateCerts(long[] certIds, int status, int isDeleted = 0)
         {
             return await fsql.Get(conn_str).Select<Cert>()
                 .Where(u => certIds.Contains(u.Id))
                 .ToUpdate()
                 .Set(u => u.Status, status)
+                .SetIf(isDeleted!=0, u => u.IsDeleted, isDeleted)
                 .ExecuteAffrowsAsync();
         }
     }

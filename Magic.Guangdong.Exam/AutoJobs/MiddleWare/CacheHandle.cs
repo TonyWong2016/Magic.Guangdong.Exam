@@ -27,16 +27,16 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
             {
 
                 Assistant.Logger.Warning("检查并移除临时生成的文件，每个终端都要检查");
-                if (await _redisCachingProvider.KeyExistsAsync("tempfiles"))
+                if (await _redisCachingProvider.KeyExistsAsync("tempfiles-" + Environment.MachineName))
                 {
-                    var files = await _redisCachingProvider.HValsAsync("tempfiles");
+                    var files = await _redisCachingProvider.HValsAsync("tempfiles-" + Environment.MachineName);
                     foreach (var item in files)
                     {
                         if (File.Exists(item))
                             File.Delete(item);
                     }
                     //别直接删，避免其他终端没检查完造成错误，延时10分钟
-                    await _redisCachingProvider.KeyExpireAsync("tempfiles", 600);
+                    await _redisCachingProvider.KeyExpireAsync("tempfiles-" + Environment.MachineName, 600);
                 }
 
                 await Task.Delay(new Random().Next(100, 5000));

@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-           
+
             <div class="layui-form-item">
                 <label class="layui-form-label">证书模板</label>
                 <div class="layui-input-block">
@@ -82,8 +82,8 @@
                 <label class="layui-form-label">展示状态</label>
                 <div class="layui-input-block">
                     <select lay-verify="required" id="status" name="status" required class="importData">
-                        <option value="1">展示</option>
-                        <option value="2">暂不展示</option>
+                        <option value="0">展示</option>
+                        <option value="1">暂不展示</option>
                     </select>
                 </div>
             </div>
@@ -115,7 +115,7 @@
     {{# }) }}
 </script>
 <script src="~/plugins/fcup2/fcup.js"></script>
-<script src="~/web/myfcup.js"></script>
+<script src="~/web/myfcup.js" asp-append-version="true"></script>
 <script>
     let form = layui.form;
     let activityId = '0';
@@ -177,19 +177,22 @@
 
        let formData = objectToFormData(params);
        let json = await request('POST', '@Url.Action("ImportExcelData")', formData, { 'Content-Type': 'multipart/form-data' });
-
+       
        if (json.code == 0) {
-            successMsg(`2.导入成功成功,共计导入了${json.data}条记录`);
-        } else if (json.code >= 1) {
+            layer.alert(`2.导入成功成功,共计导入了${json.data}条记录。<br/> 系统会在后台按计划生成证书，您可以关闭当前页面，稍后再回到列表页检查生成情况`,{icon:0});
+
+       } else if (json.code >= 1) {
             layer.confirm('检测到上传的名单中有已经入库获奖的用户，点击确定将重新颁发证书', { icon: 3, title: '提示' }, async function (index) {
                 await ImportExcelData(1);
                 layer.close(index);
             })
-        } 
-        else
+       } else{
             errorMsg(`上传失败：${json.msg}`);
+            if(isInIframe()){
+                window.parent.closeSSE()
+           }
+       }
 
-        
     }
 
     autoSearch('title', function () {
@@ -223,17 +226,13 @@
         return flag;
     }
 
-    // getCertGenProgress()
-    // function getCertGenProgress(){
-    //      const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
-    //         eventSource.onmessage = function (event) {
-    //             const progressData = JSON.parse(event.data);
-    //             const progress = progressData.progress;
-    //             // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
-    //             $('#progress').val(`Progress: ${progress}`);
-    //         };
-    //         eventSource.onerror = function (error) {
-    //             console.log('Error in SSE connection:', error);
-    //         };
-    // }
+    function isInIframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+        // 如果捕获到异常，说明是跨域的<iframe>，仍然认为是在<iframe>中
+            return true;
+        }
+    }
+
 </script>

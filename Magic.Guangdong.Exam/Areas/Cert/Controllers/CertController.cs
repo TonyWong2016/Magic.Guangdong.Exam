@@ -1,6 +1,5 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
-using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
@@ -8,11 +7,9 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Minio.DataModel.Select;
-using System;
-using System.Threading.Channels;
 
 namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
 {
@@ -44,7 +41,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             _httpClientFactory = httpClientFactory;
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.TryGetValue("userId", out string cookieValue))
             {
-                adminId = cookieValue;
+                adminId = Utils.FromBase64Str(cookieValue);
             }
             // 创建一个有界的通道，用于传递消息（这里简单示例，可按需调整缓冲区等配置）
             //_channel = Channel.CreateBounded<string>(new BoundedChannelOptions(UtilConsts.SSECapacity)
@@ -53,6 +50,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             //});
         }
 
+        [RouteMark("生成证书")]
         public IActionResult Index()
         {
             return View();
@@ -73,7 +71,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "rd", "isAsc", "orderby" })]
+        [ResponseCache(Duration = 100, VaryByQueryKeys = new string[] { "whereJsonStr", "rd", "isAsc", "orderby","pageindex","pagesize" })]
         public IActionResult GetCerts(PageDto dto)
         {
             long total;
@@ -86,6 +84,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
+        [RouteMark("导入证书记录")]
         public async Task<IActionResult> ImportExcelData(ImportDto model)
         {
             if (await _redisCachingProvider.KeyExistsAsync("generationCertMark"))
@@ -129,7 +128,8 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                 await _redisCachingProvider.StringSetAsync(key, JsonHelper.JsonSerialize(importList), TimeSpan.FromMinutes(2));
                 return Json(_resp.ret(2, "部分编号记录已存在，是否要覆盖原数据"));
             }
-
+            if (string.IsNullOrEmpty(model.AccountId))
+                model.AccountId = adminId;
             //await _myHub.Clients.Client(adminId).SendAsync("ReceiveMessage", "后台", "生成证书可能需要较长时间，取决于模板大小和您导入名单的数量，这是一个异步操作，生成情况会实时反馈到前台，期间您不必一直在当前页面停留");
             foreach (var items in importList.Chunk(10))
             {
@@ -184,7 +184,8 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                     }
                     string filename = $"{dto.ImportModel.TemplateId}-{item.CertNo}";
                     string path = await _sixLaborHelper.MakeCertPic(_en.WebRootPath, certConfig, filename);
-
+                   
+                    #region 这里本来是想着用户如果不传入活动和考试，系统就自动去找一下，发现还是有点勉强，也不能保证高可用，还是算了。暂时留着，后续如果有好办法在优化
                     //long activityId = 0;
                     //if (await _redisCachingProvider.HExistsAsync("ImportActivities", item.ActivityTitle))
                     //{
@@ -195,6 +196,8 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                     //{
                     //    examId = Guid.Parse(await _redisCachingProvider.HGetAsync("ImportExams", item.ExamTitle));
                     //}
+                    #endregion
+                    
                     certList.Add(new DbServices.Entities.Cert()
                     {
                         TemplateId = dto.ImportModel.TemplateId,
@@ -208,7 +211,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                         ExamId = dto.ImportModel.ExamId,
                         Title = dto.ImportModel.Title,
                         Status = 0,
-                        AccountId = adminId
+                        AccountId = dto.ImportModel.AccountId
                     });
                     finished++;
 
@@ -291,29 +294,7 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
             return Json(await npoi.ExcelDataExportTemplate($"{title}发放记录", list[0].Title, list, _en.WebRootPath));
         }
 
-        /// <summary>
-        /// 批量删除
-        /// </summary>
-        /// <param name="recordIds"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkRemoveCertByIds(long[] recordIds)
-        {
-            return Json(_resp.success(await _certRepo.BulkRemoveCerts(recordIds)));
-        }
-
-        /// <summary>
-        /// 批量删除
-        /// </summary>
-        /// <param name="whereJsonStr"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkRemoveCertByQuery(string whereJsonStr)
-        {
-            return Json(_resp.success(await _certRepo.BulkRemoveCerts(whereJsonStr)));
-        }
+        
 
         /// <summary>
         /// 批量更新
@@ -323,9 +304,9 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkUpdateCertByQuery(string whereJsonStr, int status)
+        public async Task<IActionResult> BulkUpdateCertByQuery(string whereJsonStr, int status, int isDeleted = 0)
         {
-            return Json(_resp.success(await _certRepo.BulkUpdateCerts(whereJsonStr, status)));
+            return Json(_resp.success(await _certRepo.BulkUpdateCerts(whereJsonStr, status,isDeleted)));
         }
 
         /// <summary>
@@ -336,9 +317,9 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkUpdateCertByIds(long[] certIds, int status)
+        public async Task<IActionResult> BulkUpdateCertByIds(long[] certIds, int status, int isDeleted = 0)
         {
-            return Json(_resp.success(await _certRepo.BulkUpdateCerts(certIds, status)));
+            return Json(_resp.success(await _certRepo.BulkUpdateCerts(certIds, status, isDeleted)));
         }
     }
 

@@ -73,7 +73,7 @@
 </script>
 
 <script type="text/html" id="operationTpl">
-    <a class="layui-btn layui-btn-normal" href="{{ baseDownloadUrl + d.url }}" target="_blank">查看证书</a>
+    <a class="layui-btn layui-border-blue layui-btn-primary" href="{{ baseDownloadUrl + d.url }}" target="_blank"><i class="layui-icon layui-icon-picture-fine"></i>查看证书</a>
 </script>
 
 <script>
@@ -119,6 +119,9 @@
             else if(obj.id == 'bulkDrop'){
                 bulkEdit(1);
             } 
+            else if(obj.id == 'bulkDelete'){
+                bulkEdit(1,1);
+            }
             else if (typeof window[obj.id] === 'function') {                
                 window[obj.id]();
             } else {
@@ -142,6 +145,7 @@
     }
 
     function importCerts(){
+        getCertGenProgress();
         layer.open({
             type: 2,
             shade: [0.3, '#393D49'],
@@ -156,8 +160,9 @@
             },
             end: function () {
                 //关闭弹窗，重新加载列表
-                //getTable(params);
-                location.reload();
+                refreshRandomInt();
+                getCerts();
+                //location.reload();
             }
         });
     }
@@ -165,6 +170,7 @@
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'activityId', true);
     getSelectItems('/exam/examination/getexammini', { id: '', type: 0, examType:0, rd: randomInt }, 'selectTpl', 'examId', true)
     getSelectItems('/Cert/CertTemplate/GetTemplateDrops', { rd: randomInt }, 'selectTpl', 'templateId', true)
+    
     form.on('select(activityId)', (data) => {
         activityId = data.value
         getSelectItems('/exam/examination/getexammini', { id: activityId, type: 0, examType: 0,rd: randomInt }, 'selectTpl', 'examId', false)
@@ -177,16 +183,23 @@
             })
         getCerts();
     })
+    
     form.on('select(examId)', (data) => {
         examId = data.value;
         getCerts();
     })
+    
     form.on('select(templateId)', (data) => {
         templateId = data.value;
         getCerts();
     })
 
+    autoSearch('keyword', function (value) {
+        getCerts()
+    })
+
     getCerts();
+
     function getCerts(){
         var params = {
             url: '@Url.Action("GetCerts")',
@@ -195,14 +208,14 @@
             size: 'lg',
             page: true,
             cols: [ //表头
-                { title: '序号', templet: "#indexTpl", width: "6%", type: "checkbox" }
+                { title: '序号', templet: '#indexTpl', width: '6%', type: 'checkbox' }
                 , { field: 'id', title: 'id', hide: true }
-                , { field: 'title', title: '证书标题', width: "15%" }
-                , { field: 'awardName', title: '获奖人员', width: "15%" }
-                , { field: 'certNo', title: '证书编号', width: "12%" }
-                , { field: 'idNumber', title: '唯一ID号', width: "12%" }
-                , { title: '状态', templet: '#statusTpl', width: "10%" }
-                , { field: 'createdAt', title: '发放时间', width: "12%" }
+                , { field: 'title', title: '证书标题', width: '15%' }
+                , { field: 'awardName', title: '获奖人员', width: '15%' }
+                , { field: 'certNo', title: '证书编号', width: '12%' }
+                , { field: 'idNumber', title: '唯一ID号', width: '12%' }
+                , { title: '状态', templet: '#statusTpl', width: '10%' }
+                , { field: 'createdAt', title: '发放时间', width: '12%' }
                 , { title: '操作', templet: '#operationTpl' }
             ],
             height: 630
@@ -212,61 +225,67 @@
 
     function makeWhereJson() {
         let whereJsonStr = {
-            "Logic": "And",
-            "Filters": [{
-                "Field": "IsDeleted",
-                "Operator": "Equal",
-                "Value": 0
+            'Logic': 'And',
+            'Filters': [{
+                'Field': 'IsDeleted',
+                'Operator': 'Equal',
+                'Value': 0
             }]
         }
-        let keyword = jVal("keyword");
-        if (keyword) {
+        let keyword = jVal('keyword');
+        if (keyword && keyword.length==20){
             whereJsonStr.Filters.push({
-                "Logic": "Or",
-                "Filters": [{
-                    "Field": "AwardName",
-                    "Operator": "Equal",
-                    "Value": keyword
+                'Field': 'IdNumber',
+                'Operator': 'Equal',
+                'Value': keyword                
+            });
+        } else if(keyword) {
+            whereJsonStr.Filters.push({
+                'Logic': 'Or',
+                'Filters': [{
+                    'Field': 'AwardName',
+                    'Operator': 'Contains',
+                    'Value': keyword
                 },
                 {
-                    "Field": "CertNum",
-                    "Operator": "Equal",
-                    "Value": keyword
+                    'Field': 'CertNo',
+                    'Operator': 'Equal',
+                    'Value': keyword
                 },
                 {
-                    "Field": "Title",
-                    "Operator": "Contains",
-                    "Value": keyword
+                    'Field': 'Title',
+                    'Operator': 'Contains',
+                    'Value': keyword
                 }]
             });
         }
         if (templateId > 0) {
             whereJsonStr.Filters.push({
-                "Logic": "And",
-                "Filters": [{
-                    "Field": "templateId",
-                    "Operator": "Equal",
-                    "value": templateId,
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'templateId',
+                    'Operator': 'Equal',
+                    'value': templateId,
                 }]
             })
         }
         if (activityId > 0) {
             whereJsonStr.Filters.push({
-                "Logic": "And",
-                "Filters": [{
-                    "Field": "activityId",
-                    "Operator": "Equal",
-                    "value": activityId,
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'activityId',
+                    'Operator': 'Equal',
+                    'value': activityId,
                 }]
             })
         }
         if (examId) {
             whereJsonStr.Filters.push({
-                "Logic": "And",
-                "Filters": [{
-                    "Field": "ExamId",
-                    "Operator": "Equal",
-                    "value": examId,
+                'Logic': 'And',
+                'Filters': [{
+                    'Field': 'ExamId',
+                    'Operator': 'Equal',
+                    'value': examId,
                 }]
             })
         }
@@ -293,7 +312,7 @@
 
 
     //批量更新
-    function bulkEdit(status){
+    function bulkEdit(status, isDeleted=0){
         let currTable = layui.table
             // 复选框事件
            // 获取选中行相关数据
@@ -303,71 +322,88 @@
         // console.log(tableStatus.isAll ) // 表格是否全选
         var formData = new FormData();
         if(tableStatus.data.length==0){
-            layer.confirm("未勾选任何选项，执行此操作，会以当前检索条件为准，批量修改数据("+$($('.layui-laypage-count')[0]).text()+")，确定继续执行吗?",{icon:0},async function(index){
+            layer.confirm('未勾选任何选项，执行此操作，会以当前检索条件为准，批量修改数据('+$($('.layui-laypage-count')[0]).text()+')，确定继续执行吗?',{icon:0},async function(index){
                 layer.close(index);
-                formData = objectToFormData({ "whereJsonStr": makeWhereJson().whereJsonStr,"status": status,"__RequestVerificationToken": requestToken})
+                formData = objectToFormData({ 'whereJsonStr': makeWhereJson().whereJsonStr,'status': status,'isDeleted':isDeleted,'__RequestVerificationToken': requestToken})
                 var ret = await request('POST', '/cert/cert/BulkUpdateCertByQuery', formData, { 'Content-Type': 'multipart/form-data' })
                 if(ret.code==0){
-                   successMsg("修改成功");
-                   getCerts();
+                   successMsg('修改成功',() =>{
+                       refreshRandomInt();
+                       getCerts();
+                   });
+                   
                    return;
                 }
-                errorMsg("修改失败"+ret.msg);
+                errorMsg('修改失败'+ret.msg);
             })
         }else{
             let certIds = tableStatus.data.map(u=>u.id)
             console.log(certIds)
-            layer.confirm("确定要更新所勾选的记录吗?",{icon:0}, async function(index){
+            layer.confirm('确定要更新所勾选的记录吗?',{icon:0}, async function(index){
                 layer.close(index);
 
-                formData = objectToFormData({ "status": status,"__RequestVerificationToken": requestToken})
+                formData = objectToFormData({ 'status': status,'isDeleted':isDeleted,'__RequestVerificationToken': requestToken})
                 
                 certIds.forEach((certId) => {
                    formData.append('certIds[]', certId);
                  });
                 var ret = await request('POST', '/cert/cert/BulkUpdateCertByIds', formData, { 'Content-Type': 'multipart/form-data' })
                 if(ret.code==0){
-                   successMsg("修改成功");
-                   getCerts();
+                  successMsg('修改成功',() =>{
+                       refreshRandomInt();
+                       getCerts();
+                   });
                    return;
                 }
-                errorMsg("修改失败"+ret.msg);
+                errorMsg('修改失败'+ret.msg);
             })
         }
 
     }
-
-
-    getCertGenProgress()
+    
+    let lastMsg='';
     let finished=false;
     $('.layui-progress').hide();
     function getCertGenProgress(){
-         const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
-            eventSource.onmessage = function (event) {
-                const progressData = JSON.parse(event.data);
-                const progress = progressData.progress;
-                // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
-                //$('#progress').val(`Progress: ${progress}`);
-                 element.progress('genProgress', `${progress}%`);
+        const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
+        eventSource.onmessage = function (event) {
+            const progressData = JSON.parse(event.data);
+            const progress = progressData.progress;
+            // 更新页面上显示进度的元素，这里简单示例用一个div模拟进度条展示，实际可能用专业的进度条组件等
+            //$('#progress').val(`Progress: ${progress}`);
+                element.progress('genProgress', `${progress}%`);
 
-                 if(!finished){
-                     successMsg(progressData.msg);
-                 }
+                if(!finished && lastMsg!=progressData.msg){
+                    successMsg(progressData.msg);
+                    lastMsg = progressData.msg;
+                }
 
-                 if(progress=='100'){
-                     finished = true;
-                     $('.layui-progress').hide();
-                     return;
-                 }
+                if(progress=='100'){
+                    if(!finished){
+                        layer.alert('证书生成结束',{icon:1})
+                        setTimeout(function(){
+                            refreshRandomInt();
+                            $('.layui-progress').hide();
+                            getCerts();
+                        },1000);
+                        finished = true;
+                    }                    
+                    return;
+                }
 
-                 $('.layui-progress').show();
-            };
-            eventSource.onerror = function (error) {
-                // finished = true;
-                // errorMsg('尝试建立SSE链接失败，请刷新页面重试');
+                $('.layui-progress').show();
+        };
+        eventSource.onerror = function (error) {
+            // finished = true;
+            // errorMsg('尝试建立SSE链接失败，请刷新页面重试');
 
-                // //console.log('Error in SSE connection:', error);
-                // eventSource.close();
-            };
+            // //console.log('Error in SSE connection:', error);
+            // eventSource.close();
+        };
+    }
+
+    function closeSSE(){
+        const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
+        eventSource.close();
     }
 </script>

@@ -73,11 +73,12 @@
         @Html.AntiForgeryToken()
     </form>
 </div>
-<script src="~/web/myfcup.js"></script>
+<script src="~/web/myfcup.js" asp-append-version="true"></script>
 <script>
 
     let form = layui.form;
-    let imgPath = '@Model.Url';
+    let imgPath = decodeURIComponent('@Model.ShortUrl');
+    let canvasJson = '@Model.CanvasJson';
     let fileUpObj = {
         elemId: 'btnUpload',
         accept: 'images',
@@ -101,6 +102,8 @@
             localStorage.removeItem('canvasJson')
     });
 
+
+
     getSelectItems('/report/activity/getactivitydrops', { rd: randomInt }, 'selectTpl', 'ActivityId', true)
         .then(v => {
             //associationId = selectRet[0].value
@@ -111,14 +114,19 @@
 
         })
 
-    if (localStorage.getItem('templateJson')) {
-        jValSet('ConfigJsonStrForImg', localStorage.getItem('templateJson'))
-    }
-    if (localStorage.getItem('canvasJson')) {
-        jValSet('CanvasJson', localStorage.getItem('canvasJson'))
-    }
+    // if (localStorage.getItem('templateJson')) {
+    //     jValSet('ConfigJsonStrForImg', localStorage.getItem('templateJson'))
+    // }
 
+    // if (localStorage.getItem('canvasJson')) {
+    //     jValSet('CanvasJson', localStorage.getItem('canvasJson'))
+    // }
+    
+    if(!canvasJson){
+        $('#CanvasJson').val('{}');
+    }
     form.on("submit(save)", async function (data) {
+        
         let formData = objectToFormData(data.field);
         var ret = await request('POST', '/cert/certtemplate/edit', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
@@ -126,6 +134,9 @@
             localStorage.removeItem('canvasJson')
             successMsg('保存成功', () => {
                 window.location.href = '@Url.Action("Index")';
+                if($('#CanvasJson').val()=='{}'){
+                    layer.alert('注意，虽然模板保存成功，但您仍需进入模版编辑页面的具体参数并保存。如果您是直接复制的其他模板参数，则再次编辑时，仍然需要进入模版重新编辑。',{icon:0});
+                }
             });
             return;
         }
@@ -138,8 +149,8 @@
             return;
         }
 
-        let path = encodeURIComponent(btoa($('#Url').val()))
-        let from = encodeURIComponent(btoa(location.href))
+        let path = encodeURIComponent($('#Url').val())
+        let from = encodeURIComponent(location.href)
         localStorage.setItem('templateJson', jVal('ConfigJsonStrForImg'));
         localStorage.setItem('canvasJson', jVal('CanvasJson'));
         localStorage.setItem('canvasJsonTime', new Date().getTime());

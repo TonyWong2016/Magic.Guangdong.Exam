@@ -55,6 +55,7 @@
 
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="Url" />
+        <input type="hidden" asp-for="CanvasJson" value="{}"/>
         <div class="layui-form-item" style="margin-left:110px">
             <a class="layui-btn save" href="javascript:;" lay-submit lay-filter="save" id="save"><i class="layui-icon layui-icon-release"></i>保存</a>
             <a class="layui-btn layui-btn-disabled disabledsave" href="javascript:;" style="display:none"><i class="layui-icon layui-icon-release"></i>保存</a>
@@ -66,7 +67,7 @@
         @Html.AntiForgeryToken()
     </form>
 </div>
-<script src="~/web/myfcup.js"></script>
+<script src="~/web/myfcup.js" asp-append-version="true"></script>
 <script>
 
     let form = layui.form;
@@ -75,8 +76,12 @@
         elemId: 'btnUpload',
         accept: 'images',
         callback: function (res) {
-            $('#tmpPreview').attr('src', res.data).attr('width', '120px').show();
-            $('#Url').val(res.data)
+            let shortUrl = res.data;
+            if(shortUrl.indexOf('http') < 0){
+                shortUrl ='@Model.ResourceHost' + shortUrl;
+            }
+            $('#tmpPreview').attr('src', shortUrl).attr('width', '120px').show();
+            $('#Url').val(shortUrl)
         }
     }
     initUploadFilePro(fileUpObj);

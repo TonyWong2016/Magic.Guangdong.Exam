@@ -1,4 +1,5 @@
-﻿using Magicodes.ExporterAndImporter.Core;
+﻿using EasyCaching.Core;
+using Magicodes.ExporterAndImporter.Core;
 using Magicodes.ExporterAndImporter.Excel;
 using System;
 using System.Collections.Generic;
@@ -87,6 +88,8 @@ namespace Magic.Guangdong.Assistant
             filePath = Path.Combine(filePath, $"{templateName}.xlsx");
             if (File.Exists(filePath)) File.Delete(filePath);
             await Importer.GenerateTemplate<T>(filePath);
+            await RedisHelper.HSetAsync("tempfiles-" + Environment.MachineName, Utils.GenerateRandomCodeFast(6,2), filePath);
+
             return await FileHelper.SyncFile(filePath, $"{templateName}.xlsx");
         }
 

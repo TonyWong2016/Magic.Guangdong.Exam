@@ -305,7 +305,8 @@ namespace Magic.Guangdong.Assistant
 
         public static string EncodeUrlParam(string msg,bool base64=true)
         {
-
+            if (string.IsNullOrEmpty(msg))
+                return "";
             if (base64)
             {
                 return ToBase64Str(HttpUtility.UrlEncode(msg, Encoding.UTF8));
