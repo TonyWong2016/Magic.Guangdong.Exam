@@ -1,4 +1,5 @@
 ﻿using Magic.Guangdong.DbServices.Dtos;
+using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magic.Guangdong.DbServices.Entities;
 using System;
@@ -12,6 +13,8 @@ namespace Magic.Guangdong.DbServices.Interfaces
     public interface IExaminationRepo : IExaminationRepository<Examination>
     {
         Task<dynamic> GetExamMini(string id, int type, int examType = -1);
+
+        Task<List<ExaminationDropsDto>> GetExamDrops();
 
         dynamic GetExamList(PageDto dto, out long total);
 

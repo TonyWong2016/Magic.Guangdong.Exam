@@ -116,4 +116,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Examinations
 
         public int LoginRequired { get; set; }
     }
+
+    public record ExaminationDropsDto
+    {
+        public Guid Id { get; set; }
+
+        public string Title { get; set; }
+    }
 }

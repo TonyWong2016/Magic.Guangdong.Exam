@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Magic.Guangdong.Assistant.Dto;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -445,5 +446,15 @@ namespace Magic.Guangdong.DbServices.Methods
                 .ToOneAsync((a, b) => b);
         }
 
+        public async Task<List<KeyValueDto>> GetReportIdsByIdNumber(string[] idNumbers)
+        {
+            return await fsql.Get(conn_str).Select<UserAnswerRecord>()
+                .Where(u => idNumbers.Contains(u.IdNumber) && u.IsDeleted == 0)
+                .ToListAsync(u => new KeyValueDto()
+                {
+                    key = u.IdNumber,
+                    value = u.ReportId.ToString()
+                });
+        }
     }
 }

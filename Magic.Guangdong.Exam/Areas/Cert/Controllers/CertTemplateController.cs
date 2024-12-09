@@ -166,17 +166,24 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
         }
 
         /// <summary>
-        /// 生成单张证书
+        /// 保存并预览
         /// </summary>
         /// <param name="config_str"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> Preview(string config_str, string filename = "")
+        public async Task<IActionResult> Preview(long id, string config_str, string canvasJson, string filename = "")
         {
             var config = JsonHelper.JsonDeserialize<CertTemplateDto>(config_str);
             if (string.IsNullOrEmpty(filename))
                 filename = config.GetHashCode().ToString();
+            var template = await _certTemplateRepo.getOneAsync(u => u.Id == id);
+            template.ConfigJsonStrForImg = config_str;
+            template.CanvasJson = canvasJson;
+            template.CreatedBy = adminId;
+            template.Remark += $"{adminId}预览模板";
+            template.UpdatedAt = DateTime.Now;
+            await _certTemplateRepo.updateItemAsync(template);
             return Json(_resp.success(await _sixLaborHelper.MakeCertPic(_en.WebRootPath, config, filename)));
         }
 

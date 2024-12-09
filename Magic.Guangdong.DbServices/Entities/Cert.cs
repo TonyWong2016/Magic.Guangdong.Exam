@@ -65,6 +65,12 @@ namespace Magic.Guangdong.DbServices.Entities {
 		[JsonProperty, Column(StringLength = 1000, IsNullable = false)]
 		public string Url { get; set; }
 
+		[JsonProperty, Column(StringLength = 100)]
+		public string Remark { get; set; } = "";
+
+
+		[JsonProperty]
+		public int IsExternal { get; set; } = 0;
 	}
 
 	//public enum CertStatus

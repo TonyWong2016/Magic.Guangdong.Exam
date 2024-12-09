@@ -14,5 +14,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
         Task<ActivityReportDto> GetActivityReportPoints(long activityId);
 
         List<ActivityItemsDto> GetActivityItemsClient(PageDto pageDto, out long total);
+
+        Task<List<ActivityDrops>> GetActivityDrops();
     }
 }

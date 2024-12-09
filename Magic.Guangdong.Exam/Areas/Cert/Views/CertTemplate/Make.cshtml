@@ -94,7 +94,7 @@
                 </div>
             </li>
             <li onclick="addGeometry('qrcode')"><div class="layui-menu-body-title">创建二维码</div></li>
-            <li onclick="previewCert()"><div class="layui-menu-body-title">预览</div></li>
+            <li onclick="previewCert()"><div class="layui-menu-body-title">预览并保存</div></li>
             <li onclick="saveCanvas()"><div class="layui-menu-body-title">保存</div></li>
             <li onclick="delEl()"><div class="layui-menu-body-title">删除当前元素</div></li>
             <li onclick="clearAll()"><div class="layui-menu-body-title">清理画布</div></li>
@@ -286,11 +286,14 @@
 
     //预览结果
     async function previewCert() {
-        buildParam()
+        buildParam();
+        
         layer.load();
         let formData = new FormData();
+        formData.append('id', getUrlQueryParams('id'));
         formData.append('config_str', JSON.stringify(certParam));
         formData.append('filename', 'test');
+        formData.append('canvasJson', JSON.stringify(canvas.toJSON()));
         formData.append('__RequestVerificationToken', requestToken);
 
         let ret = await request('POST', '/cert/certtemplate/Preview', formData,CT)

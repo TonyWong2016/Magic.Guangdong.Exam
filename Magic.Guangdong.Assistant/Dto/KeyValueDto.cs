@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Guangdong.Assistant.Dto
 {
-    public class KeyValueDto
+    public record KeyValueDto
     {
         public string key { get; set; }
 

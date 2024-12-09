@@ -1,4 +1,5 @@
-﻿using Magic.Guangdong.DbServices.Dtos;
+﻿using Magic.Guangdong.Assistant.Dto;
+using Magic.Guangdong.DbServices.Dtos;
 using Magic.Guangdong.DbServices.Dtos.Exam.Papers;
 using Magic.Guangdong.DbServices.Entities;
 
@@ -16,5 +17,9 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         [Obsolete("过期，客观题打分请统一使用ScoreObjectivePart方法")]
         Task<UserAnswerRecord> Marking(long urid,bool submit);
+
+        Task<List<KeyValueDto>> GetReportIdsByIdNumber(string[] idNumbers);
+
+
     }
 }

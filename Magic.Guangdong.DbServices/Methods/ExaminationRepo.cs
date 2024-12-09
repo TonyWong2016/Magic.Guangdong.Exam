@@ -13,6 +13,8 @@ using NPOI.POIFS.Dev;
 using Magic.Guangdong.DbServices.Dtos.Report.Exams;
 using Magicodes.ExporterAndImporter.Core.Extension;
 using EasyCaching.CSRedis;
+using Magic.Guangdong.Assistant.Dto;
+using Magic.Guangdong.DbServices.Dtos.Exam.Examinations;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
@@ -47,6 +49,17 @@ namespace Magic.Guangdong.DbServices.Methods
                     text = u.Title,
                     score = u.BaseScore
                     //其余属性有必要在添加
+                });
+        }
+
+        public async Task<List<ExaminationDropsDto>> GetExamDrops()
+        {
+            return await fsql.Get(conn_str).Select<Examination>()
+                .Where(u => u.IsDeleted == 0 && u.Status == ExamStatus.Enabled)
+                .ToListAsync(u => new ExaminationDropsDto()
+                {
+                    Id = u.Id,
+                    Title = u.Title
                 });
         }
 

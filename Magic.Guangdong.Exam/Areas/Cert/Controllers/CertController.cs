@@ -211,7 +211,8 @@ namespace Magic.Guangdong.Exam.Areas.Cert.Controllers
                         ExamId = dto.ImportModel.ExamId,
                         Title = dto.ImportModel.Title,
                         Status = 0,
-                        AccountId = dto.ImportModel.AccountId
+                        AccountId = dto.ImportModel.AccountId,
+
                     });
                     finished++;
 

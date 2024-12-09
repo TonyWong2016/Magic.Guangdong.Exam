@@ -63,5 +63,7 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
         public int IsForce { get; set; } = 0;
 
         public string AccountId { get; set; } = "";
+
+
     }
 }

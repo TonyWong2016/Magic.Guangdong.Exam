@@ -1,6 +1,5 @@
 ﻿using AspNetCoreRateLimit;
 using Coravel;
-using DotNetCore.CAP;
 using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
@@ -333,7 +332,7 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddTransient<AutoJobs.SyncUnitInfo.SyncUnitDataFromXXT>();
             services.AddTransient<AutoJobs.MiddleWare.CacheHandle>();
             services.AddTransient<AutoJobs.MiddleWare.ClearCapMsgId>();
-            services.AddTransient<AutoJobs.CheckMarkingProgress.AutoChecking>();
+            services.AddTransient<AutoJobs.DelayTasks.AutoChecking>();
             services.AddTransient<AutoJobs.AutoSharding.RelationSharding>();
         }
 

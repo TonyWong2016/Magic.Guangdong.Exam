@@ -38,4 +38,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Report.Activities
             }
         }
     }
+
+    public record ActivityDrops
+    {
+        public long Id { get; set; }
+
+        public string Title { get; set; }
+    }
 }

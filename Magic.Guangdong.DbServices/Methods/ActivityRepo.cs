@@ -78,5 +78,17 @@ namespace Magic.Guangdong.DbServices.Methods
                     .ToList();
             return items.Adapt<List<ActivityItemsDto>>();
         }
+    
+        public async Task<List<ActivityDrops>> GetActivityDrops()
+        {
+            return await fsql.Get(conn_str).Select<Activity>()
+                .Where(u => u.IsDeleted == 0)
+                .ToListAsync(u => new ActivityDrops
+                {
+                    Id = u.Id,
+                    Title = u.Title,
+                });
+                
+        }
     }
 }
