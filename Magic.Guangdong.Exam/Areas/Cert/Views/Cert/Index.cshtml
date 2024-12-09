@@ -74,6 +74,9 @@
 
 <script type="text/html" id="operationTpl">
     <a class="layui-btn layui-border-blue layui-btn-primary" href="{{ baseDownloadUrl + d.url }}" target="_blank"><i class="layui-icon layui-icon-picture-fine"></i>查看证书</a>
+    <a class="layui-btn layui-border-purple layui-btn-primary" href="{{ baseDownloadUrl + d.url }}" id="download_{{d.id}}" onclick="waitDownload('{{d.id}}')" download><i class="layui-icon layui-icon-download-circle"></i>下载</a>
+    <a class="layui-btn layui-btn-disabled" href="javascript:;" id="download_{{d.id}}_disabled" onclick="errorMsg('点击过于频繁')" style="display:none"><i class="layui-icon layui-icon-download-circle"></i>下载</a>
+
 </script>
 
 <script>
@@ -405,5 +408,14 @@
     function closeSSE(){
         const eventSource = new EventSource('@Url.Action("GetCertGenerationProgress")');
         eventSource.close();
+    }
+
+    function waitDownload(id){       
+        $('#download_'+id).hide();
+        $('#download_'+id+'_disabled').show();
+        setTimeout(()=>{            
+            $('#download_'+id+'_disabled').hide();
+            $('#download_'+id).show();
+        },3000);
     }
 </script>
