@@ -26,6 +26,8 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICapPublisher _capPublisher;
         private readonly IAdminLoginLogRepo _adminLoginLogRepo;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private string _adminId = "system";
         /// <summary>
         /// 管理员相关
         /// </summary>
@@ -36,7 +38,7 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         /// <param name="redisCachingProvider"></param>
         /// <param name="webHostEnvironment"></param>
         /// <param name="capPublisher"></param>
-        public AdminController(IResponseHelper responseHelper,IAdminRepo adminRepo,IJwtService jwtService,IAdminRoleRepo adminRoleRepo,IRedisCachingProvider redisCachingProvider, IWebHostEnvironment webHostEnvironment,ICapPublisher capPublisher, IAdminLoginLogRepo adminLoginLogRepo) 
+        public AdminController(IResponseHelper responseHelper,IAdminRepo adminRepo,IJwtService jwtService,IAdminRoleRepo adminRoleRepo,IRedisCachingProvider redisCachingProvider, IWebHostEnvironment webHostEnvironment,ICapPublisher capPublisher, IAdminLoginLogRepo adminLoginLogRepo,IHttpContextAccessor httpContextAccessor) 
         {
             _resp = responseHelper;
             _adminRepo = adminRepo;
@@ -46,6 +48,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
             _webHostEnvironment = webHostEnvironment;
             _capPublisher = capPublisher;
             _adminLoginLogRepo = adminLoginLogRepo;
+            _contextAccessor = httpContextAccessor;
+            _adminId = (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").Any()) ?
+              Assistant.Utils.FromBase64Str(_contextAccessor.HttpContext.Request.Cookies.Where(u => u.Key == "userId").First().Value) : "system";
         }
         
         
@@ -81,6 +86,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminDto dto)
         {
+            var currAdmin = await _adminRepo.getOneAsync(u => u.Id == Guid.Parse(_adminId));
+            if (currAdmin.Name != "sa" && currAdmin.Name != "tony")
+                return Json(_resp.error("非系统管理员，无法操作"));
             if (await _adminRepo.CreateAdmin(dto))
                 return Json(_resp.success(true, "添加成功"));
             return Json(_resp.error("添加失败，请尝试更换用户名，邮箱和电话"));
@@ -106,6 +114,10 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminDto dto)
         {
+            var currAdmin = await _adminRepo.getOneAsync(u => u.Id == Guid.Parse(_adminId));
+            if (currAdmin.Name != "sa" && currAdmin.Name != "tony")
+                return Json(_resp.error("非系统管理员，无法操作"));
+
             if (await _adminRepo.UpdateAdmin(dto))
                 return Json(_resp.success(true, "修改成功"));
             return Json(_resp.error("修改失败"));
@@ -117,9 +129,16 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(Guid adminId,string newPwd)
         {
+            if (_adminId != adminId.ToString())
+            {
+                var currAdmin = await _adminRepo.getOneAsync(u => u.Id == Guid.Parse(_adminId));
+                if (currAdmin.Name!="sa" && currAdmin.Name != "tony")
+                    return Json(_resp.error("非系统管理员，无法操作，您指可以修改您自己账号的密码"));
+            }
             if (string.IsNullOrWhiteSpace(newPwd))
                 newPwd = Utils.GenerateRandomCodePro(8, 2);
             var admin = await _adminRepo.getOneAsync(u => u.Id == adminId);
+            
             string keyId = Utils.GenerateRandomCodePro(16);
             string keySecret = Utils.GenerateRandomCodePro(16);
            
@@ -138,6 +157,9 @@ namespace Magic.Guangdong.Exam.Areas.System.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(Guid id)
         {
+            var currAdmin = await _adminRepo.getOneAsync(u => u.Id == Guid.Parse(_adminId));
+            if (currAdmin.Name != "sa" && currAdmin.Name != "tony")
+                return Json(_resp.error("非系统管理员，无法操作"));
             var admin = await _adminRepo.getOneAsync(u => u.Id == id);
             admin.IsDeleted = 1;
             admin.UpdatedAt = DateTime.Now;

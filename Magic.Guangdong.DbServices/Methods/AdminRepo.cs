@@ -105,7 +105,8 @@ namespace Magic.Guangdong.DbServices.Methods
                     if (await adminRepo
                         .Where(u => u.Name == dto.Name ||
                         u.Email == dto.Email ||
-                        u.Mobile == dto.Mobile).AnyAsync())
+                        u.Mobile == dto.Mobile)
+                        .Where(u=>u.IsDeleted==0).AnyAsync())
                     {
                         return false;
                     }
