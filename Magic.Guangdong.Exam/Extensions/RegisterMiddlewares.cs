@@ -82,7 +82,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 scheduler
                     .Schedule<AutoChecking>()
                     .Cron("0 1,7,18,22 * * *")
-                    //.DailyAt(10, 55)// 每天3点整执行一次
+                    //.DailyAt(9, 28)// 每天3点整执行一次
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(AutoChecking));
 

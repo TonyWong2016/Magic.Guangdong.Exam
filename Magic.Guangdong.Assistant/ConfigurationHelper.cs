@@ -22,7 +22,7 @@ namespace Magic.Guangdong.Assistant
 
         public static string GetSectionValue(string key)
         {
-            return _configuration.GetSection(key).Value;
+            return _configuration.GetSection(key).Value ?? "";
         }
 
         public static string[] GetSectionValues(string key)
@@ -33,6 +33,11 @@ namespace Magic.Guangdong.Assistant
         public static IConfigurationSection[] GetSections(string key)
         {
             return _configuration.GetSection(key).GetChildren().ToArray();
+        }
+
+        public static IConfigurationSection GetSection(string key)
+        {
+            return _configuration.GetSection(key);
         }
     }
 }

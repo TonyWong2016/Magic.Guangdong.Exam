@@ -289,8 +289,10 @@ namespace Magic.Guangdong.DbServices.Methods
         private ScoreStepFourResult ScoreObjectiveStepFourPart(SubmitAnswerDto answer,ref ScoreStepTwoResult relation, ref List<ScoreStepThreeResult> correctItems, ref ScoreScheme scoreScheme, long recordId)
         {
             ScoreStepFourResult scoreStepFourResult = new ScoreStepFourResult();
+            
             //把答题记录存到单独的表里
             var submitAnswerRecord = new UserAnswerSubmitRecord();
+            submitAnswerRecord.ExpiredAt = DateTime.Now.AddDays(Utils.GetGlobalExpiredDay());
             submitAnswerRecord.QuestionId = answer.questionId;
             submitAnswerRecord.RecordId = recordId;
             if (relation.Objective != 1)

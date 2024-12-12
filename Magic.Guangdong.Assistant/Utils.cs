@@ -343,6 +343,60 @@ namespace Magic.Guangdong.Assistant
             return weekNumber + 1;
         }
 
+        /// <summary>
+        /// 是否全部是阿拉伯数字
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsAllDigits(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return false;
+            foreach (char c in value)
+            {
+                if (!char.IsDigit(c)) return false;
+            }
+            return value.Length > 0;
+        }
 
+        /// <summary>
+        /// 是否是数字（包括整型，浮点型）
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsNumeric(string value,int int32=0)
+        {
+            if(string.IsNullOrEmpty(value)) return false;
+            // 尝试解析为整数
+            if (int.TryParse(value, out _))
+            {
+                return true;
+            }
+            if (int32 == 1)
+                return false;
+
+            // 尝试解析为双精度浮点数
+            if (double.TryParse(value, out _))
+            {
+                return true;
+            }
+
+            // 如果都不是，则不是数字
+            return false;
+        }
+
+        public static int GetGlobalExpiredDay()
+        {
+            int expiredDay = Assistant.Contracts.UtilConsts.DaysOldToDeleteLimit;
+            if (Assistant.Utils.IsNumeric(ConfigurationHelper.GetSectionValue("globalExpiredDay")))
+            {
+                expiredDay = Convert.ToInt32(ConfigurationHelper.GetSectionValue("globalExpiredDay"));
+            }
+            //防止配置的过期天数过长
+            if (expiredDay > Assistant.Contracts.UtilConsts.DaysOldToDeleteLimit)
+            {
+                return Assistant.Contracts.UtilConsts.DaysOldToDeleteLimit;
+            }
+            return expiredDay;
+        }
     }
 }

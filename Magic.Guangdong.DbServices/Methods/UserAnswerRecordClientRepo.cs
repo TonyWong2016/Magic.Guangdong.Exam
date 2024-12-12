@@ -591,7 +591,8 @@ namespace Magic.Guangdong.DbServices.Methods
                         SubmitAnswer = dto.submitAnswerStr,//记录表里就如实记录提交的内容
                         CapInstance = dto.instance,
                         CapMsgId = dto.msgId,
-                        CapSenttime = dto.senttime
+                        CapSenttime = dto.senttime,
+                        ExpiredAt = DateTime.Now.AddDays(Utils.GetGlobalExpiredDay())
                     });
 
 

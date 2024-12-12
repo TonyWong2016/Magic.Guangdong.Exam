@@ -75,6 +75,8 @@ namespace Magic.Guangdong.Exam.Filters
                 //    Router = $"{area}/{controller}/{action}",
                 //    CreatedAt = DateTime.Now
                 //});
+
+                Assistant.Logger.Error("Cookie认证失败 \r\n"+ HeadersToString(context.HttpContext.Request));
                 return;
             }
 
@@ -89,6 +91,8 @@ namespace Magic.Guangdong.Exam.Filters
                     Router = $"{area}/{controller}/{action}",
                     CreatedAt = DateTime.Now
                 });
+
+                Assistant.Logger.Error("header认证失败 \r\n" + HeadersToString(context.HttpContext.Request));
                 return;
             }
 
@@ -201,6 +205,7 @@ namespace Magic.Guangdong.Exam.Filters
                 var item = new RedirectResult("/system/account/login?msg=invalidtoken");
                 context.Result = item;
                 Assistant.Logger.Error("token错辣！走你~");
+                //Assistant.Logger.Error(HeadersToString(context.HttpContext.Request));
                 return false;
             }
             if (claim.Sid != cookies.Where(u => u.Key == "userId").First().Value || claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
@@ -208,6 +213,7 @@ namespace Magic.Guangdong.Exam.Filters
                 var item = new RedirectResult("/system/account/login?msg=invalidtoken");
                 context.Result = item;
                 Assistant.Logger.Error("token错辣或者超时辣！走你~");
+                //Assistant.Logger.Error(HeadersToString(context.HttpContext.Request));
                 return false;
             }
             

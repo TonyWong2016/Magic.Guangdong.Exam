@@ -30,6 +30,8 @@ namespace Magic.Guangdong.Exam.AutoJobs.DelayTasks
             await CheckMarking();
 
             await CheckCert();
+
+            ClearLocalLogFiles();
         }
 
         private async Task CheckMarking()
@@ -37,7 +39,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.DelayTasks
             await Task.Delay(new Random().Next(100, 5000));
             if (await _rediscachingProvider.KeyExistsAsync("autocheckscore"))
             {
-                Assistant.Logger.Warning("自动检查成绩的服务已分配到其他终端");
+                Assistant.Logger.Info("自动检查成绩的服务已分配到其他终端");
                 return;
             }
             await _rediscachingProvider.StringSetAsync("autocheckscore", DateTime.Now.ToString(), TimeSpan.FromSeconds(300));
@@ -69,12 +71,12 @@ namespace Magic.Guangdong.Exam.AutoJobs.DelayTasks
                 await Task.Delay(new Random().Next(100, 5000));
                 if (await _rediscachingProvider.KeyExistsAsync("autoupdatecert"))
                 {
-                    Assistant.Logger.Warning("自动更新证书reportid的任务已分配到其他终端");
+                    Assistant.Logger.Info("自动更新证书reportid的任务已分配到其他终端");
                     return;
                 }
                 await _rediscachingProvider.StringSetAsync("autoupdatecert", DateTime.Now.ToString(), TimeSpan.FromSeconds(300));
 
-                Assistant.Logger.Info("自动检查并更新证书的reportid");
+                Assistant.Logger.Warning("自动检查并更新证书的reportid");
                 var activityDrops = (await _activityRepo.GetActivityDrops()).Select(u => u.Id);
                 var externalCerts = await _certRepo.getListAsync(u => u.IsExternal == 0
                 && (!activityDrops.Contains(u.ActivityId) || u.ActivityId == 0 || u.ExamId == Guid.Empty)
@@ -146,13 +148,76 @@ namespace Magic.Guangdong.Exam.AutoJobs.DelayTasks
                         await _certRepo.updateItemsAsync(batch);
                     }
                 }
-                Assistant.Logger.Info($"证书延时自动更新reportId完成，共计更新了{list.Count}条记录");
+                Assistant.Logger.Warning($"证书延时自动更新reportId完成，共计更新了{list.Count}条记录");
             }
             catch (Exception ex) {
                 Assistant.Logger.Error("自动更新证书失败" + ex.Message);
 
                 await EmailKitHelper.SendEMailToDevMsgAsync("自动更新证书失败" + ex.Message);
             }
+        }
+
+        private void ClearLocalLogFiles()
+        {
+            try
+            {
+                Assistant.Logger.Warning("开始清理本地日志文件，每台服务器都要执行");
+                string oaLog = ConfigurationHelper.GetSection("LogPath")["oa"]??"";
+                string clientLog = ConfigurationHelper.GetSection("LogPath")["client"] ?? "";
+                string teacherLog = ConfigurationHelper.GetSection("LogPath")["teacher"] ?? "";
+                string[] paths = new string[] { oaLog, clientLog, teacherLog };
+                foreach (var path in paths)
+                {
+                    DeleteFilesOlderExpiredDays(path);
+                }
+                
+                Assistant.Logger.Warning("清理本地日志文件完成");
+            }
+            catch (Exception ex)
+            {
+                Assistant.Logger.Error("清理本地日志文件失败" +ex.Message);
+            }
+        }
+
+        private void DeleteFilesOlderExpiredDays(string path)
+        {
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                Console.WriteLine("指定的路径无效或不存在。");
+                return;
+            }
+            int expiredDay = Assistant.Utils.GetGlobalExpiredDay();
+            try
+            {
+                // 获取目录中的所有文件
+                string[] files = Directory.GetFiles(path);
+                foreach (string file in files)
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+                    DateTime creationTime = fileInfo.CreationTime;
+
+                    // 检查文件是否超过过期时间
+                    if (DateTime.Now.Subtract(creationTime).TotalDays > expiredDay)
+                    {                        
+                        System.IO.File.Delete(file); // 删除文件
+                        Assistant.Logger.Warning($"删除: {file}");
+                    }
+                }
+
+                // 获取目录中的所有子目录
+                string[] directories = Directory.GetDirectories(path);
+                foreach (string directory in directories)
+                {
+                    // 递归调用以处理每个子目录
+                    DeleteFilesOlderExpiredDays(directory);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理可能发生的任何异常，如权限问题等
+                Assistant.Logger.Error($"发生错误: {ex.Message}");
+            }
+            
         }
     }
 }
