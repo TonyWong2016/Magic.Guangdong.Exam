@@ -96,7 +96,7 @@ namespace Magic.Guangdong.Assistant
         {
             _message = msg;
             _data = data;
-            return new { code = 0, msg = _message, data = _data, extenddata };
+            return new { errorCode=0, code = 0, msg = _message, data = _data, extenddata };
         }
 
         public dynamic error(string msg, dynamic? data)

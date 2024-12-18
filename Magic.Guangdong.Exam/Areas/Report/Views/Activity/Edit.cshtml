@@ -2,7 +2,7 @@
     Layout = "../Shared/_LayoutContent.cshtml";
 }
 @model Magic.Guangdong.DbServices.Dtos.Report.Activities.ActivityDto
-
+<link href="~/plugins/aieditor/dist/style.css" rel="stylesheet" />
 <div class="layui-card-header" style="color:#16baaa;font-size:large">
     创建活动
 </div>
@@ -19,7 +19,9 @@
         <div class="layui-form-item">
             <label class="layui-form-label">活动介绍</label>
             <div class="layui-input-block">
-                <textarea class="layui-textarea" asp-for="Description" placeholder="请输入活动介绍" lay-affix="clear" autocomplete="off"></textarea>
+                <div id="aiEditor" style="height: 350px;"></div>
+                <input type="hidden" asp-for="Description" />
+                @* <textarea class="layui-textarea" asp-for="Description" placeholder="请输入活动介绍" lay-affix="clear" autocomplete="off"></textarea> *@
             </div>
         </div>
 
@@ -64,15 +66,30 @@
         </div>
         <input type="hidden" asp-for="Id" />
         @Html.AntiForgeryToken()
+
+        @* <div id="aiEditor" style="height: 550px;  margin: 20px"></div> *@
     </form>
 </div>
 
 <script src="~/plugins/tinymce/tinymce.min.js"></script>
 <script src="~/plugins/mytinymce.js"></script>
-<script>
+<script src="~/plugins/spark-md5/spark-md5.min.js"></script>
+<script src="~/web/myaieditorconfig.js"></script>
+<script type="module">
+    import {AiEditor} from '/plugins/aieditor/dist/index.js'
+    let aiconfig = getAiEditorConfig('aiEditor',{
+        userId:atob(getCookie('userId')),
+        resourceHost: '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")',
+        showThumb: true
+    })
+    const aiEditor = new AiEditor(aiconfig);
+
+    aiEditor.setContent($('#Description').val())
+
+     
     let form = layui.form
     let base_ajax_url = "";
-    InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
+    //InitTinymce("Description", "", '@Magic.Guangdong.Assistant.ConfigurationHelper.GetSectionValue("resourceHost")', '')
     let laydate = layui.laydate;
 
     laydate.render({
@@ -88,7 +105,10 @@
         }
     });
 
+    
+
     form.on("submit(save)", async function (data) {
+        data.field.Description = aiEditor.getHtml()
         let formData = objectToFormData(data.field);
         var ret = await request('POST', '@Url.Action("Edit")', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
