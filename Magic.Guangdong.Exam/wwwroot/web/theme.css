@@ -57,3 +57,33 @@ body {
     border-color: var(--bg-normal-color) !important;
     color: var(--bg-normal-color) !important
 }
+
+/* 确保你有这个文件，并放置在与HTML相同的目录中 */
+.response-box {
+    background-color: var(--bg-success-color); /* 明显的背景色 */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    word-wrap: break-word;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--main-word-color);
+}
+
+.request-box {
+    background-color: var(--main-bg-color); /* 明显的背景色 */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    word-wrap: break-word;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--main-word-color);
+}
+
+#chat-box {
+    max-width: 1920px;
+    margin: 0 auto;
+}

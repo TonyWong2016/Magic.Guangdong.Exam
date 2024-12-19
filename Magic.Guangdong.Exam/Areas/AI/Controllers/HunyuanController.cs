@@ -28,6 +28,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         private readonly ICapPublisher _capPublisher;
 
         private string adminId = "";
+        private Credential _cred;
         //private readonly Tools.SseMiddleware _sseMiddleware;
         public HunyuanController(IResponseHelper responseHelper, AiConfigFactory aiConfigFactory,IRedisCachingProvider redisCachingProvider, IHttpContextAccessor contextAccessor,ICapPublisher capPublisher) 
         {
@@ -40,6 +41,11 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             {
                 adminId = Utils.FromBase64Str(cookieValue);
             }
+            _cred = new Credential
+            {
+                SecretId = _aiConfigs.SecretId,
+                SecretKey = _aiConfigs.SecretKey,
+            };
         }
         public IActionResult Index()
         {
@@ -48,11 +54,31 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
         //[HttpGet("simplechat")]
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> SimpleChat(string prompt)
+        public async Task<IActionResult> SimpleChat(string prompt,string model="")
         {
             if (string.IsNullOrWhiteSpace(prompt))
                 return Json(_resp.error("无输入"));
             
+            try
+            {
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", $"{prompt}|{adminId}");
+
+
+                return Json(_resp.success(0, "ok"));
+            }
+            catch (Exception e)
+            {
+                Assistant.Logger.Error(e);
+                return Json(_resp.error("获取响应失败，" + e.Message));
+            }
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ComplexChat(string prompt)
+        {
+            if (string.IsNullOrWhiteSpace(prompt))
+                return Json(_resp.error("无输入"));
+
             try
             {
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", $"{prompt}|{adminId}");
@@ -113,11 +139,11 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 adminId = parts[1];
                 Assistant.Logger.Warning("开始请求混元接口");
                 var commonParams = new HunyuanCommonParams();
-                var cred = new Credential
-                {
-                    SecretId = _aiConfigs.SecretId,
-                    SecretKey = _aiConfigs.SecretKey,
-                };
+                //var cred = new Credential
+                //{
+                //    SecretId = _aiConfigs.SecretId,
+                //    SecretKey = _aiConfigs.SecretKey,
+                //};
                 // 实例化一个client选项，可选的，没有特殊需求可以跳过
                 ClientProfile clientProfile = new ClientProfile();
                 // 实例化一个http选项，可选的，没有特殊需求可以跳过
@@ -126,7 +152,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 clientProfile.HttpProfile = httpProfile;
 
                 // 实例化要请求产品的client对象,clientProfile是可选的
-                HunyuanClient client = new HunyuanClient(cred, commonParams.Region, clientProfile);
+                HunyuanClient client = new HunyuanClient(_cred, commonParams.Region, clientProfile);
                 // 实例化一个请求对象,每个接口都会对应一个request对象
                 ChatCompletionsRequest req = new ChatCompletionsRequest();
                 req.Model = HunyuanModels.Lite;

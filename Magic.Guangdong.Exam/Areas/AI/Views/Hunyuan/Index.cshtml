@@ -4,7 +4,7 @@
 <style>
     /* 确保你有这个文件，并放置在与HTML相同的目录中 */
     .response-box {
-        background-color: #f0f8ff; /* 明显的背景色 */
+        background-color: var(--main-bg-color); /* 明显的背景色 */
         padding: 10px;
         border-radius: 5px;
         margin-top: 10px;
@@ -12,6 +12,7 @@
         font-family: Arial, sans-serif;
         font-size: 16px;
         line-height: 1.5;
+        color: var(--main-word-color);
     }
 
     #chat-box {
@@ -19,17 +20,27 @@
         margin: 0 auto;
     }
 </style>
-<div class="layui-card-header" style="color:#16baaa;font-size:large">
-    混元
+<div class="layui-card">
+    <div class="layui-card-header" style="color:var(--main-bg-color);font-size:large">
+        智能小助手
+    </div>
+    <div class="layui-card-body" id="chat-box" style="height:500px;max-height:500px;overflow-y:auto">
+    </div>
 </div>
+<br />
+<div class="layui-card">
+    <div class="layui-card-body layui-row layui-col-space10">
+        <div class="layui-col-md9">
+            <input type="text" class="layui-input" id="user-input" placeholder="Type a message..." />
 
-<div class="layui-card-body" id="chat-box">
-</div>
-<div class="layui-card-body">
-    <form class="layui-form">
-        <input type="text" class="layui-input" id="user-input" placeholder="Type a message..." />
-        <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">Send</a>
-    </form>
+        </div>
+        <div class="layui-col-md3">
+            <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">Send</a>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script>
