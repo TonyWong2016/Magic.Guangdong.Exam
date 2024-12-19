@@ -4,8 +4,11 @@ using Essensoft.Paylink.Alipay;
 using Essensoft.Paylink.WeChatPay;
 using FreeSql;
 using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.Contracts;
+using Magic.Guangdong.Assistant.Lib;
 using Magic.Guangdong.Exam.Filters;
+using Magic.Guangdong.Exam.Tools;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IO;
@@ -62,9 +65,24 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureRateLimit(_configuration);
 
             builder.Services.ConfigureDataProtection(_configuration);
+
+            builder.Services.ConfigureAi(_configuration);
+
+
             return builder;
         }
 
+        private static void ConfigureAi(this IServiceCollection services, IConfiguration configuration)
+        {
+            var aiConfigs = new List<AiConfig>();
+            configuration.GetSection("AiConfigs").Bind(aiConfigs);
+            //builder.Services.AddSingleton(aiConfigs);
+            // 注册工厂为单例服务
+            services.AddSingleton(new AiConfigFactory(aiConfigs));
+
+            //services.AddHttpClient(); // 添加 HTTP 客户端支持
+            //services.AddSingleton<SseMiddleware>();
+        }
        
         /// <summary>
         /// 配置mvc

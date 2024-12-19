@@ -1,0 +1,126 @@
+﻿@{
+    Layout = "../Shared/_LayoutContent.cshtml";
+}
+<style>
+    /* 确保你有这个文件，并放置在与HTML相同的目录中 */
+    .response-box {
+        background-color: #f0f8ff; /* 明显的背景色 */
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        word-wrap: break-word;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    #chat-box {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+</style>
+<div class="layui-card-header" style="color:#16baaa;font-size:large">
+    混元
+</div>
+
+<div class="layui-card-body" id="chat-box">
+</div>
+<div class="layui-card-body">
+    <form class="layui-form">
+        <input type="text" class="layui-input" id="user-input" placeholder="Type a message..." />
+        <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">Send</a>
+    </form>
+</div>
+
+<script>
+
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+
+        // 模拟用户提问
+    let questionNumber = 0;
+
+    function startSSe(){
+        const responseBox = document.createElement('div');
+        responseBox.className = 'response-box';
+        chatBox.appendChild(responseBox);
+        const eventSource = new EventSource('/airesp');
+          // 标记是否接收到了完成信号
+        let isDone = false;
+        eventSource.onmessage = function (event) {
+           // messageElement.textContent = `AI: `;
+           isDone = false;
+            const message = event.data;
+            let json = JSON.parse(message);
+            let choices = json.Choices;
+            if(choices.length > 0){
+                for(let i= 0; i < choices.length; i++){
+                    //console.log(choices[i]);
+                    if(choices[i].FinishReason!=="stop"){
+                        //messageElement.innerText += choices[i].Delta.Content;
+                        // 逐步更新当前回答框的内容
+                        responseBox.innerHTML += choices[i].Delta.Content;
+
+                        // 滚动到最新消息
+                        responseBox.scrollTop = responseBox.scrollHeight;
+                    } else{
+                        isDone = true;
+                        eventSource.close();
+                    }
+                }
+
+            }
+        };
+
+        eventSource.onerror = function (error) {
+            // 检查是否是正常的关闭
+            if (isDone || eventSource.readyState === EventSource.CLOSED) {
+              console.log('Connection closed normally.');
+              return;
+            }
+            console.error('EventSource failed:', error);
+            eventSource.close();
+        };
+    }
+
+    // 提交用户输入
+    sendButton.addEventListener('click', async function () {
+        const message = userInput.value.trim();
+        if (message) {
+            const userMessageElement = document.createElement('p');
+            userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
+            chatBox.appendChild(userMessageElement);
+            var formData = objectToFormData({'prompt':message,'__RequestVerificationToken':requestToken});
+            var ret = await request('POST', '@Url.Action("SimpleChat")', formData, { 'Content-Type': 'multipart/form-data' });
+            if(ret.code==0)
+                setTimeout(()=> {
+                    startSSe();
+                }, 3000)
+
+            // // 发送用户输入到服务器
+            // fetch('@Url.Action("SimpleChat")', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'multipart/form-data',
+            //         'Authorization': localStorage.getItem('accessToken'),
+            //     },
+            //     body: objectToFormData({'prompt':message,'__RequestVerificationToken':requestToken})
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     console.log(data.message);
+            // })
+            // .catch(error => {
+            //     console.error('Error sending message:', error);
+            // });
+
+            userInput.value = ''; // 清空输入框
+        }
+    });
+
+    function closeSSE(){
+        const eventSource = new EventSource('@Url.Action("simplechat")');
+        eventSource.close();
+    }
+</script>

@@ -98,17 +98,27 @@
             }
         },
         ai: {
+            //自定义后端
             models: {
-                openai: {
-                    endpoint: "https://api.moonshot.cn",
-                    model: "moonshot-v1-8k",
-                    apiKey: "sk-2mY7vSS7Rertn2yCxzrgr5l6669omAHfsJ7bqowY8Yti7bWz"
-                },
-                //spark: {
-                //    appId: "416ebc7e",
-                //    apiKey: "74daf4dc754c989a923755c8da7c57b9",
-                //    apiSecret: "NWNmZmRlMmJmOWMxNDUyYzRlYzA2OWRh"
-                //}
+                custom: {
+                    url: "/simplechat",
+                    headers: () => {
+
+                    },
+                    wrapPayload: (message) => {
+                        // 将用户输入转换为后端需要的JSON格式
+                        return JSON.stringify({ prompt: message });
+                    },
+                    parseMessage: (message) => {
+                        return {
+                            role: "assistant",
+                            content: message,
+                            // index: number,
+                            // //0 代表首个文本结果；1 代表中间文本结果；2 代表最后一个文本结果。
+                            // status: 0|1|2,
+                        }
+                    },
+                }
             }
         }
     }

@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>为自己代盐考试管理系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="image/x-icon" rel="shortcut icon" href="/images/examination_logo-32.ico" />
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
+    <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
+    <script src="~/web/base.js" asp-append-version="true"></script>
+    <script src="~/web/requestapi.js" asp-append-version="true"></script>
+    <script src="~/web/layextend.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        let requestToken = $('@Html.AntiForgeryToken()').val();
+    </script>
+</head>
+<body>
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header layui-bg-blue">
+            <div class="layui-logo layui-hide-xs layui-elip layui-font-20" style="color:yellow">
+                广东教协
+            </div>
+            <!-- 头部区域（可配合layui 已有的水平导航） -->
+            <ul class="layui-nav layui-layout-left">
+                <!-- 移动端显示 -->
+                <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
+                    <i class="layui-icon layui-icon-spread-left"></i>
+                </li>
+                <li class="layui-nav-item layui-hide-xs"><a href="javascript:;" onclick="layer.alert('规划中',{icon:0})">使用说明</a></li>
+                
+            </ul>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
+                    <a href="javascript:;">
+                        <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
+                        tester
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">个人中心</a></dd>
+                        @* <dd><a href="javascript:;">设置</a></dd> *@
+                        <dd><a href="javascript:;" onclick="LogoutAccount()">退出账号</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
+                    <a href="javascript:;">
+                        <i class="layui-icon layui-icon-more-vertical"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="layui-side layui-bg-blue">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree layui-bg-blue" lay-filter="sideNav" id="sideNav">
+                </ul>
+            </div>
+        </div>
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            @RenderBody()
+
+        </div>
+        <div class="layui-footer" style="text-align:center">
+            <!-- 底部固定区域 -->
+            为自己代盐 Copyright © 2024 By Tony
+        </div>
+    </div>
+
+
+    <script type="text/html" id="navTopSideMenuTpl">
+        {{# layui.each(d,function(index,item){ }}
+        <li class="layui-nav-item">
+            <a href="javascript:;" class="navSideTopLink" onclick="fetchSubMenus('{{ JSON.stringify(item) }}')">{{ item.name }}</a>
+            <dl class="layui-nav-child" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
+        </li>
+        {{# }) }}
+    </script>
+
+    <script type="text/html" id="navSideChildMenuTpl">
+        {{# layui.each(d,function(index,item){ }}
+        <dd>
+            <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">{{ item.name }}</a>
+            <dl class="layui-nav-item" id="{{ item.id }}_subSideNav_{{ item.depth }}"></dl>
+        </dd>
+        {{# }) }}
+    </script>
+
+    <script>
+        autoCheckLoginStatus();
+        var breadcrumbArr = [];
+        var navs = [];
+        var element = layui.element;
+        element.render('nav', 'sideNav');
+        
+        async function fetchTopMenus() {
+            try {
+                const result = await request('GET', '/system/menu/getmenus', { parentId: 0 });
+                //console.log(result)
+                renderTpl('navTopSideMenuTpl', 'sideNav', result.data, false)
+                setTimeout(() => {
+                    //临时，框架完整后，修改成一次请求把当前账号有的管理菜单都获取下来
+                    result.data.forEach(u => {
+                        // console.log(u)
+                        fetchSubMenus(JSON.stringify(u));
+                    })
+                }, 100)
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function fetchSubMenus(itemStr) {
+            let item = {};
+            if (typeof (itemStr) == 'object') {
+                item = itemStr
+            } else 
+                item = JSON.parse(itemStr)
+            if (breadcrumbArr.filter(u => u.name == item.name & u.depth==item.depth).length == 0) {
+                removeObjectFromArray(breadcrumbArr, 'depth', item.depth);
+                item.depth == 0 ? breadcrumbArr =[]:"";
+                    
+                breadcrumbArr.push({ depth: item.depth, name: item.name });
+            }
+
+            if (breadcrumbArr.filter(u => u.depth == item.depth).length == 0)
+                breadcrumbArr.push({ depth: item.depth, name: item.name });
+            
+
+            localStorage.setItem("breadcrumb", JSON.stringify(breadcrumbArr.sort((a,b)=>a.depth-b.depth)))
+            
+            if (item.isLeef == 1 && item.router!=='') {
+                
+                $('#main-container').attr('src', item.router.replace('Controller',''));
+            }
+            
+            if (navs.length > 0 && navs.filter(u => u.menuId == item.id).length == 1 || item.sLeef == 1) {
+                return;
+            }
+
+            
+
+            try {
+                navs.push({ menuId: item.id.toString(), status: true });
+                const result = await request('GET', '/system/menu/getmenus', { parentId: item.id });
+
+                renderTpl('navSideChildMenuTpl', item.id + '_subSideNav_' + item.depth, result.data, false);
+                element.render('nav', 'sideNav');
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchTopMenus();
+
+        function LogoutAccount(){
+            layer.confirm('确定要推出当前账号吗', { icon: 0 }, function () {
+                location.href = '/system/account/login?msg=logout';
+            })
+        }
+    </script>
+</body>
+</html>

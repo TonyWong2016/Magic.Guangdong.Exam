@@ -56,6 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\AI\Models\" />
     <Folder Include="Areas\Exam\Models\" />
     <Folder Include="Areas\Exam\Views\Examination\" />
     <Folder Include="Areas\Report\Models\" />

@@ -4,6 +4,7 @@ using Magic.Guangdong.Exam.AutoJobs.AutoSharding;
 using Magic.Guangdong.Exam.AutoJobs.DelayTasks;
 using Magic.Guangdong.Exam.AutoJobs.MiddleWare;
 using Magic.Guangdong.Exam.AutoJobs.SyncUnitInfo;
+using Magic.Guangdong.Exam.Tools;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
 namespace Magic.Guangdong.Exam.Extensions
@@ -52,7 +53,8 @@ namespace Magic.Guangdong.Exam.Extensions
                 pattern: "{controller=Home}/{action=Index}/{id?}"
             );
 
-
+            //app.UseMiddleware<SseMiddleware>();
+            //app.UseSse();
             // app.UseWebSockets();
             app.Services.UseScheduler(scheduler =>
             {
