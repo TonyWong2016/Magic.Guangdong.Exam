@@ -1,15 +1,19 @@
-﻿const chatBox = document.getElementById('chat-box');
+﻿import { marked } from '../plugins/marked/lib/marked.esm.min.js'
+const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 
 // 模拟用户提问
 let questionNumber = 0;
 let isDone = true;
-function startSSe() {
+let retryCount = 0;
+function getSseResp() {
+    let rboxId = 'response-box-' + new Date().getTime();
     const responseBox = document.createElement('div');
     responseBox.className = 'response-box';
+    responseBox.id = rboxId;
     chatBox.appendChild(responseBox);
-    const eventSource = new EventSource('/airesp');
+    const eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'));
     // 标记是否接收到了完成信号
     isDone = false;
     eventSource.onmessage = function (event) {
@@ -17,8 +21,10 @@ function startSSe() {
         isDone = false;
         const message = event.data;
         let json = JSON.parse(message);
+        //console.log(json);
         let choices = json.Choices;
         if (choices.length > 0) {
+            retryCount = 0;
             for (let i = 0; i < choices.length; i++) {
                 //console.log(choices[i]);
                 if (choices[i].FinishReason !== "stop") {
@@ -30,6 +36,11 @@ function startSSe() {
                     responseBox.scrollTop = responseBox.scrollHeight;
                 } else {
                     isDone = true;
+                    responseBox.innerHTML += `<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
+                    setTimeout(() => {
+                        marked(responseBox.innerHTML);
+                        
+                    },300);
                     eventSource.close();
                 }
             }
@@ -44,6 +55,13 @@ function startSSe() {
             return;
         }
         console.error('EventSource failed:', error);
+        if (retryCount < 3) {
+            retryCount++;
+            setTimeout(() => {
+                getSseResp();
+            },2000)
+            
+        }
         eventSource.close();
     };
 }
@@ -65,13 +83,15 @@ sendButton.addEventListener('click', async function () {
         userMessageElement.className = 'request-box';
         userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
         chatBox.appendChild(userMessageElement);
-        var formData = objectToFormData({ 'prompt': message, '__RequestVerificationToken': requestToken });
+        var formData = objectToFormData({ 'prompt': message, 'model': document.getElementById('aimodel').value, 'admin': localStorage.getItem('userName'), '__RequestVerificationToken': requestToken });
         var ret = await request('POST', '/ai/hunyuan/SimpleChat', formData, { 'Content-Type': 'multipart/form-data' });
-        if (ret.code == 0)
-            
+        if (ret.code == 0) {
+            let index = layer.load(2);
             setTimeout(() => {
-                startSSe();
-            }, 3000)
+                layer.close(index);
+                getSseResp();
+            }, 2500)
+        }
         userInput.value = ''; // 清空输入框
     }
 });

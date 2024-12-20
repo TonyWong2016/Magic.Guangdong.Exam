@@ -54,14 +54,16 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
         //[HttpGet("simplechat")]
         [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> SimpleChat(string prompt,string model="")
+        public async Task<IActionResult> SimpleChat(ChatModel chatModel)
         {
-            if (string.IsNullOrWhiteSpace(prompt))
+            if (string.IsNullOrWhiteSpace(chatModel.prompt))
                 return Json(_resp.error("无输入"));
             
             try
             {
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", $"{prompt}|{adminId}");
+                if(string.IsNullOrEmpty(chatModel.admin))
+                    chatModel.admin = adminId;
+                await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", chatModel);
 
 
                 return Json(_resp.success(0, "ok"));
@@ -73,28 +75,9 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ComplexChat(string prompt)
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-                return Json(_resp.error("无输入"));
-
-            try
-            {
-                await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", $"{prompt}|{adminId}");
-
-
-                return Json(_resp.success(0, "ok"));
-            }
-            catch (Exception e)
-            {
-                Assistant.Logger.Error(e);
-                return Json(_resp.error("获取响应失败，" + e.Message));
-            }
-        }
-
+        
         [HttpGet("airesp")]
-        public async Task AiResponseSse()
+        public async Task AiResponseSse(string admin)
         {
             Response.Headers["Content-Type"] = "text/event-stream";
             Response.Headers["Cache-Control"] = "no-cache";
@@ -104,20 +87,22 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
             try
             {
+                if (string.IsNullOrEmpty(admin))
+                    admin = adminId;
                 while (true)
                 {
-                    //await Task.Delay(100);
+                    
                     // 从通道中读取消息（这里等待消息到来）
                     //var message = await _redisCachingProvider.StringGetAsync("certProgress");
-                    if (!await _redisCachingProvider.KeyExistsAsync("cacheId" + adminId))
+                    if (!await _redisCachingProvider.KeyExistsAsync("cacheId" + admin))
                         return;
-                    var message = await _redisCachingProvider.LPopAsync<string>("cacheId" + adminId);
+                    var message = await _redisCachingProvider.LPopAsync<string>("cacheId" + admin);
                     if (string.IsNullOrEmpty(message))
                         continue;
                     // 按照SSE协议格式发送数据到客户端
                     await Response.WriteAsync($"data:{message}\n\n");
                     await Response.Body.FlushAsync();
-
+                    //await Task.Delay(20);
                 }
 
             }
@@ -130,13 +115,13 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.PREFIX + "GetHunyuanResponse")]
-        public async Task GetHunyuanResponse(string promptAndAdminId)
+        public async Task GetHunyuanResponse(ChatModel chatModel)
         {
             try
             {
-                string[] parts = promptAndAdminId.Split('|');
-                string prompt = parts[0];
-                adminId = parts[1];
+                //string[] parts = promptAndAdminId.Split('|');
+                //string prompt = parts[0];
+                //adminId = parts[1];
                 Assistant.Logger.Warning("开始请求混元接口");
                 var commonParams = new HunyuanCommonParams();
                 //var cred = new Credential
@@ -156,10 +141,12 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 // 实例化一个请求对象,每个接口都会对应一个request对象
                 ChatCompletionsRequest req = new ChatCompletionsRequest();
                 req.Model = HunyuanModels.Lite;
+                if (!string.IsNullOrWhiteSpace(chatModel.model))
+                    req.Model = chatModel.finalModel;
                 Message message1 = new Message();
                 message1.Role = "user";
-                message1.Content = prompt;
-                req.Messages = new Message[] { message1 };
+                message1.Content = chatModel.prompt;
+                req.Messages = [message1];
                 req.Stream = true;
                 ChatCompletionsResponse resp = await client.ChatCompletions(req);
                 // 输出json格式的字符串回包
@@ -169,7 +156,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     foreach (var e in resp)
                     {
                         Assistant.Logger.Debug(e.Data);
-                        await _redisCachingProvider.RPushAsync("cacheId" + adminId, new List<string>() { e.Data });
+                        await _redisCachingProvider.RPushAsync("cacheId" + chatModel.admin, new List<string>() { e.Data });
                         //await _sseMiddleware.BroadcastMessage(e.Data);
                     }
                 }
@@ -185,7 +172,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
             finally
             {
-                await _redisCachingProvider.KeyExpireAsync("cacheId" + adminId, 600);
+                await _redisCachingProvider.KeyExpireAsync("cacheId" + chatModel.admin, 600);
             }
         }
 
@@ -194,5 +181,22 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             return "{\"Model\":\"" + model + "\",\"Messages\":[{\"Role\":\"user\",\"Content\":\"" + content + "\"}],\"Stream\":"+ stream + "}";
         }
 
+    }
+
+    public class ChatModel
+    {
+        public string prompt {  get; set; }
+
+        public string admin {  get; set; }
+
+        public string model { get; set; }
+
+        public string finalModel
+        {
+            get
+            {
+                return "hunyuan-" + model;
+            }
+        }
     }
 }

@@ -63,6 +63,18 @@
       "provider": "cdnjs",
       "library": "spark-md5@3.0.2",
       "destination": "wwwroot/plugins/spark-md5/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "marked@15.0.4",
+      "destination": "wwwroot/plugins/marked/",
+      "files": [
+        "marked.min.js",
+        "lib/marked.esm.js",
+        "lib/marked.esm.min.js",
+        "lib/marked.umd.js",
+        "lib/marked.umd.min.js"
+      ]
     }
   ]
 }

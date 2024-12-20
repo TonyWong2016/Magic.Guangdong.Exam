@@ -30,7 +30,7 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.4.1" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.10" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="TencentCloudSDK.Hunyuan" Version="3.0.1145" />
+    <PackageReference Include="TencentCloudSDK.Hunyuan" Version="3.0.1146" />
     <PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
   </ItemGroup>
 

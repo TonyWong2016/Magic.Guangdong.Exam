@@ -110,16 +110,31 @@
         </div>
 
         <div class="layui-panel" id="chatView" style="display:none;padding:10px">
+            <form class="layui-form">
             <div class="layui-card">
                 <div class="layui-card-header" style="color:var(--main-bg-color);font-size:large">
                     智能小助手
                 </div>
-                <div class="layui-card-body" id="chat-box" style="height:500px;max-height:500px;overflow-y:auto">
+                <div class="layui-card-body" id="chat-box" style="height:400px;overflow-y:auto">
+                    <blockquote class="layui-elem-quote layui-quote-nm">
+                        注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。
+                    </blockquote>
                 </div>
             </div>
             <div class="layui-card">
                 <div class="layui-card-body layui-row layui-col-space10">
-                    <div class="layui-col-md10">
+                        <div class="layui-col-md3">
+                            <select id="aimodel">
+                                <option value="lite">lite模型(免费)</option>
+                                <option value="standard">standard模型(标准模型)</option>
+                                <option value="standard-256k" selected>standard-256k模型(长文本)</option>
+                                <option value="pro">pro模型(支持多轮对话)</option>
+                                <option value="turbo">turbo模型(性能更强)</option>
+                                <option value="large">larg模型(超长文本)</option>
+                                <option disabled>vision模型(视觉支持)</option>
+                            </select>
+                        </div>
+                    <div class="layui-col-md7">
                         <input type="text" class="layui-input" id="user-input" placeholder="请输入您的问题..." />
 
                     </div>
@@ -127,12 +142,13 @@
                         <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
 
                     </div>
-
+                    
                 </div>
 
             </div>
+            </form>
         </div>
-
+       
     </div>
 
     <script type="text/html" id="keyActionTpl">
@@ -196,7 +212,7 @@
             {{# }) }}
         </div>
     </script>
-    <script src="~/web/chat.js"></script>
+    <script src="~/web/chat.js" type="module"></script>
     <script>
         autoCheckLoginStatus();
         var breadcrumbArr = [];
@@ -386,7 +402,7 @@
                 },
                 // 点击事件
                 click: function(type){
-                    openDiv('智能助手', 'chatView', '40%', '70%')
+                    openDiv('智能助手', 'chatView', '1000px', '640px')
                     // layer.msg(type);
                 }                
               }            

@@ -68,7 +68,6 @@ namespace Magic.Guangdong.Exam.Extensions
 
             builder.Services.ConfigureAi(_configuration);
 
-
             return builder;
         }
 
