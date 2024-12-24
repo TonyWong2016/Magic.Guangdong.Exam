@@ -91,18 +91,25 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     admin = adminId;
                 while (true)
                 {
-                    
+                    await Task.Delay(20);
                     // 从通道中读取消息（这里等待消息到来）
+                    if (await _redisCachingProvider.KeyExistsAsync("TopThreeCacheId" + admin))
+                    {
+                        var topThreeMsg = await _redisCachingProvider.LPopAsync<string>("TopThreeCacheId" + admin);
+                        await Response.WriteAsync($"data:{topThreeMsg}\n\n");
+                        await Response.Body.FlushAsync();
+                        return;   
+                    }
                     //var message = await _redisCachingProvider.StringGetAsync("certProgress");
-                    if (!await _redisCachingProvider.KeyExistsAsync("cacheId" + admin))
+                    if (!await _redisCachingProvider.KeyExistsAsync("AfterThreeCacheId" + admin))
                         return;
-                    var message = await _redisCachingProvider.LPopAsync<string>("cacheId" + admin);
+                    var message = await _redisCachingProvider.LPopAsync<string>("AfterThreeCacheId" + admin);
                     if (string.IsNullOrEmpty(message))
                         continue;
                     // 按照SSE协议格式发送数据到客户端
                     await Response.WriteAsync($"data:{message}\n\n");
                     await Response.Body.FlushAsync();
-                    //await Task.Delay(20);
+                    
                 }
 
             }
@@ -115,20 +122,20 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
         [NonAction]
         [CapSubscribe(CapConsts.PREFIX + "GetHunyuanResponse")]
-        public async Task GetHunyuanResponse(ChatModel chatModel)
+        public async Task GetHunyuanResponse(ChatModel chatModel, [FromCap] CapHeader header)
         {
             try
             {
-                //string[] parts = promptAndAdminId.Split('|');
-                //string prompt = parts[0];
-                //adminId = parts[1];
+                await Task.Delay(new Random().Next(10, 100));
+                if(await _redisCachingProvider.HExistsAsync(CapConsts.MsgIdCacheOaName,"hy-" + header["cap-msg-id"]))
+                {
+                    Assistant.Logger.Warning("以分配到其他终端");
+                    return;
+                }
+                await _redisCachingProvider.HSetAsync(CapConsts.MsgIdCacheOaName, "hy-" + header["cap-msg-id"], header["cap-exec-instance-id"]);
                 Assistant.Logger.Warning("开始请求混元接口");
+
                 var commonParams = new HunyuanCommonParams();
-                //var cred = new Credential
-                //{
-                //    SecretId = _aiConfigs.SecretId,
-                //    SecretKey = _aiConfigs.SecretKey,
-                //};
                 // 实例化一个client选项，可选的，没有特殊需求可以跳过
                 ClientProfile clientProfile = new ClientProfile();
                 // 实例化一个http选项，可选的，没有特殊需求可以跳过
@@ -138,26 +145,59 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
                 // 实例化要请求产品的client对象,clientProfile是可选的
                 HunyuanClient client = new HunyuanClient(_cred, commonParams.Region, clientProfile);
+                
                 // 实例化一个请求对象,每个接口都会对应一个request对象
+                
                 ChatCompletionsRequest req = new ChatCompletionsRequest();
                 req.Model = HunyuanModels.Lite;
                 if (!string.IsNullOrWhiteSpace(chatModel.model))
                     req.Model = chatModel.finalModel;
-                Message message1 = new Message();
-                message1.Role = "user";
-                message1.Content = chatModel.prompt;
-                req.Messages = [message1];
+
+                List<Message> myMsgLog = new List<Message>();
+                int x = 0;
+
+                if (await _redisCachingProvider.KeyExistsAsync($"{chatModel.admin}_msgLog"))
+                {
+                    var messagesHash = await _redisCachingProvider.HGetAllAsync($"{chatModel.admin}_msgLog");
+                    if (messagesHash.Count > 20)
+                        await _redisCachingProvider.KeyDelAsync($"{chatModel.admin}_msgLog");
+                    foreach (var item in messagesHash.OrderBy(u=>u.Key))
+                    {
+                        myMsgLog.Add(JsonHelper.JsonDeserialize<Message>(item.Value));
+                    }
+                    x = messagesHash.Count + 1;
+                }
+
+                Message currMsg = new Message();
+                currMsg.Role = "user";
+                currMsg.Content = $"{chatModel.prompt}";
+
+                await _redisCachingProvider.HSetAsync($"{chatModel.admin}_msgLog", chatModel.admin+ x, JsonHelper.JsonSerialize(currMsg));
+
+                myMsgLog.Add(currMsg);
+                //myMsgLog.Reverse();
+                //req.Messages = [message1];
+                req.Messages = myMsgLog.ToArray();
                 req.Stream = true;
                 ChatCompletionsResponse resp = await client.ChatCompletions(req);
+                
+
                 // 输出json格式的字符串回包
                 if (resp.IsStream)
                 {
                     // 流式响应
+                    int cnt = 0;
+                    string listKey = "TopThreeCacheId" + chatModel.admin;
                     foreach (var e in resp)
                     {
-                        Assistant.Logger.Debug(e.Data);
-                        await _redisCachingProvider.RPushAsync("cacheId" + chatModel.admin, new List<string>() { e.Data });
-                        //await _sseMiddleware.BroadcastMessage(e.Data);
+                        Assistant.Logger.Debug(e.Data);                        
+                        if (cnt > 2)
+                        {
+                            listKey = "AfterThreeCacheId" + chatModel.admin;
+                        }
+                        await _redisCachingProvider.RPushAsync(listKey, new List<string>() { e.Data });
+
+                        cnt++;
                     }
                 }
                 else
@@ -172,7 +212,9 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
             finally
             {
-                await _redisCachingProvider.KeyExpireAsync("cacheId" + chatModel.admin, 600);
+                await _redisCachingProvider.KeyExpireAsync("TopThreeCacheId" + chatModel.admin, 100);
+                await _redisCachingProvider.KeyExpireAsync("AfterThreeCacheId" + chatModel.admin, 600);
+                await _redisCachingProvider.KeyExpireAsync($"{chatModel.admin}_msgLog",300);
             }
         }
 

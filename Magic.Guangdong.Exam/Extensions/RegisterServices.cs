@@ -406,9 +406,7 @@ namespace Magic.Guangdong.Exam.Extensions
             services.Configure<ClientRateLimitOptions>(configuration.GetSection("ClientRateLimiting"));
             services.Configure<ClientRateLimitPolicies>(configuration.GetSection("ClientRateLimitPolicies"));
 
-
             services.AddInMemoryRateLimiting();
-
 
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }

@@ -7,17 +7,28 @@ const sendButton = document.getElementById('send-button');
 let questionNumber = 0;
 let isDone = true;
 let retryCount = 0;
+let lastId = '';
 function getSseResp() {
     let rboxId = 'response-box-' + new Date().getTime();
-    const responseBox = document.createElement('div');
-    responseBox.className = 'response-box';
-    responseBox.id = rboxId;
-    chatBox.appendChild(responseBox);
+    
+    lastId = localStorage.getItem('lastRboxId');
+    let responseBox;
+    if (isDone || !lastId) {
+        responseBox = document.createElement('div');
+        responseBox.className = 'response-box';
+        responseBox.id = rboxId;
+        chatBox.appendChild(responseBox);
+    } else {
+        responseBox = document.getElementById(lastId);
+    }
+    if (!localStorage.getItem('lastRboxId'))
+        localStorage.setItem('lastRboxId', rboxId);
     const eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'));
     // 标记是否接收到了完成信号
     isDone = false;
     eventSource.onmessage = function (event) {
         // messageElement.textContent = `AI: `;
+        
         isDone = false;
         const message = event.data;
         let json = JSON.parse(message);
@@ -26,7 +37,6 @@ function getSseResp() {
         if (choices.length > 0) {
             retryCount = 0;
             for (let i = 0; i < choices.length; i++) {
-                //console.log(choices[i]);
                 if (choices[i].FinishReason !== "stop") {
                     //messageElement.innerText += choices[i].Delta.Content;
                     // 逐步更新当前回答框的内容
@@ -36,10 +46,10 @@ function getSseResp() {
                     responseBox.scrollTop = responseBox.scrollHeight;
                 } else {
                     isDone = true;
+                    localStorage.removeItem('lastRboxId');
                     responseBox.innerHTML += `<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
                     setTimeout(() => {
-                        marked(responseBox.innerHTML);
-                        
+                        marked(responseBox.innerHTML);                        
                     },300);
                     eventSource.close();
                 }
@@ -55,7 +65,7 @@ function getSseResp() {
             return;
         }
         console.error('EventSource failed:', error);
-        if (retryCount < 3) {
+        if (retryCount < 5) {
             retryCount++;
             setTimeout(() => {
                 getSseResp();
