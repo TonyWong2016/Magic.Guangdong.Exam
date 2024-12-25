@@ -130,14 +130,15 @@ function setupMessageListener() {
         
         // 检查是否包含 action 参数
         if (!action) {
-            console.log('Message does not contain an action parameter.');
+            //console.log('Message does not contain an action parameter.');
             return;
         }
-        console.log(event.data);
+       
         if (accessToken != localStorage.getItem('accessToken')) {
             console.log('It is not my msg.');
             return;
         }
+        console.log(event.data);
         console.log('Bingo.');
         setTimeout(() => {
 
