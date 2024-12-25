@@ -49,7 +49,7 @@ function getSseResp() {
                     localStorage.removeItem('lastRboxId');
                     responseBox.innerHTML += `<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
                     setTimeout(() => {
-                        marked(responseBox.innerHTML);                        
+                        responseBox.innerHTML = marked(responseBox.innerHTML);                        
                     },300);
                     eventSource.close();
                 }
@@ -105,3 +105,81 @@ sendButton.addEventListener('click', async function () {
         userInput.value = ''; // 清空输入框
     }
 });
+
+const messageHandlers = {}; // 用于存储不同 action 的防抖计时器
+const applyBtn = $('#apply-button');
+const applyDisabledBtn = $('#apply-disabled-button');
+
+// 监听来自子页面的消息
+function setupMessageListener() {
+    window.addEventListener('message', function (event) {
+        // 检查消息来源的安全性，确保它来自同一个源
+        if (event.origin !== window.location.origin) return;
+
+        applyBtn.hide();
+        applyDisabledBtn.show();
+        // 尝试获取锁
+        //const lockKey = 'messageHandlerLock';
+        //if (!tryAcquireLock(lockKey)) {
+        //    console.log('Another page is handling the message.');
+        //    return;
+        //}
+       
+        // 解析消息数据
+        const { action, accessToken, ...otherParams } = event.data;
+        
+        // 检查是否包含 action 参数
+        if (!action) {
+            console.log('Message does not contain an action parameter.');
+            return;
+        }
+        console.log(event.data);
+        if (accessToken != localStorage.getItem('accessToken')) {
+            console.log('It is not my msg.');
+            return;
+        }
+        console.log('Bingo.');
+        setTimeout(() => {
+
+            handleIncomingMessage(action, otherParams);
+        }, 100);
+        
+        // 释放锁
+        //releaseLock(lockKey);
+    });
+}
+
+
+function handleIncomingMessage(action, params) {
+    switch (action) {
+        case 'showApplyBtn':
+            applyBtn.show();
+            applyDisabledBtn.hide();
+            break;
+        case 'hideElement':
+            document.getElementById('targetElement').style.display = 'none';
+            console.log('Received message with action:', action, 'and params:', params);
+            break;
+        // 可以添加更多 action 的处理逻辑
+        default:
+            console.log('Unknown action:', action, 'with params:', params);
+            break;
+    }
+}
+
+
+function tryAcquireLock(key) {
+    // 尝试设置锁，如果已经存在则返回 false
+    return localStorage.getItem(key) === null && localStorage.setItem(key, 'locked');
+}
+
+function releaseLock(key) {
+    // 释放锁
+    localStorage.removeItem(key);
+}
+
+// 确保在 DOM 完全加载后执行
+document.addEventListener('DOMContentLoaded', () => {
+    setupMessageListener();
+});
+

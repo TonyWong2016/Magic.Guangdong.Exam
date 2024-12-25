@@ -117,7 +117,8 @@
                 </div>
                 <div class="layui-card-body" id="chat-box" style="height:400px;overflow-y:auto">
                     <blockquote class="layui-elem-quote layui-quote-nm">
-                        注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。
+                        注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。<br />
+                        【采纳】功能目前仅支持在题目详情页生成解析，其余页面暂不支持。
                     </blockquote>
                 </div>
             </div>
@@ -134,12 +135,14 @@
                                 <option disabled>vision模型(视觉支持)</option>
                             </select>
                         </div>
-                    <div class="layui-col-md7">
+                    <div class="layui-col-md6">
                         <input type="text" class="layui-input" id="user-input" placeholder="请输入您的问题..." />
 
                     </div>
-                    <div class="layui-col-md2">
+                    <div class="layui-col-md3 layui-btn-container">
                         <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
+                        <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="apply-button" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
+                        <a class="layui-btn layui-btn-disabled" onclick="layer.tips('仅在题目编辑页面生成题目解析时可用',this,{ tips: [3, '#a233c6']})" id="apply-disabled-button" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
 
                     </div>
                     
@@ -364,7 +367,7 @@
                 { 'icon': 'note', 'title': '2024.12.06🌳', 'author': 'tony', 'content': '增加证书导入功能，使用新方式🐂🍺<br/>增加sse通知机制，目前只用到了生成证书时的进度展示 <br/>扩展计划任务，增加了每天自动删除临时文件，比如导出的文件，分片上传大文件时用来记录分片数量的日志文件等（自我清洁能力+1）👍' },
                 { 'icon': 'note', 'title': '2024.12.09', 'author': 'tony', 'content': '增加延时更新证书reportid的计划任务🕙' },
                 { 'icon': 'note', 'title': '2024.12.12', 'author': 'tony', 'content': '增加证书下载按钮<br/>优化定时清理任务的机制，增加了一些保障安全性的清理措施' },
-                { 'icon': 'fire', 'title': '2024.12.24', 'author': 'tony', 'content': '智能小助手1.0上线啦🌸🌸🌸' }
+                { 'icon': 'fire', 'title': '2024.12.24', 'author': 'tony', 'content': '智能小助手1.0上线啦，快点击页面右下角尝试吧🌸🌸🌸' }
 
             ];
         
@@ -380,8 +383,13 @@
             if(releaseVersion !== localReleaseVersion ){
                 layer.tips('有新的更新，点击查看', '#releaseLog', {
                     tips: [1, '#16b777']
-                })
+                })                
             }
+
+            layer.tips('我在这里呦~', '.layui-fixbar', {
+                tips: [2, '#a233c6']
+            })
+            
         },100)
 
         let layutil = layui.util;
@@ -403,11 +411,37 @@
                 },
                 // 点击事件
                 click: function(type){
-                    openDiv('智能助手', 'chatView', '1000px', '640px')
+                    openDiv('智能助手', 'chatView', '1000px', '640px');
+                            // 监听回车键
+                    
                     // layer.msg(type);
                 }                
               }            
         })
+
+        document.getElementById('user-input').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                document.getElementById('send-button').click();
+            }
+        })
+
+        //         // 监听来自子页面的消息
+        // window.addEventListener('message', function(event) {
+        //     // 检查消息来源的安全性，确保它来自同一个源
+        //     if (event.origin !== window.location.origin) return;
+        //     let applyBtn = $('#apply-button');
+        //     let applyDisabledBtn = $('#apply-disabled-button');
+        //     applyBtn.hide();
+        //     applyDisabledBtn.show();
+        //     // 根据消息内容执行相应操作
+        //     if (event.data.action === 'showApplyBtn') {
+               
+        //         if(applyBtn && applyBtn){
+        //             applyBtn.show();
+        //             applyDisabledBtn.hide();
+        //         }
+        //     } 
+        // });
         
     </script>
 </body>

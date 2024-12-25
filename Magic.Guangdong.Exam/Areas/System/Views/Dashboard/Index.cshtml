@@ -93,7 +93,7 @@
 
 <script>
     axios('@Url.Action("getdata")').then(data => {
-        console.log(data)
+        //console.log(data)
         let json = data.data;
         jHtmlSet('orderAmount', json.data.orderAmountTotal);
         jHtmlSet('reportNumTotal', json.data.reportNumTotal);

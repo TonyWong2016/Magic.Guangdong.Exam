@@ -1,20 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TencentCloud.Common;
-using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.Assistant.CloudModels;
-using Magic.Guangdong.Assistant.Lib;
-using TencentCloud.Common.Profile;
-using TencentCloud.Hunyuan.V20230901.Models;
-using TencentCloud.Hunyuan.V20230901;
-using Newtonsoft.Json;
-using Azure;
+﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using Magic.Guangdong.Assistant;
-using Org.BouncyCastle.Ocsp;
-using Microsoft.Identity.Client;
-using DotNetCore.CAP;
+using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.Contracts;
-using Magic.Guangdong.Exam.Areas.Cert.Controllers;
+using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.Assistant.Lib;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TencentCloud.Common;
+using TencentCloud.Common.Profile;
+using TencentCloud.Hunyuan.V20230901;
+using TencentCloud.Hunyuan.V20230901.Models;
 
 namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 {

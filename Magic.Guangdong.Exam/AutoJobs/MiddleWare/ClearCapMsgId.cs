@@ -31,9 +31,7 @@ namespace Magic.Guangdong.Exam.AutoJobs.MiddleWare
             Assistant.Logger.Warning("cap缓存检查完成");
 
             Assistant.Logger.Warning("清除判分队列");
-            await _redisCachingProvider.KeyDelAsync("markingProcess");
-
-           
+            await _redisCachingProvider.KeyDelAsync("markingProcess");           
         }
     }
 }
