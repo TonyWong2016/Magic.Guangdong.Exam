@@ -188,6 +188,7 @@
     <script>
         let loginType = 'pwd';
         let pageLoadMsg = getUrlQueryParams('msg');
+        localStorage.removeItem('unsafeLoginedAt')
         if (pageLoadMsg == 'invalidtoken') {
             errorMsg('身份凭证异常，请尝试重新登录');
         } else if (pageLoadMsg == 'logout') {
@@ -280,11 +281,15 @@
                 }
                 let result = await request('POST', requestParms.url, requestParms.data, { 'Content-Type': 'multipart/form-data' });
                 if (result.code == 0) {
+                    if(data.field.account=='sa'){
+                        localStorage.setItem('unsafeLoginedAt',new Date().getTime() + 5*60*1000);
+                    }
                     setLoginInfo(result.data.access_token);
                     window.location.href = "/system/manage";
                     successMsg('登录成功');
                     $('.disabledsave').show();
                     $('.save').hide();
+                    
                 } else {
                     errorMsg(result.msg);
                     $('.disabledsave').hide();

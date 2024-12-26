@@ -85,6 +85,20 @@ namespace Magic.Guangdong.Exam.Areas.Exam.Controllers
         }
 
         /// <summary>
+        /// 采纳解析意见
+        /// </summary>
+        /// <param name="questionId"></param>
+        /// <param name="analysisTxt"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdoptAnalysis(long questionId, string analysisTxt)
+        {
+            var question = await _questionRepo.getOneAsync(u => u.Id == questionId);
+            question.Analysis = analysisTxt;
+            return Json(_resp.success(await _questionRepo.updateItemAsync(question), "采纳成功"));
+        }
+
+        /// <summary>
         /// 编辑页
         /// </summary>
         /// <param name="id"></param>

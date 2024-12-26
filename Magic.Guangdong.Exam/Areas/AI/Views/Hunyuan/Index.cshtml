@@ -31,11 +31,11 @@
 <div class="layui-card">
     <div class="layui-card-body layui-row layui-col-space10">
         <div class="layui-col-md9">
-            <input type="text" class="layui-input" id="user-input" placeholder="Type a message..." />
+            <input type="text" class="layui-input" id="txtUserPrompt" placeholder="Type a message..." />
 
         </div>
         <div class="layui-col-md3">
-            <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">Send</a>
+            <a class="layui-btn layui-btn-primary" id="btnAskAi" href="javascript:;">Send</a>
 
         </div>
 
@@ -46,8 +46,8 @@
 <script>
 
     const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
+    const userPrompt = document.getElementById('txtUserPrompt');
+    const btnAskAi = document.getElementById('btnAskAi');
 
         // 模拟用户提问
     let questionNumber = 0;
@@ -96,8 +96,8 @@
     }
 
     // 提交用户输入
-    sendButton.addEventListener('click', async function () {
-        const message = userInput.value.trim();
+    btnAskAi.addEventListener('click', async function () {
+        const message = userPrompt.value.trim();
         if (message) {
             const userMessageElement = document.createElement('p');
             userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
@@ -126,7 +126,7 @@
             //     console.error('Error sending message:', error);
             // });
 
-            userInput.value = ''; // 清空输入框
+            userPrompt.value = ''; // 清空输入框
         }
     });
 

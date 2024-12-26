@@ -148,32 +148,35 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 req.Model = HunyuanModels.Lite;
                 if (!string.IsNullOrWhiteSpace(chatModel.model))
                     req.Model = chatModel.finalModel;
-
-                List<Message> myMsgLog = new List<Message>();
-                int x = 0;
-
-                if (await _redisCachingProvider.KeyExistsAsync($"{chatModel.admin}_msgLog"))
-                {
-                    var messagesHash = await _redisCachingProvider.HGetAllAsync($"{chatModel.admin}_msgLog");
-                    if (messagesHash.Count > 20)
-                        await _redisCachingProvider.KeyDelAsync($"{chatModel.admin}_msgLog");
-                    foreach (var item in messagesHash.OrderBy(u=>u.Key))
-                    {
-                        myMsgLog.Add(JsonHelper.JsonDeserialize<Message>(item.Value));
-                    }
-                    x = messagesHash.Count + 1;
-                }
-
                 Message currMsg = new Message();
                 currMsg.Role = "user";
-                currMsg.Content = $"{chatModel.prompt}";
+                currMsg.Content = $"{chatModel.prompt},注意回复内容尽量控制在500字以内，不要超过1000字";
+                if (chatModel.chatType)
+                {
+                    List<Message> myMsgLog = new List<Message>();
+                    int x = 0;
 
-                await _redisCachingProvider.HSetAsync($"{chatModel.admin}_msgLog", chatModel.admin+ x, JsonHelper.JsonSerialize(currMsg));
+                    if (await _redisCachingProvider.KeyExistsAsync($"{chatModel.admin}_msgLog"))
+                    {
+                        var messagesHash = await _redisCachingProvider.HGetAllAsync($"{chatModel.admin}_msgLog");
+                        if (messagesHash.Count > 20)
+                            await _redisCachingProvider.KeyDelAsync($"{chatModel.admin}_msgLog");
+                        foreach (var item in messagesHash.OrderBy(u => u.Key))
+                        {
+                            myMsgLog.Add(JsonHelper.JsonDeserialize<Message>(item.Value));
+                        }
+                        x = messagesHash.Count + 1;
+                    }
 
-                myMsgLog.Add(currMsg);
-                //myMsgLog.Reverse();
-                //req.Messages = [message1];
-                req.Messages = myMsgLog.ToArray();
+                    await _redisCachingProvider.HSetAsync($"{chatModel.admin}_msgLog", chatModel.admin + x, JsonHelper.JsonSerialize(currMsg));
+
+                    myMsgLog.Add(currMsg);
+                    //myMsgLog.Reverse();
+                    //req.Messages = [message1];
+                    req.Messages = myMsgLog.ToArray();
+                }
+                else
+                    req.Messages = [currMsg];
                 req.Stream = true;
                 ChatCompletionsResponse resp = await client.ChatCompletions(req);
                 
@@ -228,6 +231,10 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         public string admin {  get; set; }
 
         public string model { get; set; }
+
+        public bool chatType { get; set; } = true;
+
+        public string initiator {  get; set; }
 
         public string finalModel
         {

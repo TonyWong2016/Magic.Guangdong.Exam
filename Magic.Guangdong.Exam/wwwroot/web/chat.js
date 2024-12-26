@@ -1,13 +1,17 @@
 ﻿import { marked } from '../plugins/marked/lib/marked.esm.min.js'
 const chatBox = document.getElementById('chat-box');
-const userInput = document.getElementById('user-input');
-const sendButton = document.getElementById('send-button');
+const userPrompt = document.getElementById('txtUserPrompt');
+const btnAskAi = document.getElementById('btnAskAi');
+const childWindow = document.getElementById('main-container').contentWindow;
 
 // 模拟用户提问
 let questionNumber = 0;
 let isDone = true;
 let retryCount = 0;
 let lastId = '';
+let chatType = true;
+let initiator = '';
+let lastResponseContent = '';
 function getSseResp() {
     let rboxId = 'response-box-' + new Date().getTime();
     
@@ -27,8 +31,7 @@ function getSseResp() {
     // 标记是否接收到了完成信号
     isDone = false;
     eventSource.onmessage = function (event) {
-        // messageElement.textContent = `AI: `;
-        
+
         isDone = false;
         const message = event.data;
         let json = JSON.parse(message);
@@ -39,6 +42,8 @@ function getSseResp() {
             for (let i = 0; i < choices.length; i++) {
                 if (choices[i].FinishReason !== "stop") {
                     //messageElement.innerText += choices[i].Delta.Content;
+                    if (!choices[i].Delta || !choices[i].Delta.Content)
+                        continue;
                     // 逐步更新当前回答框的内容
                     responseBox.innerHTML += choices[i].Delta.Content;
 
@@ -47,9 +52,10 @@ function getSseResp() {
                 } else {
                     isDone = true;
                     localStorage.removeItem('lastRboxId');
-                    responseBox.innerHTML += `<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
+                    responseBox.innerHTML += `<br>--end--<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
                     setTimeout(() => {
-                        responseBox.innerHTML = marked(responseBox.innerHTML);                        
+                        responseBox.innerHTML = marked(responseBox.innerHTML);
+                        lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
                     },300);
                     eventSource.close();
                 }
@@ -65,11 +71,11 @@ function getSseResp() {
             return;
         }
         console.error('EventSource failed:', error);
-        if (retryCount < 5) {
+        if (retryCount < 10) {
             retryCount++;
             setTimeout(() => {
                 getSseResp();
-            },2000)
+            },3000)
             
         }
         eventSource.close();
@@ -77,7 +83,7 @@ function getSseResp() {
 }
 
 // 提交用户输入
-sendButton.addEventListener('click', async function () {
+btnAskAi.addEventListener('click', async function () {
     if (!isDone) {
         layer.tips('请等待AI回复完成', this, {
             tips: [2, 'var(--main-bg-color)'],
@@ -86,14 +92,25 @@ sendButton.addEventListener('click', async function () {
         
         return;
     }
+    
     isDone = false;
-    const message = userInput.value.trim();
+    const message = userPrompt.value.trim();
     if (message) {
         const userMessageElement = document.createElement('p');
         userMessageElement.className = 'request-box';
         userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
         chatBox.appendChild(userMessageElement);
-        var formData = objectToFormData({ 'prompt': message, 'model': document.getElementById('aimodel').value, 'admin': localStorage.getItem('userName'), '__RequestVerificationToken': requestToken });
+        initiator = localStorage.getItem('initiator') ?? location.href;
+        var formData = objectToFormData(
+            {
+                'prompt': message,
+                'model': document.getElementById('aimodel').value,
+                'admin': localStorage.getItem('userName'),
+                'chatType': chatType,
+                'initiator': initiator,
+                '__RequestVerificationToken': requestToken
+            }
+        );
         var ret = await request('POST', '/ai/hunyuan/SimpleChat', formData, { 'Content-Type': 'multipart/form-data' });
         if (ret.code == 0) {
             let index = layer.load(2);
@@ -102,13 +119,13 @@ sendButton.addEventListener('click', async function () {
                 getSseResp();
             }, 2500)
         }
-        userInput.value = ''; // 清空输入框
+        userPrompt.value = ''; // 清空输入框
     }
 });
 
 const messageHandlers = {}; // 用于存储不同 action 的防抖计时器
-const applyBtn = $('#apply-button');
-const applyDisabledBtn = $('#apply-disabled-button');
+const applyBtn = $('#btnAdopt');
+const applyDisabledBtn = $('#btnAdoptDisabled');
 
 // 监听来自子页面的消息
 function setupMessageListener() {
@@ -135,7 +152,7 @@ function setupMessageListener() {
         }
        
         if (accessToken != localStorage.getItem('accessToken')) {
-            console.log('It is not my msg.');
+            console.log('wrong token.');
             return;
         }
         console.log(event.data);
@@ -143,23 +160,30 @@ function setupMessageListener() {
         setTimeout(() => {
 
             handleIncomingMessage(action, otherParams);
-        }, 100);
+        }, 300);
         
         // 释放锁
         //releaseLock(lockKey);
     });
 }
 
-
 function handleIncomingMessage(action, params) {
     switch (action) {
         case 'showApplyBtn':
+            
             applyBtn.show();
             applyDisabledBtn.hide();
             break;
-        case 'hideElement':
-            document.getElementById('targetElement').style.display = 'none';
-            console.log('Received message with action:', action, 'and params:', params);
+        case 'generateAnalysis':
+            $('.request-box').remove();
+            $('.response-box').remove();
+            openDiv('答案解析', 'chatView', '1000px', '640px');
+            userPrompt.value = params.prompt;
+            chatType = false;
+            btnAskAi.click();
+            applyBtn.show();
+            $('.request-box').hide();
+            applyDisabledBtn.hide();
             break;
         // 可以添加更多 action 的处理逻辑
         default:
@@ -167,6 +191,22 @@ function handleIncomingMessage(action, params) {
             break;
     }
 }
+
+$('#btnAdopt').click(async () => {
+    if (!isDone) {
+        layer.tips('请等待AI回复完成', '#btnAdopt', {
+            tips: [2, 'var(--main-bg-color)'],
+            fixed: true
+        });
+
+        return;
+    }
+    if (!chatType && initiator.indexOf('pasteAnalysis') > -1) {
+        await childWindow.adoptResponse(lastResponseContent);
+        layer.closeAll();
+    }
+});
+
 
 
 function tryAcquireLock(key) {

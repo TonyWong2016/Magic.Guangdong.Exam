@@ -282,6 +282,7 @@
 <script src="~/plugins/xm-select.js"></script>
 <script src="~/web/myxselect.js"></script>
 <script src="~/web/myfcup.js" asp-append-version="true"></script>
+@* <script src="~/web/childonly.js"></script> *@
 <script>
     let form = layui.form;
     let token = $('@Html.AntiForgeryToken()').val();
@@ -406,7 +407,7 @@
     form.on('submit(save)',  function (data) {
         if (settleItems()<0)
          return;
-        layer.confirm('由于特殊的数据结构，保存题目后，选项、题目和素材之间的关系会重置；<br /> <b style="color:red">如果您只是要给题目增加或修改素材资源，直接点击【关联素材】的弹出层，操作完成后，返回即可，无需点击保存！</b><br />确定要继续保存吗',{icon:0},async ()=>{
+        layer.confirm('由于特殊的数据结构，保存题目后，选项、题目和素材之间的关系会重置；<br /> <b style="color:red">如果您只是要给题目增加或修改素材资源，直接点击【关联素材】的弹出层，操作完成后，返回即可。智能生成的解析内容也会再点击【采纳】后自动更新，无需点击保存！</b><br />确定要继续保存吗',{icon:0},async ()=>{
             let question = data.field;
             let items = itemAnswerArr;
 
@@ -616,12 +617,12 @@
         layer.confirm('确定要删除该素材吗?', { icon: 0 }, async(index)=> {
             let formData = objectToFormData({id:id,realDel:0,__RequestVerificationToken : requestToken});
             var ret = await request('POST', '/material/material/RemoveMaterial', formData, { 'Content-Type': 'multipart/form-data' });
-             if (ret.code == 0) {             
+            if (ret.code == 0) {             
                  successMsg('移除成功');
                  refreshRandomInt();
                  GetMaterials();
                  layer.close(index);
-             }
+            }
         })
     }
 
@@ -703,11 +704,26 @@
         return 1;
     }
 
-    console.log('题目：@(Html.Raw(Model.TitleText))');
+    //console.log('题目：@(Html.Raw(Model.TitleText))');
+    
 
     $('#btnGenerateAnalysis').click(()=>{
-        let questionTitle = tinymce.get('Title').getContent({ format: 'text' });
+        let currAnalysis = tinymce.get('Analysis').getContent({ format: 'text' });
+        if( currAnalysis.length<10){
+            generationAnalysis();
+        } else {
+            layer.confirm('当前题目好像已经生成了解析，确定要重新生成吗',{icon:0},function(index){
+                layer.close(index);
+                generationAnalysis();
+            });
+        }
+         
         
+    })
+
+    function generationAnalysis(){
+        let questionTitle = tinymce.get('Title').getContent({ format: 'text' });
+
         let items = '';
         if(itemAnswerArr){
             items += `有${itemAnswerArr.length}个选项`
@@ -715,22 +731,45 @@
                 //console.log(item);
                 items+=`，选项${item.code}为${item.descriptionText}`;
                 if(item.isAnswer==1){
-                    items+=`(该选项是正确答案)`;
+                    items+=`(${item.code}是正确答案)`;
                 }
             })
         }
-        let msg = `请帮我生成一下这道题目的解析，题目内容为：${questionTitle}。${items}`;
+        let msg = `请帮我生成一下这个题的解析，内容要尽量在500字以内，不要超过1000字；题目为：${questionTitle}--${items}`;
         console.log(msg);
-        
+        localStorage.setItem('initiator','pasteAnalysis'+currQuestionId);
         const message = { action: 'generateAnalysis', accessToken:localStorage.getItem('accessToken'),prompt:msg };
         window.parent.postMessage(message, window.location.origin);
-    })
+    }
 
         // 当子页面加载完成或导航到特定页面时
     function onEnterSpecificPage() {
         // 发送消息给父页面
         const message = { action: 'showApplyBtn',accessToken:localStorage.getItem('accessToken') };
         window.parent.postMessage(message, window.location.origin); // '*' 表示不限制目标源，实际应用中应指定确切的源
+    }
+
+    async function adoptResponse(data){
+        let analyseTxt = decodeURIComponent(atob(data));
+            // 匹配 --end-- 之前的所有内容
+        const matchResult = analyseTxt.match(/(.*?)--end--/s);
+        if (matchResult) {
+            analyseTxt = matchResult[1].trim();
+            
+        }
+        tinymce.get('Analysis').setContent(analyseTxt);
+        $('#Analysis').val(analyseTxt)
+        let formData = objectToFormData(
+            {
+                questionId : currQuestionId,
+                analysisTxt : analyseTxt,
+                __RequestVerificationToken : requestToken
+            }
+        );
+        var ret = await request('POST', '@Url.Action("AdoptAnalysis")', formData, { 'Content-Type': 'multipart/form-data' });
+        if(ret.code==0){
+            successMsg(ret.msg);
+        }
     }
 
     // 监听页面加载或其他导航事件

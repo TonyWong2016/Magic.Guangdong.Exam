@@ -42,19 +42,22 @@
 
 <script type="text/html" id="rolesTpl">
      {{# layui.each(d.adminRoles,function(index,item){}}
+        
         {{# if(item.roleType==1){ }}
             <span class="layui-badge layui-bg-purple">{{item.roleName}}</span>
         {{# } else { }}
             <span class="layui-badge layui-bg-blue">{{item.roleName}}</span>
-
         {{#} }}
      {{# }) }}
 </script>
 
 <script type="text/html" id="operationTpl">
+    {{# if(d.name=='sa'){ }}
+        <a class="layui-btn layui-btn-disabled" href="javascript:;" onclick="errorMsg('该账号不可编辑')"><i class="layui-icon layui-icon-delete"></i>不可编辑</a>
+    {{# } else { }}
     <a class="layui-btn layui-btn-primary layui-border-blue" href="/system/admin/edit?id={{d.id}}"><i class="layui-icon layui-icon-edit"></i>编辑</a>
     <a class="layui-btn layui-btn-primary layui-border-red" href="javascript:;" onclick="removeItem({router:'/system/admin/remove',removeId:'{{d.id }}',refresh:false,callback:()=>{refreshRandomInt();getAdminTable();} })"><i class="layui-icon layui-icon-delete"></i>删除</a>
-
+    {{# }  }}
 </script>
 
 <script src="~/plugins/xm-select.js"></script>

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="image/x-icon" rel="shortcut icon" href="/images/examination_logo-32.ico" />
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
-    
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/axios/axios.min.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js" asp-append-version="true"></script>
@@ -21,11 +21,11 @@
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         let requestToken = $('@Html.AntiForgeryToken()').val();
-       
+
 
     </script>
     <style>
-        
+
     </style>
 </head>
 <body>
@@ -55,7 +55,7 @@
                         <dd><a onclick="mainTheme('#00895A')" href="javascript:;" style="font-weight:bolder;color:#00895A">宝石绿</a></dd>
                         <dd><a onclick="mainTheme('#a233c6')" href="javascript:;" style="font-weight:bolder;color:#a233c6">丁香紫</a></dd>
 
-                        
+
                     </dl>
                 </li>
             </ul>
@@ -128,30 +128,30 @@
                             <select id="aimodel">
                                 <option value="lite">lite模型(免费)</option>
                                 <option value="standard">standard模型(标准模型)</option>
-                                <option value="standard-256k" selected>standard-256k模型(长文本)</option>
-                                <option value="pro">pro模型(性能强)</option>
+                                <option value="standard-256k" >standard-256k模型(长文本)</option>
+                                <option value="pro" selected>pro模型(性能强)</option>
                                 <option value="turbo">turbo模型(性能更强)</option>
                                 <option value="large">larg模型(超长文本)</option>
                                 <option disabled>vision模型(视觉支持)</option>
                             </select>
                         </div>
                     <div class="layui-col-md6">
-                        <input type="text" class="layui-input" id="user-input" placeholder="请输入您的问题..." />
+                        <input type="text" class="layui-input" id="txtUserPrompt" placeholder="请输入您的问题..." />
 
                     </div>
                     <div class="layui-col-md3 layui-btn-container">
-                        <a class="layui-btn layui-btn-primary" id="send-button" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
-                        <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="apply-button" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
-                        <a class="layui-btn layui-btn-disabled" onclick="layer.tips('仅在题目编辑页面生成题目解析时可用',this,{ tips: [3, '#a233c6']})" id="apply-disabled-button" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
+                        <a class="layui-btn layui-btn-primary" id="btnAskAi" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
+                        <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="btnAdopt" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
+                        <a class="layui-btn layui-btn-disabled" onclick="layer.tips('仅在题目编辑页面生成题目解析时可用',this,{ tips: [3, '#a233c6']})" id="btnAdoptDisabled" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
 
                     </div>
-                    
+
                 </div>
 
             </div>
             </form>
         </div>
-       
+
     </div>
 
     <script type="text/html" id="keyActionTpl">
@@ -176,7 +176,7 @@
     </script>
 
     <script type="text/html" id="navSideChildMenuTpl">
-        
+
         {{# layui.each(d,function(index,item){ }}
         <dd>
             <a href="javascript:;" class="navSideSubLink" onclick="fetchSubMenus({{ JSON.stringify(item) }})">
@@ -192,7 +192,7 @@
             {{#} }}
         </dd>
         {{# }) }}
-                
+
     </script>
 
     <script type="text/html" id="timelineTpl">
@@ -297,6 +297,7 @@
         function LogoutAccount() {
             layer.confirm('若您开启了3天免登录，主动退出后再次访问需要重新输入账号密码，确定要退出当前账号吗？', { icon: 0 }, function () {
                 location.href = '/system/account/login?msg=logout';
+                localStorage.removeItem('unsafeLoginedAt')
             })
         }
 
@@ -367,10 +368,11 @@
                 { 'icon': 'note', 'title': '2024.12.06🌳', 'author': 'tony', 'content': '增加证书导入功能，使用新方式🐂🍺<br/>增加sse通知机制，目前只用到了生成证书时的进度展示 <br/>扩展计划任务，增加了每天自动删除临时文件，比如导出的文件，分片上传大文件时用来记录分片数量的日志文件等（自我清洁能力+1）👍' },
                 { 'icon': 'note', 'title': '2024.12.09', 'author': 'tony', 'content': '增加延时更新证书reportid的计划任务🕙' },
                 { 'icon': 'note', 'title': '2024.12.12', 'author': 'tony', 'content': '增加证书下载按钮<br/>优化定时清理任务的机制，增加了一些保障安全性的清理措施' },
-                { 'icon': 'fire', 'title': '2024.12.24', 'author': 'tony', 'content': '智能小助手1.0上线啦，快点击页面右下角尝试吧🌸🌸🌸' }
+                { 'icon': 'fire', 'title': '2024.12.24🚀', 'author': 'tony', 'content': '智能小助手1.0上线啦，快点击页面右下角尝试吧🚀' },
+                { 'icon': 'note', 'title': '2024.12.26🌸', 'author': 'tony', 'content': '智能助手增加了一个应用场景--智能生成解析内容，可进入【考试管理】-->【题库管理】后编辑任意题库进行测试使用（注意，目前不支持带图片的题目）' }
 
             ];
-        
+
         function openTimeLine() {
             renderTpl('timelineTpl', 'timelineView', releasejsonArr, false);
             openDiv('项目推进时间线', 'timelineView', '50%', '80%')
@@ -386,11 +388,22 @@
                 })                
             }
 
+            if(localStorage.getItem('unsafeLoginedAt')){
+                layer.alert('检测到您正在使用系统管理员账户(sa)进行登录，存在一定安全风险，该账号会在5分钟后自动退出，请切换到其他账号进行登录；',{icon:4});
+                let logoutTicks = parseInt(localStorage.getItem('unsafeLoginedAt'));
+                setTimeout(()=>{
+                    location.href = '/system/account/login?msg=logout';
+                    localStorage.clear();
+                },(logoutTicks - new Date().getTime()))
+            }
+
+        },100)
+
+        setTimeout(()=>{
             layer.tips('我在这里呦~', '.layui-fixbar', {
                 tips: [2, '#a233c6']
             })
-            
-        },100)
+        },3000)
 
         let layutil = layui.util;
         layutil.fixbar({
@@ -411,38 +424,21 @@
                 },
                 // 点击事件
                 click: function(type){
-                    openDiv('智能助手', 'chatView', '1000px', '640px');
+                    $('.request-box').show();
+                    openDiv('智能助手', 'chatView', '1100px', '640px');
                             // 监听回车键
-                    
+
                     // layer.msg(type);
                 }                
               }            
         })
 
-        document.getElementById('user-input').addEventListener('keydown', function (event) {
+        document.getElementById('txtUserPrompt').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
-                document.getElementById('send-button').click();
+                document.getElementById('btnAskAi').click();
             }
         })
 
-        //         // 监听来自子页面的消息
-        // window.addEventListener('message', function(event) {
-        //     // 检查消息来源的安全性，确保它来自同一个源
-        //     if (event.origin !== window.location.origin) return;
-        //     let applyBtn = $('#apply-button');
-        //     let applyDisabledBtn = $('#apply-disabled-button');
-        //     applyBtn.hide();
-        //     applyDisabledBtn.show();
-        //     // 根据消息内容执行相应操作
-        //     if (event.data.action === 'showApplyBtn') {
-               
-        //         if(applyBtn && applyBtn){
-        //             applyBtn.show();
-        //             applyDisabledBtn.hide();
-        //         }
-        //     } 
-        // });
-        
     </script>
 </body>
 </html>

@@ -13,6 +13,9 @@ namespace Magic.Guangdong.DbServices.Dtos.Exam.Questions
         public string questionStr { get; set; }
 
         public string itemsStr { get; set; }
+
+        public string Analysis { get; set;}
+
         public Question question
         {
             get
