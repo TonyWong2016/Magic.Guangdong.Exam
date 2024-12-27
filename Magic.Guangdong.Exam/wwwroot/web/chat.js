@@ -95,32 +95,39 @@ btnAskAi.addEventListener('click', async function () {
     
     isDone = false;
     const message = userPrompt.value.trim();
-    if (message) {
-        const userMessageElement = document.createElement('p');
-        userMessageElement.className = 'request-box';
-        userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
-        chatBox.appendChild(userMessageElement);
-        initiator = localStorage.getItem('initiator') ?? location.href;
-        var formData = objectToFormData(
-            {
-                'prompt': message,
-                'model': document.getElementById('aimodel').value,
-                'admin': localStorage.getItem('userName'),
-                'chatType': chatType,
-                'initiator': initiator,
-                '__RequestVerificationToken': requestToken
-            }
-        );
-        var ret = await request('POST', '/ai/hunyuan/SimpleChat', formData, { 'Content-Type': 'multipart/form-data' });
-        if (ret.code == 0) {
-            let index = layer.load(2);
-            setTimeout(() => {
-                layer.close(index);
-                getSseResp();
-            }, 2500)
-        }
-        userPrompt.value = ''; // 清空输入框
+    if (!message) {
+        layer.msg('请输入问题', { icon: 2 });
+        return;
     }
+
+    if (message.length > 200) {
+        layer.msg('请输入200字以内的问题', { icon: 4 });
+        return;
+    }
+    const userMessageElement = document.createElement('p');
+    userMessageElement.className = 'request-box';
+    userMessageElement.textContent = `${localStorage.getItem('userName')}: ${message}`;
+    chatBox.appendChild(userMessageElement);
+    initiator = localStorage.getItem('initiator') ?? location.href;
+    var formData = objectToFormData(
+        {
+            'prompt': message,
+            'model': document.getElementById('aimodel').value,
+            'admin': localStorage.getItem('userName'),
+            'chatType': chatType,
+            'initiator': initiator,
+            '__RequestVerificationToken': requestToken
+        }
+    );
+    var ret = await request('POST', '/ai/hunyuan/SimpleChat', formData, { 'Content-Type': 'multipart/form-data' });
+    if (ret.code == 0) {
+        let index = layer.load(2);
+        setTimeout(() => {
+            layer.close(index);
+            getSseResp();
+        }, 2500)
+    }
+    userPrompt.value = ''; // 清空输入框
 });
 
 const messageHandlers = {}; // 用于存储不同 action 的防抖计时器

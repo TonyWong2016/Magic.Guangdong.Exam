@@ -190,7 +190,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     foreach (var e in resp)
                     {
                         Assistant.Logger.Debug(e.Data);                        
-                        if (cnt > 2)
+                        if (cnt > 5)
                         {
                             listKey = "AfterThreeCacheId" + chatModel.admin;
                         }

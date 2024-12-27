@@ -11,6 +11,14 @@
             root.style.setProperty('--bg-normal-color', '#6699ff');
             $('#SystemTitle').css('color', '#fff');
             $('.layui-bg-green').css('background-color', 'var(--bg-success-color) !important')
+        } else if (bg == '#a233c6') {
+            root.style.setProperty('--main-word-bg-color', '#8B5FBF');
+            root.style.setProperty('--status-bg-success-color', '#61398F');
+            root.style.setProperty('--main-word-color', '##FFFFFF');
+            root.style.setProperty('--bg-success-color', '#61398F');
+            root.style.setProperty('--bg-normal-color', '#9A73B5');
+            $('.layui-bg-green').css('background-color', 'var(--bg-success-color) !important')
+
         } else {
             root.style.setProperty('--main-word-bg-color', '#16baaa');
             root.style.setProperty('--status-bg-success-color', '#16baaa');
