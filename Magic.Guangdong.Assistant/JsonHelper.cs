@@ -38,6 +38,15 @@ namespace Magic.Guangdong.Assistant
             return string.Empty;
         }
 
+        public static string JsonSerialize2(object value)
+        {
+            if (value != null)
+            {
+                return System.Text.Json.JsonSerializer.Serialize(value);
+            }
+            return string.Empty;
+        }
+
         /// <summary>
         /// Json反序列化
         /// </summary>
@@ -68,6 +77,14 @@ namespace Magic.Guangdong.Assistant
                 }
                 return JsonConvert.DeserializeObject<T>(value);
             }
+        }
+
+
+        public static T JsonDeserialize2<T>(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return default(T);
+            return System.Text.Json.JsonSerializer.Deserialize<T>(value);
         }
 
         /// <summary> 

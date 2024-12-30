@@ -107,8 +107,8 @@ namespace Magic.Guangdong.Exam.Filters
                 await _capPublisher.PublishAsync(CapConsts.PREFIX + "AddKeyAction", new KeyAction()
                 {
                     AdminId = Guid.Parse(userId),
-                    Action = actionMark,
-                    Description = actionLog.Length > 1800 ? actionLog.Substring(0, 1800) : actionLog,
+                    Action = actionMark??"",
+                    Description = (actionLog.Length > 1000 ? actionLog.Substring(0, 1000) : actionLog),
                     Router = $"{area}/{controller}/{action}",
                     CreatedAt = DateTime.Now
                 });
