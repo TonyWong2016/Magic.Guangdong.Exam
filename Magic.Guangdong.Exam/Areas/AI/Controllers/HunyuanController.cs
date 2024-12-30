@@ -184,7 +184,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 //await _redisCachingProvider.RPushAsync(listKey, new List<string>() { "{\"Note\":\"以上内容为AI生成，不代表开发者立场，请勿删除或修改本标记\",\"Choices\":[{\"FinishReason\":\"\",\"Delta\":{\"Role\":\"assistant\",\"Content\":\"测试数据" + DateTime.Now + "\"}}],\"Created\":1705634032,\"Id\":\"9c772634-8824-43e8-bc24-8bc4c19b9151\",\"Usage\":{\"PromptTokens\":85,\"CompletionTokens\":1,\"TotalTokens\":86}}" });
 
                 //await _redisCachingProvider.RPushAsync(listKey, new List<string>() { "{\"Note\":\"以上内容为AI生成，不代表开发者立场，请勿删除或修改本标记\",\"Choices\":[{\"FinishReason\":\"stop\",\"Delta\":{\"Role\":\"assistant\",\"Content\":\"测试数据"+DateTime.Now+"\"}}],\"Created\":1705634032,\"Id\":\"9c772634-8824-43e8-bc24-8bc4c19b9151\",\"Usage\":{\"PromptTokens\":85,\"CompletionTokens\":1,\"TotalTokens\":86}}" });
-                Assistant.Logger.Error(JsonHelper.JsonSerialize(req));
+                //Assistant.Logger.Error(JsonHelper.JsonSerialize(req));
 
 
                 //Message currMsg = new Message();
