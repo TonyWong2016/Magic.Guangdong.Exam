@@ -74,11 +74,11 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 }
                 if (chatModel.model.Contains("deepseek"))
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetDeepSeekResponse", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse", chatModel);
                 }
                 else
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetHunyuanResponse", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicHunyuanResponse", chatModel);
                 }
                 return Json(_resp.success(0, "ok"));
             }
@@ -135,7 +135,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetHunyuanResponse")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicHunyuanResponse")]
         public async Task GetHunyuanResponse(ChatModel chatModel, [FromCap] CapHeader header)
         {
             try
@@ -236,7 +236,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetDeepSeekResponse")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse")]
         public async Task GetDeepSeekResponse(ChatModel chatModel)
         {
             try
@@ -264,6 +264,9 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     while (!reader.EndOfStream)
                     {
                         var line = await reader.ReadLineAsync();
+                        
+                        if (string.IsNullOrEmpty(line))
+                            continue;
                         Assistant.Logger.Debug(line);
                         if (cnt > 5)
                         {
@@ -271,6 +274,8 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                         }
                         if (line.StartsWith("data:"))
                             line = line.Substring(5).Trim();
+                        if (string.IsNullOrEmpty(line))
+                            continue;
                         if (line.Contains("DONE"))
                             break;
                         await _redisCachingProvider.RPushAsync(listKey, new List<string>() { line });

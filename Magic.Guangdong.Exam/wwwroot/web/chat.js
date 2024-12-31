@@ -16,20 +16,20 @@ let lastResponseContent = '';
 let eventSource ;
 function getSseResp() {
     eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'))
-    let rboxId = 'response-box-' + new Date().getTime();
+    //let rboxId = 'response-box-' + new Date().getTime();
 
-    lastId = localStorage.getItem('lastRboxId');
-    let responseBox;
-    if (isDone || !lastId) {
-        responseBox = document.createElement('div');
-        responseBox.className = 'response-box';
-        responseBox.id = rboxId;
-        chatBox.appendChild(responseBox);
-    } else {
-        responseBox = document.getElementById(lastId);
-    }
-    if (!localStorage.getItem('lastRboxId'))
-        localStorage.setItem('lastRboxId', rboxId);
+    //lastId = localStorage.getItem('lastRboxId');
+    //let responseBox;
+    //if (isDone || !lastId) {
+    //    responseBox = document.createElement('div');
+    //    responseBox.className = 'response-box';
+    //    responseBox.id = rboxId;
+    //    chatBox.appendChild(responseBox);
+    //} else {
+    //    responseBox = document.getElementById(lastId);
+    //}
+    //if (!localStorage.getItem('lastRboxId'))
+    //    localStorage.setItem('lastRboxId', rboxId);
 
     // 标记是否接收到了完成信号
     isDone = false;
@@ -38,7 +38,8 @@ function getSseResp() {
         isDone = false;
         const message = event.data;
         let json = JSON.parse(message);
-        renderResponse(json, responseBox);
+        //renderResponse(json, responseBox);
+        renderResponse(json);
         //console.log(json);
         //let choices = json.Choices;
         //if (choices.length > 0) {
@@ -86,8 +87,22 @@ function getSseResp() {
     };
 }
 
-function renderResponse(json, responseBox) {
-    
+function renderResponse(json) {
+    let rboxId = 'response-box-' + new Date().getTime();
+
+    lastId = localStorage.getItem('lastRboxId');
+    let responseBox;
+    if (isDone || !lastId) {
+        responseBox = document.createElement('div');
+        responseBox.className = 'response-box';
+        responseBox.id = rboxId;
+        chatBox.appendChild(responseBox);
+    } else {
+        responseBox = document.getElementById(lastId);
+    }
+    if (!localStorage.getItem('lastRboxId'))
+        localStorage.setItem('lastRboxId', rboxId);
+
     let type = 'hunyuan';
     let choices = {};
     if (json.Choices)
@@ -127,11 +142,23 @@ function renderResponse(json, responseBox) {
                 }
             }
         } else if (type == 'deepseek') {
+
             //data: {"id":"f07c2ca9-f1ed-49db-a4e6-dcfe2c297f88","object":"chat.completion.chunk","created":1735544096,"model":"deepseek-chat","system_fingerprint":"fp_f1afce2943","choices":[{"index":0,"delta":{"content":"。"},"logprobs":null,"finish_reason":null}]}
             //{"id":"37be5e8b-9b0d-4650-a1b0-13237d1eedec","object":"chat.completion.chunk","created":1735549888,"model":"deepseek-chat","system_fingerprint":"fp_f1afce2943","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
             //data: {"id":"f07c2ca9-f1ed-49db-a4e6-dcfe2c297f88","object":"chat.completion.chunk","created":1735544096,"model":"deepseek-chat","system_fingerprint":"fp_f1afce2943","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":13,"completion_tokens":381,"total_tokens":394,"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":13}}
             for (let i = 0; i < choices.length; i++) {
-                if (choices[i].finish_reason !== "stop") {
+                if (choices[i].finish_reason && choices[i].finish_reason === "stop") {
+                    console.log(json);
+                    isDone = true;
+                    localStorage.removeItem('lastRboxId');
+                    responseBox.innerHTML += `<br>--end--<br><span style="font-size:small;font-style:italic">--${new Date(json.created * 1000).toLocaleTimeString()},累计消耗【${json.usage.total_tokens}】tokens,输入:${json.usage.prompt_tokens},输出:${json.usage.completion_tokens}</span>`;
+                    setTimeout(() => {
+                        responseBox.innerHTML = marked(responseBox.innerHTML);
+                        lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
+                    }, 300);
+                    eventSource.close();
+                } else {
+
                     //messageElement.innerText += choices[i].Delta.Content;
                     //console.log(choices[i]);
                     if (!choices[i].delta)
@@ -141,15 +168,7 @@ function renderResponse(json, responseBox) {
 
                     // 滚动到最新消息
                     responseBox.scrollTop = responseBox.scrollHeight;
-                } else {
-                    isDone = true;
-                    localStorage.removeItem('lastRboxId');
-                    responseBox.innerHTML += `<br>--end--<br><span style="font-size:small;font-style:italic">--${new Date(json.created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.total_tokens}】tokens,输入:${json.usage.prompt_tokens},输出:${json.Usage.completion_tokens}</span>`;
-                    setTimeout(() => {
-                        responseBox.innerHTML = marked(responseBox.innerHTML);
-                        lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
-                    }, 300);
-                    eventSource.close();
+                   
                 }
             }
         }

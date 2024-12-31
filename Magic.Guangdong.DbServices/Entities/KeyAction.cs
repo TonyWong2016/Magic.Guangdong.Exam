@@ -21,7 +21,7 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(InsertValueSql = "getdate()")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        [JsonProperty, Column(DbType = "varchar(2000)")]
+        [JsonProperty, Column(DbType = "nvarchar(MAX)")]
         public string Description { get; set; } = "";
 
         [JsonProperty]
