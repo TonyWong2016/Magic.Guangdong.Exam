@@ -74,11 +74,11 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 }
                 if (chatModel.model.Contains("deepseek"))
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse1", chatModel);
                 }
                 else
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicHunyuanResponse", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicHunyuanResponse1", chatModel);
                 }
                 return Json(_resp.success(0, "ok"));
             }
@@ -89,6 +89,14 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
         }
 
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearChat(string admin)
+        {
+            await _redisCachingProvider.KeyDelAsync("TopServalCacheId" + admin);
+            await _redisCachingProvider.KeyDelAsync("AfterServalCacheId" + admin);
+            await _redisCachingProvider.KeyDelAsync("msglog_" + admin);
+            return Json(_resp.success(true));
+        }
 
         [HttpGet("airesp")]
         public async Task AiResponseSse(string admin)
@@ -135,7 +143,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetMagicHunyuanResponse")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicHunyuanResponse1")]
         public async Task GetHunyuanResponse(ChatModel chatModel, [FromCap] CapHeader header)
         {
             try
@@ -192,7 +200,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 });
                 req.Messages = myMsgLog.ToArray();
 
-                Assistant.Logger.Error(JsonHelper.JsonSerialize(req));
+                Assistant.Logger.Debug(JsonHelper.JsonSerialize(req));
 
                 req.Stream = true;
                 ChatCompletionsResponse resp = await client.ChatCompletions(req);
@@ -205,7 +213,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     string listKey = "TopServalCacheId" + chatModel.admin;
                     foreach (var e in resp)
                     {
-                        Assistant.Logger.Debug(e.Data);
+                        //Assistant.Logger.Debug(e.Data);
                         if (cnt > 5)
                         {
                             listKey = "AfterServalCacheId" + chatModel.admin;
@@ -229,14 +237,13 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             {
                 await _redisCachingProvider.KeyExpireAsync("TopServalCacheId" + chatModel.admin, 100);
                 await _redisCachingProvider.KeyExpireAsync("AfterServalCacheId" + chatModel.admin, 600);
-                await _redisCachingProvider.KeyExpireAsync($"{chatModel.admin}_msgLog", 300);
                 await _redisCachingProvider.KeyDelAsync("msglog_" + chatModel.admin);
             }
         }
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse1")]
         public async Task GetDeepSeekResponse(ChatModel chatModel)
         {
             try
@@ -248,6 +255,10 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 request.Headers.Add("Accept", "application/json");
                 
                 request.Headers.Add("Authorization", $"Bearer {_aiConfigsDeepSeek.ApiKey}");
+                if (string.IsNullOrEmpty(chatModel.messages) && await _redisCachingProvider.KeyExistsAsync("msglog_" + chatModel.admin))
+                {
+                    chatModel.messages = await _redisCachingProvider.StringGetAsync("msglog_" + chatModel.admin);
+                }
                 //var content = new StringContent("{\n  \"messages\": [\n    {\n      \"content\": \"You are a helpful assistant\",\n      \"role\": \"system\"\n    },\n    {\n      \"content\": \"Hi\",\n      \"role\": \"user\"\n    }\n  ],\n  \"model\": \"deepseek-chat\",\n  \"frequency_penalty\": 0,\n  \"max_tokens\": 2048,\n  \"presence_penalty\": 0,\n  \"response_format\": {\n    \"type\": \"text\"\n  },\n  \"stop\": null,\n  \"stream\": false,\n  \"stream_options\": null,\n  \"temperature\": 1,\n  \"top_p\": 1,\n  \"tools\": null,\n  \"tool_choice\": \"none\",\n  \"logprobs\": false,\n  \"top_logprobs\": null\n}", null, "application/json");
                 Logger.Debug(BuildDeepSeekChatParmm(chatModel));
                 request.Content = new StringContent(BuildDeepSeekChatParmm(chatModel),Encoding.UTF8,"application/json");
@@ -267,7 +278,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                         
                         if (string.IsNullOrEmpty(line))
                             continue;
-                        Assistant.Logger.Debug(line);
+                       // Assistant.Logger.Debug(line);
                         if (cnt > 5)
                         {
                             listKey = "AfterServalCacheId" + chatModel.admin;
@@ -292,21 +303,29 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             {
                 await _redisCachingProvider.KeyExpireAsync("TopServalCacheId" + chatModel.admin, 100);
                 await _redisCachingProvider.KeyExpireAsync("AfterServalCacheId" + chatModel.admin, 600);
-                await _redisCachingProvider.KeyExpireAsync($"{chatModel.admin}_msgLog", 300);
                 await _redisCachingProvider.KeyDelAsync("msglog_" + chatModel.admin);
             }
             //return Json(_resp.success(await response.Content.ReadAsStringAsync()));
 
         }
 
+
+
         private string BuildDeepSeekChatParmm(ChatModel chatModel)
         {
             var ds = new DeepSeekRequestModel();
             
-            List<DeepSeekMessages> listMsg = new List<DeepSeekMessages>();
+            List<DeepSeekMessages> listMsg =
+                [
+                    new DeepSeekMessages()
+                    {
+                        role = "system",
+                        content = "注意以下回复内容尽量控制在500字以内，如非必要，不要超过1000字"
+                    },
+                ];
             if (!string.IsNullOrEmpty(chatModel.messages))
             {
-                listMsg = JsonHelper.JsonDeserialize<List<DeepSeekMessages>>(chatModel.messages);
+                listMsg.AddRange(JsonHelper.JsonDeserialize<List<DeepSeekMessages>>(chatModel.messages));
             }
             listMsg.Add(new DeepSeekMessages()
             {

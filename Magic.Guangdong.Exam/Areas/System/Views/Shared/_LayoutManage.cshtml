@@ -125,7 +125,7 @@
             <div class="layui-card">
                 <div class="layui-card-body layui-row layui-col-space1">
                         <div class="layui-col-md2">
-                            <select id="aimodel">
+                            <select id="aimodel" lay-filter="aimodel">
                                 <option value="lite">混元lite模型(免费)</option>
                                 <option value="standard">混元standard模型(标准模型)</option>
                                 @* <option value="standard-256k" >standard-256k模型(长文本)</option> *@
@@ -142,6 +142,8 @@
                     </div>
                     <div class="layui-col-md4 layui-btn-container">
                         <a class="layui-btn layui-btn-primary" id="btnAskAi" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
+                        @* <a class="layui-btn layui-btn-primary" id="btnAiThinking" href="javascript:;">思考中 <i class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop"></i></a> *@
+
                         <a class="layui-btn layui-btn-primary layui-border-red" id="btnClear" href="javascript:;">清空 <i class="layui-icon layui-icon-delete"></i></a>
 
                         <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="btnAdopt" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
@@ -371,8 +373,9 @@
                 { 'icon': 'note', 'title': '2024.12.06🌳', 'author': 'tony', 'content': '增加证书导入功能，使用新方式🐂🍺<br/>增加sse通知机制，目前只用到了生成证书时的进度展示 <br/>扩展计划任务，增加了每天自动删除临时文件，比如导出的文件，分片上传大文件时用来记录分片数量的日志文件等（自我清洁能力+1）👍' },
                 { 'icon': 'note', 'title': '2024.12.09', 'author': 'tony', 'content': '增加延时更新证书reportid的计划任务🕙' },
                 { 'icon': 'note', 'title': '2024.12.12', 'author': 'tony', 'content': '增加证书下载按钮<br/>优化定时清理任务的机制，增加了一些保障安全性的清理措施' },
-                { 'icon': 'fire', 'title': '2024.12.24🚀', 'author': 'tony', 'content': '智能小助手1.0上线啦，快点击页面右下角尝试吧🚀' },
-                { 'icon': 'note', 'title': '2024.12.26🌸', 'author': 'tony', 'content': '智能助手增加了一个应用场景--智能生成解析内容，可进入【考试管理】-->【题库管理】后编辑任意题库进行测试使用（注意，目前不支持带图片的题目）' }
+                { 'icon': 'flag', 'title': '2024.12.24🚀', 'author': 'tony', 'content': '智能小助手1.0上线啦，快点击页面右下角尝试吧🚀' },
+                { 'icon': 'praise', 'title': '2024.12.26🌸', 'author': 'tony', 'content': '智能助手增加了一个应用场景--智能生成解析内容，可进入【考试管理】-->【题库管理】后编辑任意题库进行测试使用（注意，目前不支持带图片的题目）' },
+                { 'icon': 'diamond', 'title': '2024.12.31🔧', 'author': 'tony', 'content': '完善多轮对话机制，最大轮次增加到40轮<br/>增加清除对话，切换模型等辅助功能<br/>接入开源模型，<a href="https://www.deepseek.com/" target="_blank">DeepSeek</a>（重磅）' }
 
             ];
 
@@ -433,8 +436,8 @@
                             // 监听回车键
 
                     // layer.msg(type);
-                }                
-              }            
+                }
+              }
         })
 
         document.getElementById('txtUserPrompt').addEventListener('keydown', function (event) {

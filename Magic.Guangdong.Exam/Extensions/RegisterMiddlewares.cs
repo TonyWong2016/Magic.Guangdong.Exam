@@ -99,8 +99,6 @@ namespace Magic.Guangdong.Exam.Extensions
             return app;
         }
 
-
-
     }
 
 }

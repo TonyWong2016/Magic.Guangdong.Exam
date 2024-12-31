@@ -53,8 +53,9 @@
 
                     <div class="layui-form-item">
                         <div class="layui-input-block">
-                            <a href="javascript:;" id="btnGenerateAnalysis" class="layui-btn layui-btn-primary layui-border-purple">智能生成题目解析内容（beat） <i class="layui-icon layui-icon-component"></i></a>
+                            <a href="javascript:;" id="btnGenerateAnalysis" class="layui-btn layui-btn-primary layui-border-purple">智能生成题目解析内容（beta） <i class="layui-icon layui-icon-component"></i></a>
                         </div>
+                        
                     </div>
 
                     <div class="layui-form-item">
@@ -735,8 +736,8 @@
                 }
             })
         }
-        let msg = `请帮我生成一下这个题的解析，内容要尽量在500字以内，不要超过1000字；题目为：${questionTitle}--${items}`;
-        console.log(msg);
+        let msg = `请帮我生成一下这个题的解析，只生成解析的内容，如果选项迷惑性很大，就把每个选项都分析一下。注意在表达清楚的前提下，尽量控制字数；题目为：${questionTitle}--${items}`;
+        //console.log(msg);
         localStorage.setItem('initiator','pasteAnalysis'+currQuestionId);
         const message = { action: 'generateAnalysis', accessToken:localStorage.getItem('accessToken'),prompt:msg };
         window.parent.postMessage(message, window.location.origin);

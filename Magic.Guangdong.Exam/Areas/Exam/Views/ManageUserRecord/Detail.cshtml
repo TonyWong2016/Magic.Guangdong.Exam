@@ -148,7 +148,7 @@
 
                                                 </p>
                                                 <p style="color:#1E9FFF;display:none" class="p_userAnswer">用户答案：<span id="userAnswer_@item.Id">未提交</span></p>
-                                                <p>题目解析：@item.AnalysisTxt</p>
+                                                <p>题目解析：@(Html.Raw(item.AnalysisTxt))</p>
                                             </blockquote>
                                         }
                                     </div>

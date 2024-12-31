@@ -5,31 +5,19 @@ const btnAskAi = document.getElementById('btnAskAi');
 const btnClear = document.getElementById('btnClear');
 const childWindow = document.getElementById('main-container').contentWindow;
 
-// 模拟用户提问
-let questionNumber = 0;
+
 let isDone = true;
 let retryCount = 0;
 let lastId = '';
 let chatType = true;
 let initiator = '';
 let lastResponseContent = '';
-let eventSource ;
+let eventSource;
+let btnAskAiDefaultHtml = '发送 <i class="layui-icon layui-icon-release"></i>';
+
+//获取sse响应数据
 function getSseResp() {
     eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'))
-    //let rboxId = 'response-box-' + new Date().getTime();
-
-    //lastId = localStorage.getItem('lastRboxId');
-    //let responseBox;
-    //if (isDone || !lastId) {
-    //    responseBox = document.createElement('div');
-    //    responseBox.className = 'response-box';
-    //    responseBox.id = rboxId;
-    //    chatBox.appendChild(responseBox);
-    //} else {
-    //    responseBox = document.getElementById(lastId);
-    //}
-    //if (!localStorage.getItem('lastRboxId'))
-    //    localStorage.setItem('lastRboxId', rboxId);
 
     // 标记是否接收到了完成信号
     isDone = false;
@@ -40,33 +28,6 @@ function getSseResp() {
         let json = JSON.parse(message);
         //renderResponse(json, responseBox);
         renderResponse(json);
-        //console.log(json);
-        //let choices = json.Choices;
-        //if (choices.length > 0) {
-        //    retryCount = 0;
-        //    for (let i = 0; i < choices.length; i++) {
-        //        if (choices[i].FinishReason !== "stop") {
-        //            //messageElement.innerText += choices[i].Delta.Content;
-        //            if (!choices[i].Delta || !choices[i].Delta.Content)
-        //                continue;
-        //            // 逐步更新当前回答框的内容
-        //            responseBox.innerHTML += choices[i].Delta.Content;
-
-        //            // 滚动到最新消息
-        //            responseBox.scrollTop = responseBox.scrollHeight;
-        //        } else {
-        //            isDone = true;
-        //            localStorage.removeItem('lastRboxId');
-        //            responseBox.innerHTML += `<br>--end--<br><span style="font-size:small;font-style:italic">--${new Date(json.Created * 1000).toLocaleTimeString()},累计消耗【${json.Usage.TotalTokens}】tokens,输入:${json.Usage.PromptTokens},输出:${json.Usage.CompletionTokens}</span>`;
-        //            setTimeout(() => {
-        //                responseBox.innerHTML = marked(responseBox.innerHTML);
-        //                lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
-        //            }, 300);
-        //            eventSource.close();
-        //        }
-        //    }
-
-        //}
     };
 
     eventSource.onerror = function (error) {
@@ -76,17 +37,17 @@ function getSseResp() {
             return;
         }
         console.error('EventSource failed:', error);
-        if (retryCount < 10) {
+        if (retryCount < 30) {
             retryCount++;
             setTimeout(() => {
                 getSseResp();
-            }, 3000)
-
+            }, 1000)
         }
         eventSource.close();
     };
 }
 
+//渲染回复内容
 function renderResponse(json) {
     let rboxId = 'response-box-' + new Date().getTime();
 
@@ -115,8 +76,10 @@ function renderResponse(json) {
         responseBox.innerHTML = "无有效输出";
         if (eventSource && eventSource.readyState !== EventSource.CLOSED)
             eventSource.close();
+        btnAskAi.innerHTML = btnAskAiDefaultHtml;
         return;
     }
+    
     if (choices.length > 0) {
         retryCount = 0;
         if (type == 'hunyuan') {
@@ -138,6 +101,7 @@ function renderResponse(json) {
                         responseBox.innerHTML = marked(responseBox.innerHTML);
                         lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
                     }, 300);
+                    elemStatusSwitch(true);
                     eventSource.close();
                 }
             }
@@ -156,6 +120,8 @@ function renderResponse(json) {
                         responseBox.innerHTML = marked(responseBox.innerHTML);
                         lastResponseContent = btoa(encodeURIComponent(responseBox.innerHTML));
                     }, 300);
+                    //btnAskAi.innerHTML = btnAskAiDefaultHtml;
+                    elemStatusSwitch(true);
                     eventSource.close();
                 } else {
 
@@ -173,6 +139,7 @@ function renderResponse(json) {
             }
         }
 
+        
     }
 }
 
@@ -199,6 +166,7 @@ btnAskAi.addEventListener('click', async function () {
         layer.msg('请输入200字以内的问题', { icon: 4 });
         return;
     }
+
     let index = layer.load(2);
     let messageLog = extractChatMessagesModern();
     initiator = localStorage.getItem('initiator') ?? location.href;
@@ -214,13 +182,6 @@ btnAskAi.addEventListener('click', async function () {
         }
     );
 
-    //// 添加数组到 FormData
-    //messageLog.forEach((currMsg, index) => {
-    //    formData.append(`messages[${index}][role]`, currMsg.role);
-    //    formData.append(`messages[${index}][content]`, currMsg.content);
-    //});
-    //formData.append(`messages[${messageLog.length}][role]`, 'user');
-    //formData.append(`messages[${messageLog.length}][content]`, message);
 
     const userMessageElement = document.createElement('p');
     userMessageElement.className = 'request-box';
@@ -232,6 +193,7 @@ btnAskAi.addEventListener('click', async function () {
     if (ret.code == 0) {
 
         setTimeout(() => {
+            elemStatusSwitch(false);
             layer.close(index);
             getSseResp();
         }, 2500)
@@ -240,12 +202,46 @@ btnAskAi.addEventListener('click', async function () {
 });
 
 //清空话题
-btnClear.addEventListener('click', function () {
+btnClear.addEventListener('click', async function () {
+    await clearChatBox();
+})
+
+let layuiform = layui.form;
+layuiform.on('select(aimodel)', async function (data) {
+    layer.msg('模型已切换', { icon: 0 });
+    await clearChatBox()
+})
+
+function elemStatusSwitch(flag) {
+    if (flag) {
+        $('#aimodel').removeAttr('disabled');
+        $('#btnClear').show();
+        btnAskAi.innerHTML = btnAskAiDefaultHtml;
+
+    } else {
+        $('#aimodel').attr('disabled', true);
+        $('#btnClear').hide();
+        btnAskAi.innerHTML = '思考中 <i class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop"></i>'
+    }
+    layuiform.render('select');
+}
+
+async function clearChatBox() {
     $('.request-box').remove();
     $('.response-box').remove();
+    btnAskAi.innerHTML = btnAskAiDefaultHtml; 
+    localStorage.removeItem('lastRboxId');
     isDone = true;
     userPrompt.value = ''; // 清空输入框
-})
+    const formData = objectToFormData(
+        {
+            'admin': localStorage.getItem('userName'),
+            '__RequestVerificationToken': requestToken
+        }
+    );
+    await request('POST', '/ai/magic/ClearChat', formData, { 'Content-Type': 'multipart/form-data' });
+
+}
 
 const applyBtn = $('#btnAdopt');
 const applyDisabledBtn = $('#btnAdoptDisabled');
@@ -287,23 +283,25 @@ function setupMessageListener() {
 function handleIncomingMessage(action, params) {
     switch (action) {
         case 'showApplyBtn':
-
             applyBtn.show();
             applyDisabledBtn.hide();
             break;
         case 'generateAnalysis':
-            $('.request-box').remove();
-            $('.response-box').remove();
+            clearChatBox()
             openDiv('答案解析', 'chatView', '1000px', '640px');
             userPrompt.value = params.prompt;
             chatType = false;
             btnAskAi.click();
-            applyBtn.show();
-            $('.request-box').hide();
+            applyBtn.show();            
             applyDisabledBtn.hide();
+            $('.request-box').hide();
+            setTimeout(() => {
+                $('.request-box').remove();
+            }, 500);
             break;
         // 可以添加更多 action 的处理逻辑
         default:
+            
             console.log('Unknown action:', action, 'with params:', params);
             break;
     }
@@ -324,7 +322,7 @@ $('#btnAdopt').click(async () => {
     }
 });
 
-
+//组合聊天记录
 function extractChatMessagesModern() {
     const chatBox = document.querySelector('#chat-box');
     if (!chatBox) return [];
