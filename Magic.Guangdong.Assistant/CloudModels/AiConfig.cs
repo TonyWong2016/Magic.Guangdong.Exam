@@ -32,31 +32,5 @@ namespace Magic.Guangdong.Assistant.CloudModels
 
         //public string Token { get; set; }
     }
-
-
-    public class ChatModel
-    {
-        public string prompt { get; set; }
-
-        public string admin { get; set; }
-
-        public string model { get; set; }
-
-        public bool chatType { get; set; } = true;
-
-        public bool isStream { get; set; } = true;
-
-        public string initiator { get; set; }
-
-        public string finalModel
-        {
-            get
-            {
-                return "hunyuan-" + model;
-            }
-        }
-
-        //public Message[] messages { get; set; }
-        public string messages { get; set; }
-    }
+   
 }

@@ -205,7 +205,6 @@ namespace Magic.Guangdong.Assistant
             using (StreamReader reader = new StreamReader(templateFilePath))
             {
                 content = reader.ReadToEnd().Replace("**content**", msg);
-
             }
             var message = new MimeMessage
             {

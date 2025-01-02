@@ -15,6 +15,7 @@ using Azure;
 using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Essensoft.Paylink.Alipay.Domain;
 
 namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 {
@@ -60,11 +61,16 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         {
             if (string.IsNullOrWhiteSpace(chatModel.prompt))
                 return Json(_resp.error("无输入"));
-
             try
             {
                 if (string.IsNullOrEmpty(chatModel.admin))
                     chatModel.admin = adminId;
+
+                if(await _redisCachingProvider.KeyExistsAsync("chat_" + chatModel.admin))
+                {
+                    return Json(_resp.error("当前用户正在其他终端进行AI对话，请使用其他账号进行测试"));
+                }
+                await _redisCachingProvider.StringSetAsync("chat_" + chatModel.admin, JsonHelper.JsonSerialize(chatModel), TimeSpan.FromMinutes(3));
 
                 if (chatModel.messages.Length > 500)
                 {
@@ -74,11 +80,11 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 }
                 if (chatModel.model.Contains("deepseek"))
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse1", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse", chatModel);
                 }
                 else
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicHunyuanResponse1", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicHunyuanResponse", chatModel);
                 }
                 return Json(_resp.success(0, "ok"));
             }
@@ -88,6 +94,8 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 return Json(_resp.error("获取响应失败，" + e.Message));
             }
         }
+
+        
 
         [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearChat(string admin)
@@ -124,7 +132,12 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     }
                     //var message = await _redisCachingProvider.StringGetAsync("certProgress");
                     if (!await _redisCachingProvider.KeyExistsAsync("AfterServalCacheId" + admin))
+                    {
+                        await _redisCachingProvider.KeyDelAsync("chat_" + admin);
+                        await Response.WriteAsync($"data:[DONE]\n\n");
+                        await Response.Body.FlushAsync();
                         return;
+                    }
                     var message = await _redisCachingProvider.LPopAsync<string>("AfterServalCacheId" + admin);
                     if (string.IsNullOrEmpty(message))
                         continue;
@@ -143,7 +156,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         }
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetMagicHunyuanResponse1")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicHunyuanResponse")]
         public async Task GetHunyuanResponse(ChatModel chatModel, [FromCap] CapHeader header)
         {
             try
@@ -169,11 +182,10 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 HunyuanClient client = new HunyuanClient(_cred, commonParams.Region, clientProfile);
 
                 // 实例化一个请求对象,每个接口都会对应一个request对象
-
                 ChatCompletionsRequest req = new ChatCompletionsRequest();
                 req.Model = HunyuanModels.Lite;
                 if (!string.IsNullOrWhiteSpace(chatModel.model))
-                    req.Model = chatModel.finalModel;
+                    req.Model = chatModel.HunyuanModel;
 
                 if (string.IsNullOrEmpty(chatModel.messages) && await _redisCachingProvider.KeyExistsAsync("msglog_" + chatModel.admin))
                 {
@@ -185,7 +197,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     new Message()
                     {
                         Role = "system",
-                        Content = "注意以下回复内容尽量控制在500字以内，不要超过1000字"
+                        Content = "You are a helpful assistant.注意以下回复内容尽量控制在500字以内，不要超过1000字"
                     },
                 ];
                 if (!string.IsNullOrEmpty(chatModel.messages))
@@ -243,7 +255,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse1")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse")]
         public async Task GetDeepSeekResponse(ChatModel chatModel)
         {
             try
@@ -309,8 +321,6 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
         }
 
-
-
         private string BuildDeepSeekChatParmm(ChatModel chatModel)
         {
             var ds = new DeepSeekRequestModel();
@@ -320,7 +330,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     new DeepSeekMessages()
                     {
                         role = "system",
-                        content = "注意以下回复内容尽量控制在500字以内，如非必要，不要超过1000字"
+                        content = "You are a helpful assistant.注意以下回复内容尽量控制在500字以内，如非必要，不要超过1000字"
                     },
                 ];
             if (!string.IsNullOrEmpty(chatModel.messages))
@@ -336,5 +346,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
             return JsonHelper.JsonSerialize(ds);
         }
+
+        //private object
     }
 }

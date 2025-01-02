@@ -25,6 +25,11 @@ function getSseResp() {
 
         isDone = false;
         const message = event.data;
+        if (message === '[DONE]') {
+            isDone = true;
+            eventSource.close();
+            return;
+        }
         let json = JSON.parse(message);
         //renderResponse(json, responseBox);
         renderResponse(json);
@@ -112,7 +117,7 @@ function renderResponse(json) {
             //data: {"id":"f07c2ca9-f1ed-49db-a4e6-dcfe2c297f88","object":"chat.completion.chunk","created":1735544096,"model":"deepseek-chat","system_fingerprint":"fp_f1afce2943","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":13,"completion_tokens":381,"total_tokens":394,"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":13}}
             for (let i = 0; i < choices.length; i++) {
                 if (choices[i].finish_reason && choices[i].finish_reason === "stop") {
-                    console.log(json);
+                    //console.log(json);
                     isDone = true;
                     localStorage.removeItem('lastRboxId');
                     responseBox.innerHTML += `<br>--end--<br><span style="font-size:small;font-style:italic">--${new Date(json.created * 1000).toLocaleTimeString()},累计消耗【${json.usage.total_tokens}】tokens,输入:${json.usage.prompt_tokens},输出:${json.usage.completion_tokens}</span>`;

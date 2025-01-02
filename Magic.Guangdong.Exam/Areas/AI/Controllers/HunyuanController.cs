@@ -153,7 +153,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 ChatCompletionsRequest req = new ChatCompletionsRequest();
                 req.Model = HunyuanModels.Lite;
                 if (!string.IsNullOrWhiteSpace(chatModel.model))
-                    req.Model = chatModel.finalModel;
+                    req.Model = chatModel.HunyuanModel;
                 
                 if( string.IsNullOrEmpty(chatModel.messages) && await _redisCachingProvider.KeyExistsAsync("msglog_"+chatModel.admin))
                 {
