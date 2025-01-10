@@ -111,49 +111,71 @@
 
         <div class="layui-panel" id="chatView" style="display:none;padding:10px">
             <form class="layui-form">
-            <div class="layui-card">
-                <div class="layui-card-header" style="color:var(--main-bg-color);font-size:large">
-                    智能小助手
-                </div>
-                <div class="layui-card-body" id="chat-box" style="height:400px;overflow-y:auto">
-                    <blockquote class="layui-elem-quote layui-quote-nm">
-                        注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。<br />
-                        【采纳】功能目前仅支持在题目详情页生成解析，其余页面暂不支持。
-                    </blockquote>
-                </div>
-            </div>
-            <div class="layui-card">
-                <div class="layui-card-body layui-row layui-col-space1">
-                        <div class="layui-col-md2">
-                            <select id="aimodel" lay-filter="aimodel">
-                                <option value="lite">混元lite模型(免费)</option>
-                                <option value="standard">混元standard模型(标准模型)</option>
-                                @* <option value="standard-256k" >standard-256k模型(长文本)</option> *@
-                                <option value="pro">混元pro模型(性能强)</option>
-                                <option value="turbo">混元turbo模型(性能更强)</option>
-                                @* <option value="large">larg模型(超长文本)</option> *@
-                                <option value="deepseek" selected>deepseek-V3模型(开源MoE)</option>
-                                <option disabled>混元vision模型(视觉支持)</option>
-                            </select>
+                <div class="layui-card layui-row" style="min-height:560px">
+                    
+                    <div class="layui-col-md4" >
+                        <div class="layui-card-header" style="font-size:larger;color:var(--main-bg-color)">
+                            调用参数
                         </div>
-                    <div class="layui-col-md6">
-                        <input type="text" class="layui-input" id="txtUserPrompt" placeholder="请输入您的问题..." />
+                        <div class="layui-card-body">
+                            <div class="layui-row" style="padding:10px">
+                                <select id="aimodel" lay-filter="aimodel">
+                                    <option value="lite">混元lite模型(免费)</option>
+                                    <option value="standard">混元standard模型(标准模型)</option>
+                                    @* <option value="standard-256k" >standard-256k模型(长文本)</option> *@
+                                    <option value="pro">混元pro模型(性能强)</option>
+                                    <option value="turbo">混元turbo模型(性能更强)</option>
+                                    @* <option value="large">larg模型(超长文本)</option> *@
+                                    <option value="deepseek" selected>deepseek-V3模型(开源MoE)</option>
+                                    <option disabled>混元vision模型(视觉支持)</option>
+                                </select>
+                            </div>
 
+                            <div class="layui-row" style="padding:10px">
+                                <select id="tool" lay-filter="tool">
+                                    <option value="chat">对话</option>
+                                    <optgroup label="执行function call">
+                                        <option value="get_weather">测试调用本地函数</option>
+                                        <option value="audit" disabled>审核报名信息</option>
+                                        <option disabled>更多功能待添加</option>
+                                    </optgroup>
+                                   
+                                </select>
+                            </div>
+
+                            <div class="layui-row" style="padding:10px">
+                                <textarea class="layui-textarea" id="txtUserPrompt" style="resize:none;height:200px" placeholder="请输入您的问题..."></textarea>
+
+
+                            </div>
+
+                            <div class="layui-row layui-btn-container" style="padding:10px">
+                                <a class="layui-btn layui-btn-primary" id="btnAskAi" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
+                                @* <a class="layui-btn layui-btn-primary" id="btnAiThinking" href="javascript:;">思考中 <i class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop"></i></a> *@
+
+                                <a class="layui-btn layui-btn-primary layui-border-red" id="btnClear" href="javascript:;">清空 <i class="layui-icon layui-icon-delete"></i></a>
+
+                                <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="btnAdopt" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
+                                <a class="layui-btn layui-btn-disabled" onclick="layer.tips('仅在题目编辑页面生成题目解析时可用',this,{ tips: [3, '#a233c6']})" id="btnAdoptDisabled" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
+
+                            </div>
+                        </div>
+                        
                     </div>
-                    <div class="layui-col-md4 layui-btn-container">
-                        <a class="layui-btn layui-btn-primary" id="btnAskAi" href="javascript:;">发送 <i class="layui-icon layui-icon-release"></i></a>
-                        @* <a class="layui-btn layui-btn-primary" id="btnAiThinking" href="javascript:;">思考中 <i class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop"></i></a> *@
 
-                        <a class="layui-btn layui-btn-primary layui-border-red" id="btnClear" href="javascript:;">清空 <i class="layui-icon layui-icon-delete"></i></a>
-
-                        <a class="layui-btn layui-btn-primary layui-border-green" style="display:none" id="btnAdopt" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
-                        <a class="layui-btn layui-btn-disabled" onclick="layer.tips('仅在题目编辑页面生成题目解析时可用',this,{ tips: [3, '#a233c6']})" id="btnAdoptDisabled" href="javascript:;">采纳 <i class="layui-icon layui-icon-ok"></i></a>
-
+                    <div class="layui-col-md8">
+                        <div class="layui-card-header" style="font-size:larger;color:var(--main-bg-color)">
+                            聊天记录
+                        </div>
+                        <div class="layui-card-body" id="chat-box" style="overflow-y:auto">
+                            <blockquote class="layui-elem-quote layui-quote-nm">
+                                注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。<br />
+                                【采纳】功能目前仅支持在题目详情页生成解析，其余页面暂不支持。
+                            </blockquote>
+                        </div>
                     </div>
-
+                   
                 </div>
-
-            </div>
             </form>
         </div>
 
@@ -391,7 +413,7 @@
             if(releaseVersion !== localReleaseVersion ){
                 layer.tips('有新的更新，点击查看', '#releaseLog', {
                     tips: [1, '#16b777']
-                })                
+                })
             }
 
             if(localStorage.getItem('unsafeLoginedAt')){
@@ -422,7 +444,7 @@
                 mouseenter: function(type){
                     layer.tips('有问题随时问我哟', this, {
                         tips: [4,'var(--main-bg-color)'],
-                        fixed: true                        
+                        fixed: true
                     });
                 },
                 mouseleave: function(type){

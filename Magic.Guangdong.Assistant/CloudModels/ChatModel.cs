@@ -31,44 +31,34 @@ namespace Magic.Guangdong.Assistant.CloudModels
         //public Message[] messages { get; set; }
         public string messages { get; set; }
 
+        public string toolStr { get; set; }
 
-        public SimpleTool tool { get; set; }
+        public ChatTool[]? tools
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(toolStr) || toolStr.Length<3)
+                    return null;
+                return System.Text.Json.JsonSerializer.Deserialize<ChatTool[]>(toolStr);
+            }
+        }
 
         
     }
 
-    public class SimpleTool
+    public class ChatTool
     {
-        public string type { get; set; } = "function";
+        public string type { get; set; } = "chat";
 
-        /// <summary>
-        /// 序列化后的函数，注意，调用的时候需要自行根据实际场景进行反序列化
-        /// </summary>
-        public string serializedFunction { get; set; } = "";
+        public DsToolFunction toolFunction { get; set; }
 
     }
 
-    public class Tool<T>
+    public class Function
     {
-        public string type { get; set; } = "function";
-
-        public CustomFunction<T> function { get; set; }
-    }
-
-    public class CustomFunction<T>
-    {
-        public string name { get; set; }
-
-        public string description { get; set; }
-
-        public FunctionParameters<T> parameters { get; set; }
-    }
-
-    public class FunctionParameters<T> 
-    {
-        public string type { get; set; } = "object";
-
-        public T properties {  get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public object Parameters { get; set; }
     }
 
     

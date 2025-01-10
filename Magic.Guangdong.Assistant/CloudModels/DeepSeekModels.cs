@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Essensoft.Paylink.Alipay.Domain;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -68,13 +69,30 @@ namespace Magic.Guangdong.Assistant.CloudModels
         /// </summary>
         public float top_p { get; set; } = 1;
 
-        public Tool[] tools { get; set; }
+        public DsTool[] tools { get; set; }
 
         public string tool_choice { get; set; } = ToolChoice.none.ToString();
 
         public bool logprobs { get; set; } = false;
 
         public int? top_logprobs {  get; set; }
+    }
+
+    public class DeepSeekResponseModel
+    {
+        public string id { get; set; }
+
+        public long created { get; set; }
+
+        public string model { get; set; }
+
+        public string system_fingerprint { get; set;}
+
+        public DsChoice choices { get; set; }
+
+        public object logprobs { get; set; }
+
+        public string? finish_reason { get; set; }
     }
 
     public class DeepSeekMessages
@@ -107,14 +125,14 @@ namespace Magic.Guangdong.Assistant.CloudModels
         public bool include_usage { get; set; } 
     }
 
-    public class Tool
+    public class DsTool
     {
         public string type { get; set; }
 
-        public ToolFunction function { get; set; }
+        public DsToolFunction function { get; set; }
     }
 
-    public class ToolFunction
+    public class DsToolFunction
     {
         public string name { get; set; }
 
@@ -122,6 +140,37 @@ namespace Magic.Guangdong.Assistant.CloudModels
 
         public object parameter { get; set; }
     }
+
+
+    public class DsChoice
+    {
+        public int index { get; set; }
+
+        public DsDelta delta { get; set; }
+    }   
     
-    
+    public class DsDelta
+    {
+        public string content { get; set; }
+
+        public DsToolCall[] tool_calls { get; set; }
+    } 
+
+    public class DsToolCall
+    {
+        public int index { get; set; }
+
+        public string id { get; set; }
+
+        public string type { get; set; }
+
+        public DsFunction function { get; set;}
+    }
+
+    public class DsFunction
+    {
+        public string name { get; set; }
+
+        public string arguments { get; set; }
+    }
 }

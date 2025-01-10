@@ -1,21 +1,24 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.Assistant.Lib;
-using Magic.Guangdong.Assistant;
+using Magic.Guangdong.Exam.Areas.AI.Functions;
+using Magic.Guangdong.Exam.Areas.AI.Models;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using TencentCloud.Common.Profile;
-using TencentCloud.Hunyuan.V20230901.Models;
-using TencentCloud.Hunyuan.V20230901;
-using TencentCloud.Common;
-using Azure;
-using System.Text;
-using System.Net.Http;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using Essensoft.Paylink.Alipay.Domain;
+using System.Text;
+using System.Text.Json;
+using TencentCloud.Common;
+using TencentCloud.Common.Profile;
+using TencentCloud.Hunyuan.V20230901;
+using TencentCloud.Hunyuan.V20230901.Models;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 {
@@ -28,11 +31,16 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         private readonly IRedisCachingProvider _redisCachingProvider;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ICapPublisher _capPublisher;
-
+        private readonly ITest _test;
         private string adminId = "";
         private Credential _cred;
         //private readonly Tools.SseMiddleware _sseMiddleware;
-        public MagicController(IResponseHelper responseHelper, AiConfigFactory aiConfigFactory, IRedisCachingProvider redisCachingProvider, IHttpContextAccessor contextAccessor, ICapPublisher capPublisher)
+        public MagicController(IResponseHelper responseHelper,
+            AiConfigFactory aiConfigFactory, 
+            IRedisCachingProvider redisCachingProvider,
+            IHttpContextAccessor contextAccessor, 
+            ICapPublisher capPublisher,
+            ITest test)
         {
             _resp = responseHelper;
             _aiConfigsHunyuan = aiConfigFactory.GetConfigByModel("hunyuan");
@@ -40,6 +48,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             _redisCachingProvider = redisCachingProvider;
             _contextAccessor = contextAccessor;
             _capPublisher = capPublisher;
+            _test = test;
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.TryGetValue("userId", out string cookieValue))
             {
                 adminId = Utils.FromBase64Str(cookieValue);
@@ -80,7 +89,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 }
                 if (chatModel.model.Contains("deepseek"))
                 {
-                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse", chatModel);
+                    await _capPublisher.PublishAsync(CapConsts.PREFIX + "GetMagicDeepSeekResponse2", chatModel);
                 }
                 else
                 {
@@ -103,6 +112,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             await _redisCachingProvider.KeyDelAsync("TopServalCacheId" + admin);
             await _redisCachingProvider.KeyDelAsync("AfterServalCacheId" + admin);
             await _redisCachingProvider.KeyDelAsync("msglog_" + admin);
+            await _redisCachingProvider.KeyDelAsync("chat_" + admin);
             return Json(_resp.success(true));
         }
 
@@ -144,6 +154,12 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     // 按照SSE协议格式发送数据到客户端
                     await Response.WriteAsync($"data:{message}\n\n");
                     await Response.Body.FlushAsync();
+
+                    //await Task.Run(() =>
+                    //{
+                    //    ParseResponseCall(message);
+                    //    //Task.Delay(1);
+                    //});
 
                 }
 
@@ -255,7 +271,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
 
 
         [NonAction]
-        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse")]
+        [CapSubscribe(CapConsts.PREFIX + "GetMagicDeepSeekResponse2")]
         public async Task GetDeepSeekResponse(ChatModel chatModel)
         {
             try
@@ -278,7 +294,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 using var resp = await client.SendAsync(request);
                 resp.EnsureSuccessStatusCode();
                 if (chatModel.isStream)
-                {
+                {                   
                     // 读取流式响应
                     using var stream = await resp.Content.ReadAsStreamAsync();
                     using var reader = new StreamReader(stream);
@@ -287,10 +303,10 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                     while (!reader.EndOfStream)
                     {
                         var line = await reader.ReadLineAsync();
-                        
+
                         if (string.IsNullOrEmpty(line))
                             continue;
-                       // Assistant.Logger.Debug(line);
+                        Logger.Warning(line);
                         if (cnt > 5)
                         {
                             listKey = "AfterServalCacheId" + chatModel.admin;
@@ -304,6 +320,49 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                         await _redisCachingProvider.RPushAsync(listKey, new List<string>() { line });
 
                         cnt++;
+                    }                       
+                }
+                else
+                {
+                    //var content = await resp.Content.ReadAsStringAsync();
+                    //await _redisCachingProvider.RPushAsync("TopServalCacheId" + chatModel.admin, new List<string>() { content });
+                    //Logger.Warning(content);
+                    //dynamic jsonResponse = JsonConvert.DeserializeObject(content);
+                    //if (jsonResponse.choices[0].message.tool_calls != null)
+                    //{
+                    //    foreach (var toolCall in jsonResponse.choices[0].message.tool_calls)
+                    //    {
+                    //        string functionName = toolCall.function.name;
+                    //        string arguments = toolCall.function.arguments.ToString().Replace("{{","{").Replace("}}","}");
+                    //        JObject args = JObject.Parse(arguments);
+                    //        string result = HandleFunctionCall(functionName, args["location"].ToString());
+                    //        Logger.Warning(result);
+                    //    }
+                    //}
+                    var responseContent = await resp.Content.ReadAsStringAsync();
+                    var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+                    var toolCalls = jsonResponse.GetProperty("tool_calls"); // 假设API返回包含"tool_calls"字段
+                    foreach (var toolCall in toolCalls.EnumerateArray())
+                    {
+                        var functionName = toolCall.GetProperty("function_name").GetString();
+                        var rawParameters = toolCall.GetProperty("parameters").GetRawText();
+
+                        switch (functionName)
+                        {
+                            case "getweather":
+                                var funcAParams = JsonSerializer.Deserialize<WeatherInput>(rawParameters);
+                                var resultFuncA = _test.GetWeather(funcAParams);
+                                responseContent = responseContent.Replace("\"content\":\"\"", "\"content\":" + resultFuncA + "");
+                                // 根据需要处理结果
+                                break;
+                            case "getuserrecord":
+                                var funcBParams = JsonSerializer.Deserialize<UserRecordInput>(rawParameters);
+                                var resultFuncB = await _test.GetUserRecord(funcBParams);
+                                responseContent = responseContent.Replace("\"content\":\"\"", "\"content\":" + resultFuncB + "");
+                                // 处理结果
+                                break;
+                            
+                        }
                     }
                 }
             }
@@ -316,6 +375,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 await _redisCachingProvider.KeyExpireAsync("TopServalCacheId" + chatModel.admin, 100);
                 await _redisCachingProvider.KeyExpireAsync("AfterServalCacheId" + chatModel.admin, 600);
                 await _redisCachingProvider.KeyDelAsync("msglog_" + chatModel.admin);
+                await _redisCachingProvider.KeyDelAsync("chat_" + chatModel.admin);
             }
             //return Json(_resp.success(await response.Content.ReadAsStringAsync()));
 
@@ -324,6 +384,7 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         private string BuildDeepSeekChatParmm(ChatModel chatModel)
         {
             var ds = new DeepSeekRequestModel();
+            ds.stream = chatModel.isStream;
             
             List<DeepSeekMessages> listMsg =
                 [
@@ -337,16 +398,56 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             {
                 listMsg.AddRange(JsonHelper.JsonDeserialize<List<DeepSeekMessages>>(chatModel.messages));
             }
+           
             listMsg.Add(new DeepSeekMessages()
             {
                 role = "user",
                 content = chatModel.prompt
+               
             });
             ds.messages = listMsg.ToArray();
 
+            if (chatModel.tools!=null && chatModel.tools.Any(u => u.type != "chat"))
+            {
+                ds.tools = chatModel.tools.Adapt<DsTool[]>();
+                ds.tool_choice = "auto";
+                
+            }
             return JsonHelper.JsonSerialize(ds);
         }
 
-        //private object
+        public List<DsTool> BuildFunction(ChatModel chatModel)
+        {
+            List<DsTool> listTool = new List<DsTool>();
+            foreach (var tool in chatModel.tools)
+            {
+                //var functionCall = new Assistant.CloudModels.DsToolFunction()
+                //{
+                //    name = tool.toolFunction.name,
+                //    description = tool.toolFunction.description,
+                //    parameter = 
+                //    new
+                //    {
+                //        type = "object",
+                //        properties = new Dictionary<string, object>
+                //        {
+                //            ["location"] = new { type = "string", description = "The city and state, e.g., San Francisco, CA" },
+
+                //        },
+                //        required = new[] { "location" }
+                //    }
+                //};
+                listTool.Add(new DsTool()
+                {
+                    type = tool.type,
+                    function = tool.toolFunction
+                });
+            }
+            return listTool;
+        }
+
+
+
+        
     }
 }

@@ -7,8 +7,8 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Lib;
+using Magic.Guangdong.Exam.Areas.AI.Functions;
 using Magic.Guangdong.Exam.Filters;
-using Magic.Guangdong.Exam.Tools;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IO;
@@ -67,6 +67,8 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureDataProtection(_configuration);
 
             builder.Services.ConfigureAi(_configuration);
+
+            builder.Services.AddScoped<ITest, Test>();
 
             return builder;
         }
