@@ -7,6 +7,10 @@ using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
+using System.ComponentModel;
 
 namespace Magic.Guangdong.Exam.Controllers
 {
@@ -15,22 +19,42 @@ namespace Magic.Guangdong.Exam.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ICapPublisher _capPublisher;
+        private readonly Kernel _kernel;
 
-
-        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher)
+        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel)
         {
             _logger = logger;
             _capPublisher = capPublisher;
+            _kernel = kernel.Clone();
         }
         [RouteMark("测试1")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            int i = 0;
-            while ( i < 3){
-                Assistant.Logger.Warning($"生产消息：" + DateTime.Now + i.ToString());
-                _capPublisher.Publish(CapConsts.PREFIX + "TEST", $"第{(i+1).ToString()}条，{DateTime.Now}");
-                i++;
-            }
+            //int i = 0;
+            //while ( i < 3){
+            //    Assistant.Logger.Warning($"生产消息：" + DateTime.Now + i.ToString());
+            //    _capPublisher.Publish(CapConsts.PREFIX + "TEST", $"第{(i+1).ToString()}条，{DateTime.Now}");
+            //    i++;
+            //}            
+
+            //_kernel.Plugins.AddFromType<TimeInformationPlugin>();
+            _kernel.Plugins.AddFromType<TimeInformationPlugin>();
+            // 获取聊天完成服务
+            var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
+            
+            // 启用自动函数调用
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+            {  
+                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+                
+            };
+            ChatHistory chatHistory = []; 
+            string? input = null;
+            chatHistory.AddUserMessage("现在几点了?");
+
+            var chatResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, openAIPromptExecutionSettings,_kernel); 
+            Console.Write($"\nAssistant : {chatResult}\n");
+
             return View();
         }
 
@@ -109,5 +133,14 @@ namespace Magic.Guangdong.Exam.Controllers
             Console.WriteLine($"TestMaskData: {JsonHelper.JsonSerialize(maskData)}");
             return Json(maskData);
         }
+
+        
     }
+
+    public class TimeInformationPlugin
+    {
+        [KernelFunction, Description("UTC格式的当前时间。")]
+        public string GetCurrentUtcTime() => DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+    }
+
 }

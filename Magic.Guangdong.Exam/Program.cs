@@ -12,6 +12,8 @@ public class Program
         //containerBuilder.Build();
        
         var builder = WebApplication.CreateBuilder(args).SetupServices();
+
+        
         builder.Services.AddControllersWithViews();
 
         builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
