@@ -3,7 +3,9 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.AgentBases;
 using Magic.Guangdong.DbServices.Interfaces;
+using Magic.Guangdong.Exam.Configs.Plugins.SimplePlugins;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,25 +22,30 @@ namespace Magic.Guangdong.Exam.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ICapPublisher _capPublisher;
         private readonly Kernel _kernel;
+        private readonly IRecordBase _recordRepo;
+        private readonly IServiceProvider _serviceProvider;
 
-        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel)
+        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel,IRecordBase recordBase, IServiceProvider serviceProvider)
         {
             _logger = logger;
-            _capPublisher = capPublisher;
+            _capPublisher = capPublisher;            
             _kernel = kernel.Clone();
+            _recordRepo = recordBase;
+            _serviceProvider = serviceProvider;
         }
         [RouteMark("测试1")]
         public async Task<IActionResult> Index()
         {
+            var test = await _recordRepo.getAnyAsync(u => u.IsDeleted == 0);
             //int i = 0;
             //while ( i < 3){
             //    Assistant.Logger.Warning($"生产消息：" + DateTime.Now + i.ToString());
             //    _capPublisher.Publish(CapConsts.PREFIX + "TEST", $"第{(i+1).ToString()}条，{DateTime.Now}");
             //    i++;
-            //}            
+            //}
 
             //_kernel.Plugins.AddFromType<TimeInformationPlugin>();
-            _kernel.Plugins.AddFromType<TimeInformationPlugin>();
+            _kernel.Plugins.AddFromType<RecordSearchPlugin>("RecordSearch", _serviceProvider);
             // 获取聊天完成服务
             var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
             
@@ -48,12 +55,21 @@ namespace Magic.Guangdong.Exam.Controllers
                 ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
                 
             };
+
+            PromptExecutionSettings settings = new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
             ChatHistory chatHistory = []; 
             string? input = null;
-            chatHistory.AddUserMessage("现在几点了?");
-
-            var chatResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, openAIPromptExecutionSettings,_kernel); 
+            //chatHistory.AddUserMessage("你叫什么名字?");
+            chatHistory.AddUserMessage("Please get the record which id is 617235768115590");
+            var chatResult = await chatCompletionService.GetChatMessageContentAsync(
+                chatHistory,
+                openAIPromptExecutionSettings,
+                _kernel); 
+            //await chatHistory.AddStreamingMessageAsync(chatResult);
             Console.Write($"\nAssistant : {chatResult}\n");
+            //_kernel.InvokeAsync()
+            //Console.WriteLine(await _kernel.InvokePromptAsync("Search the record by name.", new(settings)));
+
 
             return View();
         }

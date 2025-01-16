@@ -11,7 +11,7 @@
                     {
                         Scheme = "https",
                         Host = "api.deepseek.com",
-                        Path = "chat/completions",//其他与OpenAI对话请求接口兼容的模型平台，一般只需要修改host即可，不需要修改path
+                        //Path = "chat/completions",//其他与OpenAI对话请求接口兼容的模型平台，一般只需要修改host即可，不需要修改path
                     };
                     request.RequestUri = uriBuilder.Uri;
                     break;

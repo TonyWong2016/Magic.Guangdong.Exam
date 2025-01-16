@@ -1,6 +1,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Magic.Guangdong.Exam.Extensions;
+using Microsoft.SemanticKernel;
 
 public class Program
 {
@@ -11,7 +12,7 @@ public class Program
         //containerBuilder.RegisterModule<ConfigureAutofac>();
         //containerBuilder.Build();
        
-        var builder = WebApplication.CreateBuilder(args).SetupServices();
+        var builder = WebApplication.CreateBuilder(args);
 
         
         builder.Services.AddControllersWithViews();
@@ -22,6 +23,8 @@ public class Program
                 containerBuilder.RegisterModule<ConfigureAutofac>();
                 //containerBuilder.Build();
             });
+        builder.SetupServices();
+
         var app = builder.Build().SetupMiddlewares();
         
         app.Run();

@@ -104,6 +104,15 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             }
         }
 
+        /// <summary>
+        /// 通过对话实现一些功能
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> FunctionChat()
+        {
+            return Content("");
+        }
         
 
         [HttpPost,ValidateAntiForgeryToken]

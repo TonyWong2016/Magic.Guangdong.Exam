@@ -96,6 +96,7 @@ namespace Magic.Guangdong.Exam.Extensions
                     .PreventOverlapping(nameof(RelationSharding));
             });
 
+            
             return app;
         }
 

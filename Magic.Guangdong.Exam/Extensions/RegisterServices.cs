@@ -7,16 +7,14 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.CloudModels;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Lib;
+using Magic.Guangdong.DbServices.AgentBases;
 using Magic.Guangdong.Exam.Areas.AI.Functions;
-using Magic.Guangdong.Exam.Controllers;
 using Magic.Guangdong.Exam.Filters;
 using Magic.Guangdong.Exam.LLM;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IO;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Minio;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -28,6 +26,7 @@ namespace Magic.Guangdong.Exam.Extensions
     public static class RegisterServices
     {
         private static IConfiguration _configuration;
+        private static List<AiConfig> aiConfigs;
         public static WebApplicationBuilder SetupServices(this WebApplicationBuilder builder)
         {
             builder.Configuration
@@ -39,6 +38,7 @@ namespace Magic.Guangdong.Exam.Extensions
 
                  ;
             _configuration = builder.Configuration;
+            aiConfigs = new List<AiConfig>();
             ConfigurationHelper.Initialize(_configuration);
             Logger.InitLog();
             builder.Services.ConfigureMvc();
@@ -72,18 +72,22 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureDataProtection(_configuration);
 
             builder.Services.ConfigureAi(_configuration);
+            //builder.Services.ConfigureSemanticKernel(_configuration);
 
+
+            //builder.Services.AddSingleton<IUserService, FakeUserService>();
+            //builder.Services.AddSingleton<UserInformation>();
+
+            builder.Services.AddSemanticKernel3();
             //测试的，不测了可以删掉
             builder.Services.AddScoped<ITest, Test>();
-
-            //builder.Services.ConfigureSemanticKernel(_configuration);
-            builder.Services.AddSemanticKernel();
+            
             return builder;
         }
 
         private static void ConfigureAi(this IServiceCollection services, IConfiguration configuration)
         {
-            var aiConfigs = new List<AiConfig>();
+            
             configuration.GetSection("AiConfigs").Bind(aiConfigs);
             //builder.Services.AddSingleton(aiConfigs);
             // 注册工厂为单例服务
@@ -421,52 +425,58 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        //配置Semantickernel
-        public static IServiceCollection AddSemanticKernel2(this IServiceCollection services)
+        //配置Semantickernel(注入服务的方式，好像不支持自定义的网关了，参考：https://learn.microsoft.com/en-us/semantic-kernel/concepts/ai-services/chat-completion/?tabs=csharp-other%2Cpython-AzureOpenAI%2Cjava-AzureOpenAI&pivots=programming-language-csharp#using-dependency-injection)
+        private static IServiceCollection AddSemanticKernel3(this IServiceCollection services)
         {
-            services.AddSingleton<KernelProvider>();
-
-            services.AddScoped<Kernel>(sp =>
-            {
-                var provider = sp.GetRequiredService<KernelProvider>();
-
-                return provider.GetKernel();
-            });
-
-            return services;
-        }
-
-        public static IServiceCollection AddSemanticKernel3(this IServiceCollection services)
-        {
-            var deployment = "deepseek-chat";
-            var endpoint = "https://api.token-ai.cn/";
-            var apikey = "sk-OQb3zrAs2BWjMu9nLwJeSubVLN0CIuIgwr6lIm";
+            services.AddSingleton<IRecordBase, RecordBase>();
+            var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
+            //var deployment = "deepseek-chat";
+            string deployment = "qwen-plus";
+            var endpoint = "https://api.token-ai.cn/v1";
+            var apikey = aiConfig.ApiKey;
             services.AddKernel();
-            services.AddOpenAIChatCompletion(deployment, endpoint, apikey);
+            Uri uri = new Uri(endpoint);
+#pragma warning disable SKEXP0010 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            services.AddOpenAIChatCompletion(deployment, uri, apikey);
 
+#pragma warning restore SKEXP0010 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+
+            //services.AddTransient((p) =>
+            //{
+            //    return new Kernel(p);
+            //});
             return services;
         }
 
-        public static IServiceCollection AddSemanticKernel(this IServiceCollection services)
+
+
+        //配置Semantickernel
+        private static IServiceCollection AddSemanticKernel(this IServiceCollection services)
         {
+
             services.AddSingleton<IKernelBuilder>(sp =>
-            {
+            {               
+                var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
+
                 //string model = "deepseek-chat";
+                //string model = "gpt-3.5-turbo";
                 string model = "qwen-plus";
                 var builder = Kernel.CreateBuilder()
                  .AddOpenAIChatCompletion(
                  modelId: model,
-                 apiKey: "sk-OQb3zrAs2BWjMu9nLwJeSubVLN0CIuIgwr6lIm",
+                 apiKey: aiConfig.ApiKey,
                  httpClient: new HttpClient(new OpenAIHttpClientHandler("https://api.token-ai.cn/", model)));
-
-                //builder.Plugins.AddFromType<TimeInformationPlugin>();
+                
+                // builder.Plugins.AddFromType<TimeInformationPlugin>();
+                //builder.Services.AddSingleton<IUserService,FakeUserService>();
                 return builder;
             });
 
             services.AddScoped<Kernel>(sp =>
             {
-                var builder = sp.GetRequiredService<IKernelBuilder>();
                 
+                var builder = sp.GetRequiredService<IKernelBuilder>();
+                builder.Services.AddSingleton<IRecordBase, RecordBase>();
                 return builder.Build();
             });
 
@@ -474,24 +484,4 @@ namespace Magic.Guangdong.Exam.Extensions
         }
     }
 
-    class KernelProvider
-    {
-        private readonly Kernel _kernel;
-
-        public KernelProvider(Kernel kernel)
-        {
-            var builder = Kernel.CreateBuilder()
-                 .AddOpenAIChatCompletion(
-                 modelId: "gpt-3.5-turbo",
-                 apiKey: "sk-OQb3zrAs2BWjMu9nLwJeSubVLN0CIuIgwr6lIm",
-                 httpClient: new HttpClient(new OpenAIHttpClientHandler("https://api.token-ai.cn/", "gpt-3.5-turbo")));
-            _kernel = builder.Build();
-            _kernel.Plugins.AddFromType<TimeInformationPlugin>();
-        }
-
-        public Kernel GetKernel()
-        {
-            return _kernel.Clone();
-        }
-    }
 }

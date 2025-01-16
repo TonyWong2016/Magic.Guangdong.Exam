@@ -11,7 +11,7 @@ using Magic.Guangdong.DbServices.Dtos;
 
 namespace Magic.Guangdong.DbServices.Methods
 {
-    internal class ExaminationRepository<T> : IExaminationRepository<T> where T : class
+    public class ExaminationRepository<T> : IExaminationRepository<T> where T : class
     {
         IdleBus<IFreeSql> fsql = null; //单例注入idlebus
         const string conn_str = "db_exam";
