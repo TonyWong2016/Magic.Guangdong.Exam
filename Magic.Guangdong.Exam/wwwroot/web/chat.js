@@ -8,6 +8,7 @@ const childWindow = document.getElementById('main-container').contentWindow;
 
 let isDone = true;
 let retryCount = 0;
+let doneCount = 0;
 let lastId = '';
 let chatType = true;
 let isStream = true;
@@ -25,12 +26,22 @@ function getSseResp() {
     eventSource.onmessage = function (event) {
 
         isDone = false;
-        const message = event.data;
+        let message = event.data;
         if (message === '[DONE]') {
-            isDone = true;
-            eventSource.close();
-            return;
+            //message = '{}';
+            console.log(doneCount)
+            if (doneCount < 5) {
+                doneCount++;
+                setTimeout(() => {
+                    getSseResp();
+                }, 3000)
+            } else {
+                isDone = true;
+                eventSource.close();
+                return;
+            }
         }
+        
         let json = JSON.parse(message);
         //renderResponse(json, responseBox);
         renderResponse(json);
@@ -85,8 +96,6 @@ function renderResponse(json) {
         btnAskAi.innerHTML = btnAskAiDefaultHtml;
         return;
     }
-
-
     
     if (choices.length > 0) {
         if (!isStream || json.object =='chat.completion') {
@@ -155,12 +164,8 @@ function renderResponse(json) {
             //    elemStatusSwitch(true);
             //    eventSource.close();
             //}
-        }
-
-        
-    }
-
-    
+        }        
+    }    
 }
 
 
@@ -176,6 +181,7 @@ btnAskAi.addEventListener('click', async function () {
     }
 
     isDone = false;
+    doneCount = 0;
     const message = userPrompt.value.trim();
     if (!message) {
         layer.msg('请输入问题', { icon: 2 });

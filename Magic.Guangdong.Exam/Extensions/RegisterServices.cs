@@ -431,7 +431,7 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddSingleton<IRecordBase, RecordBase>();
             var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
             //var deployment = "deepseek-chat";
-            string deployment = "qwen-plus";
+            string deployment = "claude-3-5-haiku-20241022";
             var endpoint = "https://api.token-ai.cn/v1";
             var apikey = aiConfig.ApiKey;
             services.AddKernel();

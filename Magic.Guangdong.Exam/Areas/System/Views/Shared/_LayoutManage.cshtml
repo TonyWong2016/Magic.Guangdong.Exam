@@ -109,11 +109,11 @@
         <div class="layui-panel" id="timelineView" style="display:none;">
         </div>
 
-        <div class="layui-panel" id="chatView" style="display:none;padding:10px">
+        <div class="layui-panel" id="chatView" style="display:none;padding:10px;overflow:visible">
             <form class="layui-form">
-                <div class="layui-card layui-row" style="min-height:560px">
+                <div class="layui-card layui-row">
                     
-                    <div class="layui-col-md4" >
+                    <div class="layui-col-md4" style="overflow-y:visible">
                         <div class="layui-card-header" style="font-size:larger;color:var(--main-bg-color)">
                             调用参数
                         </div>
@@ -167,7 +167,7 @@
                         <div class="layui-card-header" style="font-size:larger;color:var(--main-bg-color)">
                             聊天记录
                         </div>
-                        <div class="layui-card-body" id="chat-box" style="overflow-y:auto">
+                        <div class="layui-card-body" id="chat-box" style="overflow-y:auto;height: 100%;max-height:500px">
                             <blockquote class="layui-elem-quote layui-quote-nm">
                                 注意，回复内容均为ai生成，不代表开发者立场。如果长时间没有收到回复，可以尝试刷新当前页面后重试。<br />
                                 【采纳】功能目前仅支持在题目详情页生成解析，其余页面暂不支持。

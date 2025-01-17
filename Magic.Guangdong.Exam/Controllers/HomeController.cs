@@ -3,8 +3,6 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
-using Magic.Guangdong.DbServices.AgentBases;
-using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Configs.Plugins.SimplePlugins;
 using Magic.Guangdong.Exam.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -22,21 +20,20 @@ namespace Magic.Guangdong.Exam.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ICapPublisher _capPublisher;
         private readonly Kernel _kernel;
-        private readonly IRecordBase _recordRepo;
         private readonly IServiceProvider _serviceProvider;
-
-        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel,IRecordBase recordBase, IServiceProvider serviceProvider)
+        private readonly IWebHostEnvironment _en;
+        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel, IWebHostEnvironment en, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _capPublisher = capPublisher;            
             _kernel = kernel.Clone();
-            _recordRepo = recordBase;
             _serviceProvider = serviceProvider;
+            _en = en;
         }
         [RouteMark("测试1")]
         public async Task<IActionResult> Index()
         {
-            var test = await _recordRepo.getAnyAsync(u => u.IsDeleted == 0);
+            //var test = await _recordRepo.getAnyAsync(u => u.IsDeleted == 0);
             //int i = 0;
             //while ( i < 3){
             //    Assistant.Logger.Warning($"生产消息：" + DateTime.Now + i.ToString());
@@ -59,12 +56,20 @@ namespace Magic.Guangdong.Exam.Controllers
             PromptExecutionSettings settings = new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
             ChatHistory chatHistory = []; 
             string? input = null;
-            //chatHistory.AddUserMessage("你叫什么名字?");
+            string testPath = Path.Combine($"{_en.WebRootPath}", "upfile", "202411", "3", "test.jpg");
+            byte[] bytes = System.IO.File.ReadAllBytes(testPath);
+
+            //chatHistory = new ChatHistory("Your job is describing images.");
+            //chatHistory.AddUserMessage([
+            //    new TextContent("这是什么图?"),
+            //    new ImageContent(bytes, "image/jpeg"),
+            //]);
             chatHistory.AddUserMessage("Please get the record which id is 617235768115590");
             var chatResult = await chatCompletionService.GetChatMessageContentAsync(
                 chatHistory,
                 openAIPromptExecutionSettings,
-                _kernel); 
+                _kernel);
+            //var chatResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory);
             //await chatHistory.AddStreamingMessageAsync(chatResult);
             Console.Write($"\nAssistant : {chatResult}\n");
             //_kernel.InvokeAsync()
