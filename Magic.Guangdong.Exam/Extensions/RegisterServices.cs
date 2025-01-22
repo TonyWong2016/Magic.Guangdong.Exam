@@ -27,6 +27,7 @@ namespace Magic.Guangdong.Exam.Extensions
     {
         private static IConfiguration _configuration;
         private static List<AiConfig> aiConfigs;
+        private static List<CloudConfig> _cloudConfigs;
         public static WebApplicationBuilder SetupServices(this WebApplicationBuilder builder)
         {
             builder.Configuration
@@ -35,10 +36,11 @@ namespace Magic.Guangdong.Exam.Extensions
                  .AddJsonFile("Configs/mqsetting.json", optional: true, reloadOnChange: true)
                  .AddJsonFile("Configs/paysetting.json", optional: true, reloadOnChange: true)
                  .AddJsonFile("Configs/ratelimitsetting.json", optional: true, reloadOnChange: true)
-
+                 .AddJsonFile("Configs/cloudsetting.json", optional: true, reloadOnChange: true)
                  ;
             _configuration = builder.Configuration;
             aiConfigs = new List<AiConfig>();
+            _cloudConfigs = new List<CloudConfig>();
             ConfigurationHelper.Initialize(_configuration);
             Logger.InitLog();
             builder.Services.ConfigureMvc();
@@ -72,6 +74,7 @@ namespace Magic.Guangdong.Exam.Extensions
             builder.Services.ConfigureDataProtection(_configuration);
 
             builder.Services.ConfigureAi(_configuration);
+            builder.Services.ConfigureCloudService(_configuration);
             //builder.Services.ConfigureSemanticKernel(_configuration);
 
 
@@ -96,7 +99,15 @@ namespace Magic.Guangdong.Exam.Extensions
             //services.AddHttpClient(); // 添加 HTTP 客户端支持
             //services.AddSingleton<SseMiddleware>();
         }
-       
+
+        private static void ConfigureCloudService(this IServiceCollection services, IConfiguration configuration)
+        {
+
+            configuration.GetSection("CloudConfigs").Bind(_cloudConfigs);
+            // 注册工厂为单例服务
+            services.AddSingleton(new CloudConfigFactory(_cloudConfigs));
+        }
+
         /// <summary>
         /// 配置mvc
         /// </summary>

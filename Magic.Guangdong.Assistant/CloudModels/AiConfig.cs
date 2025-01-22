@@ -33,4 +33,5 @@ namespace Magic.Guangdong.Assistant.CloudModels
         //public string Token { get; set; }
     }
    
+
 }
