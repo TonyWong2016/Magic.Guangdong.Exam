@@ -22,16 +22,26 @@ namespace Magic.Guangdong.Exam.Controllers
         private readonly Kernel _kernel;
         private readonly IServiceProvider _serviceProvider;
         private readonly IWebHostEnvironment _en;
-        public HomeController(ILogger<HomeController> logger,ICapPublisher capPublisher,Kernel kernel, IWebHostEnvironment en, IServiceProvider serviceProvider)
+        private readonly IBaiduOcrHelper _baiduOcrHelper;
+        public HomeController(ILogger<HomeController> logger, IBaiduOcrHelper baiduOcrHelper,ICapPublisher capPublisher,Kernel kernel, IWebHostEnvironment en, IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _baiduOcrHelper = baiduOcrHelper;
             _capPublisher = capPublisher;            
             _kernel = kernel.Clone();
             _serviceProvider = serviceProvider;
             _en = en;
         }
-        [RouteMark("测试1")]
+
         public async Task<IActionResult> Index()
+        {
+            string pdfPath = Path.Combine($"{_en.WebRootPath}", "upfile", "test", "申报表.pdf");
+            var result = await _baiduOcrHelper.DocumentRecognition(pdfPath);
+            return Json(result);
+        }
+
+        [RouteMark("测试1")]
+        public async Task<IActionResult> TestSK()
         {
             //var test = await _recordRepo.getAnyAsync(u => u.IsDeleted == 0);
             //int i = 0;

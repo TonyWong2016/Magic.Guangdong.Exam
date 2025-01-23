@@ -303,6 +303,24 @@ namespace Magic.Guangdong.Assistant
             return true;
         }
 
+        public static async Task<string> GetFileBase64(string fileName)
+        {
+            long fileSize = new FileInfo(fileName).Length;
+
+            if (fileSize > 10 * 1024 * 1024) // 10MB
+            {
+                return "error:文件大小超过10MB";
+            }
+            using (FileStream filestream = new FileStream(fileName, FileMode.Open))
+            {
+                byte[] arr = new byte[filestream.Length];
+                await filestream.ReadAsync(arr, 0, (int)filestream.Length);
+                string baser64 = Convert.ToBase64String(arr);
+                filestream.Close();
+                return baser64;
+            }
+        }
+
         public static string EncodeUrlParam(string msg,bool base64=true)
         {
             if (string.IsNullOrEmpty(msg))

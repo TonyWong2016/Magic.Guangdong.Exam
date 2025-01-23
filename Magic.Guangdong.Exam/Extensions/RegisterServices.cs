@@ -363,7 +363,7 @@ namespace Magic.Guangdong.Exam.Extensions
                 });
             }).AddSubscribeFilter<MagicCapFilter>();            
         }
-
+         
         /// <summary>
         /// 配置Coravel
         /// </summary>
