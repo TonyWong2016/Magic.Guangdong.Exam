@@ -46,6 +46,8 @@ namespace Magic.Guangdong.Assistant.CloudModels
         
     }
 
+   
+
     public class ChatTool
     {
         public string type { get; set; } = "chat";
@@ -61,6 +63,21 @@ namespace Magic.Guangdong.Assistant.CloudModels
         public object Parameters { get; set; }
     }
 
-    
+    public class ChatForChecking
+    {
+        public string prompt { get; set; }
+
+        public string admin { get; set; }
+
+
+        public ChatMsgLog[]? messages { get; set; }
+    }
+
+    public class ChatMsgLog
+    {
+        public string message { get; set; }
+
+        public string role { get; set; }
+    }
 }
 

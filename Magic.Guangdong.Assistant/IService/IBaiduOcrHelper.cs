@@ -9,6 +9,6 @@ namespace Magic.Guangdong.Assistant.IService
 {
     public interface IBaiduOcrHelper
     {
-        Task<OcrResponseDto> DocumentRecognition(string pathOrUrl);
+        Task<OcrResponseDto?> DocumentRecognition(string pathOrUrl);
     }
 }

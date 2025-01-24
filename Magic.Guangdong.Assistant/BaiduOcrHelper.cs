@@ -66,12 +66,12 @@ namespace Magic.Guangdong.Assistant
         /// </summary>
         /// <param name="pathOrUrl"></param>
         /// <returns></returns>
-        public async Task<OcrResponseDto> DocumentRecognition(string pathOrUrl)
+        public async Task<OcrResponseDto?> DocumentRecognition(string pathOrUrl)
         {
             string token = await GetAccessToken();
             HttpClient client = new HttpClient();
-            //string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=" + token;
-            string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + token;
+            string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=" + token;
+            //string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + token;
             var contentList = new List<KeyValuePair<string, string>>();
             if (Uri.IsWellFormedUriString(pathOrUrl, UriKind.Absolute))
             {
@@ -80,6 +80,10 @@ namespace Magic.Guangdong.Assistant
             }
             else
             {
+                if(!File.Exists(pathOrUrl))
+                {
+                    return null;
+                }
                 // 否则认为是文件路径，读取并转换为base64字符串
                 string fileContentBase64 = await Utils.GetFileBase64(pathOrUrl);
                 contentList.Add(new KeyValuePair<string, string>("pdf_file", fileContentBase64));
@@ -96,7 +100,7 @@ namespace Magic.Guangdong.Assistant
             HttpResponseMessage response = await client.PostAsync(host, content);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
+            Assistant.Logger.Debug(responseBody);
             return JsonHelper.JsonDeserialize<OcrResponseDto>(responseBody);
         }
 

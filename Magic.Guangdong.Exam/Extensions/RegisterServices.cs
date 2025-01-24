@@ -73,22 +73,17 @@ namespace Magic.Guangdong.Exam.Extensions
 
             builder.Services.ConfigureDataProtection(_configuration);
 
-            builder.Services.ConfigureAi(_configuration);
+            //AI聊天服务
+            builder.Services.ConfigureAiChat(_configuration);
+            //AI基础设施--云服务
             builder.Services.ConfigureCloudService(_configuration);
-            //builder.Services.ConfigureSemanticKernel(_configuration);
-
-
-            //builder.Services.AddSingleton<IUserService, FakeUserService>();
-            //builder.Services.AddSingleton<UserInformation>();
-
-            builder.Services.AddSemanticKernel3();
-            //测试的，不测了可以删掉
-            builder.Services.AddScoped<ITest, Test>();
+            //AI Agent，SK框架
+            builder.Services.AddSemanticKernel();          
             
             return builder;
         }
 
-        private static void ConfigureAi(this IServiceCollection services, IConfiguration configuration)
+        private static void ConfigureAiChat(this IServiceCollection services, IConfiguration configuration)
         {
             
             configuration.GetSection("AiConfigs").Bind(aiConfigs);
@@ -96,8 +91,8 @@ namespace Magic.Guangdong.Exam.Extensions
             // 注册工厂为单例服务
             services.AddSingleton(new AiConfigFactory(aiConfigs));
 
-            //services.AddHttpClient(); // 添加 HTTP 客户端支持
-            //services.AddSingleton<SseMiddleware>();
+            //测试的，不测了可以删掉
+            services.AddScoped<ITest, Test>();
         }
 
         private static void ConfigureCloudService(this IServiceCollection services, IConfiguration configuration)
@@ -436,13 +431,13 @@ namespace Magic.Guangdong.Exam.Extensions
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        //配置Semantickernel(注入服务的方式，好像不支持自定义的网关了，参考：https://learn.microsoft.com/en-us/semantic-kernel/concepts/ai-services/chat-completion/?tabs=csharp-other%2Cpython-AzureOpenAI%2Cjava-AzureOpenAI&pivots=programming-language-csharp#using-dependency-injection)
-        private static IServiceCollection AddSemanticKernel3(this IServiceCollection services)
+        //配置Semantickernel(注入服务的方式，官方推荐依赖注入的方式，参考：https://learn.microsoft.com/en-us/semantic-kernel/concepts/ai-services/chat-completion/?tabs=csharp-other%2Cpython-AzureOpenAI%2Cjava-AzureOpenAI&pivots=programming-language-csharp#using-dependency-injection)
+        private static IServiceCollection AddSemanticKernel(this IServiceCollection services)
         {
             services.AddSingleton<IRecordBase, RecordBase>();
             var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
-            //var deployment = "deepseek-chat";
-            string deployment = "claude-3-5-haiku-20241022";
+            var deployment = "qwen-plus";
+            //string deployment = "claude-3-5-haiku-20241022";
             var endpoint = "https://api.token-ai.cn/v1";
             var apikey = aiConfig.ApiKey;
             services.AddKernel();
@@ -460,9 +455,8 @@ namespace Magic.Guangdong.Exam.Extensions
         }
 
 
-
-        //配置Semantickernel
-        private static IServiceCollection AddSemanticKernel(this IServiceCollection services)
+        //配置Semantickernel(自定义)
+        private static IServiceCollection AddSemanticKernelSelf(this IServiceCollection services)
         {
 
             services.AddSingleton<IKernelBuilder>(sp =>

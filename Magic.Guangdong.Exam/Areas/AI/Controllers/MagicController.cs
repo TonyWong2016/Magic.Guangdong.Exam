@@ -7,10 +7,17 @@ using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.Assistant.Lib;
 using Magic.Guangdong.Exam.Areas.AI.Functions;
 using Magic.Guangdong.Exam.Areas.AI.Models;
+using Magic.Guangdong.Exam.LLM.Plugins.Checking;
+using Magic.Guangdong.Exam.LLM.Plugins.Simple;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities.Collections;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -34,12 +41,18 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         private readonly ITest _test;
         private string adminId = "";
         private Credential _cred;
+        private readonly Kernel _kernel;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IWebHostEnvironment _en;
         //private readonly Tools.SseMiddleware _sseMiddleware;
         public MagicController(IResponseHelper responseHelper,
             AiConfigFactory aiConfigFactory, 
             IRedisCachingProvider redisCachingProvider,
             IHttpContextAccessor contextAccessor, 
             ICapPublisher capPublisher,
+            Kernel kernel,
+            IServiceProvider serviceProvider,
+            IWebHostEnvironment en,
             ITest test)
         {
             _resp = responseHelper;
@@ -48,6 +61,9 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
             _redisCachingProvider = redisCachingProvider;
             _contextAccessor = contextAccessor;
             _capPublisher = capPublisher;
+            _serviceProvider = serviceProvider;
+            _kernel = kernel;
+            _en = en;
             _test = test;
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Request.Cookies.TryGetValue("userId", out string cookieValue))
             {
@@ -105,13 +121,59 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
         }
 
         /// <summary>
-        /// 通过对话实现一些功能
+        /// 通过对话的方式完成内容的审核
         /// </summary>
         /// <returns></returns>
-        [HttpPost,ValidateAntiForgeryToken]
-        public async Task<IActionResult> FunctionChat()
+        //[HttpPost,ValidateAntiForgeryToken]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckingChat(ChatForChecking chatModel)
         {
-            return Content("");
+            if (string.IsNullOrWhiteSpace(chatModel.prompt))
+                return Json(_resp.error("无输入"));
+            _kernel.Plugins.AddFromType<GetReportInfo>(nameof(GetReportInfo), _serviceProvider);
+            _kernel.Plugins.AddFromType<Notice>(nameof(Notice), _serviceProvider);
+            // 获取聊天完成服务
+            var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
+
+            // 启用自动函数调用
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+            {
+                //ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            };
+
+            //PromptExecutionSettings settings = new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
+            ChatHistory history = [];
+            history.AddSystemMessage($"你是一个材料审查员，需要用到2个参数，一个从数据库读取的，完整的，结构化的申报信息参数，包括赛队编号，赛项，成员，学校，指导教师，邮箱等，另一个是通过文档识别接口识别出来的材料信息，里面逐行输出了提取的材料信息和置信度，" +
+                $"这个材料是用户提交的附件信息，里面包含了全部或者部分第一个参数里的信息。" +
+                $"你的工作如下：" +
+                $"1.从对话信息中提取赛队编号信息，并调用本地插件进行检索，注意，赛队编号格式是2个连续大写字母加8为数字，如：AA24091234，其中第一位大写字母只能是A，B，C，D，前两位数字代表年份，如24代表2024年，23代表2023年；如格式错误则直接返回异常输入，后续工作不必再继续执行；" +
+                $"2.如果步骤1返回了结果，那么整个结果将作为第一个输入参数，而其中有一个FileName属性，表示了文档材料的保存路径，使用该属性值再次调用合适的本地插件，识别文档信息，作为第二个输入参数；" +
+                $"3.如果步骤2执行正常，将2个参数进行比对，如果你认为第二个参数归属于第一个参数的概率很高，也就是该材料提交的信息是正确的，那么通过第一个参数中的Email属性，调用合适的本地插件发送通知邮件，告知他材料审核通过；反之,那就输出“我无法确认该材料真实性，请联系人工审查员处理”" +
+                $"注意，每个指令只执行1次，1次不成功就终止，不要重试；"
+               );
+            if (chatModel.messages!=null && chatModel.messages.Length != 0)
+            {
+                foreach(var item in chatModel.messages)
+                {
+                    AuthorRole role = AuthorRole.User;
+                    if (item.role.Equals("assistant",StringComparison.OrdinalIgnoreCase))
+                        role = AuthorRole.Assistant;
+                    else if (item.role.Equals("tool", StringComparison.OrdinalIgnoreCase))
+                        role = AuthorRole.Tool;
+                    history.AddMessage(role, item.message);
+                }
+            }
+            history.AddUserMessage(chatModel.prompt);
+            var chatResult = await chatCompletionService.GetChatMessageContentAsync(
+                history,
+                 executionSettings: openAIPromptExecutionSettings,
+                _kernel);
+
+            Console.Write($"\nAssistant : {chatResult}\n");
+
+            return Json(chatResult);
         }
         
 
@@ -333,21 +395,6 @@ namespace Magic.Guangdong.Exam.Areas.AI.Controllers
                 }
                 else
                 {
-                    //var content = await resp.Content.ReadAsStringAsync();
-                    //await _redisCachingProvider.RPushAsync("TopServalCacheId" + chatModel.admin, new List<string>() { content });
-                    //Logger.Warning(content);
-                    //dynamic jsonResponse = JsonConvert.DeserializeObject(content);
-                    //if (jsonResponse.choices[0].message.tool_calls != null)
-                    //{
-                    //    foreach (var toolCall in jsonResponse.choices[0].message.tool_calls)
-                    //    {
-                    //        string functionName = toolCall.function.name;
-                    //        string arguments = toolCall.function.arguments.ToString().Replace("{{","{").Replace("}}","}");
-                    //        JObject args = JObject.Parse(arguments);
-                    //        string result = HandleFunctionCall(functionName, args["location"].ToString());
-                    //        Logger.Warning(result);
-                    //    }
-                    //}
                     var responseContent = await resp.Content.ReadAsStringAsync();
                     var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
                     var toolCalls = jsonResponse.GetProperty("tool_calls"); // 假设API返回包含"tool_calls"字段
