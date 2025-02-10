@@ -43,6 +43,7 @@ namespace Magic.Guangdong.DbServices.Methods
             return list.Adapt<List<CertDto>>();
         }
 
+
         /// <summary>
         /// 批量删除(按检索条件)
         /// </summary>
@@ -104,6 +105,23 @@ namespace Magic.Guangdong.DbServices.Methods
                 .Set(u => u.Status, status)
                 .SetIf(isDeleted!=0, u => u.IsDeleted, isDeleted)
                 .ExecuteAffrowsAsync();
+        }
+
+        public async Task<CertDtoForApi> GetCertRecordsForApi(CertRequestDto dto)
+        {
+            var sql = fsql.Get(conn_str).Select<Cert>()
+                .Where(u => u.IsDeleted == 0)
+                .WhereIf(!string.IsNullOrEmpty(dto.AwardName), u => u.AwardName.Equals(dto.AwardName))
+                .WhereIf(!string.IsNullOrEmpty(dto.CertTitle), u => u.Title.Equals(dto.CertTitle))
+                .WhereIf(!string.IsNullOrEmpty(dto.CertNo), u => u.CertNo.Equals(dto.CertNo))
+                .OrderByDescending(dto.IsDesc == 1, u => u.Id);
+
+            var ret = new CertDtoForApi();
+            ret.total = await sql.CountAsync();
+            ret.items = sql.Page(dto.PageIndex,dto.PageSize)
+                .ToListAsync()
+                .Adapt<List<CertDto>>();
+            return ret;
         }
     }
 }

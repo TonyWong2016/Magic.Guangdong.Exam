@@ -4,6 +4,7 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.IService;
 using Magic.Guangdong.DbServices.Dtos.Account;
+using Magic.Guangdong.DbServices.Dtos.Cert;
 using Magic.Guangdong.DbServices.Dtos.Report.ReportInfo;
 using Magic.Guangdong.DbServices.Dtos.System.Admins;
 using Magic.Guangdong.DbServices.Entities;
@@ -43,7 +44,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IUserAnswerRecordViewRepo _userAnswerRecordViewRepo;
         private readonly IUserCenterRepo _userCenterRepo;
         private readonly IReportAttributeRepo _reportAttributeRepo;
-
+        private readonly ICertRepo _certRepo;
         public ExposedApiController(IResponseHelper resp,
             IRedisCachingProvider redisCachingProvider,
             IWebHostEnvironment webHostEnvironment,
@@ -59,6 +60,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             IUserAnswerRecordViewRepo userAnswerRecordViewRepo,
             IUserCenterRepo userCenterRepo,
             IJwtService jwtService,
+            ICertRepo certRepo,
             IReportAttributeRepo reportAttributeRepo)
         {
             _resp = resp;
@@ -418,6 +420,22 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
                 return Json(_resp.success("同步成功"));
             }
             return Json(_resp.error("同步失败"));
+        }
+
+        /// <summary>
+        /// 调用证书接口
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [WebApiModule]
+        public async Task<IActionResult> GetCerts([FromBody] CertRequestDto dto)
+        {
+            if (dto.PageSize > 1000)
+            {
+                return Json(_resp.error("一次最多可以查询1000条记录"));
+            }
+
+            return Json(_resp.success(await _certRepo.GetCertRecordsForApi(dto)));
         }
 
         public async Task<bool> CreateOrModifyExam(ExamApiDto examApiDto)

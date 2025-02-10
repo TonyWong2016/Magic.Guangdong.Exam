@@ -172,5 +172,27 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
 
     }
 
-    
+    public class CertRequestDto
+    {
+        public string CertNo { get; set; }
+
+        public string CertTitle { get; set; }
+
+        public string AwardName { get; set; }
+
+        public int PageIndex { get; set; } = 1;
+
+        public int PageSize { get; set; } = 10;
+
+        public int IsDesc { get; set;} = 0;
+    }
+
+
+    public class CertDtoForApi
+    {
+        public long total { get; set; }
+
+        public List<CertDto> items { get; set; }
+
+    }
 }

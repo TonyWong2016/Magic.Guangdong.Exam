@@ -20,5 +20,7 @@ namespace Magic.Guangdong.DbServices.Interfaces
 
         Task<int> BulkUpdateCerts(string whereJsonStr, int status, int isDeleted = 0);
         Task<int> BulkUpdateCerts(long[] certIds, int status, int isDeleted = 0);
+
+        Task<CertDtoForApi> GetCertRecordsForApi(CertRequestDto dto);
     }
 }
