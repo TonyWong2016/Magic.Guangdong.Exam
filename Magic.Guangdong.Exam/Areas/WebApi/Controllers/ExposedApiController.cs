@@ -79,6 +79,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             _userCenterRepo = userCenterRepo;
             _userAnswerRecordViewRepo = userAnswerRecordViewRepo;
             _reportAttributeRepo = reportAttributeRepo;
+            _certRepo = certRepo;
         }
         [HttpPost]
         [WebApiModule]
@@ -434,7 +435,6 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             {
                 return Json(_resp.error("一次最多可以查询1000条记录"));
             }
-
             return Json(_resp.success(await _certRepo.GetCertRecordsForApi(dto)));
         }
 

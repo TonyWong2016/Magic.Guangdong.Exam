@@ -174,11 +174,11 @@ namespace Magic.Guangdong.DbServices.Dtos.Cert
 
     public class CertRequestDto
     {
-        public string CertNo { get; set; }
+        public string? CertNo { get; set; }
 
-        public string CertTitle { get; set; }
+        public string? CertTitle { get; set; }
 
-        public string AwardName { get; set; }
+        public string? AwardName { get; set; }
 
         public int PageIndex { get; set; } = 1;
 

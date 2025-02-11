@@ -3,6 +3,7 @@ using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.Contracts;
 using Magic.Guangdong.Assistant.Dto;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.DbServices.Interfaces;
 using Magic.Guangdong.Exam.Extensions;
 using Magic.Guangdong.Exam.LLM.Plugins.Simple;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,8 @@ namespace Magic.Guangdong.Exam.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IWebHostEnvironment _en;
         private readonly IBaiduOcrHelper _baiduOcrHelper;
-        public HomeController(ILogger<HomeController> logger, IBaiduOcrHelper baiduOcrHelper,ICapPublisher capPublisher,Kernel kernel, IWebHostEnvironment en, IServiceProvider serviceProvider)
+        private readonly IAdminRepo _adminRepo;
+        public HomeController(ILogger<HomeController> logger, IBaiduOcrHelper baiduOcrHelper,ICapPublisher capPublisher,Kernel kernel, IWebHostEnvironment en, IServiceProvider serviceProvider,IAdminRepo adminRepo)
         {
             _logger = logger;
             _baiduOcrHelper = baiduOcrHelper;
@@ -31,6 +33,7 @@ namespace Magic.Guangdong.Exam.Controllers
             _kernel = kernel.Clone();
             _serviceProvider = serviceProvider;
             _en = en;
+            _adminRepo = adminRepo;
         }
 
         public async Task<IActionResult> Index()
@@ -197,12 +200,17 @@ namespace Magic.Guangdong.Exam.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> GetTemporaryToken([FromServices] IJwtService _jwtService)
+        public async Task<IActionResult> GetTemporaryToken([FromServices] IJwtService _jwtService,string uname)
         {
             try
             {
+                if (string.IsNullOrEmpty(uname))
+                    uname = "sa";
+                var admin = await _adminRepo.getOneAsync(u => u.Name.Equals(uname));
+                if (admin == null)
+                    return Content("error");
                 DateTime expires = DateTime.Now.AddMinutes(10);
-                string jwt = _jwtService.Make(Utils.ToBase64Str("49D90000-4C24-00FF-D9D4-08DC47CA938C"), "sa", expires);
+                string jwt = _jwtService.Make(Utils.ToBase64Str(admin.Id.ToString()), uname, expires);
                 return Content(jwt);
             }
             catch

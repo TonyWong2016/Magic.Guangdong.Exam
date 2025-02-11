@@ -270,7 +270,6 @@ namespace Magic.Guangdong.Exam.Filters
                 return context;
             }
             string sid = Assistant.Utils.FromBase64Str(claim.Sid).ToLower();
-            var t = claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now);
             if (!await _redisCachingProvider.KeyExistsAsync($"GD.Exam.Permissions_{sid}")  || claim.exp - Assistant.Utils.DateTimeToTimeStamp(DateTime.Now) < 0)
             {
                 var item = new JsonResult(new { code = 400, msg = "token错误" });

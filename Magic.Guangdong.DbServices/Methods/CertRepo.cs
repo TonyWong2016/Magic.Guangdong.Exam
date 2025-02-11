@@ -114,12 +114,14 @@ namespace Magic.Guangdong.DbServices.Methods
                 .WhereIf(!string.IsNullOrEmpty(dto.AwardName), u => u.AwardName.Equals(dto.AwardName))
                 .WhereIf(!string.IsNullOrEmpty(dto.CertTitle), u => u.Title.Equals(dto.CertTitle))
                 .WhereIf(!string.IsNullOrEmpty(dto.CertNo), u => u.CertNo.Equals(dto.CertNo))
-                .OrderByDescending(dto.IsDesc == 1, u => u.Id);
+                ;
 
             var ret = new CertDtoForApi();
             ret.total = await sql.CountAsync();
-            ret.items = sql.Page(dto.PageIndex,dto.PageSize)
-                .ToListAsync()
+            ret.items = (await sql
+                .OrderByDescending(dto.IsDesc == 1, u => u.Id)
+                .Page(dto.PageIndex, dto.PageSize)
+                .ToListAsync())
                 .Adapt<List<CertDto>>();
             return ret;
         }
