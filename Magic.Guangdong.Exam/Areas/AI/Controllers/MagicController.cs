@@ -16,8 +16,6 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Utilities.Collections;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;

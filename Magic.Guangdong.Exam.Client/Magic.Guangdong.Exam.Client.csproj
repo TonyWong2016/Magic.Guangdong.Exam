@@ -87,6 +87,7 @@
 
   <ItemGroup>
     <Folder Include="Area\Order\Views\" />
+    <Folder Include="wwwroot\web\pusher\" />
   </ItemGroup>
 
   <ItemGroup>

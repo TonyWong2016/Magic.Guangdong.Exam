@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace Magic.Guangdong.Exam.Client.Pages.Exam
 {
@@ -43,5 +44,9 @@ namespace Magic.Guangdong.Exam.Client.Pages.Exam
             return Page();
         }
 
+        
+        
+
+       
     }
 }

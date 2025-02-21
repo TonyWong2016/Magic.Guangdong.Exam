@@ -140,6 +140,40 @@ namespace Magic.Guangdong.Assistant
             }
         }
 
+
+        public static byte[] MD5Hash(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("Input cannot be null or empty.", nameof(input));
+
+            using var md5 = MD5.Create();
+            return md5.ComputeHash(Encoding.UTF8.GetBytes(input)); // 使用 UTF-8 编码
+        }
+
+        private static readonly char[] DIGITS_LOWER =
+            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+        public static string ByteArrayToHexString(byte[] data)
+        {
+            
+
+            if (data == null) return string.Empty;
+
+            // 使用 Span<T> 提高性能
+            ReadOnlySpan<byte> span = data;
+            char[] hexChars = new char[span.Length * 2];
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                hexChars[i * 2] = DIGITS_LOWER[span[i] >> 4];
+                hexChars[i * 2 + 1] = DIGITS_LOWER[span[i] & 0x0F];
+            }
+
+            return new string(hexChars);
+        }
+
+       
+
         public static string GetMD5HashFromStream(Stream file)
         {
             try

@@ -1,0 +1,82 @@
+﻿@page
+@model Magic.Guangdong.Exam.Client.Pages.Monitor.MainModel
+@{
+    ViewData["SubTitle"] = "主监考画面";
+    Layout = "_LayoutExam";
+}
+<main class="main container">
+    <article id="mainBody">
+        <header style="text-align:center;font-size:larger">
+            主监考画面
+        </header>
+        <form>
+            <div id="local_video" style="width:100%;height:500px;display:flex;align-items:center;justify-content:center;"></div>
+        </form>
+    </article>
+</main>
+
+<script src="~/web/pusher/TXLivePusher-2.1.1.min.js"></script>
+<script>
+    let supportFlag = true;
+    TXLivePusher.checkSupport().then(function(data) {
+      // 是否支持WebRTC
+      if (data.isWebRTCSupported) {
+        TT.success('WebRTC协议检查通过');
+      } else {
+        TT.error('WebRTC协议检查不通过，请检查当前设备是否具备摄像头和麦克风设备，检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox');
+        supportFlag = false;
+      }
+
+      // 是否支持H264编码
+      if (data.isH264EncodeSupported) {
+        TT.success('当前环境支持H264编码，检查通过');
+      } else {
+        TT.error('当前环境不支持H264编码，检查不通过，请检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox，若仍不支持，请检查当前操作系统版本是否过低，推荐Windows10及以上版本');
+        supportFlag = false;
+      }
+
+      if(supportFlag){
+        PushMain();
+      }
+    });
+    const livePusher = new TXLivePusher();
+    function PushMain(){
+        TT.tips('开始监控，考试过程中请不要关闭此页面');
+        
+        livePusher.setRenderView('local_video');
+
+            // 设置视频质量
+        livePusher.setVideoQuality('720p');
+        // 设置音频质量
+        livePusher.setAudioQuality('standard');
+        // 自定义设置帧率
+        livePusher.setProperty('setVideoFPS', 25);
+
+        //     // 打开摄像头
+        // livePusher.startCamera();
+        // // 打开麦克风
+        livePusher.startMicrophone();
+
+            // 采集完摄像头画面后自动推流
+        livePusher.startCamera()
+        .then(function () {
+            console.log('打开摄像头成功');
+            console.log('@Html.Raw(Model.pushUrl)')
+          livePusher.startPush('@Html.Raw(Model.pushUrl)');
+        })
+        .catch(function (error) {
+         console.log('打开摄像头失败: '+ error.toString());
+        });
+    }
+
+    function StopPushMain(){
+        livePusher.stopPush();
+
+        // 关闭摄像头
+        livePusher.stopCamera();
+        // 关闭麦克风
+        livePusher.stopMicrophone();
+
+    }
+
+</script>

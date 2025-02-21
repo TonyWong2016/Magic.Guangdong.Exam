@@ -62,6 +62,21 @@ namespace Magic.Guangdong.Assistant
         {
             return (uint)(DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000;
         }
+
+        /// <summary>
+        /// 获取当前时间的 Unix 时间戳（秒级）
+        /// </summary>
+        /// <returns>当前时间的 Unix 时间戳</returns>
+        public static long GetUnixTimestamp(DateTime? dateTime = null)
+        {
+            DateTimeOffset targetTime = dateTime.HasValue
+                ? new DateTimeOffset(dateTime.Value.ToUniversalTime())
+                : DateTimeOffset.UtcNow;
+
+            DateTimeOffset unixEpoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+            return (long)(targetTime - unixEpoch).TotalSeconds;
+        }
         /// <summary>        
         /// 时间戳转为C#格式时间        
         /// </summary>        

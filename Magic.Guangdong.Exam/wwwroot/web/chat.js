@@ -17,12 +17,13 @@ let lastResponseContent = '';
 let eventSource;
 let btnAskAiDefaultHtml = '发送 <i class="layui-icon layui-icon-release"></i>';
 let tools = [];
+let retryAct;
 //获取sse响应数据
 function getSseResp() {
-    eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'))
-
     // 标记是否接收到了完成信号
     isDone = false;
+   
+    eventSource = new EventSource('/airesp?admin=' + localStorage.getItem('userName'));
     eventSource.onmessage = function (event) {
 
         isDone = false;
@@ -32,12 +33,13 @@ function getSseResp() {
             console.log(doneCount)
             if (doneCount < 5) {
                 doneCount++;
-                setTimeout(() => {
+                retryAct = setTimeout(() => {
                     getSseResp();
                 }, 3000)
             } else {
                 isDone = true;
                 eventSource.close();
+                clearTimeout(retryAct);
                 return;
             }
         }
@@ -51,12 +53,13 @@ function getSseResp() {
         // 检查是否是正常的关闭
         if (isDone || eventSource.readyState === EventSource.CLOSED) {
             console.log('Connection closed normally.');
+            clearTimeout(retryAct);
             return;
         }
         console.error('EventSource failed:', error);
         if (retryCount < 30) {
             retryCount++;
-            setTimeout(() => {
+            retryAct = setTimeout(() => {
                 getSseResp();
             }, 1000)
         }

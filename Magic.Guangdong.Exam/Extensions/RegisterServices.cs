@@ -26,7 +26,7 @@ namespace Magic.Guangdong.Exam.Extensions
     public static class RegisterServices
     {
         private static IConfiguration _configuration;
-        private static List<AiConfig> aiConfigs;
+        private static List<AiConfig> _aiConfigs;
         private static List<CloudConfig> _cloudConfigs;
         public static WebApplicationBuilder SetupServices(this WebApplicationBuilder builder)
         {
@@ -39,7 +39,7 @@ namespace Magic.Guangdong.Exam.Extensions
                  .AddJsonFile("Configs/cloudsetting.json", optional: true, reloadOnChange: true)
                  ;
             _configuration = builder.Configuration;
-            aiConfigs = new List<AiConfig>();
+            _aiConfigs = new List<AiConfig>();
             _cloudConfigs = new List<CloudConfig>();
             ConfigurationHelper.Initialize(_configuration);
             Logger.InitLog();
@@ -86,10 +86,10 @@ namespace Magic.Guangdong.Exam.Extensions
         private static void ConfigureAiChat(this IServiceCollection services, IConfiguration configuration)
         {
             
-            configuration.GetSection("AiConfigs").Bind(aiConfigs);
+            configuration.GetSection("AiConfigs").Bind(_aiConfigs);
             //builder.Services.AddSingleton(aiConfigs);
             // 注册工厂为单例服务
-            services.AddSingleton(new AiConfigFactory(aiConfigs));
+            services.AddSingleton(new AiConfigFactory(_aiConfigs));
 
             //测试的，不测了可以删掉
             services.AddScoped<ITest, Test>();
@@ -435,7 +435,7 @@ namespace Magic.Guangdong.Exam.Extensions
         private static IServiceCollection AddSemanticKernel(this IServiceCollection services)
         {
             services.AddSingleton<IRecordBase, RecordBase>();
-            var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
+            var aiConfig = _aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
             var deployment = "qwen-plus";
             //string deployment = "claude-3-5-haiku-20241022";
             var endpoint = "https://api.token-ai.cn/v1";
@@ -461,7 +461,7 @@ namespace Magic.Guangdong.Exam.Extensions
 
             services.AddSingleton<IKernelBuilder>(sp =>
             {               
-                var aiConfig = aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
+                var aiConfig = _aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
 
                 //string model = "deepseek-chat";
                 //string model = "gpt-3.5-turbo";
