@@ -435,10 +435,12 @@ namespace Magic.Guangdong.Exam.Extensions
         private static IServiceCollection AddSemanticKernel(this IServiceCollection services)
         {
             services.AddSingleton<IRecordBase, RecordBase>();
-            var aiConfig = _aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
-            var deployment = "qwen-plus";
+            var aiConfig = _aiConfigs.Where(u => u.Platform == "tokenai").FirstOrDefault();
+            //var deployment = "qwen-plus";
+            var deployment = aiConfig.Model;
             //string deployment = "claude-3-5-haiku-20241022";
-            var endpoint = "https://api.token-ai.cn/v1";
+            // var endpoint = "https://api.token-ai.cn/v1";
+            var endpoint = aiConfig.BaseUrl;
             var apikey = aiConfig.ApiKey;
             services.AddKernel();
             Uri uri = new Uri(endpoint);
@@ -461,7 +463,7 @@ namespace Magic.Guangdong.Exam.Extensions
 
             services.AddSingleton<IKernelBuilder>(sp =>
             {               
-                var aiConfig = _aiConfigs.Where(u => u.Model == "tokenai").FirstOrDefault();
+                var aiConfig = _aiConfigs.Where(u => u.Platform == "tokenai").FirstOrDefault();
 
                 //string model = "deepseek-chat";
                 //string model = "gpt-3.5-turbo";

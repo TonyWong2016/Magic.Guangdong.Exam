@@ -49,6 +49,8 @@ namespace Magic.Guangdong.Exam.Client.Extensions
             // 在 appsettings.json(开发环境：appsettings.Development.json) 中 配置选项
             builder.Services.Configure<AlipayOptions>(_configuration.GetSection("Alipay"));
             builder.Services.Configure<WeChatPayOptions>(_configuration.GetSection("WeChatPay"));
+
+            builder.Services.AddSignalR();
             return builder;
         }
 

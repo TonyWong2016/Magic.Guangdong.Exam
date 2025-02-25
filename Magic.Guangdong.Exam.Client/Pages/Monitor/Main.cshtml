@@ -11,38 +11,87 @@
         </header>
         <form>
             <div id="local_video" style="width:100%;height:500px;display:flex;align-items:center;justify-content:center;"></div>
+           
+            <hr />
+            <div id="operation" class="overflow-auto" style="text-align:center">
+                <a href="javascript:;" role="button" class="outline" onclick="PushMain()">开启推流</a>
+                <a href="javascript:;" role="button" class="dangerBtn" onclick="StopPushMain()">关闭推流</a>
+            </div>            
         </form>
     </article>
+    <article id="tipsBody" style="display:none">
+        <div id="tipsContent">
+        </div>
+        <footer>
+            <a href="javascript:;" id="btnRefresh" role="button" class="outline" style="width:100%">刷新</a>
+        </footer>
+    </article>
 </main>
-
+<script src="~/plugins/microsoft-signalr/signalr.min.js"></script>
+<script src="~/web/chat.js"></script>
 <script src="~/web/pusher/TXLivePusher-2.1.1.min.js"></script>
 <script>
     let supportFlag = true;
+    let mainBodyElement = $('#mainBody');
+    let tipsBodyElement = $('#tipsBody');
+
     TXLivePusher.checkSupport().then(function(data) {
-      // 是否支持WebRTC
-      if (data.isWebRTCSupported) {
-        TT.success('WebRTC协议检查通过');
-      } else {
-        TT.error('WebRTC协议检查不通过，请检查当前设备是否具备摄像头和麦克风设备，检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox');
-        supportFlag = false;
-      }
+        let errorMsg = 'success';
+        // 是否支持WebRTC
+        if (!data.isWebRTCSupported) {
+            errorMsg='WebRTC协议检查不通过，请检查当前设备是否具备摄像头和麦克风设备，检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox'
+            mainBodyElement.remove();
+            tipsBodyElement.show();
+            $('#tipsContent').html(`<h4 style="color:var(--pico-color-red-500)">${errorMsg}</h4>`);
+            supportFlag = false;
+            return;
+        }
 
-      // 是否支持H264编码
-      if (data.isH264EncodeSupported) {
-        TT.success('当前环境支持H264编码，检查通过');
-      } else {
-        TT.error('当前环境不支持H264编码，检查不通过，请检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox，若仍不支持，请检查当前操作系统版本是否过低，推荐Windows10及以上版本');
-        supportFlag = false;
-      }
+        // 是否支持H264编码
+        if (!data.isH264EncodeSupported) {
 
-      if(supportFlag){
-        PushMain();
+            errorMsg='当前环境不支持H264编码，检查不通过，请检查是否使用现代浏览器，推荐Chrome，Microsoft Edge，FireFox，若仍不支持，请检查当前操作系统版本是否过低，推荐Windows10及以上版本'
+
+            mainBodyElement.remove();
+            tipsBodyElement.show();
+            $('#tipsContent').html(`<h4 style="color:var(--pico-color-red-500)">${errorMsg}</h4>`);
+            supportFlag = false;
+             return;
+        }
+
+        if(!supportFlag){
+        // PushMain();
+            TT.error(errorMsg);
+            return;
+        }
+    });
+
+    const livePusher = new TXLivePusher();
+
+    const deviceManager = livePusher.getDeviceManager();
+    let cameraDeviceId = null;
+
+    // 获取设备列表
+    deviceManager.getDevicesList().then(function(data) {
+      data.forEach(function(device) {
+        console.log(device.type, device.deviceId, device.deviceName);
+
+        if (device.type === 'video') {
+          cameraDeviceId = device.deviceId;
+        }
+      });
+
+      // 切换摄像头设备
+      if (cameraDeviceId) {
+        deviceManager.switchCamera(cameraDeviceId);
       }
     });
-    const livePusher = new TXLivePusher();
+
+    
+    
     function PushMain(){
         TT.tips('开始监控，考试过程中请不要关闭此页面');
-        
+
         livePusher.setRenderView('local_video');
 
             // 设置视频质量
@@ -62,7 +111,7 @@
         .then(function () {
             console.log('打开摄像头成功');
             console.log('@Html.Raw(Model.pushUrl)')
-          livePusher.startPush('@Html.Raw(Model.pushUrl)');
+            livePusher.startPush('@Html.Raw(Model.pushUrl)');
         })
         .catch(function (error) {
          console.log('打开摄像头失败: '+ error.toString());
@@ -70,6 +119,7 @@
     }
 
     function StopPushMain(){
+
         livePusher.stopPush();
 
         // 关闭摄像头

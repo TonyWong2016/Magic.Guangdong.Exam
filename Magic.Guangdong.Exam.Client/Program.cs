@@ -54,6 +54,13 @@ app.UseCookiePolicy();
 app.UseResponseCompression();
 app.UseResponseCaching();
 //app.UseSession();
+app.UseWebSockets();
+app.MapHub<MyHub>("/myhub")
+    .RequireCors(t => t.WithOrigins(new string[] { "null" })
+    .SetIsOriginAllowed(t => true)
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
 app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}"

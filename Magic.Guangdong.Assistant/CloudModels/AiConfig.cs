@@ -14,6 +14,8 @@ namespace Magic.Guangdong.Assistant.CloudModels
 
         [JsonProperty("Model")]
         public string Model { get; set; }
+        [JsonProperty("Platform")]
+        public string Platform { get; set; }
         [JsonProperty("SecretKey")]
         public string SecretKey {  get; set; }
         [JsonProperty("SecretId")]

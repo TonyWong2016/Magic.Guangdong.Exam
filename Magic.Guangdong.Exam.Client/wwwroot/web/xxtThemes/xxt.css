@@ -145,3 +145,8 @@ body, html {
     #noticeLink.visible {
         opacity: 1;
     }
+
+.dangerBtn {
+    background-color: var(--pico-color-red-500);
+    border-color: var(--pico-color-red-500);    
+}

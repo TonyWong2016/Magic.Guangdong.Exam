@@ -21,6 +21,11 @@ namespace Magic.Guangdong.Assistant.Lib
             return _aiConfigs.FirstOrDefault(config => config.Model.Equals(Model, StringComparison.OrdinalIgnoreCase));
         }
 
+        public AiConfig GetConfigByPlatform(string Platform)
+        {
+            return _aiConfigs.FirstOrDefault(config => config.Platform.Equals(Platform, StringComparison.OrdinalIgnoreCase));
+        }
+
         public List<AiConfig> GetConfigs()
         {
             return _aiConfigs;

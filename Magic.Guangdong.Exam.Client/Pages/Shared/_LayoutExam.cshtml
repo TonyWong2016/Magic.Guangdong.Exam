@@ -253,19 +253,26 @@
                 "theme": "jade"
         };
 
-        setTimeout(()=>{            
-            if(detectDeviceType()!='PC'){
-                const url = location.href;
-                location.href = url.replace('/exam/','/exammobile/');
-            }
-            if(!pageConfigRenderFlag)
-                renderPageConfig();
+        document.addEventListener('DOMContentLoaded', function() {
+            //console.log('页面加载完成！');
 
-            const targetElement = document.getElementById('mainBody');
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            }
-        },150);
+            
+            setTimeout(()=>{
+                if(detectDeviceType()!='PC'){
+                    const url = location.href;
+                    location.href = url.replace('/exam/','/exammobile/');
+                }
+                if(!pageConfigRenderFlag)
+                    renderPageConfig();
+
+                const mainBodyElement = document.getElementById('mainBody');
+                if (mainBodyElement) {
+                    mainBodyElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            },150);
+        });
+
+        
 
         function renderPageConfig() {
             if (localStorage.getItem('examPageConfig')) {

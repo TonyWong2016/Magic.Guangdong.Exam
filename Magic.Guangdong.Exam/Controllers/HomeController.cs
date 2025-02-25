@@ -219,6 +219,8 @@ namespace Magic.Guangdong.Exam.Controllers
             }      
         }
 
+        
+
         public IActionResult TestMaskData(string text)
         {
             var maskData = new MaskDataDto()
@@ -272,4 +274,6 @@ namespace Magic.Guangdong.Exam.Controllers
     
         public string Role { get; set; }
     }
+
+    
 }

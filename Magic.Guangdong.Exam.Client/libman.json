@@ -5,6 +5,10 @@
     {
       "library": "monaco-editor@0.47.0",
       "destination": "wwwroot/plugins/monaco-editor/"
+    },
+    {
+      "library": "microsoft-signalr@8.0.7",
+      "destination": "wwwroot/plugins/microsoft-signalr/"
     }
   ]
 }
