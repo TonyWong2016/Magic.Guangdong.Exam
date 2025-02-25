@@ -64,9 +64,6 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         private string HandleRecordVideoUrl(string mediaUrl,string downloadName)
         {
-            //const string vodSecretId = "AKIDBF8oHZg5HEwfeQxKVSCwU2f6KK5xc6MQ";
-            //const string vodSecretKey = "xe8GPOr8EC0hBRUM0SacSAj9RXVFm9LK";
-            //const int vodAppId = 1307414951;
             const string urlKey = "BVOd6Rbjd5bwVW6ynCcj";
             long timeStamp = Convert.ToInt64((DateTime.Now.AddDays(1) - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds);
             string[] parts = mediaUrl.Split('/');
