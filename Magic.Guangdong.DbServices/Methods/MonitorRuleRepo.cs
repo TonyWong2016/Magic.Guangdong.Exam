@@ -35,26 +35,38 @@ namespace Magic.Guangdong.DbServices.Methods
                 });
         }
 
-        public async Task<int> CreateMonitorRole(MainMonitorDto dto)
+        public async Task<bool> CreateMonitorRole(MainMonitorDto dto)
         {
-            if(dto.MonitorStreamConfigDtos.Count == 0)
+            var monitorRule = new MonitorRule()
             {
-                return await addItemAsync(new MonitorRule()
-                {
-                    Id = dto.Id,
-                    Title = dto.Title,
-                    Description = dto.Description,
-                    StreamMix = 0,
-                    StreamCount = 0,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                });
+                Id = dto.Id,
+                Title = dto.Title,
+                Description = dto.Description,
+                StreamMix = 0,
+                StreamCount = 0,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+            if (dto.MonitorStreamConfigDtos.Count == 0)
+            {
+                return await addItemAsync(monitorRule) ==1 ;
             }
             using(var uow = fsql.Get(conn_str).CreateUnitOfWork())
             {
                 try
                 {
+                    var monitorStreamConfigRepo = uow.GetRepository<MonitorStreamConfig>();
+                    var monitorRuleRepo = uow.GetRepository<MonitorRule>();
+                    List<MonitorStreamConfig> monitorStreamConfigs = dto.MonitorStreamConfigDtos.Adapt<List<MonitorStreamConfig>>();
+                    foreach (var item in monitorStreamConfigs)
+                    {                        
+                        item.MonitorRuleId = monitorRule.Id;                       
+                    }
+                    await monitorStreamConfigRepo.InsertAsync(monitorStreamConfigs);
+                    await monitorRuleRepo.InsertAsync(monitorRule);
 
+                    uow.Commit();
+                    return true;
                 }
                 catch(Exception ex)
                 {
