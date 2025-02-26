@@ -2,6 +2,7 @@
 using Essensoft.Paylink.Alipay.Domain;
 using Magic.Guangdong.Assistant;
 using Magic.Guangdong.Assistant.IService;
+using Magic.Guangdong.Assistant.Lib;
 using Magic.Guangdong.DbServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +17,14 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
         private readonly IResponseHelper _resp;
         private readonly IFileRepo _fileRepo;
         private readonly IRedisCachingProvider _redisProvider;
+        private readonly CloudConfigFactory _cloudConfigFactory;
 
-
-        public ReceiveApiController(IResponseHelper responseHelper, IFileRepo fileRepo,IRedisCachingProvider redisCachingProvider)
+        public ReceiveApiController(IResponseHelper responseHelper, IFileRepo fileRepo,IRedisCachingProvider redisCachingProvider, CloudConfigFactory cloudConfigFactory)
         {
             _resp = responseHelper;
             _fileRepo = fileRepo;
             _redisProvider = redisCachingProvider;
+            _cloudConfigFactory = cloudConfigFactory;
         }
 
         [AllowAnonymous]
@@ -78,7 +80,9 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             string us = Utils.GenerateRandomCodeFast(10);
             //Console.WriteLine(urlKey + dir + t + us);
             //签名=md5(防盗key + dir + 16进制时间戳 + 随机数)
-            string sign = Security.GenerateMD5Hash("BVOd6Rbjd5bwVW6ynCcj" + dir + t + us);
+#pragma warning disable CS8602 // 解引用可能出现空引用。
+            string sign = Security.GenerateMD5Hash(_cloudConfigFactory.GetConfigByPurpose("vod").AK + dir + t + us);
+#pragma warning restore CS8602 // 解引用可能出现空引用。
             string downloadUrl = $"{mediaUrl}?download_name={downloadName}&t={t}&us={us}&sign={sign}";
             Logger.Warning(downloadUrl);
             return downloadUrl;
