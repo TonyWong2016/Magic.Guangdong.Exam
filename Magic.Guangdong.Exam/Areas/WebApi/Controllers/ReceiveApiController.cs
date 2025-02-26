@@ -64,7 +64,6 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
 
         private string HandleRecordVideoUrl(string mediaUrl,string downloadName)
         {
-            const string urlKey = "BVOd6Rbjd5bwVW6ynCcj";
             long timeStamp = Convert.ToInt64((DateTime.Now.AddDays(1) - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds);
             string[] parts = mediaUrl.Split('/');
             string dir = "/";
@@ -79,7 +78,7 @@ namespace Magic.Guangdong.Exam.Areas.WebApi.Controllers
             string us = Utils.GenerateRandomCodeFast(10);
             //Console.WriteLine(urlKey + dir + t + us);
             //签名=md5(防盗key + dir + 16进制时间戳 + 随机数)
-            string sign = Security.GenerateMD5Hash(urlKey + dir + t + us);
+            string sign = Security.GenerateMD5Hash("BVOd6Rbjd5bwVW6ynCcj" + dir + t + us);
             string downloadUrl = $"{mediaUrl}?download_name={downloadName}&t={t}&us={us}&sign={sign}";
             Logger.Warning(downloadUrl);
             return downloadUrl;
