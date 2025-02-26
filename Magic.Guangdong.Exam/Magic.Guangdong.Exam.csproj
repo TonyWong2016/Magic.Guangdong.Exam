@@ -60,6 +60,8 @@
   <ItemGroup>
     <Folder Include="Areas\Exam\Models\" />
     <Folder Include="Areas\Exam\Views\Examination\" />
+    <Folder Include="Areas\Monitor\Views\" />
+    <Folder Include="Areas\Monitor\Models\" />
     <Folder Include="Areas\Report\Models\" />
     <Folder Include="Areas\System\Models\" />
   </ItemGroup>

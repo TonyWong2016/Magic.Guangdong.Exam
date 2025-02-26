@@ -146,6 +146,14 @@ namespace Magic.Guangdong.DbServices.Entities
 		/// </summary>
 		[JsonProperty]
 		public int LoginRequired { get; set; } = 1;
+
+
+        /// <summary>
+        /// 是否绑定了监控规则
+        /// </summary>
+        [JsonProperty]
+        public long MonitorRuleId { get; set; } = 0;
+
     }
 
 	public enum ExamStatus

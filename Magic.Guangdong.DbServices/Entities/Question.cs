@@ -90,7 +90,13 @@ namespace Magic.Guangdong.DbServices.Entities
         [JsonProperty, Column(DbType = "varchar(50)")]
 		public string UpdatedBy { get; set; }
 
-	}
+        /// <summary>
+        /// 当题目所在考试已经设置了监控规则，则该规则失效
+        /// </summary>
+        [JsonProperty]
+        public long MonitorRuleId { get; set; } = 0;
+
+    }
 
 	public enum IsOpen
 	{
